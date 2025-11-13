@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - I AM MUGERA</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/c4CzSQzq/Whats-App-Image-2025-11-13-at-14-53-50-1-removebg-preview.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --gray: #f5f5f5;
+            --dark-gray: #333333;
+            --light-gray: #e0e0e0;
+            --accent: #25D366;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--white);
+            color: var(--black);
+            line-height: 1.6;
+            padding-bottom: 70px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--white);
+            color: var(--black);
+            padding: 0.5rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid var(--light-gray);
+            height: 60px;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            height: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 40px;
+            width: auto;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem 0;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: var(--dark-gray);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Shop Categories */
+        .shop-categories {
+            display: flex;
+            gap: 10px;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+            justify-content: center;
+        }
+
+        .shop-categories::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-btn {
+            background: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 20px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .category-btn.active {
+            background: var(--black);
+            color: var(--white);
+            border-color: var(--black);
+        }
+
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .product-card {
+            background-color: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--accent);
+            color: var(--white);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+
+        .product-content {
+            padding: 1.5rem;
+        }
+
+        .product-category {
+            color: var(--dark-gray);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .product-description {
+            color: var(--dark-gray);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .product-price {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .current-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--black);
+        }
+
+        .original-price {
+            font-size: 1rem;
+            color: var(--dark-gray);
+            text-decoration: line-through;
+        }
+
+        .discount {
+            background: var(--black);
+            color: var(--white);
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .product-sizes {
+            margin-bottom: 1.5rem;
+        }
+
+        .sizes-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .size-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .size-option {
+            background: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .size-option.active {
+            background: var(--black);
+            color: var(--white);
+            border-color: var(--black);
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .buy-now-btn {
+            flex: 1;
+            background-color: var(--black);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .buy-now-btn:hover {
+            background-color: var(--dark-gray);
+        }
+
+        .whatsapp-btn {
+            background-color: var(--accent);
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1.3rem;
+            transition: transform 0.3s;
+        }
+
+        .whatsapp-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Featured Products */
+        .featured-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        /* Shipping Info */
+        .shipping-info {
+            background-color: var(--gray);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .shipping-info h3 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .shipping-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .shipping-feature {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--black);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--white);
+            display: flex;
+            justify-content: space-around;
+            padding: 0.8rem 0;
+            z-index: 100;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.8rem;
+            transition: color 0.3s;
+        }
+
+        .nav-icon {
+            font-size: 1.3rem;
+            margin-bottom: 3px;
+        }
+
+        .nav-item.active {
+            color: var(--black);
+        }
+
+        .nav-item:hover {
+            color: var(--black);
+        }
+
+        /* Contact Section */
+        .contact-section {
+            background-color: var(--gray);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .contact-section h3 {
+            margin-bottom: 1rem;
+        }
+
+        .contact-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 1rem;
+        }
+
+        .contact-btn {
+            background-color: var(--black);
+            color: var(--white);
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s;
+        }
+
+        .contact-btn:hover {
+            background-color: var(--dark-gray);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1.5rem;
+            }
+            
+            .shop-categories {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .product-actions {
+                flex-direction: column;
+            }
+            
+            .whatsapp-btn {
+                width: 100%;
+                height: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <img src="https://i.postimg.cc/c4CzSQzq/Whats-App-Image-2025-11-13-at-14-53-50-1-removebg-preview.png" alt="I AM MUGERA Logo">
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>I AM MUGERA Shop</h1>
+            <p>Premium apparel and merchandise that represents the movement. Wear your purpose.</p>
+        </div>
+
+        <!-- Shop Categories -->
+        <div class="shop-categories">
+            <button class="category-btn active" data-category="all">All Products</button>
+            <button class="category-btn" data-category="clothing">Clothing</button>
+            <button class="category-btn" data-category="accessories">Accessories</button>
+            <button class="category-btn" data-category="limited">Limited Edition</button>
+            <button class="category-btn" data-category="new">New Arrivals</button>
+        </div>
+
+        <!-- Featured Products -->
+        <div class="featured-section">
+            <h2 class="section-title">Featured Collection</h2>
+            <div class="products-grid">
+                <!-- Product 1 -->
+                <div class="product-card" data-category="clothing limited">
+                    <div class="product-badge">Limited Edition</div>
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Signature T-Shirt">
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">Clothing</div>
+                        <h3 class="product-title">Signature Black T-Shirt</h3>
+                        <p class="product-description">Premium cotton t-shirt with the iconic I AM MUGERA logo. Comfortable, durable, and made to last.</p>
+                        <div class="product-price">
+                            <span class="current-price">KSh 2,500</span>
+                            <span class="original-price">KSh 3,000</span>
+                            <span class="discount">17% OFF</span>
+                        </div>
+                        <div class="product-sizes">
+                            <div class="sizes-title">Available Sizes:</div>
+                            <div class="size-options">
+                                <span class="size-option active">S</span>
+                                <span class="size-option">M</span>
+                                <span class="size-option">L</span>
+                                <span class="size-option">XL</span>
+                                <span class="size-option">XXL</span>
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <button class="buy-now-btn">
+                                <i class="fas fa-shopping-cart"></i>
+                                Buy Now
+                            </button>
+                            <a href="https://wa.me/254727211191?text=Hi%20Mugera,%20I%20want%20to%20buy%20the%20Signature%20Black%20T-Shirt" class="whatsapp-btn">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="product-card" data-category="clothing new">
+                    <div class="product-badge">New</div>
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1556821840-3a63f95609a7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Premium Hoodie">
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">Clothing</div>
+                        <h3 class="product-title">Awakening Hoodie</h3>
+                        <p class="product-description">Comfortable heavyweight hoodie perfect for everyday wear. Features exclusive "Awakened Man" design.</p>
+                        <div class="product-price">
+                            <span class="current-price">KSh 4,500</span>
+                        </div>
+                        <div class="product-sizes">
+                            <div class="sizes-title">Available Sizes:</div>
+                            <div class="size-options">
+                                <span class="size-option">M</span>
+                                <span class="size-option active">L</span>
+                                <span class="size-option">XL</span>
+                                <span class="size-option">XXL</span>
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <button class="buy-now-btn">
+                                <i class="fas fa-shopping-cart"></i>
+                                Buy Now
+                            </button>
+                            <a href="https://wa.me/254727211191?text=Hi%20Mugera,%20I%20want%20to%20buy%20the%20Awakening%20Hoodie" class="whatsapp-btn">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="product-card" data-category="accessories">
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Signature Cap">
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">Accessories</div>
+                        <h3 class="product-title">Signature Cap</h3>
+                        <p class="product-description">Adjustable baseball cap with embroidered I AM MUGERA logo. Perfect for completing your look.</p>
+                        <div class="product-price">
+                            <span class="current-price">KSh 1,800</span>
+                        </div>
+                        <div class="product-sizes">
+                            <div class="sizes-title">Color Options:</div>
+                            <div class="size-options">
+                                <span class="size-option active">Black</span>
+                                <span class="size-option">Navy</span>
+                                <span class="size-option">Olive</span>
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <button class="buy-now-btn">
+                                <i class="fas fa-shopping-cart"></i>
+                                Buy Now
+                            </button>
+                            <a href="https://wa.me/254727211191?text=Hi%20Mugera,%20I%20want%20to%20buy%20the%20Signature%20Cap" class="whatsapp-btn">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 4 -->
+                <div class="product-card" data-category="clothing limited">
+                    <div class="product-badge">Limited Edition</div>
+                    <div class="product-image">
+                        <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="White Logo Tee">
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">Clothing</div>
+                        <h3 class="product-title">White Logo T-Shirt</h3>
+                        <p class="product-description">Clean white tee with minimalist I AM MUGERA branding. Versatile and comfortable for any occasion.</p>
+                        <div class="product-price">
+                            <span class="current-price">KSh 2,200</span>
+                            <span class="original-price">KSh 2,800</span>
+                            <span class="discount">21% OFF</span>
+                        </div>
+                        <div class="product-sizes">
+                            <div class="sizes-title">Available Sizes:</div>
+                            <div class="size-options">
+                                <span class="size-option">S</span>
+                                <span class="size-option active">M</span>
+                                <span class="size-option">L</span>
+                                <span class="size-option">XL</span>
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <button class="buy-now-btn">
+                                <i class="fas fa-shopping-cart"></i>
+                                Buy Now
+                            </button>
+                            <a href="https://wa.me/254727211191?text=Hi%20Mugera,%20I%20want%20to%20buy%20the%20White%20Logo%20T-Shirt" class="whatsapp-btn">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping Information -->
+        <div class="shipping-info">
+            <h3>Fast & Reliable Shipping</h3>
+            <p>We deliver across Kenya with secure packaging and tracking</p>
+            <div class="shipping-features">
+                <div class="shipping-feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <span>Free Shipping</span>
+                    <small>Orders over KSh 5,000</small>
+                </div>
+                <div class="shipping-feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <span>Nationwide Delivery</span>
+                    <small>Across Kenya</small>
+                </div>
+                <div class="shipping-feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-undo-alt"></i>
+                    </div>
+                    <span>Easy Returns</span>
+                    <small>7-day return policy</small>
+                </div>
+                <div class="shipping-feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <span>Secure Payment</span>
+                    <small>Safe transactions</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="contact-section">
+            <h3>Need Help With Your Order?</h3>
+            <p>Have questions about sizing, shipping, or custom orders? Contact us directly:</p>
+            <div class="contact-buttons">
+                <a href="https://wa.me/254727211191" class="contact-btn">
+                    <i class="fab fa-whatsapp"></i> WhatsApp Support
+                </a>
+                <a href="mailto:shop@iammugera.com" class="contact-btn">
+                    <i class="fas fa-envelope"></i> Email Us
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fas fa-home nav-icon"></i>
+            <span>Home</span>
+        </a>
+        <a href="events.html" class="nav-item">
+            <i class="fas fa-calendar-alt nav-icon"></i>
+            <span>Events</span>
+        </a>
+        <a href="shop.html" class="nav-item active">
+            <i class="fas fa-store nav-icon"></i>
+            <span>Shop</span>
+        </a>
+        <a href="about.html" class="nav-item">
+            <i class="fas fa-info-circle nav-icon"></i>
+            <span>About</span>
+        </a>
+    </nav>
+
+    <script>
+        // Product category filtering
+        document.querySelectorAll('.category-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // Update active button
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // Filter products
+                const category = this.getAttribute('data-category');
+                const productCards = document.querySelectorAll('.product-card');
+                
+                if (category === 'all') {
+                    productCards.forEach(card => {
+                        card.style.display = 'block';
+                    });
+                } else {
+                    productCards.forEach(card => {
+                        const cardCategories = card.getAttribute('data-category').split(' ');
+                        if (cardCategories.includes(category)) {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                }
+            });
+        });
+
+        // Size selection
+        document.querySelectorAll('.size-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const sizeOptions = this.closest('.size-options').querySelectorAll('.size-option');
+                sizeOptions.forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // Buy Now button functionality
+        document.querySelectorAll('.buy-now-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const productCard = this.closest('.product-card');
+                const productTitle = productCard.querySelector('.product-title').textContent;
+                const selectedSize = productCard.querySelector('.size-option.active').textContent;
+                
+                // Open WhatsApp with product details
+                const message = `Hi Mugera, I want to buy: ${productTitle} (Size: ${selectedSize})`;
+                window.open(`https://wa.me/254727211191?text=${encodeURIComponent(message)}`, '_blank');
+            });
+        });
+
+        // Bottom nav active state
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Only prevent default for current page navigation
+                if (this.href === window.location.href) {
+                    e.preventDefault();
+                }
+                
+                // Update active state visually
+                document.querySelectorAll('.nav-item').forEach(nav => {
+                    nav.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // Add some interactive animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>
