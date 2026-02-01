@@ -4,9 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>I AM MUGERA | Public Speaking, Life Coaching & Author</title>
-    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/c4CzSQzq/Whats-App-Image-2025-11-13-at-14-53-50-1-removebg-preview.png">
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/85hH3msy/20251121_0818_HD_Premium_Portrait_remix_01kajddmedf97rr1b00axpavek.webp">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Import Firebase SDK -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, update, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.firebaseio.com",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        // Make database available globally
+        window.firebaseDatabase = database;
+        window.firebaseRef = ref;
+        window.firebaseOnValue = onValue;
+        window.firebaseUpdate = update;
+        window.firebaseGet = get;
+        window.firebaseChild = child;
+    </script>
+    
     <style>
         :root {
             --black: #0a0a0a;
@@ -49,7 +80,204 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Modern Typography */
+        /* Admin Panel */
+        .admin-panel {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            box-shadow: var(--shadow-xl);
+            z-index: 9999;
+            width: 350px;
+            display: none;
+            border: 1px solid var(--light-gray);
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-toggle {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--gold), #b8860b);
+            color: var(--black);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            z-index: 10000;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+        }
+
+        .admin-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .admin-header h3 {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .admin-close {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .admin-close:hover {
+            color: var(--gold);
+        }
+
+        .admin-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--gray);
+            border-radius: var(--radius-sm);
+        }
+
+        .admin-section h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-input-group {
+            margin-bottom: 12px;
+        }
+
+        .admin-input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+
+        .admin-input-group input,
+        .admin-input-group textarea,
+        .admin-input-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--radius-sm);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            background: var(--white);
+        }
+
+        .admin-input-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .admin-input-group input:focus,
+        .admin-input-group textarea:focus,
+        .admin-input-group select:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.1);
+        }
+
+        .admin-btn {
+            background: linear-gradient(135deg, var(--gold), #b8860b);
+            color: var(--black);
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .admin-btn.secondary {
+            background: var(--light-gray);
+            color: var(--secondary);
+            margin-top: 10px;
+        }
+
+        .admin-btn.secondary:hover {
+            background: var(--secondary);
+            color: var(--white);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--gold), #b8860b);
+            color: var(--black);
+            padding: 15px 20px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 10001;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            max-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: var(--white);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: var(--white);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Continue with all previous styles... */
         h1, h2, h3, h4, h5, h6 {
             font-weight: 700;
             line-height: 1.2;
@@ -80,7 +308,6 @@
             z-index: -1;
         }
 
-        /* Modern Header */
         header {
             background-color: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -194,7 +421,6 @@
             box-shadow: var(--shadow-xl);
         }
 
-        /* Modern Hero Section */
         .hero {
             height: 100vh;
             min-height: 800px;
@@ -287,7 +513,6 @@
             color: var(--black);
         }
 
-        /* Modern Stats Section */
         .stats {
             padding: 6rem 2rem;
             background: linear-gradient(135deg, var(--gray) 0%, var(--white) 100%);
@@ -343,7 +568,6 @@
             font-weight: 600;
         }
 
-        /* Modern About Section */
         .about {
             padding: 8rem 2rem;
             background-color: var(--white);
@@ -417,7 +641,6 @@
             line-height: 1.8;
         }
 
-        /* Modern Programs Section */
         .programs {
             padding: 8rem 2rem;
             background: linear-gradient(135deg, var(--gray) 0%, #f5f5f5 100%);
@@ -526,7 +749,6 @@
             color: var(--primary);
         }
 
-        /* Modern Services Section */
         .services {
             padding: 8rem 2rem;
             background-color: var(--white);
@@ -595,7 +817,6 @@
             color: var(--primary);
         }
 
-        /* Modern Author Section */
         .author-section {
             padding: 8rem 2rem;
             background: linear-gradient(135deg, var(--primary) 0%, #1e293b 100%);
@@ -717,7 +938,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Modern Songa Community Section */
         .songa-community {
             padding: 8rem 2rem;
             background-color: var(--white);
@@ -770,7 +990,6 @@
             font-weight: 600;
         }
 
-        /* Modern Testimonials */
         .testimonials {
             padding: 8rem 2rem;
             background: linear-gradient(135deg, var(--gray) 0%, #f5f5f5 100%);
@@ -848,7 +1067,6 @@
             margin: 0;
         }
 
-        /* Modern Contact Section */
         .contact {
             padding: 8rem 2rem;
             background-color: var(--white);
@@ -974,7 +1192,6 @@
             box-shadow: var(--shadow-lg);
         }
 
-        /* Modern Footer */
         footer {
             background: linear-gradient(135deg, var(--primary) 0%, #1e293b 100%);
             color: var(--white);
@@ -1072,7 +1289,6 @@
             font-size: 0.875rem;
         }
 
-        /* Mobile Menu */
         .mobile-menu-btn {
             display: none;
             background: none;
@@ -1115,6 +1331,11 @@
             
             .about-image {
                 order: -1;
+            }
+            
+            .admin-panel {
+                width: 300px;
+                right: 10px;
             }
         }
 
@@ -1188,6 +1409,18 @@
                 grid-template-columns: 1fr;
                 gap: 3rem;
             }
+            
+            .admin-toggle {
+                top: 80px;
+                right: 10px;
+                width: 40px;
+                height: 40px;
+            }
+            
+            .admin-panel {
+                width: calc(100% - 20px);
+                right: 10px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1219,7 +1452,6 @@
             }
         }
 
-        /* Animation Classes */
         .fade-in {
             opacity: 0;
             transform: translateY(20px);
@@ -1231,7 +1463,6 @@
             transform: translateY(0);
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 10px;
         }
@@ -1251,12 +1482,112 @@
     </style>
 </head>
 <body>
+    <!-- Admin Panel -->
+    <button class="admin-toggle" id="adminToggle">
+        <i class="fas fa-cog"></i>
+    </button>
+    
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <h3><i class="fas fa-cog"></i> Admin Dashboard</h3>
+            <button class="admin-close" id="adminClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="admin-section">
+            <h4>Hero Section</h4>
+            <div class="admin-input-group">
+                <label>Tagline</label>
+                <input type="text" id="heroTagline" value="Public Speaking, Life Coaching & Author">
+            </div>
+            <div class="admin-input-group">
+                <label>Title</label>
+                <input type="text" id="heroTitle" value="I AM MUGERA">
+            </div>
+            <div class="admin-input-group">
+                <label>Subtitle</label>
+                <textarea id="heroSubtitle">Empowering entrepreneurs and professionals through transformative speaking, strategic coaching, personal development, and impactful writing.</textarea>
+            </div>
+            <button class="admin-btn" onclick="saveHero()">Save Hero</button>
+        </div>
+        
+        <div class="admin-section">
+            <h4>Statistics</h4>
+            <div class="admin-input-group">
+                <label>Speaking Engagements</label>
+                <input type="text" id="stat1" value="500+">
+            </div>
+            <div class="admin-input-group">
+                <label>Clients Empowered</label>
+                <input type="text" id="stat2" value="1000+">
+            </div>
+            <div class="admin-input-group">
+                <label>Published Articles</label>
+                <input type="text" id="stat3" value="50+">
+            </div>
+            <div class="admin-input-group">
+                <label>Years Experience</label>
+                <input type="text" id="stat4" value="15+">
+            </div>
+            <button class="admin-btn" onclick="saveStats()">Save Statistics</button>
+        </div>
+        
+        <div class="admin-section">
+            <h4>Contact Information</h4>
+            <div class="admin-input-group">
+                <label>Email</label>
+                <input type="email" id="contactEmail" value="info.iammugera@gmail.com">
+            </div>
+            <div class="admin-input-group">
+                <label>Phone</label>
+                <input type="text" id="contactPhone" value="+254 727 211 191">
+            </div>
+            <div class="admin-input-group">
+                <label>Location</label>
+                <input type="text" id="contactLocation" value="Nairobi, Kenya">
+            </div>
+            <button class="admin-btn" onclick="saveContact()">Save Contact Info</button>
+        </div>
+        
+        <div class="admin-section">
+            <h4>Content Update</h4>
+            <select id="contentSection" class="admin-input-group">
+                <option value="about">About Section</option>
+                <option value="programs">Programs</option>
+                <option value="articles">Articles</option>
+                <option value="books">Books</option>
+                <option value="testimonials">Testimonials</option>
+                <option value="songa">Songa Community</option>
+            </select>
+            <div class="admin-input-group">
+                <label>Content</label>
+                <textarea id="contentText" rows="5"></textarea>
+            </div>
+            <button class="admin-btn" onclick="saveContent()">Save Content</button>
+            <button class="admin-btn secondary" onclick="loadContent()">Load Current</button>
+        </div>
+        
+        <div class="admin-section">
+            <h4>Database Actions</h4>
+            <button class="admin-btn" onclick="loadFromFirebase()">Load from Firebase</button>
+            <button class="admin-btn secondary" onclick="saveToFirebase()">Save All to Firebase</button>
+            <button class="admin-btn secondary" onclick="resetToDefault()">Reset to Default</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Changes saved successfully!</span>
+    </div>
+
     <!-- Header -->
     <header>
         <div class="header-container">
             <div class="logo-container">
                 <div class="logo">
-                    <img src="https://i.postimg.cc/c4CzSQzq/Whats-App-Image-2025-11-13-at-14-53-50-1-removebg-preview.png" alt="I AM MUGERA Logo">
+                    <img src="https://i.postimg.cc/85hH3msy/20251121_0818_HD_Premium_Portrait_remix_01kajddmedf97rr1b00axpavek.webp" alt="I AM MUGERA Logo">
                 </div>
                 <img src="https://i.postimg.cc/66rJN5PW/signature-1.png" alt="I AM MUGERA Signature" class="brand-signature">
             </div>
@@ -1287,9 +1618,9 @@
     <!-- Hero Section -->
     <section class="hero" id="home">
         <div class="hero-content">
-            <div class="hero-tagline">Public Speaking, Life Coaching & Author</div>
-            <h1>I AM <span class="highlight">MUGERA</span></h1>
-            <div class="hero-subtitle">
+            <div class="hero-tagline" id="heroTaglineDisplay">Public Speaking, Life Coaching & Author</div>
+            <h1 id="heroTitleDisplay">I AM <span class="highlight">MUGERA</span></h1>
+            <div class="hero-subtitle" id="heroSubtitleDisplay">
                 Empowering entrepreneurs and professionals through transformative speaking, strategic coaching, personal development, and impactful writing.
             </div>
             <div class="hero-buttons">
@@ -1309,19 +1640,19 @@
     <section class="stats">
         <div class="stats-container">
             <div class="stat-item fade-in">
-                <div class="stat-number">500+</div>
+                <div class="stat-number" id="stat1Display">500+</div>
                 <div class="stat-label">Speaking Engagements</div>
             </div>
             <div class="stat-item fade-in">
-                <div class="stat-number">1000+</div>
+                <div class="stat-number" id="stat2Display">1000+</div>
                 <div class="stat-label">Clients Empowered</div>
             </div>
             <div class="stat-item fade-in">
-                <div class="stat-number">50+</div>
+                <div class="stat-number" id="stat3Display">50+</div>
                 <div class="stat-label">Published Articles</div>
             </div>
             <div class="stat-item fade-in">
-                <div class="stat-number">15+</div>
+                <div class="stat-number" id="stat4Display">15+</div>
                 <div class="stat-label">Years Experience</div>
             </div>
         </div>
@@ -1335,9 +1666,9 @@
             </div>
             <div class="about-content">
                 <h2>About <span class="highlight">Mugera</span></h2>
-                <p>I AM MUGERA represents a brand dedicated to transformative public speaking, life coaching, and authorship, specializing in entrepreneurship and personal development. With over 15 years of experience, the brand has empowered countless individuals and organizations to reach their highest potential.</p>
-                <p>As an author, Mugera combines practical business strategies with deep personal transformation techniques, focusing on aligning professional ambitions with personal values and purpose.</p>
-                <p>Through keynote speeches, workshops, specialized programs, and impactful writing, I AM MUGERA helps entrepreneurs build resilient businesses while developing the mindset and skills needed for sustainable success.</p>
+                <p id="aboutText1">I AM MUGERA represents a brand dedicated to transformative public speaking, life coaching, and authorship, specializing in entrepreneurship and personal development. With over 15 years of experience, the brand has empowered countless individuals and organizations to reach their highest potential.</p>
+                <p id="aboutText2">As an author, Mugera combines practical business strategies with deep personal transformation techniques, focusing on aligning professional ambitions with personal values and purpose.</p>
+                <p id="aboutText3">Through keynote speeches, workshops, specialized programs, and impactful writing, I AM MUGERA helps entrepreneurs build resilient businesses while developing the mindset and skills needed for sustainable success.</p>
                 <a href="#author" class="cta-button" style="margin-top: 2rem;">
                     <i class="fas fa-book-open"></i>
                     <span>Explore Writings</span>
@@ -1358,7 +1689,7 @@
                 </div>
                 <div class="program-tag">Personal Development</div>
                 <h3>Inspired.Me</h3>
-                <p>A transformative personal development program designed to ignite passion and purpose. This initiative helps individuals discover their unique strengths, overcome limiting beliefs, and create actionable plans for personal and professional growth.</p>
+                <p id="program1Text">A transformative personal development program designed to ignite passion and purpose. This initiative helps individuals discover their unique strengths, overcome limiting beliefs, and create actionable plans for personal and professional growth.</p>
             </div>
             <div class="program-card fade-in">
                 <div class="program-icon">
@@ -1366,7 +1697,7 @@
                 </div>
                 <div class="program-tag">Entrepreneurship</div>
                 <h3>Business Mastery</h3>
-                <p>Comprehensive entrepreneurship coaching focused on business strategy, leadership development, and sustainable growth. This program equips entrepreneurs with the tools to build resilient businesses that thrive in competitive markets.</p>
+                <p id="program2Text">Comprehensive entrepreneurship coaching focused on business strategy, leadership development, and sustainable growth. This program equips entrepreneurs with the tools to build resilient businesses that thrive in competitive markets.</p>
             </div>
             <div class="program-card fade-in">
                 <div class="program-icon">
@@ -1374,7 +1705,7 @@
                 </div>
                 <div class="program-tag">Leadership</div>
                 <h3>Executive Presence</h3>
-                <p>Leadership development program designed to enhance executive communication, strategic thinking, and team leadership capabilities. This program transforms professionals into confident, impactful leaders.</p>
+                <p id="program3Text">Leadership development program designed to enhance executive communication, strategic thinking, and team leadership capabilities. This program transforms professionals into confident, impactful leaders.</p>
             </div>
         </div>
     </section>
@@ -1396,7 +1727,7 @@
                                 <span>June 2024</span>
                             </div>
                             <h4 class="article-title">The Mindset of Successful Entrepreneurs</h4>
-                            <p class="article-excerpt">Explore the psychological patterns and mental frameworks that distinguish highly successful entrepreneurs from the rest. Learn practical strategies for developing an entrepreneurial mindset.</p>
+                            <p class="article-excerpt" id="article1Text">Explore the psychological patterns and mental frameworks that distinguish highly successful entrepreneurs from the rest. Learn practical strategies for developing an entrepreneurial mindset.</p>
                         </div>
                         
                         <div class="article-item fade-in">
@@ -1405,7 +1736,7 @@
                                 <span>April 2024</span>
                             </div>
                             <h4 class="article-title">Building Emotional Intelligence in Leadership</h4>
-                            <p class="article-excerpt">Discover how emotional intelligence transforms leadership effectiveness and team dynamics. Practical techniques for developing self-awareness and empathy in professional settings.</p>
+                            <p class="article-excerpt" id="article2Text">Discover how emotional intelligence transforms leadership effectiveness and team dynamics. Practical techniques for developing self-awareness and empathy in professional settings.</p>
                         </div>
                         
                         <div class="article-item fade-in">
@@ -1414,7 +1745,7 @@
                                 <span>February 2024</span>
                             </div>
                             <h4 class="article-title">Navigating Career Transitions with Purpose</h4>
-                            <p class="article-excerpt">A comprehensive guide to making meaningful career changes while maintaining financial stability and personal fulfillment. Strategic approaches for career pivots.</p>
+                            <p class="article-excerpt" id="article3Text">A comprehensive guide to making meaningful career changes while maintaining financial stability and personal fulfillment. Strategic approaches for career pivots.</p>
                         </div>
                         
                         <div class="article-item fade-in">
@@ -1423,7 +1754,7 @@
                                 <span>January 2024</span>
                             </div>
                             <h4 class="article-title">Beyond Balance: Creating Harmony in Busy Lives</h4>
-                            <p class="article-excerpt">Moving beyond the traditional work-life balance concept to create integrated, harmonious living that supports both professional success and personal well-being.</p>
+                            <p class="article-excerpt" id="article4Text">Moving beyond the traditional work-life balance concept to create integrated, harmonious living that supports both professional success and personal well-being.</p>
                         </div>
                     </div>
                 </div>
@@ -1438,7 +1769,7 @@
                                 <span class="coming-soon">Coming 2025</span>
                             </div>
                             <h4 class="book-title">"The Conscious Entrepreneur: Building Business with Purpose"</h4>
-                            <p class="book-description">A revolutionary approach to entrepreneurship that integrates profit with purpose, sustainability with success, and personal values with business vision.</p>
+                            <p class="book-description" id="book1Text">A revolutionary approach to entrepreneurship that integrates profit with purpose, sustainability with success, and personal values with business vision.</p>
                         </div>
                         
                         <div class="book-item fade-in">
@@ -1447,7 +1778,7 @@
                                 <span class="coming-soon">Coming 2025</span>
                             </div>
                             <h4 class="book-title">"Lead from Within: Authentic Leadership for Modern Times"</h4>
-                            <p class="book-description">Exploring the intersection of traditional leadership principles with modern psychological insights to create more effective, compassionate, and impactful leaders.</p>
+                            <p class="book-description" id="book2Text">Exploring the intersection of traditional leadership principles with modern psychological insights to create more effective, compassionate, and impactful leaders.</p>
                         </div>
                         
                         <div class="book-item fade-in">
@@ -1456,7 +1787,7 @@
                                 <span class="coming-soon">Coming 2026</span>
                             </div>
                             <h4 class="book-title">"Awakened Potential: The Journey to Self-Mastery"</h4>
-                            <p class="book-description">A practical guide to personal transformation that combines ancient wisdom with modern psychology to unlock human potential and achieve lasting change.</p>
+                            <p class="book-description" id="book3Text">A practical guide to personal transformation that combines ancient wisdom with modern psychology to unlock human potential and achieve lasting change.</p>
                         </div>
                         
                         <div class="book-item fade-in">
@@ -1465,7 +1796,7 @@
                                 <span class="coming-soon">Coming 2026</span>
                             </div>
                             <h4 class="book-title">"Present Productivity: Achieving More by Doing Less"</h4>
-                            <p class="book-description">Challenging conventional productivity wisdom by introducing mindfulness-based approaches to work that increase effectiveness while reducing burnout.</p>
+                            <p class="book-description" id="book4Text">Challenging conventional productivity wisdom by introducing mindfulness-based approaches to work that increase effectiveness while reducing burnout.</p>
                         </div>
                     </div>
                 </div>
@@ -1508,20 +1839,20 @@
         <div class="songa-container">
             <div class="songa-content">
                 <h2>The <span class="highlight">Songa</span> Community</h2>
-                <p>A transformative community centered on holistic growth through mind, body, and spirit alignment. The Songa Community provides a supportive environment for individuals seeking comprehensive personal development and meaningful connections.</p>
+                <p id="songaText1">A transformative community centered on holistic growth through mind, body, and spirit alignment. The Songa Community provides a supportive environment for individuals seeking comprehensive personal development and meaningful connections.</p>
                 
                 <div class="pillars-grid">
                     <div class="pillar-item fade-in">
                         <h4>Mind Development</h4>
-                        <p>Cultivating mental clarity, strategic thinking, and continuous learning through workshops, book clubs, and thought-provoking discussions.</p>
+                        <p id="pillar1Text">Cultivating mental clarity, strategic thinking, and continuous learning through workshops, book clubs, and thought-provoking discussions.</p>
                     </div>
                     <div class="pillar-item fade-in">
                         <h4>Body Wellness</h4>
-                        <p>Promoting physical health and vitality through fitness programs, nutritional guidance, and holistic wellness practices.</p>
+                        <p id="pillar2Text">Promoting physical health and vitality through fitness programs, nutritional guidance, and holistic wellness practices.</p>
                     </div>
                     <div class="pillar-item fade-in">
                         <h4>Spiritual Growth</h4>
-                        <p>Nurturing inner peace, purpose, and connection through meditation, mindfulness practices, and spiritual exploration.</p>
+                        <p id="pillar3Text">Nurturing inner peace, purpose, and connection through meditation, mindfulness practices, and spiritual exploration.</p>
                     </div>
                 </div>
                 
@@ -1543,38 +1874,38 @@
         </div>
         <div class="testimonials-grid">
             <div class="testimonial-card fade-in">
-                <div class="testimonial-text">
+                <div class="testimonial-text" id="testimonial1Text">
                     "The coaching transformed our approach to business. The insights helped scale our startup while maintaining work-life balance."
                 </div>
                 <div class="testimonial-author">
                     <div class="author-avatar">JM</div>
                     <div class="author-info">
-                        <h4>James Mwangi</h4>
-                        <p>CEO, Tech Solutions Ltd</p>
+                        <h4 id="testimonial1Name">James Mwangi</h4>
+                        <p id="testimonial1Role">CEO, Tech Solutions Ltd</p>
                     </div>
                 </div>
             </div>
             <div class="testimonial-card fade-in">
-                <div class="testimonial-text">
+                <div class="testimonial-text" id="testimonial2Text">
                     "The keynote at our annual conference was outstanding! The message on entrepreneurial resilience resonated with every attendee."
                 </div>
                 <div class="testimonial-author">
                     <div class="author-avatar">SW</div>
                     <div class="author-info">
-                        <h4>Sarah Wambui</h4>
-                        <p>Event Director, Business Leaders Forum</p>
+                        <h4 id="testimonial2Name">Sarah Wambui</h4>
+                        <p id="testimonial2Role">Event Director, Business Leaders Forum</p>
                     </div>
                 </div>
             </div>
             <div class="testimonial-card fade-in">
-                <div class="testimonial-text">
+                <div class="testimonial-text" id="testimonial3Text">
                     "Working with I AM MUGERA was a game-changer. The strategic guidance helped navigate critical business decisions with confidence."
                 </div>
                 <div class="testimonial-author">
                     <div class="author-avatar">DK</div>
                     <div class="author-info">
-                        <h4>David Kariuki</h4>
-                        <p>Founder, Green Energy Solutions</p>
+                        <h4 id="testimonial3Name">David Kariuki</h4>
+                        <p id="testimonial3Role">Founder, Green Energy Solutions</p>
                     </div>
                 </div>
             </div>
@@ -1595,21 +1926,21 @@
                         <i class="fas fa-envelope"></i>
                     </div>
                     <h3>Email</h3>
-                    <p>info.iammugera@gmail.com</p>
+                    <p id="contactEmailDisplay">info.iammugera@gmail.com</p>
                 </div>
                 <div class="contact-option fade-in">
                     <div class="contact-icon">
                         <i class="fas fa-phone"></i>
                     </div>
                     <h3>Phone</h3>
-                    <p>+254 727 211 191</p>
+                    <p id="contactPhoneDisplay">+254 727 211 191</p>
                 </div>
                 <div class="contact-option fade-in">
                     <div class="contact-icon">
                         <i class="fas fa-map-marker-alt"></i>
                     </div>
                     <h3>Location</h3>
-                    <p>Nairobi, Kenya</p>
+                    <p id="contactLocationDisplay">Nairobi, Kenya</p>
                 </div>
             </div>
             
@@ -1661,9 +1992,9 @@
             </div>
             <div class="footer-column">
                 <h3>Contact Info</h3>
-                <p><i class="fas fa-map-marker-alt"></i> Nairobi, Kenya</p>
-                <p><i class="fas fa-phone"></i> +254 727 211 191</p>
-                <p><i class="fas fa-envelope"></i> info.iammugera@gmail.com</p>
+                <p><i class="fas fa-map-marker-alt"></i> <span id="footerLocation">Nairobi, Kenya</span></p>
+                <p><i class="fas fa-phone"></i> <span id="footerPhone">+254 727 211 191</span></p>
+                <p><i class="fas fa-envelope"></i> <span id="footerEmail">info.iammugera@gmail.com</span></p>
             </div>
         </div>
         <div class="copyright">
@@ -1673,6 +2004,351 @@
 
     <!-- JavaScript -->
     <script>
+        // Firebase Database Reference
+        const db = window.firebaseDatabase;
+        
+        // Default content structure for Firebase
+        const defaultContent = {
+            hero: {
+                tagline: "Public Speaking, Life Coaching & Author",
+                title: "I AM MUGERA",
+                subtitle: "Empowering entrepreneurs and professionals through transformative speaking, strategic coaching, personal development, and impactful writing."
+            },
+            stats: {
+                stat1: "500+",
+                stat2: "1000+",
+                stat3: "50+",
+                stat4: "15+"
+            },
+            about: {
+                text1: "I AM MUGERA represents a brand dedicated to transformative public speaking, life coaching, and authorship, specializing in entrepreneurship and personal development. With over 15 years of experience, the brand has empowered countless individuals and organizations to reach their highest potential.",
+                text2: "As an author, Mugera combines practical business strategies with deep personal transformation techniques, focusing on aligning professional ambitions with personal values and purpose.",
+                text3: "Through keynote speeches, workshops, specialized programs, and impactful writing, I AM MUGERA helps entrepreneurs build resilient businesses while developing the mindset and skills needed for sustainable success."
+            },
+            programs: {
+                program1: "A transformative personal development program designed to ignite passion and purpose. This initiative helps individuals discover their unique strengths, overcome limiting beliefs, and create actionable plans for personal and professional growth.",
+                program2: "Comprehensive entrepreneurship coaching focused on business strategy, leadership development, and sustainable growth. This program equips entrepreneurs with the tools to build resilient businesses that thrive in competitive markets.",
+                program3: "Leadership development program designed to enhance executive communication, strategic thinking, and team leadership capabilities. This program transforms professionals into confident, impactful leaders."
+            },
+            articles: {
+                article1: "Explore the psychological patterns and mental frameworks that distinguish highly successful entrepreneurs from the rest. Learn practical strategies for developing an entrepreneurial mindset.",
+                article2: "Discover how emotional intelligence transforms leadership effectiveness and team dynamics. Practical techniques for developing self-awareness and empathy in professional settings.",
+                article3: "A comprehensive guide to making meaningful career changes while maintaining financial stability and personal fulfillment. Strategic approaches for career pivots.",
+                article4: "Moving beyond the traditional work-life balance concept to create integrated, harmonious living that supports both professional success and personal well-being."
+            },
+            books: {
+                book1: "A revolutionary approach to entrepreneurship that integrates profit with purpose, sustainability with success, and personal values with business vision.",
+                book2: "Exploring the intersection of traditional leadership principles with modern psychological insights to create more effective, compassionate, and impactful leaders.",
+                book3: "A practical guide to personal transformation that combines ancient wisdom with modern psychology to unlock human potential and achieve lasting change.",
+                book4: "Challenging conventional productivity wisdom by introducing mindfulness-based approaches to work that increase effectiveness while reducing burnout."
+            },
+            songa: {
+                text1: "A transformative community centered on holistic growth through mind, body, and spirit alignment. The Songa Community provides a supportive environment for individuals seeking comprehensive personal development and meaningful connections.",
+                pillar1: "Cultivating mental clarity, strategic thinking, and continuous learning through workshops, book clubs, and thought-provoking discussions.",
+                pillar2: "Promoting physical health and vitality through fitness programs, nutritional guidance, and holistic wellness practices.",
+                pillar3: "Nurturing inner peace, purpose, and connection through meditation, mindfulness practices, and spiritual exploration."
+            },
+            testimonials: {
+                testimonial1: {
+                    text: '"The coaching transformed our approach to business. The insights helped scale our startup while maintaining work-life balance."',
+                    name: "James Mwangi",
+                    role: "CEO, Tech Solutions Ltd"
+                },
+                testimonial2: {
+                    text: '"The keynote at our annual conference was outstanding! The message on entrepreneurial resilience resonated with every attendee."',
+                    name: "Sarah Wambui",
+                    role: "Event Director, Business Leaders Forum"
+                },
+                testimonial3: {
+                    text: '"Working with I AM MUGERA was a game-changer. The strategic guidance helped navigate critical business decisions with confidence."',
+                    name: "David Kariuki",
+                    role: "Founder, Green Energy Solutions"
+                }
+            },
+            contact: {
+                email: "info.iammugera@gmail.com",
+                phone: "+254 727 211 191",
+                location: "Nairobi, Kenya"
+            }
+        };
+
+        // Toast Notification System
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = 'toast show ' + type;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Admin Panel Toggle
+        const adminToggle = document.getElementById('adminToggle');
+        const adminPanel = document.getElementById('adminPanel');
+        const adminClose = document.getElementById('adminClose');
+
+        adminToggle.addEventListener('click', () => {
+            adminPanel.classList.toggle('active');
+        });
+
+        adminClose.addEventListener('click', () => {
+            adminPanel.classList.remove('active');
+        });
+
+        // Save Hero Section
+        function saveHero() {
+            const tagline = document.getElementById('heroTagline').value;
+            const title = document.getElementById('heroTitle').value;
+            const subtitle = document.getElementById('heroSubtitle').value;
+            
+            document.getElementById('heroTaglineDisplay').textContent = tagline;
+            document.getElementById('heroTitleDisplay').innerHTML = `${title} <span class="highlight">MUGERA</span>`;
+            document.getElementById('heroSubtitleDisplay').textContent = subtitle;
+            
+            showToast('Hero section updated successfully!');
+        }
+
+        // Save Statistics
+        function saveStats() {
+            const stat1 = document.getElementById('stat1').value;
+            const stat2 = document.getElementById('stat2').value;
+            const stat3 = document.getElementById('stat3').value;
+            const stat4 = document.getElementById('stat4').value;
+            
+            document.getElementById('stat1Display').textContent = stat1;
+            document.getElementById('stat2Display').textContent = stat2;
+            document.getElementById('stat3Display').textContent = stat3;
+            document.getElementById('stat4Display').textContent = stat4;
+            
+            showToast('Statistics updated successfully!');
+        }
+
+        // Save Contact Information
+        function saveContact() {
+            const email = document.getElementById('contactEmail').value;
+            const phone = document.getElementById('contactPhone').value;
+            const location = document.getElementById('contactLocation').value;
+            
+            document.getElementById('contactEmailDisplay').textContent = email;
+            document.getElementById('contactPhoneDisplay').textContent = phone;
+            document.getElementById('contactLocationDisplay').textContent = location;
+            document.getElementById('footerEmail').textContent = email;
+            document.getElementById('footerPhone').textContent = phone;
+            document.getElementById('footerLocation').textContent = location;
+            
+            showToast('Contact information updated successfully!');
+        }
+
+        // Load content from selected section
+        function loadContent() {
+            const section = document.getElementById('contentSection').value;
+            let content = '';
+            
+            switch(section) {
+                case 'about':
+                    content = document.getElementById('aboutText1').textContent + '\n\n' +
+                              document.getElementById('aboutText2').textContent + '\n\n' +
+                              document.getElementById('aboutText3').textContent;
+                    break;
+                case 'programs':
+                    content = document.getElementById('program1Text').textContent;
+                    break;
+                case 'articles':
+                    content = document.getElementById('article1Text').textContent;
+                    break;
+                case 'books':
+                    content = document.getElementById('book1Text').textContent;
+                    break;
+                case 'testimonials':
+                    content = document.getElementById('testimonial1Text').textContent;
+                    break;
+                case 'songa':
+                    content = document.getElementById('songaText1').textContent;
+                    break;
+            }
+            
+            document.getElementById('contentText').value = content;
+            showToast('Content loaded from ' + section);
+        }
+
+        // Save content to selected section
+        function saveContent() {
+            const section = document.getElementById('contentSection').value;
+            const content = document.getElementById('contentText').value;
+            
+            switch(section) {
+                case 'about':
+                    const aboutParagraphs = content.split('\n\n');
+                    document.getElementById('aboutText1').textContent = aboutParagraphs[0] || '';
+                    document.getElementById('aboutText2').textContent = aboutParagraphs[1] || '';
+                    document.getElementById('aboutText3').textContent = aboutParagraphs[2] || '';
+                    break;
+                case 'programs':
+                    document.getElementById('program1Text').textContent = content;
+                    break;
+                case 'articles':
+                    document.getElementById('article1Text').textContent = content;
+                    break;
+                case 'books':
+                    document.getElementById('book1Text').textContent = content;
+                    break;
+                case 'testimonials':
+                    document.getElementById('testimonial1Text').textContent = content;
+                    break;
+                case 'songa':
+                    document.getElementById('songaText1').textContent = content;
+                    break;
+            }
+            
+            showToast('Content saved to ' + section);
+        }
+
+        // Save all data to Firebase
+        async function saveToFirebase() {
+            try {
+                const contentRef = window.firebaseRef(db, 'content');
+                await window.firebaseUpdate(contentRef, defaultContent);
+                showToast('All content saved to Firebase!', 'success');
+            } catch (error) {
+                showToast('Error saving to Firebase: ' + error.message, 'error');
+            }
+        }
+
+        // Load all data from Firebase
+        async function loadFromFirebase() {
+            try {
+                const contentRef = window.firebaseRef(db, 'content');
+                const snapshot = await window.firebaseGet(contentRef);
+                
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    
+                    // Update Hero
+                    document.getElementById('heroTagline').value = data.hero.tagline;
+                    document.getElementById('heroTitle').value = data.hero.title;
+                    document.getElementById('heroSubtitle').value = data.hero.subtitle;
+                    saveHero();
+                    
+                    // Update Stats
+                    document.getElementById('stat1').value = data.stats.stat1;
+                    document.getElementById('stat2').value = data.stats.stat2;
+                    document.getElementById('stat3').value = data.stats.stat3;
+                    document.getElementById('stat4').value = data.stats.stat4;
+                    saveStats();
+                    
+                    // Update Contact
+                    document.getElementById('contactEmail').value = data.contact.email;
+                    document.getElementById('contactPhone').value = data.contact.phone;
+                    document.getElementById('contactLocation').value = data.contact.location;
+                    saveContact();
+                    
+                    // Update About
+                    document.getElementById('aboutText1').textContent = data.about.text1;
+                    document.getElementById('aboutText2').textContent = data.about.text2;
+                    document.getElementById('aboutText3').textContent = data.about.text3;
+                    
+                    // Update Programs
+                    document.getElementById('program1Text').textContent = data.programs.program1;
+                    document.getElementById('program2Text').textContent = data.programs.program2;
+                    document.getElementById('program3Text').textContent = data.programs.program3;
+                    
+                    // Update Articles
+                    document.getElementById('article1Text').textContent = data.articles.article1;
+                    document.getElementById('article2Text').textContent = data.articles.article2;
+                    document.getElementById('article3Text').textContent = data.articles.article3;
+                    document.getElementById('article4Text').textContent = data.articles.article4;
+                    
+                    // Update Books
+                    document.getElementById('book1Text').textContent = data.books.book1;
+                    document.getElementById('book2Text').textContent = data.books.book2;
+                    document.getElementById('book3Text').textContent = data.books.book3;
+                    document.getElementById('book4Text').textContent = data.books.book4;
+                    
+                    // Update Songa
+                    document.getElementById('songaText1').textContent = data.songa.text1;
+                    document.getElementById('pillar1Text').textContent = data.songa.pillar1;
+                    document.getElementById('pillar2Text').textContent = data.songa.pillar2;
+                    document.getElementById('pillar3Text').textContent = data.songa.pillar3;
+                    
+                    // Update Testimonials
+                    document.getElementById('testimonial1Text').textContent = data.testimonials.testimonial1.text;
+                    document.getElementById('testimonial1Name').textContent = data.testimonials.testimonial1.name;
+                    document.getElementById('testimonial1Role').textContent = data.testimonials.testimonial1.role;
+                    document.getElementById('testimonial2Text').textContent = data.testimonials.testimonial2.text;
+                    document.getElementById('testimonial2Name').textContent = data.testimonials.testimonial2.name;
+                    document.getElementById('testimonial2Role').textContent = data.testimonials.testimonial2.role;
+                    document.getElementById('testimonial3Text').textContent = data.testimonials.testimonial3.text;
+                    document.getElementById('testimonial3Name').textContent = data.testimonials.testimonial3.name;
+                    document.getElementById('testimonial3Role').textContent = data.testimonials.testimonial3.role;
+                    
+                    showToast('Content loaded from Firebase!', 'success');
+                } else {
+                    showToast('No data found in Firebase. Using default content.', 'error');
+                }
+            } catch (error) {
+                showToast('Error loading from Firebase: ' + error.message, 'error');
+            }
+        }
+
+        // Reset to default content
+        function resetToDefault() {
+            if (confirm('Are you sure you want to reset all content to default?')) {
+                // Reset Hero
+                document.getElementById('heroTagline').value = defaultContent.hero.tagline;
+                document.getElementById('heroTitle').value = defaultContent.hero.title;
+                document.getElementById('heroSubtitle').value = defaultContent.hero.subtitle;
+                saveHero();
+                
+                // Reset Stats
+                document.getElementById('stat1').value = defaultContent.stats.stat1;
+                document.getElementById('stat2').value = defaultContent.stats.stat2;
+                document.getElementById('stat3').value = defaultContent.stats.stat3;
+                document.getElementById('stat4').value = defaultContent.stats.stat4;
+                saveStats();
+                
+                // Reset Contact
+                document.getElementById('contactEmail').value = defaultContent.contact.email;
+                document.getElementById('contactPhone').value = defaultContent.contact.phone;
+                document.getElementById('contactLocation').value = defaultContent.contact.location;
+                saveContact();
+                
+                // Reset other sections
+                Object.keys(defaultContent).forEach(key => {
+                    if (key !== 'hero' && key !== 'stats' && key !== 'contact') {
+                        const sectionData = defaultContent[key];
+                        Object.keys(sectionData).forEach(subKey => {
+                            const elementId = key + subKey.charAt(0).toUpperCase() + subKey.slice(1);
+                            const element = document.getElementById(elementId);
+                            if (element) {
+                                element.textContent = sectionData[subKey];
+                            }
+                        });
+                    }
+                });
+                
+                showToast('All content reset to default!', 'success');
+            }
+        }
+
+        // Real-time database listener
+        function setupRealtimeListener() {
+            const contentRef = window.firebaseRef(db, 'content');
+            window.firebaseOnValue(contentRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    console.log('Real-time update received:', data);
+                    showToast('Content updated in real-time!', 'success');
+                }
+            });
+        }
+
+        // Initialize real-time listener
+        setupRealtimeListener();
+
+        // Original JavaScript functionality
         // Mobile menu toggle
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mainNav = document.getElementById('mainNav');
@@ -1749,19 +2425,22 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     statNumbers.forEach(stat => {
-                        const target = parseInt(stat.textContent.replace('+', ''));
-                        const increment = target / 100;
-                        let current = 0;
-                        
-                        const timer = setInterval(() => {
-                            current += increment;
-                            if (current > target) {
-                                stat.textContent = target + '+';
-                                clearInterval(timer);
-                            } else {
-                                stat.textContent = Math.floor(current) + '+';
-                            }
-                        }, 20);
+                        const text = stat.textContent;
+                        const target = parseInt(text.replace('+', ''));
+                        if (!isNaN(target)) {
+                            const increment = target / 100;
+                            let current = 0;
+                            
+                            const timer = setInterval(() => {
+                                current += increment;
+                                if (current > target) {
+                                    stat.textContent = text;
+                                    clearInterval(timer);
+                                } else {
+                                    stat.textContent = Math.floor(current) + '+';
+                                }
+                            }, 20);
+                        }
                     });
                     statsObserver.unobserve(entry.target);
                 }
