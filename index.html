@@ -677,7 +677,7 @@
             border: 1px solid rgba(202, 138, 4, 0.2);
         }
 
-        /* COMMUNITIES SECTION - Updated to be like author section */
+        /* COMMUNITIES SECTION */
         .communities-section {
             background: linear-gradient(135deg, var(--primary) 0%, #1e293b 100%);
             color: var(--white);
@@ -716,7 +716,7 @@
         .community-card {
             background: rgba(255, 255, 255, 0.05);
             border-radius: var(--radius-xl);
-            padding: 2rem;
+            padding: 2.5rem;
             text-align: center;
             transition: var(--transition);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -724,31 +724,33 @@
             flex-direction: column;
             align-items: center;
             height: 100%;
+            cursor: pointer;
         }
 
         .community-card:hover {
-            background: rgba(37, 99, 235, 0.2);
-            transform: translateY(-5px);
+            background: rgba(37, 99, 235, 0.25);
+            transform: translateY(-8px);
             border-color: var(--accent);
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 15px 30px rgba(37, 99, 235, 0.25);
         }
 
         .community-logo {
-            width: 120px;
-            height: 120px;
+            width: 140px;
+            height: 140px;
             border-radius: var(--radius-lg);
             object-fit: contain;
             margin-bottom: 1.5rem;
-            padding: 15px;
+            padding: 20px;
             background: rgba(255, 255, 255, 0.1);
             transition: var(--transition);
             border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         .community-card:hover .community-logo {
-            transform: scale(1.05);
+            transform: scale(1.08);
             background: rgba(37, 99, 235, 0.3);
             border-color: var(--accent);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
         }
 
         .community-name {
@@ -1409,8 +1411,9 @@
             }
 
             .community-logo {
-                width: 100px;
-                height: 100px;
+                width: 120px;
+                height: 120px;
+                padding: 15px;
             }
 
             .social-link {
@@ -1824,43 +1827,43 @@
         </div>
     </section>
 
-    <!-- Communities Section - Updated to single section like author section -->
+    <!-- Communities Section - All in One Section -->
     <section class="communities-section" id="communities">
         <div class="communities-container">
             <h2>Brand <span class="highlight">Communities</span></h2>
             <div class="communities-description">
-                <p>Explore the diverse communities hosted by I AM MUGERA, each designed to foster growth, connection, and transformation across different aspects of life and business.</p>
+                <p>Three distinct communities, one transformative vision. Explore the diverse platforms hosted by I AM MUGERA for holistic growth and connection.</p>
             </div>
             
             <div class="communities-grid">
                 <!-- SonGa Community -->
-                <div class="community-card">
+                <div class="community-card" onclick="openRegistrationModal('SonGa Community')">
                     <img src="https://i.postimg.cc/fTsGQsKL/20260116-1731-Image-Generation-remix-01kf3ke50re7ktwgsfk8q1t7kh(1).png" alt="SonGa Community" class="community-logo">
                     <h3 class="community-name">SonGa</h3>
                     <div class="community-tagline">Transformative Growth Community</div>
-                    <p class="community-description">A vibrant community dedicated to personal development, leadership excellence, and collective empowerment for growth-minded individuals seeking transformation.</p>
+                    <p class="community-description">Empowering growth-minded individuals through personal development, leadership excellence, and collective transformation.</p>
                     <div class="brand-hosts">
                         <i class="fas fa-crown"></i> Hosted by I AM MUGERA
                     </div>
                 </div>
                 
                 <!-- WorkFit Club -->
-                <div class="community-card">
+                <div class="community-card" onclick="openRegistrationModal('WorkFit Club')">
                     <img src="https://i.postimg.cc/0Nbxgrrg/Whats-App-Image-2025-10-04-at-06-52-57.jpg" alt="WorkFit Club" class="community-logo">
                     <h3 class="community-name">WorkFit Club</h3>
                     <div class="community-tagline">Fitness & Well-being Community</div>
-                    <p class="community-description">A holistic community focused on fitness, health, and overall well-being. Promoting balanced lifestyles through fitness programs and wellness education.</p>
+                    <p class="community-description">Promoting holistic health through fitness programs, nutritional guidance, and mental well-being support.</p>
                     <div class="brand-hosts">
                         <i class="fas fa-crown"></i> Hosted by I AM MUGERA
                     </div>
                 </div>
                 
                 <!-- Aphorizo -->
-                <div class="community-card">
+                <div class="community-card" onclick="openRegistrationModal('Aphorizo Community')">
                     <img src="https://i.postimg.cc/Kjrh7MpK/aphorizo.jpg" alt="Aphorizo" class="community-logo">
                     <h3 class="community-name">Aphorizo</h3>
                     <div class="community-tagline">Christian Band Community</div>
-                    <p class="community-description">A faith-based community centered around worship, music ministry, and spiritual growth. Creating spaces for Christian fellowship through music and worship.</p>
+                    <p class="community-description">Creating spaces for worship, spiritual growth, and Christian fellowship through music ministry and community.</p>
                     <div class="brand-hosts">
                         <i class="fas fa-crown"></i> Hosted by I AM MUGERA
                     </div>
@@ -2022,101 +2025,12 @@
             console.error("Firebase initialization error:", error);
         }
 
-        // Scroll Animation Class
-        class ScrollAnimation {
-            constructor() {
-                this.images = document.querySelectorAll('.talk-image img, .about-image img, .conference-image img, .community-logo');
-                this.scrollHandler = this.scrollHandler.bind(this);
-                this.init();
-            }
-
-            init() {
-                // Add initial styles
-                this.images.forEach(img => {
-                    img.style.transition = 'opacity 0.8s ease, transform 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
-                    img.style.opacity = '0';
-                    img.style.transform = 'translateX(-50px)';
-                    img.dataset.animated = 'false';
-                });
-
-                // Add scroll event listener with debouncing
-                let ticking = false;
-                window.addEventListener('scroll', () => {
-                    if (!ticking) {
-                        window.requestAnimationFrame(() => {
-                            this.scrollHandler();
-                            ticking = false;
-                        });
-                        ticking = true;
-                    }
-                });
-
-                // Initial check
-                this.scrollHandler();
-            }
-
-            scrollHandler() {
-                const windowHeight = window.innerHeight;
-                const scrollY = window.scrollY;
-
-                this.images.forEach(img => {
-                    const rect = img.getBoundingClientRect();
-                    const elementTop = rect.top + scrollY;
-                    const elementBottom = elementTop + rect.height;
-                    const isInView = rect.top < windowHeight * 0.8 && rect.bottom > 0;
-
-                    if (isInView && img.dataset.animated === 'false') {
-                        // Slide in
-                        img.style.opacity = '1';
-                        img.style.transform = 'translateX(0)';
-                        img.dataset.animated = 'true';
-                    } else if (!isInView && img.dataset.animated === 'true') {
-                        // Check if scrolled past
-                        if (rect.bottom < -100) {
-                            // Fade out when scrolled past
-                            img.style.opacity = '0.2';
-                            img.style.transform = 'translateX(50px) scale(0.95)';
-                        }
-                    }
-                });
-            }
-        }
-
         // Wait for DOM to load
         document.addEventListener('DOMContentLoaded', function() {
             initMobileMenu();
             initSmoothScrolling();
             initHeaderScroll();
-            
-            // Initialize scroll animations
-            new ScrollAnimation();
-            
-            // Add click event to community cards for blue background
-            const communityCards = document.querySelectorAll('.community-card');
-            communityCards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.backgroundColor = 'rgba(37, 99, 235, 0.2)';
-                    this.style.borderColor = 'var(--accent)';
-                });
-                
-                card.addEventListener('mouseleave', function() {
-                    this.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                    this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                });
-                
-                // Also add click interaction
-                card.addEventListener('click', function() {
-                    // Add active state
-                    communityCards.forEach(c => c.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Pulse animation
-                    this.style.transform = 'scale(1.02)';
-                    setTimeout(() => {
-                        this.style.transform = '';
-                    }, 300);
-                });
-            });
+            initCommunityInteractions();
         });
 
         function initMobileMenu() {
@@ -2169,6 +2083,42 @@
                 } else {
                     header.classList.remove('header-scrolled');
                 }
+            });
+        }
+
+        function initCommunityInteractions() {
+            // Add click event to community cards
+            const communityCards = document.querySelectorAll('.community-card');
+            communityCards.forEach(card => {
+                // Remove any existing animation classes
+                card.classList.remove('active');
+                
+                // Add hover effect with blue background
+                card.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = 'rgba(37, 99, 235, 0.25)';
+                    this.style.borderColor = 'var(--accent)';
+                    this.style.boxShadow = '0 15px 30px rgba(37, 99, 235, 0.25)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                    this.style.borderColor = '';
+                    this.style.boxShadow = '';
+                });
+                
+                // Add click animation
+                card.addEventListener('click', function(e) {
+                    if (!this.classList.contains('active')) {
+                        communityCards.forEach(c => c.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        // Add pulse effect
+                        this.style.transform = 'scale(1.02)';
+                        setTimeout(() => {
+                            this.style.transform = '';
+                        }, 300);
+                    }
+                });
             });
         }
 
@@ -2230,6 +2180,18 @@
                 case 'Inspired.Me Program':
                     modalTitle.textContent = 'Apply for Inspired.Me';
                     modalSubtitle.textContent = 'Start your personalized coaching journey with Mugera';
+                    break;
+                case 'SonGa Community':
+                    modalTitle.textContent = 'Join SonGa Community';
+                    modalSubtitle.textContent = 'Become part of our transformative growth community';
+                    break;
+                case 'WorkFit Club':
+                    modalTitle.textContent = 'Join WorkFit Club';
+                    modalSubtitle.textContent = 'Start your fitness and well-being journey with our community';
+                    break;
+                case 'Aphorizo Community':
+                    modalTitle.textContent = 'Join Aphorizo Community';
+                    modalSubtitle.textContent = 'Connect with our faith-based music and worship community';
                     break;
                 default:
                     modalTitle.textContent = 'Get In Touch';
