@@ -1,0 +1,2102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I AM MUGERA - Admin Panel</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-storage.js"></script>
+    
+    <!-- Material UI & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
+    
+    <!-- DataTables -->
+    <link href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1976d2;
+            --primary-dark: #1565c0;
+            --secondary: #dc004e;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+            --bg-color: #f5f5f5;
+            --sidebar-bg: #1e293b;
+            --sidebar-hover: #334155;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #e0e0e0;
+            --card-bg: #fff;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        /* Login Page Styles */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-card h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .login-card p {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            color: var(--error);
+            background-color: #ffebee;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Main Layout Styles */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-header h2 i {
+            color: var(--primary);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: var(--sidebar-hover);
+            color: white;
+        }
+
+        .nav-link.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: var(--text-primary);
+            font-size: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+        }
+
+        .dashboard-card h3 {
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .dashboard-card .trend {
+            font-size: 14px;
+            color: var(--success);
+        }
+
+        .dashboard-card .trend.down {
+            color: var(--error);
+        }
+
+        .card-icon {
+            font-size: 40px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        /* Content Management */
+        .content-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-header h2 {
+            color: var(--text-primary);
+        }
+
+        .edit-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            margin-bottom: 20px;
+        }
+
+        .form-control label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .form-control input,
+        .form-control textarea,
+        .form-control select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .form-control textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-control input:focus,
+        .form-control textarea:focus,
+        .form-control select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Image Upload */
+        .image-upload {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .image-upload:hover {
+            border-color: var(--primary);
+        }
+
+        .image-upload i {
+            font-size: 48px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .image-upload p {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .image-upload span {
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .image-preview {
+            margin-top: 15px;
+            display: none;
+        }
+
+        .image-preview img {
+            max-width: 200px;
+            border-radius: 8px;
+        }
+
+        /* Table Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.05);
+        }
+
+        .data-table th {
+            background-color: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-confirmed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .edit-action {
+            background-color: #e3f2fd;
+            color: var(--primary);
+        }
+
+        .delete-action {
+            background-color: #fde7e9;
+            color: var(--error);
+        }
+
+        .confirm-action {
+            background-color: #e8f5e9;
+            color: var(--success);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: var(--text-primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--error);
+        }
+
+        .toast.info {
+            border-left-color: var(--primary);
+        }
+
+        .toast i {
+            font-size: 20px;
+        }
+
+        .toast.success i {
+            color: var(--success);
+        }
+
+        .toast.error i {
+            color: var(--error);
+        }
+
+        .toast.info i {
+            color: var(--primary);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar-header h2 span,
+            .nav-link span {
+                display: none;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <h1>I AM MUGERA</h1>
+            <p>Admin Panel - Please sign in</p>
+            
+            <div id="loginError" class="error-message">
+                Invalid email or password
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" class="btn" id="loginBtn">
+                    <span>Sign In</span>
+                    <i class="material-icons">lock_open</i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="appContainer" class="app-container" style="display: none;">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>
+                    <i class="material-icons">dashboard</i>
+                    <span>MUGERA ADMIN</span>
+                </h2>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-page="dashboard">
+                        <i class="material-icons">dashboard</i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="content">
+                        <i class="material-icons">edit</i>
+                        <span>Content Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="registrations">
+                        <i class="material-icons">people</i>
+                        <span>Registrations</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="events">
+                        <i class="material-icons">event</i>
+                        <span>Events</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="author">
+                        <i class="material-icons">book</i>
+                        <span>Author Content</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="testimonials">
+                        <i class="material-icons">star</i>
+                        <span>Testimonials</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="settings">
+                        <i class="material-icons">settings</i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <button class="logout-btn" id="logoutBtn">
+                        <i class="material-icons">logout</i>
+                        Logout
+                    </button>
+                </div>
+            </header>
+
+            <!-- Pages Content -->
+            <div id="pagesContent">
+                <!-- Dashboard Page -->
+                <div id="dashboardPage" class="page-content">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-icon">
+                                <i class="material-icons">people</i>
+                            </div>
+                            <h3>Total Registrations</h3>
+                            <div class="value" id="totalRegistrations">0</div>
+                            <div class="trend" id="registrationTrend">+0 this week</div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <div class="card-icon">
+                                <i class="material-icons">event</i>
+                            </div>
+                            <h3>Upcoming Events</h3>
+                            <div class="value" id="upcomingEvents">0</div>
+                            <div class="trend">Active events</div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <div class="card-icon">
+                                <i class="material-icons">book</i>
+                            </div>
+                            <h3>Published Articles</h3>
+                            <div class="value" id="publishedArticles">0</div>
+                            <div class="trend">Visible to public</div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <div class="card-icon">
+                                <i class="material-icons">star</i>
+                            </div>
+                            <h3>Testimonials</h3>
+                            <div class="value" id="totalTestimonials">0</div>
+                            <div class="trend">Client feedback</div>
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2>Recent Registrations</h2>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Event</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentRegistrations">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Content Management Page -->
+                <div id="contentPage" class="page-content" style="display: none;">
+                    <!-- Hero Section -->
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2>Hero Section</h2>
+                            <button class="edit-btn" data-section="hero">
+                                <i class="material-icons">edit</i>
+                                Edit
+                            </button>
+                        </div>
+                        <div class="section-content">
+                            <p><strong>Tagline:</strong> <span id="heroTagline"></span></p>
+                            <p><strong>Main Title:</strong> <span id="heroTitle"></span></p>
+                            <p><strong>Subtitle:</strong> <span id="heroSubtitle"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- About Section -->
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2>About Section</h2>
+                            <button class="edit-btn" data-section="about">
+                                <i class="material-icons">edit</i>
+                                Edit
+                            </button>
+                        </div>
+                        <div class="section-content">
+                            <p><strong>Title:</strong> <span id="aboutTitle"></span></p>
+                            <div id="aboutSections"></div>
+                        </div>
+                    </div>
+
+                    <!-- Events Section -->
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2>Events Section</h2>
+                            <button class="edit-btn" data-section="events">
+                                <i class="material-icons">edit</i>
+                                Edit
+                            </button>
+                        </div>
+                        <div class="section-content">
+                            <p><strong>Title:</strong> <span id="eventsTitle"></span></p>
+                            <p><strong>Subtitle:</strong> <span id="eventsSubtitle"></span></p>
+                            <div id="eventsList"></div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Section -->
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2>Contact Information</h2>
+                            <button class="edit-btn" data-section="contact">
+                                <i class="material-icons">edit</i>
+                                Edit
+                            </button>
+                        </div>
+                        <div class="section-content">
+                            <div id="contactInfo"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registrations Page -->
+                <div id="registrationsPage" class="page-content" style="display: none;">
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2>All Registrations</h2>
+                            <div class="filters">
+                                <select id="statusFilter">
+                                    <option value="all">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+                        <table class="data-table" id="registrationsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Event</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allRegistrations">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Events Management Page -->
+                <div id="eventsPage" class="page-content" style="display: none;">
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2>Manage Events</h2>
+                            <button class="edit-btn" id="addEventBtn">
+                                <i class="material-icons">add</i>
+                                Add Event
+                            </button>
+                        </div>
+                        <div id="eventsManagement"></div>
+                    </div>
+                </div>
+
+                <!-- Author Content Page -->
+                <div id="authorPage" class="page-content" style="display: none;">
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2>Articles</h2>
+                            <button class="edit-btn" id="addArticleBtn">
+                                <i class="material-icons">add</i>
+                                Add Article
+                            </button>
+                        </div>
+                        <div id="articlesManagement"></div>
+                    </div>
+
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2>Books</h2>
+                            <button class="edit-btn" id="addBookBtn">
+                                <i class="material-icons">add</i>
+                                Add Book
+                            </button>
+                        </div>
+                        <div id="booksManagement"></div>
+                    </div>
+                </div>
+
+                <!-- Testimonials Page -->
+                <div id="testimonialsPage" class="page-content" style="display: none;">
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2>Manage Testimonials</h2>
+                            <button class="edit-btn" id="addTestimonialBtn">
+                                <i class="material-icons">add</i>
+                                Add Testimonial
+                            </button>
+                        </div>
+                        <div id="testimonialsManagement"></div>
+                    </div>
+                </div>
+
+                <!-- Settings Page -->
+                <div id="settingsPage" class="page-content" style="display: none;">
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2>Website Settings</h2>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-control">
+                                <label>Logo URLs</label>
+                                <input type="text" id="desktopLogo" placeholder="Desktop Logo URL">
+                                <input type="text" id="mobileLogo" placeholder="Mobile Logo URL">
+                                <input type="text" id="footerLogo" placeholder="Footer Logo URL">
+                            </div>
+
+                            <div class="form-control">
+                                <label>Social Media Links</label>
+                                <input type="text" id="linkedinUrl" placeholder="LinkedIn URL">
+                                <input type="text" id="twitterUrl" placeholder="Twitter URL">
+                                <input type="text" id="instagramUrl" placeholder="Instagram URL">
+                            </div>
+
+                            <div class="form-control">
+                                <label>Contact Information</label>
+                                <input type="email" id="contactEmail" placeholder="Contact Email">
+                                <input type="tel" id="contactPhone" placeholder="Contact Phone">
+                                <input type="text" id="contactLocation" placeholder="Location">
+                            </div>
+                        </div>
+
+                        <button class="btn" id="saveSettingsBtn">
+                            <i class="material-icons">save</i>
+                            Save All Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalTitle">Edit Content</h2>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
+            </div>
+            <div id="modalContent">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+        const storage = firebase.storage();
+
+        // Global State
+        let currentUser = null;
+        let websiteData = null;
+        let registrations = [];
+
+        // Toast Notification System
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' ? 'check_circle' : 
+                        type === 'error' ? 'error' : 'info';
+            
+            toast.innerHTML = `
+                <i class="material-icons">${icon}</i>
+                <span>${message}</span>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Authentication Functions
+        async function login(email, password) {
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                localStorage.setItem('adminToken', userCredential.user.accessToken);
+                return { success: true };
+            } catch (error) {
+                console.error('Login error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function logout() {
+            try {
+                await auth.signOut();
+                localStorage.removeItem('adminToken');
+                showLoginPage();
+                showToast('Logged out successfully', 'success');
+            } catch (error) {
+                console.error('Logout error:', error);
+                showToast('Logout failed', 'error');
+            }
+        }
+
+        // Page Navigation
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            // Show selected page
+            const page = document.getElementById(pageId);
+            if (page) {
+                page.style.display = 'block';
+                document.getElementById('pageTitle').textContent = 
+                    pageId.replace('Page', '').replace(/([A-Z])/g, ' $1').trim();
+            }
+            
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`.nav-link[data-page="${pageId.replace('Page', '')}"]`).classList.add('active');
+            
+            // Load page data
+            loadPageData(pageId);
+        }
+
+        // Data Loading Functions
+        async function loadWebsiteData() {
+            try {
+                const snapshot = await database.ref('iam-mugera').once('value');
+                websiteData = snapshot.val();
+                updateDashboard();
+                updateContentPage();
+                return websiteData;
+            } catch (error) {
+                console.error('Error loading website data:', error);
+                showToast('Failed to load website data', 'error');
+                return null;
+            }
+        }
+
+        async function loadRegistrations() {
+            try {
+                const snapshot = await database.ref('registrations').once('value');
+                const data = snapshot.val();
+                registrations = data ? Object.entries(data).map(([id, reg]) => ({ id, ...reg })) : [];
+                updateRegistrationsTable();
+                updateDashboard();
+                return registrations;
+            } catch (error) {
+                console.error('Error loading registrations:', error);
+                showToast('Failed to load registrations', 'error');
+                return [];
+            }
+        }
+
+        // Update Functions
+        function updateDashboard() {
+            // Total registrations
+            document.getElementById('totalRegistrations').textContent = registrations.length;
+            
+            // Recent registrations table
+            const recentTable = document.getElementById('recentRegistrations');
+            recentTable.innerHTML = '';
+            
+            const recent = registrations.slice(-5).reverse();
+            recent.forEach(reg => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${reg.name || 'N/A'}</td>
+                    <td>${reg.email || 'N/A'}</td>
+                    <td>${reg.event || 'N/A'}</td>
+                    <td>${new Date(reg.createdAt).toLocaleDateString()}</td>
+                    <td><span class="status-badge status-${reg.status || 'pending'}">${reg.status || 'pending'}</span></td>
+                `;
+                recentTable.appendChild(row);
+            });
+            
+            // Update other stats from website data
+            if (websiteData) {
+                document.getElementById('upcomingEvents').textContent = 
+                    Object.keys(websiteData.events?.items || {}).length;
+                document.getElementById('publishedArticles').textContent = 
+                    Object.keys(websiteData.author?.articles || {}).length;
+                document.getElementById('totalTestimonials').textContent = 
+                    Object.keys(websiteData.testimonials?.items || {}).length;
+            }
+        }
+
+        function updateContentPage() {
+            if (!websiteData) return;
+            
+            // Hero Section
+            const hero = websiteData.hero || {};
+            document.getElementById('heroTagline').textContent = hero.tagline || '';
+            document.getElementById('heroTitle').textContent = hero.mainTitle || '';
+            document.getElementById('heroSubtitle').textContent = hero.subtitle || '';
+            
+            // About Section
+            const about = websiteData.about || {};
+            document.getElementById('aboutTitle').textContent = about.title || '';
+            
+            const aboutSectionsDiv = document.getElementById('aboutSections');
+            aboutSectionsDiv.innerHTML = '';
+            if (about.sections) {
+                Object.entries(about.sections).forEach(([key, section]) => {
+                    const p = document.createElement('p');
+                    p.innerHTML = `<strong>${key}:</strong> ${section}`;
+                    aboutSectionsDiv.appendChild(p);
+                });
+            }
+            
+            // Events Section
+            const events = websiteData.events || {};
+            document.getElementById('eventsTitle').textContent = events.title || '';
+            document.getElementById('eventsSubtitle').textContent = events.subtitle || '';
+            
+            const eventsListDiv = document.getElementById('eventsList');
+            eventsListDiv.innerHTML = '';
+            if (events.items) {
+                Object.entries(events.items).forEach(([key, event]) => {
+                    const div = document.createElement('div');
+                    div.className = 'event-item';
+                    div.innerHTML = `
+                        <h4>${event.title}</h4>
+                        <p>${event.date} - ${event.category}</p>
+                        <p>${event.description}</p>
+                    `;
+                    eventsListDiv.appendChild(div);
+                });
+            }
+            
+            // Contact Section
+            const contact = websiteData.contact || {};
+            const contactDiv = document.getElementById('contactInfo');
+            contactDiv.innerHTML = '';
+            if (contact.methods) {
+                Object.entries(contact.methods).forEach(([key, method]) => {
+                    const p = document.createElement('p');
+                    p.innerHTML = `<strong>${method.label}:</strong> ${method.value}`;
+                    contactDiv.appendChild(p);
+                });
+            }
+        }
+
+        function updateRegistrationsTable() {
+            const tableBody = document.getElementById('allRegistrations');
+            const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+            
+            tableBody.innerHTML = '';
+            
+            const filteredRegistrations = statusFilter === 'all' 
+                ? registrations 
+                : registrations.filter(reg => reg.status === statusFilter);
+            
+            filteredRegistrations.forEach(reg => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${reg.id.substring(0, 8)}...</td>
+                    <td>${reg.name || 'N/A'}</td>
+                    <td>${reg.email || 'N/A'}</td>
+                    <td>${reg.phone || 'N/A'}</td>
+                    <td>${reg.event || 'N/A'}</td>
+                    <td>${new Date(reg.createdAt).toLocaleDateString()}</td>
+                    <td><span class="status-badge status-${reg.status || 'pending'}">${reg.status || 'pending'}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn edit-action" onclick="editRegistration('${reg.id}')">
+                                <i class="material-icons">edit</i>
+                                Edit
+                            </button>
+                            <button class="action-btn delete-action" onclick="deleteRegistration('${reg.id}')">
+                                <i class="material-icons">delete</i>
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Modal Functions
+        function showModal(title, content) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function hideModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        // Edit Functions
+        function editSection(section) {
+            if (!websiteData) return;
+            
+            let title = '';
+            let content = '';
+            
+            switch(section) {
+                case 'hero':
+                    title = 'Edit Hero Section';
+                    content = `
+                        <div class="form-control">
+                            <label>Tagline</label>
+                            <input type="text" id="editTagline" value="${websiteData.hero?.tagline || ''}">
+                        </div>
+                        <div class="form-control">
+                            <label>Main Title</label>
+                            <input type="text" id="editMainTitle" value="${websiteData.hero?.mainTitle || ''}">
+                        </div>
+                        <div class="form-control">
+                            <label>Subtitle</label>
+                            <textarea id="editSubtitle">${websiteData.hero?.subtitle || ''}</textarea>
+                        </div>
+                        <button class="btn" onclick="saveHeroChanges()">
+                            <i class="material-icons">save</i>
+                            Save Changes
+                        </button>
+                    `;
+                    break;
+                    
+                case 'about':
+                    title = 'Edit About Section';
+                    const sections = websiteData.about?.sections || {};
+                    content = `
+                        <div class="form-control">
+                            <label>Section Title</label>
+                            <input type="text" id="editAboutTitle" value="${websiteData.about?.title || ''}">
+                        </div>
+                        <div class="form-control">
+                            <label>Section 1</label>
+                            <textarea id="editSection1">${sections.section1 || ''}</textarea>
+                        </div>
+                        <div class="form-control">
+                            <label>Section 2</label>
+                            <textarea id="editSection2">${sections.section2 || ''}</textarea>
+                        </div>
+                        <div class="form-control">
+                            <label>Section 3</label>
+                            <textarea id="editSection3">${sections.section3 || ''}</textarea>
+                        </div>
+                        <button class="btn" onclick="saveAboutChanges()">
+                            <i class="material-icons">save</i>
+                            Save Changes
+                        </button>
+                    `;
+                    break;
+                    
+                case 'events':
+                    title = 'Edit Events Section';
+                    content = `
+                        <div class="form-control">
+                            <label>Section Title</label>
+                            <input type="text" id="editEventsTitle" value="${websiteData.events?.title || ''}">
+                        </div>
+                        <div class="form-control">
+                            <label>Subtitle</label>
+                            <input type="text" id="editEventsSubtitle" value="${websiteData.events?.subtitle || ''}">
+                        </div>
+                        <button class="btn" onclick="saveEventsHeader()">
+                            <i class="material-icons">save</i>
+                            Save Header
+                        </button>
+                    `;
+                    break;
+                    
+                case 'contact':
+                    title = 'Edit Contact Information';
+                    const contact = websiteData.contact?.methods || {};
+                    content = `
+                        <div class="form-control">
+                            <label>Email</label>
+                            <input type="email" id="editContactEmail" value="${contact.email?.value || ''}">
+                        </div>
+                        <div class="form-control">
+                            <label>Phone</label>
+                            <input type="tel" id="editContactPhone" value="${contact.phone?.value || ''}">
+                        </div>
+                        <div class="form-control">
+                            <label>Location</label>
+                            <input type="text" id="editContactLocation" value="${contact.location?.value || ''}">
+                        </div>
+                        <button class="btn" onclick="saveContactChanges()">
+                            <i class="material-icons">save</i>
+                            Save Changes
+                        </button>
+                    `;
+                    break;
+            }
+            
+            showModal(title, content);
+        }
+
+        // Save Functions
+        async function saveHeroChanges() {
+            try {
+                const updates = {
+                    tagline: document.getElementById('editTagline').value,
+                    mainTitle: document.getElementById('editMainTitle').value,
+                    subtitle: document.getElementById('editSubtitle').value
+                };
+                
+                await database.ref('iam-mugera/hero').update(updates);
+                await loadWebsiteData();
+                hideModal();
+                showToast('Hero section updated successfully', 'success');
+            } catch (error) {
+                console.error('Error saving hero:', error);
+                showToast('Failed to update hero section', 'error');
+            }
+        }
+
+        async function saveAboutChanges() {
+            try {
+                const updates = {
+                    title: document.getElementById('editAboutTitle').value,
+                    sections: {
+                        section1: document.getElementById('editSection1').value,
+                        section2: document.getElementById('editSection2').value,
+                        section3: document.getElementById('editSection3').value
+                    }
+                };
+                
+                await database.ref('iam-mugera/about').update(updates);
+                await loadWebsiteData();
+                hideModal();
+                showToast('About section updated successfully', 'success');
+            } catch (error) {
+                console.error('Error saving about:', error);
+                showToast('Failed to update about section', 'error');
+            }
+        }
+
+        async function saveEventsHeader() {
+            try {
+                const updates = {
+                    title: document.getElementById('editEventsTitle').value,
+                    subtitle: document.getElementById('editEventsSubtitle').value
+                };
+                
+                await database.ref('iam-mugera/events').update(updates);
+                await loadWebsiteData();
+                hideModal();
+                showToast('Events header updated successfully', 'success');
+            } catch (error) {
+                console.error('Error saving events:', error);
+                showToast('Failed to update events section', 'error');
+            }
+        }
+
+        async function saveContactChanges() {
+            try {
+                const updates = {
+                    methods: {
+                        email: {
+                            ...websiteData.contact?.methods?.email,
+                            value: document.getElementById('editContactEmail').value
+                        },
+                        phone: {
+                            ...websiteData.contact?.methods?.phone,
+                            value: document.getElementById('editContactPhone').value
+                        },
+                        location: {
+                            ...websiteData.contact?.methods?.location,
+                            value: document.getElementById('editContactLocation').value
+                        }
+                    }
+                };
+                
+                await database.ref('iam-mugera/contact').update(updates);
+                await loadWebsiteData();
+                hideModal();
+                showToast('Contact information updated successfully', 'success');
+            } catch (error) {
+                console.error('Error saving contact:', error);
+                showToast('Failed to update contact information', 'error');
+            }
+        }
+
+        // Registration Management
+        async function editRegistration(id) {
+            const reg = registrations.find(r => r.id === id);
+            if (!reg) return;
+            
+            showModal('Edit Registration', `
+                <div class="form-control">
+                    <label>Name</label>
+                    <input type="text" id="editRegName" value="${reg.name || ''}">
+                </div>
+                <div class="form-control">
+                    <label>Email</label>
+                    <input type="email" id="editRegEmail" value="${reg.email || ''}">
+                </div>
+                <div class="form-control">
+                    <label>Phone</label>
+                    <input type="tel" id="editRegPhone" value="${reg.phone || ''}">
+                </div>
+                <div class="form-control">
+                    <label>Status</label>
+                    <select id="editRegStatus">
+                        <option value="pending" ${reg.status === 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="confirmed" ${reg.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                        <option value="cancelled" ${reg.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                    </select>
+                </div>
+                <button class="btn" onclick="saveRegistration('${id}')">
+                    <i class="material-icons">save</i>
+                    Save Changes
+                </button>
+            `);
+        }
+
+        async function saveRegistration(id) {
+            try {
+                const updates = {
+                    name: document.getElementById('editRegName').value,
+                    email: document.getElementById('editRegEmail').value,
+                    phone: document.getElementById('editRegPhone').value,
+                    status: document.getElementById('editRegStatus').value,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                await database.ref(`registrations/${id}`).update(updates);
+                await loadRegistrations();
+                hideModal();
+                showToast('Registration updated successfully', 'success');
+            } catch (error) {
+                console.error('Error saving registration:', error);
+                showToast('Failed to update registration', 'error');
+            }
+        }
+
+        async function deleteRegistration(id) {
+            if (!confirm('Are you sure you want to delete this registration?')) return;
+            
+            try {
+                await database.ref(`registrations/${id}`).remove();
+                await loadRegistrations();
+                showToast('Registration deleted successfully', 'success');
+            } catch (error) {
+                console.error('Error deleting registration:', error);
+                showToast('Failed to delete registration', 'error');
+            }
+        }
+
+        // Page Loading Functions
+        function loadPageData(pageId) {
+            switch(pageId) {
+                case 'dashboardPage':
+                    loadRegistrations();
+                    break;
+                case 'contentPage':
+                    loadWebsiteData();
+                    break;
+                case 'registrationsPage':
+                    loadRegistrations();
+                    break;
+                case 'eventsPage':
+                    loadEventsManagement();
+                    break;
+                case 'authorPage':
+                    loadAuthorManagement();
+                    break;
+                case 'testimonialsPage':
+                    loadTestimonialsManagement();
+                    break;
+                case 'settingsPage':
+                    loadSettings();
+                    break;
+            }
+        }
+
+        async function loadEventsManagement() {
+            if (!websiteData) return;
+            
+            const events = websiteData.events?.items || {};
+            const container = document.getElementById('eventsManagement');
+            container.innerHTML = '';
+            
+            Object.entries(events).forEach(([key, event]) => {
+                const div = document.createElement('div');
+                div.className = 'event-management-item';
+                div.innerHTML = `
+                    <div class="event-header">
+                        <h3>${event.title}</h3>
+                        <div>
+                            <button class="action-btn edit-action" onclick="editEvent('${key}')">
+                                <i class="material-icons">edit</i>
+                            </button>
+                            <button class="action-btn delete-action" onclick="deleteEvent('${key}')">
+                                <i class="material-icons">delete</i>
+                            </button>
+                        </div>
+                    </div>
+                    <p><strong>Date:</strong> ${event.date}</p>
+                    <p><strong>Category:</strong> ${event.category}</p>
+                    <p>${event.description}</p>
+                    <p><strong>Visible:</strong> ${event.visible ? 'Yes' : 'No'}</p>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function loadAuthorManagement() {
+            if (!websiteData) return;
+            
+            // Articles
+            const articles = websiteData.author?.articles || {};
+            const articlesContainer = document.getElementById('articlesManagement');
+            articlesContainer.innerHTML = '';
+            
+            Object.entries(articles).forEach(([key, article]) => {
+                const div = document.createElement('div');
+                div.className = 'article-management-item';
+                div.innerHTML = `
+                    <div class="article-header">
+                        <h3>${article.title}</h3>
+                        <div>
+                            <button class="action-btn edit-action" onclick="editArticle('${key}')">
+                                <i class="material-icons">edit</i>
+                            </button>
+                            <button class="action-btn delete-action" onclick="deleteArticle('${key}')">
+                                <i class="material-icons">delete</i>
+                            </button>
+                        </div>
+                    </div>
+                    <p><strong>Category:</strong> ${article.category}</p>
+                    <p><strong>Date:</strong> ${article.date}</p>
+                    <p>${article.excerpt}</p>
+                    <p><strong>Visible:</strong> ${article.visible ? 'Yes' : 'No'}</p>
+                `;
+                articlesContainer.appendChild(div);
+            });
+            
+            // Books
+            const books = websiteData.author?.books || {};
+            const booksContainer = document.getElementById('booksManagement');
+            booksContainer.innerHTML = '';
+            
+            Object.entries(books).forEach(([key, book]) => {
+                const div = document.createElement('div');
+                div.className = 'book-management-item';
+                div.innerHTML = `
+                    <div class="book-header">
+                        <h3>${book.title}</h3>
+                        <div>
+                            <button class="action-btn edit-action" onclick="editBook('${key}')">
+                                <i class="material-icons">edit</i>
+                            </button>
+                            <button class="action-btn delete-action" onclick="deleteBook('${key}')">
+                                <i class="material-icons">delete</i>
+                            </button>
+                        </div>
+                    </div>
+                    <p><strong>Category:</strong> ${book.category}</p>
+                    <p><strong>Status:</strong> ${book.status}</p>
+                    <p><strong>Release Date:</strong> ${book.releaseDate}</p>
+                    <p>${book.description}</p>
+                    <p><strong>Featured:</strong> ${book.featured ? 'Yes' : 'No'}</p>
+                `;
+                booksContainer.appendChild(div);
+            });
+        }
+
+        async function loadTestimonialsManagement() {
+            if (!websiteData) return;
+            
+            const testimonials = websiteData.testimonials?.items || {};
+            const container = document.getElementById('testimonialsManagement');
+            container.innerHTML = '';
+            
+            Object.entries(testimonials).forEach(([key, testimonial]) => {
+                const div = document.createElement('div');
+                div.className = 'testimonial-management-item';
+                div.innerHTML = `
+                    <div class="testimonial-header">
+                        <h3>${testimonial.name}</h3>
+                        <div>
+                            <button class="action-btn edit-action" onclick="editTestimonial('${key}')">
+                                <i class="material-icons">edit</i>
+                            </button>
+                            <button class="action-btn delete-action" onclick="deleteTestimonial('${key}')">
+                                <i class="material-icons">delete</i>
+                            </button>
+                        </div>
+                    </div>
+                    <p><strong>Role:</strong> ${testimonial.role}</p>
+                    <p>${testimonial.content}</p>
+                    <p><strong>Visible:</strong> ${testimonial.visible ? 'Yes' : 'No'}</p>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function loadSettings() {
+            if (!websiteData) return;
+            
+            // Logos
+            const logos = websiteData.header?.logo || {};
+            document.getElementById('desktopLogo').value = logos.desktop || '';
+            document.getElementById('mobileLogo').value = logos.mobile || '';
+            document.getElementById('footerLogo').value = logos.footer || '';
+            
+            // Social Media
+            const social = websiteData.footer?.socialLinks || {};
+            document.getElementById('linkedinUrl').value = social.linkedin?.url || '';
+            document.getElementById('twitterUrl').value = social.twitter?.url || '';
+            document.getElementById('instagramUrl').value = social.instagram?.url || '';
+            
+            // Contact
+            const contact = websiteData.contact?.methods || {};
+            document.getElementById('contactEmail').value = contact.email?.value || '';
+            document.getElementById('contactPhone').value = contact.phone?.value || '';
+            document.getElementById('contactLocation').value = contact.location?.value || '';
+        }
+
+        async function saveAllSettings() {
+            try {
+                const updates = {
+                    // Logos
+                    'header/logo': {
+                        desktop: document.getElementById('desktopLogo').value,
+                        mobile: document.getElementById('mobileLogo').value,
+                        footer: document.getElementById('footerLogo').value
+                    },
+                    // Social Media
+                    'footer/socialLinks': {
+                        linkedin: {
+                            ...websiteData.footer?.socialLinks?.linkedin,
+                            url: document.getElementById('linkedinUrl').value
+                        },
+                        twitter: {
+                            ...websiteData.footer?.socialLinks?.twitter,
+                            url: document.getElementById('twitterUrl').value
+                        },
+                        instagram: {
+                            ...websiteData.footer?.socialLinks?.instagram,
+                            url: document.getElementById('instagramUrl').value
+                        }
+                    },
+                    // Contact
+                    'contact/methods': {
+                        email: {
+                            ...websiteData.contact?.methods?.email,
+                            value: document.getElementById('contactEmail').value
+                        },
+                        phone: {
+                            ...websiteData.contact?.methods?.phone,
+                            value: document.getElementById('contactPhone').value
+                        },
+                        location: {
+                            ...websiteData.contact?.methods?.location,
+                            value: document.getElementById('contactLocation').value
+                        }
+                    }
+                };
+                
+                // Update each path
+                for (const [path, data] of Object.entries(updates)) {
+                    await database.ref(`iam-mugera/${path}`).update(data);
+                }
+                
+                await loadWebsiteData();
+                showToast('Settings saved successfully', 'success');
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                showToast('Failed to save settings', 'error');
+            }
+        }
+
+        // Page Display Functions
+        function showLoginPage() {
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
+            currentUser = null;
+        }
+
+        function showAdminPanel() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'flex';
+            showPage('dashboardPage');
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const loginBtn = document.getElementById('loginBtn');
+                
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<div class="spinner"></div>';
+                
+                const result = await login(email, password);
+                
+                if (result.success) {
+                    // Load initial data
+                    await loadWebsiteData();
+                    await loadRegistrations();
+                    showAdminPanel();
+                    showToast('Login successful!', 'success');
+                } else {
+                    document.getElementById('loginError').classList.add('show');
+                    showToast('Login failed. Check your credentials.', 'error');
+                }
+                
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<span>Sign In</span><i class="material-icons">lock_open</i>';
+            });
+            
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // Navigation links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.getAttribute('data-page');
+                    showPage(`${page}Page`);
+                });
+            });
+            
+            // Edit buttons
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const section = btn.getAttribute('data-section');
+                    if (section) {
+                        editSection(section);
+                    }
+                });
+            });
+            
+            // Close modal
+            document.getElementById('closeModalBtn').addEventListener('click', hideModal);
+            document.getElementById('editModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('editModal')) {
+                    hideModal();
+                }
+            });
+            
+            // Status filter
+            const statusFilter = document.getElementById('statusFilter');
+            if (statusFilter) {
+                statusFilter.addEventListener('change', updateRegistrationsTable);
+            }
+            
+            // Settings save button
+            const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+            if (saveSettingsBtn) {
+                saveSettingsBtn.addEventListener('click', saveAllSettings);
+            }
+            
+            // Add new buttons
+            const addEventBtn = document.getElementById('addEventBtn');
+            if (addEventBtn) {
+                addEventBtn.addEventListener('click', () => addNewItem('event'));
+            }
+            
+            const addArticleBtn = document.getElementById('addArticleBtn');
+            if (addArticleBtn) {
+                addArticleBtn.addEventListener('click', () => addNewItem('article'));
+            }
+            
+            const addBookBtn = document.getElementById('addBookBtn');
+            if (addBookBtn) {
+                addBookBtn.addEventListener('click', () => addNewItem('book'));
+            }
+            
+            const addTestimonialBtn = document.getElementById('addTestimonialBtn');
+            if (addTestimonialBtn) {
+                addTestimonialBtn.addEventListener('click', () => addNewItem('testimonial'));
+            }
+        }
+
+        // Add new item functions
+        function addNewItem(type) {
+            let title = '';
+            let content = '';
+            let fields = '';
+            
+            switch(type) {
+                case 'event':
+                    title = 'Add New Event';
+                    fields = `
+                        <div class="form-control">
+                            <label>Event Title</label>
+                            <input type="text" id="newEventTitle">
+                        </div>
+                        <div class="form-control">
+                            <label>Description</label>
+                            <textarea id="newEventDescription"></textarea>
+                        </div>
+                        <div class="form-control">
+                            <label>Category</label>
+                            <input type="text" id="newEventCategory">
+                        </div>
+                        <div class="form-control">
+                            <label>Date</label>
+                            <input type="text" id="newEventDate">
+                        </div>
+                        <div class="form-control">
+                            <label>Icon (FontAwesome class)</label>
+                            <input type="text" id="newEventIcon" value="fas fa-microphone">
+                        </div>
+                        <div class="form-control">
+                            <label>
+                                <input type="checkbox" id="newEventVisible" checked>
+                                Visible on website
+                            </label>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'article':
+                    title = 'Add New Article';
+                    fields = `
+                        <div class="form-control">
+                            <label>Article Title</label>
+                            <input type="text" id="newArticleTitle">
+                        </div>
+                        <div class="form-control">
+                            <label>Excerpt</label>
+                            <textarea id="newArticleExcerpt"></textarea>
+                        </div>
+                        <div class="form-control">
+                            <label>Category</label>
+                            <input type="text" id="newArticleCategory">
+                        </div>
+                        <div class="form-control">
+                            <label>Date</label>
+                            <input type="text" id="newArticleDate" value="${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}">
+                        </div>
+                        <div class="form-control">
+                            <label>
+                                <input type="checkbox" id="newArticleVisible" checked>
+                                Visible on website
+                            </label>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'book':
+                    title = 'Add New Book';
+                    fields = `
+                        <div class="form-control">
+                            <label>Book Title</label>
+                            <input type="text" id="newBookTitle">
+                        </div>
+                        <div class="form-control">
+                            <label>Description</label>
+                            <textarea id="newBookDescription"></textarea>
+                        </div>
+                        <div class="form-control">
+                            <label>Category</label>
+                            <input type="text" id="newBookCategory">
+                        </div>
+                        <div class="form-control">
+                            <label>Status</label>
+                            <select id="newBookStatus">
+                                <option value="coming-soon">Coming Soon</option>
+                                <option value="available">Available</option>
+                                <option value="pre-order">Pre-order</option>
+                            </select>
+                        </div>
+                        <div class="form-control">
+                            <label>Release Date</label>
+                            <input type="text" id="newBookReleaseDate" value="${new Date().getFullYear()}">
+                        </div>
+                        <div class="form-control">
+                            <label>
+                                <input type="checkbox" id="newBookFeatured" checked>
+                                Featured on website
+                            </label>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'testimonial':
+                    title = 'Add New Testimonial';
+                    fields = `
+                        <div class="form-control">
+                            <label>Client Name</label>
+                            <input type="text" id="newTestimonialName">
+                        </div>
+                        <div class="form-control">
+                            <label>Role/Company</label>
+                            <input type="text" id="newTestimonialRole">
+                        </div>
+                        <div class="form-control">
+                            <label>Testimonial Content</label>
+                            <textarea id="newTestimonialContent"></textarea>
+                        </div>
+                        <div class="form-control">
+                            <label>Avatar Initials (e.g., "JM")</label>
+                            <input type="text" id="newTestimonialAvatar">
+                        </div>
+                        <div class="form-control">
+                            <label>
+                                <input type="checkbox" id="newTestimonialVisible" checked>
+                                Visible on website
+                            </label>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            content = `
+                ${fields}
+                <button class="btn" onclick="saveNewItem('${type}')">
+                    <i class="material-icons">save</i>
+                    Save ${type.charAt(0).toUpperCase() + type.slice(1)}
+                </button>
+            `;
+            
+            showModal(title, content);
+        }
+
+        async function saveNewItem(type) {
+            try {
+                const id = `new${Date.now()}`;
+                let data = {};
+                let path = '';
+                
+                switch(type) {
+                    case 'event':
+                        data = {
+                            title: document.getElementById('newEventTitle').value,
+                            description: document.getElementById('newEventDescription').value,
+                            category: document.getElementById('newEventCategory').value,
+                            date: document.getElementById('newEventDate').value,
+                            icon: document.getElementById('newEventIcon').value,
+                            visible: document.getElementById('newEventVisible').checked,
+                            order: 99
+                        };
+                        path = `iam-mugera/events/items/${id}`;
+                        break;
+                        
+                    case 'article':
+                        data = {
+                            title: document.getElementById('newArticleTitle').value,
+                            excerpt: document.getElementById('newArticleExcerpt').value,
+                            category: document.getElementById('newArticleCategory').value,
+                            date: document.getElementById('newArticleDate').value,
+                            visible: document.getElementById('newArticleVisible').checked,
+                            order: 99
+                        };
+                        path = `iam-mugera/author/articles/${id}`;
+                        break;
+                        
+                    case 'book':
+                        data = {
+                            title: document.getElementById('newBookTitle').value,
+                            description: document.getElementById('newBookDescription').value,
+                            category: document.getElementById('newBookCategory').value,
+                            status: document.getElementById('newBookStatus').value,
+                            releaseDate: document.getElementById('newBookReleaseDate').value,
+                            featured: document.getElementById('newBookFeatured').checked,
+                            order: 99
+                        };
+                        path = `iam-mugera/author/books/${id}`;
+                        break;
+                        
+                    case 'testimonial':
+                        data = {
+                            name: document.getElementById('newTestimonialName').value,
+                            role: document.getElementById('newTestimonialRole').value,
+                            content: document.getElementById('newTestimonialContent').value,
+                            avatar: document.getElementById('newTestimonialAvatar').value,
+                            visible: document.getElementById('newTestimonialVisible').checked,
+                            order: 99
+                        };
+                        path = `iam-mugera/testimonials/items/${id}`;
+                        break;
+                }
+                
+                await database.ref(path).set(data);
+                await loadWebsiteData();
+                hideModal();
+                showToast(`${type.charAt(0).toUpperCase() + type.slice(1)} added successfully`, 'success');
+            } catch (error) {
+                console.error(`Error saving new ${type}:`, error);
+                showToast(`Failed to add ${type}`, 'error');
+            }
+        }
+
+        // Initialize the app
+        function initApp() {
+            setupEventListeners();
+            
+            // Check if user is already logged in
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('userAvatar').textContent = 
+                        user.email ? user.email.charAt(0).toUpperCase() : 'A';
+                    loadWebsiteData();
+                    loadRegistrations();
+                    showAdminPanel();
+                } else {
+                    showLoginPage();
+                }
+            });
+        }
+
+        // Start the app when page loads
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
