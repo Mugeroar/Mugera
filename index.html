@@ -330,29 +330,25 @@
             color: var(--white);
         }
 
-        /* Hero with Professional Pattern Background */
+        /* Hero with Professional Pattern Background - IMPROVED FOR READABILITY */
         .hero {
             min-height: 90vh;
             display: flex;
             align-items: center;
             background: 
                 /* Professional pattern from the image */
-                url('https://i.postimg.cc/fyxmyB9n/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.png'),
-                /* Dark overlay for text readability */
-                linear-gradient(
-                    rgba(10, 10, 10, 0.85),
-                    rgba(10, 10, 10, 0.92)
-                );
-            background-size: 400px 400px, cover;
-            background-position: center, center;
-            background-repeat: repeat, no-repeat;
-            background-attachment: fixed, fixed;
+                url('https://i.postimg.cc/fyxmyB9n/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.png');
+            background-size: 400px 400px;
+            background-position: center;
+            background-repeat: repeat;
+            background-attachment: fixed;
             color: var(--white);
             padding: 6rem 1.5rem 3rem;
             position: relative;
             overflow: hidden;
         }
 
+        /* Dark overlay for better text readability */
         .hero::before {
             content: '';
             position: absolute;
@@ -360,24 +356,41 @@
             left: 0;
             right: 0;
             bottom: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(0, 0, 0, 0.85) 0%,
+                rgba(0, 0, 0, 0.78) 50%,
+                rgba(0, 0, 0, 0.72) 100%
+            );
+            z-index: 1;
+        }
+
+        /* Subtle pattern overlay on top of dark background */
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: 
-                /* Subtle geometric overlay */
                 repeating-linear-gradient(
                     90deg,
                     transparent,
                     transparent 15px,
-                    rgba(202, 138, 4, 0.02) 15px,
-                    rgba(202, 138, 4, 0.02) 30px
+                    rgba(202, 138, 4, 0.03) 15px,
+                    rgba(202, 138, 4, 0.03) 30px
                 ),
                 repeating-linear-gradient(
                     0deg,
                     transparent,
                     transparent 15px,
-                    rgba(202, 138, 4, 0.02) 15px,
-                    rgba(202, 138, 4, 0.02) 30px
+                    rgba(202, 138, 4, 0.03) 15px,
+                    rgba(202, 138, 4, 0.03) 30px
                 );
             pointer-events: none;
-            opacity: 0.3;
+            opacity: 0.4;
+            z-index: 2;
         }
 
         .hero-content {
@@ -385,7 +398,7 @@
             margin: 0 auto;
             width: 100%;
             position: relative;
-            z-index: 2;
+            z-index: 3; /* Higher than the overlays */
         }
 
         .hero-tagline {
@@ -397,19 +410,25 @@
             font-weight: 600;
             display: inline-block;
             padding: 0.625rem 1.25rem;
-            background: rgba(202, 138, 4, 0.1);
+            background: rgba(202, 138, 4, 0.2);
             border-radius: var(--radius-full);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(202, 138, 4, 0.2);
+            border: 1px solid rgba(202, 138, 4, 0.3);
         }
 
         .hero-subtitle {
             font-size: 1.125rem;
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.95);
             margin-bottom: 2.5rem;
             max-width: 700px;
             font-weight: 400;
             line-height: 1.7;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero h1 {
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            color: var(--white);
         }
 
         .hero-buttons {
@@ -417,6 +436,36 @@
             gap: 1rem;
             margin-top: 2.5rem;
             flex-wrap: wrap;
+        }
+
+        /* Text container with background for better readability */
+        .hero-text-container {
+            position: relative;
+            padding: 2.5rem;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: var(--radius-xl);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(202, 138, 4, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero-text-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(202, 138, 4, 0.1) 0%,
+                transparent 50%,
+                rgba(202, 138, 4, 0.05) 100%
+            );
+            border-radius: var(--radius-xl);
+            pointer-events: none;
         }
 
         /* Sections */
@@ -2524,41 +2573,28 @@
             heroSection.className = 'hero';
             heroSection.id = 'home';
             
-            // Set background image if available (will be overlaid with our pattern)
-            if (hero.backgroundImage) {
-                heroSection.style.backgroundImage = `
-                    url('https://i.postimg.cc/fyxmyB9n/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.png'),
-                    url('${hero.backgroundImage}'),
-                    linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.92))
-                `;
-            } else {
-                // Just use the professional pattern
-                heroSection.style.backgroundImage = `
-                    url('https://i.postimg.cc/fyxmyB9n/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.png'),
-                    linear-gradient(rgba(10, 10, 10, 0.85), rgba(10, 10, 10, 0.92))
-                `;
-            }
-            
             heroSection.innerHTML = `
                 <div class="hero-content">
-                    ${hero.tagline ? `<div class="hero-tagline">${hero.tagline}</div>` : ''}
-                    ${hero.mainTitle ? `<h1 class="cinzel-font">${hero.mainTitle}</h1>` : ''}
-                    ${hero.subtitle ? `<div class="hero-subtitle">${hero.subtitle}</div>` : ''}
-                    
-                    <div class="hero-buttons">
-                        ${hero.buttons?.primary ? `
-                            <button class="cta-button" onclick="${hero.buttons.primary.onclick || 'openRegistrationModal(\'Speaking Engagement\')'}">
-                                <i class="${hero.buttons.primary.icon || 'fas fa-microphone'}"></i>
-                                <span>${hero.buttons.primary.text}</span>
-                            </button>
-                        ` : ''}
+                    <div class="hero-text-container">
+                        ${hero.tagline ? `<div class="hero-tagline">${hero.tagline}</div>` : ''}
+                        ${hero.mainTitle ? `<h1 class="cinzel-font">${hero.mainTitle}</h1>` : ''}
+                        ${hero.subtitle ? `<div class="hero-subtitle">${hero.subtitle}</div>` : ''}
                         
-                        ${hero.buttons?.secondary ? `
-                            <button class="cta-button outline" onclick="${hero.buttons.secondary.onclick || 'openRegistrationModal(\'General Inquiry\')'}">
-                                <i class="${hero.buttons.secondary.icon || 'fas fa-calendar-check'}"></i>
-                                <span>${hero.buttons.secondary.text}</span>
-                            </button>
-                        ` : ''}
+                        <div class="hero-buttons">
+                            ${hero.buttons?.primary ? `
+                                <button class="cta-button" onclick="${hero.buttons.primary.onclick || 'openRegistrationModal(\'Speaking Engagement\')'}">
+                                    <i class="${hero.buttons.primary.icon || 'fas fa-microphone'}"></i>
+                                    <span>${hero.buttons.primary.text}</span>
+                                </button>
+                            ` : ''}
+                            
+                            ${hero.buttons?.secondary ? `
+                                <button class="cta-button outline" onclick="${hero.buttons.secondary.onclick || 'openRegistrationModal(\'General Inquiry\')'}">
+                                    <i class="${hero.buttons.secondary.icon || 'fas fa-calendar-check'}"></i>
+                                    <span>${hero.buttons.secondary.text}</span>
+                                </button>
+                            ` : ''}
+                        </div>
                     </div>
                 </div>
             `;
