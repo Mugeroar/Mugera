@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>I AM MUGERA - Events Management</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/66rJN5PW/signature(1).png">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --black: #0a0a0a;
+            --white: #ffffff;
+            --gray: #f9f9f9;
+            --dark-gray: #1a1a1a;
+            --light-gray: #e8e8e8;
+            --gold: #ca8a04;
+            --gold-light: #fef3c7;
+            --gold-dark: #a16207;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --teal: #14b8a6;
+            --pink: #ec4899;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 15px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--black);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        /* Auth Overlay */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(10, 10, 10, 0.95) 0%, 
+                rgba(10, 10, 10, 0.85) 100%),
+                url('https://i.postimg.cc/9M9YnthW/vecteezy_abstract_background_with_colored_african_patterns_32427619.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 1.5rem;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-2xl);
+            padding: 3rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: var(--shadow-2xl);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo img {
+            height: 60px;
+            width: auto;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        }
+
+        .auth-logo h1 {
+            font-size: 1.75rem;
+            color: var(--black);
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-logo p {
+            color: #6b7280;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.5rem;
+            display: none;
+            border-left: 4px solid;
+            background: var(--white);
+            box-shadow: var(--shadow-sm);
+            font-size: 0.9rem;
+        }
+
+        .alert-error {
+            border-left-color: var(--error);
+            background: linear-gradient(to right, rgba(239, 68, 68, 0.05), transparent);
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--black);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label i {
+            color: var(--gold);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            border-radius: var(--radius-md);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--white);
+            color: var(--black);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.15);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: var(--transition);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(202, 138, 4, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+        }
+
+        .btn-outline:hover {
+            background: var(--gold);
+            color: var(--white);
+        }
+
+        /* Main Container */
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, 
+                rgba(17, 24, 39, 0.98) 0%, 
+                rgba(17, 24, 39, 0.95) 100%);
+            color: var(--white);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: var(--shadow-xl);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 2rem;
+            right: 2rem;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .sidebar-header img {
+            height: 50px;
+            width: auto;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            color: var(--white);
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--gold), var(--white));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sidebar-header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 1.5rem 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+            padding: 0 1rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--gold);
+            transform: scaleY(0);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .nav-link:hover::before {
+            transform: scaleY(1);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(90deg, rgba(202, 138, 4, 0.2), transparent);
+            color: var(--gold);
+        }
+
+        .nav-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-link i {
+            width: 22px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .nav-link .badge {
+            margin-left: auto;
+            background: var(--gold);
+            color: var(--white);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+            background: #f8f9fa;
+        }
+
+        /* Header */
+        .header {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            margin: 0;
+            color: var(--black);
+            font-weight: 800;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 2px solid rgba(202, 138, 4, 0.3);
+            color: var(--gold);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: var(--gold);
+            color: var(--white);
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 2px solid rgba(202, 138, 4, 0.3);
+            color: var(--gold);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: var(--gold);
+            color: var(--white);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: var(--white);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--black);
+            margin-bottom: 0.25rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--black);
+        }
+
+        .section-tools {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(202, 138, 4, 0.05);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(202, 138, 4, 0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 150px;
+        }
+
+        .filter-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--black);
+        }
+
+        .filter-select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: var(--radius-sm);
+            background: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: var(--shadow-sm);
+            background: var(--white);
+            margin-top: 1rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .data-table th {
+            background: rgba(202, 138, 4, 0.1);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gold-dark);
+            border-bottom: 2px solid var(--gold);
+            font-size: 0.875rem;
+        }
+
+        .data-table td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            color: #6b7280;
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .data-table tr:hover {
+            background: rgba(202, 138, 4, 0.03);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--gold-dark);
+        }
+
+        .status-confirmed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 0.375rem 0.75rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .action-btn.view {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .action-btn.edit {
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--gold-dark);
+        }
+
+        .action-btn.delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .event-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .event-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--gold);
+        }
+
+        .event-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .event-card-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--black);
+            margin: 0;
+        }
+
+        .event-card-category {
+            padding: 0.25rem 0.5rem;
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--gold);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .event-card-description {
+            color: #6b7280;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        /* Calendar */
+        .calendar-container {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow-2xl);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .modal-close:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control {
+            margin-bottom: 1rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--gold);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Notification */
+        .notification-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
+            max-width: 350px;
+        }
+
+        .notification {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideInRight 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 250px;
+            }
+            .main-content {
+                margin-left: 250px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar-header h2,
+            .sidebar-header p,
+            .nav-link span,
+            .nav-link .badge {
+                display: none;
+            }
+            
+            .nav-link {
+                justify-content: center;
+                padding: 0.875rem;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .user-info {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .section-tools {
+                justify-content: center;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth Overlay -->
+    <div id="authOverlay" class="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <img src="https://i.postimg.cc/ncw7xn7V/Untitled-design-18-1.png" alt="I AM MUGERA">
+                <h1>Events Management</h1>
+                <p>Authentication Required</p>
+            </div>
+            
+            <div id="authError" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i> Invalid credentials or session expired
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-envelope"></i>
+                    Email Address
+                </label>
+                <input type="email" id="authEmail" class="form-input" placeholder="admin@iammugera.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-lock"></i>
+                    Password
+                </label>
+                <input type="password" id="authPassword" class="form-input" placeholder="••••••••" required>
+            </div>
+            
+            <button type="button" class="btn" id="authBtn">
+                <i class="fas fa-sign-in-alt"></i>
+                Sign In
+            </button>
+            
+            <a href="master-admin.html" class="btn btn-outline w-100 mt-2">
+                <i class="fas fa-arrow-left"></i>
+                Back to Master Portal
+            </a>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-container" style="display: none;">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img src="https://i.postimg.cc/ncw7xn7V/Untitled-design-18-1.png" alt="I AM MUGERA">
+                <h2>Events Management</h2>
+                <p>Complete Event Administration</p>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="events">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>All Events</span>
+                        <span class="badge" id="eventCount">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="calendar">
+                        <i class="fas fa-calendar"></i>
+                        <span>Calendar</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="registrations">
+                        <i class="fas fa-users"></i>
+                        <span>Registrations</span>
+                        <span class="badge" id="regCount">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="reports">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div>
+                    <h1 id="pageTitle">Events Dashboard</h1>
+                    <p style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem;">
+                        <i class="fas fa-calendar-alt"></i> Complete Event Management System
+                    </p>
+                </div>
+                <div class="user-info">
+                    <a href="master-admin.html" class="back-btn">
+                        <i class="fas fa-home"></i>
+                        Master Portal
+                    </a>
+                    <div class="user-avatar" id="userAvatar">
+                        A
+                    </div>
+                    <button class="logout-btn" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </header>
+
+            <!-- Pages Content -->
+            <div id="pagesContent">
+                <!-- Dashboard Page -->
+                <div id="dashboardPage" class="page-content">
+                    <div class="dashboard-grid">
+                        <div class="stat-card" onclick="showPage('events')">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="stat-value" id="totalEvents">0</div>
+                            <div class="stat-label">Total Events</div>
+                        </div>
+                        
+                        <div class="stat-card" onclick="showPage('registrations')">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-value" id="totalRegistrations">0</div>
+                            <div class="stat-label">Total Registrations</div>
+                        </div>
+                        
+                        <div class="stat-card" onclick="showPage('calendar')">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-value" id="upcomingEvents">0</div>
+                            <div class="stat-label">Upcoming Events</div>
+                        </div>
+                        
+                        <div class="stat-card" onclick="showPage('reports')">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-value" id="attendanceRate">0%</div>
+                            <div class="stat-label">Attendance Rate</div>
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2>Upcoming Events</h2>
+                            <div class="section-tools">
+                                <button class="btn btn-small" onclick="showPage('events')">
+                                    View All
+                                </button>
+                                <button class="btn btn-outline btn-small" onclick="addNewEvent()">
+                                    Add Event
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="cards-grid" id="upcomingEventsList">
+                            <!-- Events will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2>Recent Registrations</h2>
+                            <div class="section-tools">
+                                <button class="btn btn-small" onclick="showPage('registrations')">
+                                    View All
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Event</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentRegistrations">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Events Page -->
+                <div id="eventsPage" class="page-content" style="display: none;">
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2>All Events</h2>
+                            <div class="section-tools">
+                                <button class="btn btn-small" onclick="addNewEvent()">
+                                    Add New Event
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="filters">
+                            <div class="filter-group">
+                                <label>Event Type</label>
+                                <select id="eventTypeFilter" class="filter-select">
+                                    <option value="all">All Types</option>
+                                    <option value="speaking">Speaking</option>
+                                    <option value="talk-series">Talk Series</option>
+                                    <option value="conference">Conference</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>Status</label>
+                                <select id="eventStatusFilter" class="filter-select">
+                                    <option value="all">All Status</option>
+                                    <option value="upcoming">Upcoming</option>
+                                    <option value="ongoing">Ongoing</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="cards-grid" id="allEventsList">
+                            <!-- Events will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Registrations Page -->
+                <div id="registrationsPage" class="page-content" style="display: none;">
+                    <div class="content-section">
+                        <div class="section-header">
+                            <h2>Event Registrations</h2>
+                            <div class="section-tools">
+                                <button class="btn btn-small" onclick="exportRegistrations()">
+                                    Export CSV
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="filters">
+                            <div class="filter-group">
+                                <label>Status</label>
+                                <select id="regStatusFilter" class="filter-select">
+                                    <option value="all">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="confirmed">Confirmed</option>
+                                </select>
+                            </div>
+                            
+                            <div class="filter-group">
+                                <label>Event</label>
+                                <select id="regEventFilter" class="filter-select">
+                                    <option value="all">All Events</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Event</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="allRegistrations">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="eventModal">
+        <div class="modal">
+            <button class="modal-close" onclick="hideModal()">&times;</button>
+            <div id="modalContent">
+                <!-- Dynamic form will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+
+        // Initialize Firebase
+        let app;
+        let auth;
+        let database;
+        
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            database = firebase.database();
+            console.log("Firebase initialized successfully");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+        }
+
+        // Global State
+        let currentUser = null;
+        let websiteData = null;
+        let events = [];
+        let registrations = [];
+
+        // Utility Functions
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const icon = type === 'success' ? 'check-circle' : 
+                        type === 'error' ? 'exclamation-circle' : 'info-circle';
+            
+            notification.innerHTML = `
+                <i class="fas fa-${icon}" style="color: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Authentication - FIXED VERSION
+        async function authenticate() {
+            showLoading();
+            
+            // First check if user is already signed in
+            const user = auth.currentUser;
+            if (user) {
+                currentUser = user;
+                await loadInitialData();
+                showPanel();
+                hideLoading();
+                return true;
+            }
+            
+            // Check for token from URL (from master portal)
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            
+            if (token) {
+                try {
+                    // Try to sign in with the custom token
+                    const userCredential = await auth.signInWithCustomToken(token);
+                    currentUser = userCredential.user;
+                    
+                    // Store token in localStorage for future use
+                    localStorage.setItem('adminToken', token);
+                    localStorage.setItem('adminEmail', currentUser.email);
+                    
+                    await loadInitialData();
+                    showPanel();
+                    hideLoading();
+                    showNotification('Welcome! Access granted to Events Management Panel', 'success');
+                    return true;
+                } catch (error) {
+                    console.error('Custom token authentication failed:', error);
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminEmail');
+                }
+            }
+            
+            // Check for stored token in localStorage
+            const storedToken = localStorage.getItem('adminToken');
+            if (storedToken) {
+                try {
+                    // Verify the stored token is still valid
+                    const idTokenResult = await auth.currentUser?.getIdTokenResult();
+                    if (idTokenResult && !idTokenResult.expirationTime) {
+                        // Token is valid, user is already signed in
+                        currentUser = auth.currentUser;
+                        await loadInitialData();
+                        showPanel();
+                        hideLoading();
+                        return true;
+                    }
+                } catch (error) {
+                    console.error('Stored token validation failed:', error);
+                    localStorage.removeItem('adminToken');
+                    localStorage.removeItem('adminEmail');
+                }
+            }
+            
+            // No valid authentication found
+            hideLoading();
+            document.getElementById('authOverlay').style.display = 'flex';
+            return false;
+        }
+
+        async function login(email, password) {
+            try {
+                showLoading();
+                document.getElementById('authError').style.display = 'none';
+                
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                
+                // Get the ID token
+                const token = await currentUser.getIdToken();
+                
+                // Store in localStorage for session persistence
+                localStorage.setItem('adminToken', token);
+                localStorage.setItem('adminEmail', email);
+                
+                await loadInitialData();
+                showPanel();
+                hideLoading();
+                showNotification('Welcome! Successfully logged in', 'success');
+                
+                return true;
+            } catch (error) {
+                console.error('Login error:', error);
+                document.getElementById('authError').style.display = 'block';
+                hideLoading();
+                showNotification('Login failed: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        async function logout() {
+            try {
+                showLoading();
+                await auth.signOut();
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminEmail');
+                currentUser = null;
+                
+                document.getElementById('adminPanel').style.display = 'none';
+                document.getElementById('authOverlay').style.display = 'flex';
+                document.getElementById('authEmail').value = '';
+                document.getElementById('authPassword').value = '';
+                
+                hideLoading();
+                showNotification('Successfully logged out', 'success');
+            } catch (error) {
+                console.error('Logout error:', error);
+                hideLoading();
+                showNotification('Logout failed', 'error');
+            }
+        }
+
+        function showPanel() {
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'flex';
+            updateUserInfo();
+        }
+
+        // Data Loading
+        async function loadInitialData() {
+            try {
+                // Load website data
+                const snapshot = await database.ref('iam-mugera').once('value');
+                websiteData = snapshot.val();
+                
+                // Load registrations
+                await loadRegistrations();
+                
+                // Extract events from website data
+                extractEventsFromData();
+                
+                // Update dashboard stats
+                updateDashboardStats();
+                
+                // Update UI
+                if (document.getElementById('dashboardPage').style.display !== 'none') {
+                    updateUpcomingEventsList();
+                    updateRecentRegistrations();
+                }
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showNotification('Failed to load data', 'error');
+            }
+        }
+
+        function extractEventsFromData() {
+            events = [];
+            
+            if (websiteData) {
+                // Extract from events section
+                if (websiteData.events && websiteData.events.items) {
+                    Object.entries(websiteData.events.items).forEach(([id, event]) => {
+                        events.push({
+                            id: `event_${id}`,
+                            type: 'event',
+                            ...event
+                        });
+                    });
+                }
+                
+                // Extract from talk series
+                if (websiteData.talkSeries) {
+                    events.push({
+                        id: 'talk_series',
+                        type: 'talk-series',
+                        name: websiteData.talkSeries.name || 'Become What You Believe',
+                        description: websiteData.talkSeries.description || '',
+                        schedule: websiteData.talkSeries.details?.schedule || 'Weekly'
+                    });
+                }
+                
+                // Extract from conference
+                if (websiteData.conference) {
+                    events.push({
+                        id: 'conference',
+                        type: 'conference',
+                        name: websiteData.conference.name || 'The Making of An Icon',
+                        description: websiteData.conference.description || '',
+                        date: websiteData.conference.date || ''
+                    });
+                }
+            }
+            
+            document.getElementById('eventCount').textContent = events.length;
+        }
+
+        async function loadRegistrations() {
+            try {
+                const snapshot = await database.ref('registrations').once('value');
+                const data = snapshot.val();
+                registrations = data ? Object.entries(data).map(([id, reg]) => ({ id, ...reg })) : [];
+                
+                document.getElementById('regCount').textContent = registrations.length;
+                
+                return registrations;
+            } catch (error) {
+                console.error('Error loading registrations:', error);
+                showNotification('Failed to load registrations', 'error');
+                return [];
+            }
+        }
+
+        function updateDashboardStats() {
+            // Total events
+            document.getElementById('totalEvents').textContent = events.length;
+            
+            // Total registrations
+            document.getElementById('totalRegistrations').textContent = registrations.length;
+            
+            // Upcoming events
+            const today = new Date();
+            const upcoming = events.filter(event => {
+                if (event.date) {
+                    const eventDate = new Date(event.date);
+                    return eventDate >= today;
+                }
+                return false;
+            }).length;
+            document.getElementById('upcomingEvents').textContent = upcoming;
+            
+            // Attendance rate
+            const confirmedRegs = registrations.filter(r => r.status === 'confirmed' || r.status === 'attended').length;
+            const attendanceRate = registrations.length > 0 ? 
+                Math.min(95, Math.floor((confirmedRegs / registrations.length) * 100)) : 0;
+            document.getElementById('attendanceRate').textContent = `${attendanceRate}%`;
+        }
+
+        function updateUpcomingEventsList() {
+            const container = document.getElementById('upcomingEventsList');
+            container.innerHTML = '';
+            
+            const today = new Date();
+            const upcomingEvents = events
+                .filter(event => {
+                    if (event.date) {
+                        const eventDate = new Date(event.date);
+                        return eventDate >= today;
+                    }
+                    return false;
+                })
+                .slice(0, 3);
+            
+            if (upcomingEvents.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #6b7280; grid-column: 1 / -1;">
+                        <i class="fas fa-calendar-times" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                        <p>No upcoming events</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            upcomingEvents.forEach(event => {
+                const card = document.createElement('div');
+                card.className = 'event-card';
+                card.innerHTML = `
+                    <div class="event-card-header">
+                        <h3 class="event-card-title">${event.name}</h3>
+                        <span class="event-card-category">${event.type}</span>
+                    </div>
+                    ${event.date ? `<p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">
+                        <i class="fas fa-calendar"></i> ${new Date(event.date).toLocaleDateString()}
+                    </p>` : ''}
+                    <p class="event-card-description">${event.description || 'No description available'}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updateRecentRegistrations() {
+            const tableBody = document.getElementById('recentRegistrations');
+            tableBody.innerHTML = '';
+            
+            const recentRegs = [...registrations]
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .slice(0, 5);
+            
+            recentRegs.forEach(reg => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${reg.fullName || 'N/A'}</strong></td>
+                    <td>${reg.email || 'N/A'}</td>
+                    <td>${reg.eventType || 'N/A'}</td>
+                    <td>${new Date(reg.timestamp).toLocaleDateString()}</td>
+                    <td><span class="status-badge status-${reg.status || 'pending'}">${reg.status || 'pending'}</span></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Page Navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            const page = document.getElementById(pageId + 'Page');
+            if (page) {
+                page.style.display = 'block';
+                
+                const titles = {
+                    'dashboard': 'Events Dashboard',
+                    'events': 'All Events',
+                    'registrations': 'Event Registrations'
+                };
+                document.getElementById('pageTitle').textContent = titles[pageId] || pageId;
+                
+                if (pageId === 'events') {
+                    updateEventsList();
+                } else if (pageId === 'registrations') {
+                    updateRegistrationsTable();
+                }
+            }
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`.nav-link[data-page="${pageId}"]`)?.classList.add('active');
+        }
+
+        function updateUserInfo() {
+            const email = localStorage.getItem('adminEmail') || currentUser?.email || 'admin@iammugera.com';
+            const name = email.split('@')[0];
+            
+            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Auth button
+            document.getElementById('authBtn').addEventListener('click', async () => {
+                const email = document.getElementById('authEmail').value;
+                const password = document.getElementById('authPassword').value;
+                await login(email, password);
+            });
+            
+            // Allow Enter key in auth form
+            document.getElementById('authPassword').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('authBtn').click();
+                }
+            });
+            
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // Navigation links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.getAttribute('data-page');
+                    showPage(page);
+                });
+            });
+            
+            // Filter changes
+            document.getElementById('eventTypeFilter')?.addEventListener('change', updateEventsList);
+            document.getElementById('eventStatusFilter')?.addEventListener('change', updateEventsList);
+            
+            document.getElementById('regStatusFilter')?.addEventListener('change', updateRegistrationsTable);
+            document.getElementById('regEventFilter')?.addEventListener('change', updateRegistrationsTable);
+            
+            // Close modal on ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') hideModal();
+            });
+        }
+
+        // Initialize
+        async function init() {
+            setupEventListeners();
+            await authenticate();
+        }
+
+        // Start when page loads
+        window.addEventListener('DOMContentLoaded', init);
+
+        // Make functions globally available
+        window.showPage = showPage;
+        window.hideModal = hideModal;
+        window.addNewEvent = function() {
+            alert('Add event feature will be implemented');
+        };
+        window.exportRegistrations = function() {
+            alert('Export feature will be implemented');
+        };
+
+        // Placeholder functions
+        function updateEventsList() {
+            const container = document.getElementById('allEventsList');
+            container.innerHTML = '<p style="padding: 2rem; text-align: center; color: #6b7280;">Events list will be displayed here</p>';
+        }
+
+        function updateRegistrationsTable() {
+            const tableBody = document.getElementById('allRegistrations');
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #6b7280;">Registrations will be displayed here</td></tr>';
+        }
+    </script>
+</body>
+</html>
