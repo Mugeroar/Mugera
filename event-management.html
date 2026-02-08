@@ -240,7 +240,6 @@
             justify-content: center;
             gap: 0.75rem;
             transition: var(--transition);
-            width: 100%;
             position: relative;
             overflow: hidden;
         }
@@ -1307,21 +1306,9 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-page="reports">
+                    <a href="#" class="nav-link" data-page="analytics">
                         <i class="fas fa-chart-bar nav-icon"></i>
                         <span>Analytics</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-page="settings">
-                        <i class="fas fa-cog nav-icon"></i>
-                        <span>Settings</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-page="calendar">
-                        <i class="fas fa-calendar-day nav-icon"></i>
-                        <span>Calendar View</span>
                     </a>
                 </li>
             </ul>
@@ -1369,8 +1356,8 @@
                         <div class="stat-value" id="totalEvents">0</div>
                         <div class="stat-label">Total Events</div>
                         <div class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>Active Events</span>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Active</span>
                         </div>
                     </div>
                     
@@ -1381,31 +1368,31 @@
                         <div class="stat-value" id="totalRegistrations">0</div>
                         <div class="stat-label">Total Registrations</div>
                         <div class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>This Month</span>
+                            <i class="fas fa-user-plus"></i>
+                            <span>All Time</span>
                         </div>
                     </div>
                     
-                    <div class="stat-card" onclick="showPage('events')">
+                    <div class="stat-card" onclick="showPage('registrations')">
                         <div class="stat-icon">
-                            <i class="fas fa-calendar-check"></i>
-                        </div>
-                        <div class="stat-value" id="upcomingEvents">0</div>
-                        <div class="stat-label">Upcoming Events</div>
-                        <div class="stat-change positive">
                             <i class="fas fa-clock"></i>
-                            <span>Scheduled</span>
+                        </div>
+                        <div class="stat-value" id="pendingRegistrations">0</div>
+                        <div class="stat-label">Pending</div>
+                        <div class="stat-change warning">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Needs Attention</span>
                         </div>
                     </div>
                     
-                    <div class="stat-card" onclick="showPage('reports')">
+                    <div class="stat-card" onclick="showPage('analytics')">
                         <div class="stat-icon">
                             <i class="fas fa-chart-line"></i>
                         </div>
-                        <div class="stat-value" id="attendanceRate">0%</div>
-                        <div class="stat-label">Attendance Rate</div>
+                        <div class="stat-value" id="completionRate">0%</div>
+                        <div class="stat-label">Completion Rate</div>
                         <div class="stat-change positive">
-                            <i class="fas fa-chart-bar"></i>
+                            <i class="fas fa-trend-up"></i>
                             <span>Performance</span>
                         </div>
                     </div>
@@ -1413,7 +1400,7 @@
 
                 <div class="content-section">
                     <div class="section-header">
-                        <h2 class="section-title">Featured Events</h2>
+                        <h2 class="section-title">Current Events</h2>
                         <div class="section-tools">
                             <button class="btn btn-sm" onclick="showPage('events')">
                                 <i class="fas fa-eye"></i>
@@ -1426,7 +1413,7 @@
                         </div>
                     </div>
                     
-                    <div class="cards-grid" id="upcomingEventsList">
+                    <div class="cards-grid" id="currentEventsList">
                         <!-- Events will be loaded here -->
                         <div class="empty-state">
                             <div class="empty-state-icon">
@@ -1450,6 +1437,10 @@
                                 <i class="fas fa-list"></i>
                                 View All Registrations
                             </button>
+                            <button class="btn btn-outline btn-sm" onclick="refreshRegistrations()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
                         </div>
                     </div>
                     
@@ -1459,7 +1450,7 @@
                                 <tr>
                                     <th>Name</th>
                                     <th>Email</th>
-                                    <th>Event Type</th>
+                                    <th>Event</th>
                                     <th>Date</th>
                                     <th>Status</th>
                                     <th>Actions</th>
@@ -1467,12 +1458,6 @@
                             </thead>
                             <tbody id="recentRegistrations">
                                 <!-- Dynamic content -->
-                                <tr>
-                                    <td colspan="6" style="text-align: center; padding: 3rem; color: var(--gray-500);">
-                                        <i class="fas fa-users-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                                        <p>No registrations found</p>
-                                    </td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -1500,17 +1485,6 @@
                         <div class="filter-group">
                             <label class="filter-label">Event Type</label>
                             <select id="eventTypeFilter" class="filter-select" onchange="filterEvents()">
-                                <option value="all">All Event Types</option>
-                                <option value="talk-series">Talk Series</option>
-                                <option value="conference">Conference</option>
-                                <option value="program">Program</option>
-                                <option value="community">Community</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label class="filter-label">Visibility</label>
-                            <select id="eventVisibilityFilter" class="filter-select" onchange="filterEvents()">
                                 <option value="all">All Events</option>
                                 <option value="visible">Visible Only</option>
                                 <option value="hidden">Hidden Only</option>
@@ -1522,8 +1496,7 @@
                             <select id="eventSortFilter" class="filter-select" onchange="filterEvents()">
                                 <option value="order">Custom Order</option>
                                 <option value="name">Name A-Z</option>
-                                <option value="date">Date</option>
-                                <option value="created">Recently Added</option>
+                                <option value="newest">Newest First</option>
                             </select>
                         </div>
                     </div>
@@ -1558,27 +1531,24 @@
                                 <option value="all">All Status</option>
                                 <option value="pending">Pending</option>
                                 <option value="confirmed">Confirmed</option>
-                                <option value="attended">Attended</option>
                                 <option value="cancelled">Cancelled</option>
                             </select>
                         </div>
                         
                         <div class="filter-group">
-                            <label class="filter-label">Event Type</label>
+                            <label class="filter-label">Event</label>
                             <select id="regEventFilter" class="filter-select" onchange="filterRegistrations()">
                                 <option value="all">All Events</option>
-                                <!-- Event options will be populated dynamically -->
                             </select>
                         </div>
                         
                         <div class="filter-group">
-                            <label class="filter-label">Date Range</label>
+                            <label class="filter-label">Date</label>
                             <select id="regDateFilter" class="filter-select" onchange="filterRegistrations()">
                                 <option value="all">All Time</option>
                                 <option value="today">Today</option>
                                 <option value="week">This Week</option>
                                 <option value="month">This Month</option>
-                                <option value="year">This Year</option>
                             </select>
                         </div>
                     </div>
@@ -1590,7 +1560,7 @@
                                     <th>Name</th>
                                     <th>Contact</th>
                                     <th>Event</th>
-                                    <th>Registration Date</th>
+                                    <th>Date</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -1603,7 +1573,67 @@
                 </div>
             </div>
 
-            <!-- Other pages (reports, settings, calendar) can be added similarly -->
+            <!-- Analytics Page -->
+            <div id="analyticsPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Event Analytics</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="refreshAnalytics()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh Data
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <div class="stat-value" id="totalEventsAnalytics">0</div>
+                            <div class="stat-label">Total Events</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="stat-value" id="confirmedRegistrations">0</div>
+                            <div class="stat-label">Confirmed</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="stat-value" id="conversionRate">0%</div>
+                            <div class="stat-label">Conversion Rate</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-week"></i>
+                            </div>
+                            <div class="stat-value" id="weeklyAverage">0</div>
+                            <div class="stat-label">Weekly Avg</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 2rem; padding: 1.5rem; background: var(--gray-50); border-radius: var(--radius-lg);">
+                        <h3 style="margin-bottom: 1rem; color: var(--gray-700);">Registration Trends</h3>
+                        <div id="analyticsContent">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <h3 class="empty-state-title">Analytics Data</h3>
+                                <p class="empty-state-text">Registration analytics will appear here once you have more data.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -1627,6 +1657,19 @@
             </div>
             <div id="modalContent">
                 <!-- Dynamic form will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Modal -->
+    <div class="modal-overlay" id="registrationModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="registrationModalTitle">Registration Details</h3>
+                <button class="modal-close" onclick="hideRegistrationModal()">&times;</button>
+            </div>
+            <div id="registrationModalContent">
+                <!-- Dynamic registration form will be loaded here -->
             </div>
         </div>
     </div>
@@ -1847,6 +1890,7 @@
                 
                 // Update dashboard
                 updateDashboardStats();
+                updateAnalyticsStats();
                 
                 hideLoading();
                 showNotification("Data loaded successfully", "success");
@@ -1861,102 +1905,34 @@
         function extractEventsFromData() {
             allEvents = [];
             
-            if (websiteData) {
-                // Extract from events section
-                if (websiteData.events && websiteData.events.items) {
-                    Object.entries(websiteData.events.items).forEach(([id, event]) => {
-                        allEvents.push({
-                            id: id,
-                            type: 'event',
-                            name: event.name || 'Unnamed Event',
-                            description: event.description || '',
-                            schedule: event.schedule || '',
-                            tag: event.tag || '',
-                            registrationEventType: event.registrationEventType || 'General Event',
-                            visible: event.visible !== false,
-                            order: event.order || 999,
-                            icon: event.icon || 'fas fa-calendar',
-                            source: 'events'
-                        });
-                    });
-                }
-                
-                // Extract from talk series
-                if (websiteData.talkSeries) {
+            if (websiteData && websiteData.events && websiteData.events.items) {
+                // Extract only from events.items section
+                Object.entries(websiteData.events.items).forEach(([id, event]) => {
                     allEvents.push({
-                        id: 'talk-series',
-                        type: 'talk-series',
-                        name: websiteData.talkSeries.name || 'Become What You Believe',
-                        description: websiteData.talkSeries.description || '',
-                        schedule: websiteData.talkSeries.details?.schedule || 'Weekly',
-                        registrationEventType: websiteData.talkSeries.registrationEventType || 'Talk Series',
-                        visible: true,
-                        order: 1,
-                        icon: 'fas fa-microphone',
-                        source: 'talkSeries'
+                        id: id,
+                        type: 'event',
+                        name: event.name || 'Unnamed Event',
+                        description: event.description || '',
+                        schedule: event.schedule || '',
+                        tag: event.tag || '',
+                        registrationEventType: event.registrationEventType || 'General Event',
+                        visible: event.visible !== false,
+                        order: event.order || 999,
+                        icon: event.icon || 'fas fa-calendar'
                     });
-                }
+                });
                 
-                // Extract from conference
-                if (websiteData.conference) {
-                    allEvents.push({
-                        id: 'conference',
-                        type: 'conference',
-                        name: websiteData.conference.name || 'The Making of An Icon',
-                        description: websiteData.conference.description || '',
-                        date: websiteData.conference.date || '',
-                        schedule: websiteData.conference.date,
-                        registrationEventType: websiteData.conference.registrationEventType || 'Annual Conference',
-                        visible: true,
-                        order: 2,
-                        icon: 'fas fa-star',
-                        source: 'conference'
-                    });
-                }
-                
-                // Extract from programs
-                if (websiteData.programs && websiteData.programs.program) {
-                    allEvents.push({
-                        id: 'executive-program',
-                        type: 'program',
-                        name: websiteData.programs.program.name || 'Inspire.Me Program',
-                        description: websiteData.programs.program.description || '',
-                        registrationEventType: websiteData.programs.program.registrationEventType || 'Executive Program',
-                        visible: true,
-                        order: 3,
-                        icon: 'fas fa-graduation-cap',
-                        source: 'programs'
-                    });
-                }
-                
-                // Extract from communities
-                if (websiteData.communities && websiteData.communities.items) {
-                    Object.entries(websiteData.communities.items).forEach(([id, community]) => {
-                        if (community.visible !== false) {
-                            allEvents.push({
-                                id: `community-${id}`,
-                                type: 'community',
-                                name: community.name || 'Community Event',
-                                description: community.description || '',
-                                registrationEventType: community.registrationEventType || 'Community',
-                                visible: true,
-                                order: community.order || 999,
-                                icon: 'fas fa-users',
-                                source: 'communities',
-                                logo: community.logo
-                            });
-                        }
-                    });
-                }
+                // Sort by order
+                allEvents.sort((a, b) => (a.order || 999) - (b.order || 999));
             }
             
-            // Sort by order
-            allEvents.sort((a, b) => (a.order || 999) - (b.order || 999));
             filteredEvents = [...allEvents];
             
             // Update UI counts
             document.getElementById('eventCount').textContent = allEvents.length;
             updateEventFilterOptions();
+            
+            console.log('Extracted events:', allEvents);
         }
 
         async function loadRegistrations() {
@@ -1967,7 +1943,16 @@
                 if (data) {
                     allRegistrations = Object.entries(data).map(([id, reg]) => ({
                         id: id,
-                        ...reg,
+                        fullName: reg.fullName || '',
+                        email: reg.email || '',
+                        phone: reg.phone || '',
+                        profession: reg.profession || '',
+                        location: reg.location || '',
+                        eventType: reg.eventType || '',
+                        message: reg.message || '',
+                        referralSource: reg.referralSource || '',
+                        source: reg.source || '',
+                        status: reg.status || 'pending',
                         timestamp: reg.timestamp ? new Date(reg.timestamp) : new Date()
                     }));
                     
@@ -1996,35 +1981,40 @@
             document.getElementById('totalEvents').textContent = allEvents.length;
             
             // Total registrations
-            document.getElementById('totalRegistrations').textContent = allRegistrations.length;
+            const totalRegs = allRegistrations.length;
+            document.getElementById('totalRegistrations').textContent = totalRegs;
             
-            // Upcoming events (estimate based on schedule)
-            const today = new Date();
-            const upcomingCount = allEvents.filter(event => {
-                // Simple logic for demonstration
-                return event.schedule && (
-                    event.schedule.toLowerCase().includes('weekly') ||
-                    event.schedule.toLowerCase().includes('saturday') ||
-                    (event.date && new Date(event.date) >= today)
-                );
-            }).length;
+            // Pending registrations
+            const pendingRegs = allRegistrations.filter(reg => reg.status === 'pending').length;
+            document.getElementById('pendingRegistrations').textContent = pendingRegs;
             
-            document.getElementById('upcomingEvents').textContent = upcomingCount;
-            
-            // Attendance rate (based on confirmed registrations)
-            const confirmedCount = allRegistrations.filter(reg => 
-                reg.status === 'confirmed' || reg.status === 'attended'
-            ).length;
-            
-            const attendanceRate = allRegistrations.length > 0 ?
-                Math.round((confirmedCount / allRegistrations.length) * 100) : 0;
-            document.getElementById('attendanceRate').textContent = `${attendanceRate}%`;
+            // Completion rate (confirmed vs total)
+            const confirmedRegs = allRegistrations.filter(reg => reg.status === 'confirmed').length;
+            const completionRate = totalRegs > 0 ? Math.round((confirmedRegs / totalRegs) * 100) : 0;
+            document.getElementById('completionRate').textContent = `${completionRate}%`;
             
             // Update recent registrations table
             updateRecentRegistrationsTable();
             
-            // Update upcoming events cards
-            updateUpcomingEventsCards();
+            // Update current events cards
+            updateCurrentEventsCards();
+        }
+
+        function updateAnalyticsStats() {
+            document.getElementById('totalEventsAnalytics').textContent = allEvents.length;
+            
+            const confirmedRegs = allRegistrations.filter(reg => reg.status === 'confirmed').length;
+            document.getElementById('confirmedRegistrations').textContent = confirmedRegs;
+            
+            // Conversion rate (confirmed vs pending)
+            const pendingRegs = allRegistrations.filter(reg => reg.status === 'pending').length;
+            const totalRegs = allRegistrations.length;
+            const conversionRate = totalRegs > 0 ? Math.round((confirmedRegs / totalRegs) * 100) : 0;
+            document.getElementById('conversionRate').textContent = `${conversionRate}%`;
+            
+            // Weekly average (rough estimate)
+            const weeklyAvg = totalRegs > 0 ? Math.round(totalRegs / 4) : 0;
+            document.getElementById('weeklyAverage').textContent = weeklyAvg;
         }
 
         function updateRecentRegistrationsTable() {
@@ -2049,11 +2039,8 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><strong>${reg.fullName || 'N/A'}</strong></td>
-                    <td>
-                        <div>${reg.email || 'N/A'}</div>
-                        <small style="color: var(--gray-500);">${reg.phone || ''}</small>
-                    </td>
-                    <td>${reg.eventType || reg.registrationEventType || 'General'}</td>
+                    <td>${reg.email || 'N/A'}</td>
+                    <td>${reg.eventType || 'General'}</td>
                     <td>${reg.timestamp.toLocaleDateString()}</td>
                     <td><span class="status-badge status-${reg.status || 'pending'}">${reg.status || 'pending'}</span></td>
                     <td>
@@ -2067,14 +2054,14 @@
             });
         }
 
-        function updateUpcomingEventsCards() {
-            const container = document.getElementById('upcomingEventsList');
+        function updateCurrentEventsCards() {
+            const container = document.getElementById('currentEventsList');
             container.innerHTML = '';
             
-            // Get upcoming events (first 3)
-            const upcomingEvents = allEvents.slice(0, 3);
+            // Show all events
+            const currentEvents = allEvents.slice(0, 4);
             
-            if (upcomingEvents.length === 0) {
+            if (currentEvents.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">
@@ -2091,13 +2078,17 @@
                 return;
             }
             
-            upcomingEvents.forEach(event => {
+            currentEvents.forEach(event => {
+                const registrationsForEvent = allRegistrations.filter(reg => 
+                    reg.eventType === event.registrationEventType
+                ).length;
+                
                 const card = document.createElement('div');
                 card.className = 'event-card';
                 card.innerHTML = `
                     <div class="event-card-header">
                         <h3 class="event-card-title">${event.name}</h3>
-                        <span class="event-card-badge">${event.type}</span>
+                        <span class="event-card-badge">${event.tag || 'Event'}</span>
                     </div>
                     <div class="event-card-meta">
                         ${event.schedule ? `
@@ -2106,12 +2097,10 @@
                             <span>${event.schedule}</span>
                         </div>
                         ` : ''}
-                        ${event.registrationEventType ? `
                         <div class="event-card-meta-item">
-                            <i class="fas fa-tag"></i>
-                            <span>${event.registrationEventType}</span>
+                            <i class="fas fa-users"></i>
+                            <span>${registrationsForEvent} Registrations</span>
                         </div>
-                        ` : ''}
                         <div class="event-card-meta-item">
                             <i class="fas fa-eye"></i>
                             <span>${event.visible ? 'Visible' : 'Hidden'}</span>
@@ -2150,18 +2139,14 @@
                     'dashboard': 'Events Dashboard',
                     'events': 'Event Management',
                     'registrations': 'Registration Management',
-                    'reports': 'Analytics & Reports',
-                    'settings': 'System Settings',
-                    'calendar': 'Calendar View'
+                    'analytics': 'Event Analytics'
                 };
                 
                 const subtitles = {
                     'dashboard': 'Complete Event Management System',
                     'events': 'Manage all events and schedules',
                     'registrations': 'View and manage all event registrations',
-                    'reports': 'Analytics and performance reports',
-                    'settings': 'Configure system settings',
-                    'calendar': 'Calendar view of all events'
+                    'analytics': 'Analytics and performance reports'
                 };
                 
                 document.getElementById('pageTitle').textContent = titles[pageId] || pageId;
@@ -2177,6 +2162,9 @@
                         break;
                     case 'dashboard':
                         updateDashboardStats();
+                        break;
+                    case 'analytics':
+                        updateAnalyticsStats();
                         break;
                 }
             }
@@ -2218,12 +2206,16 @@
             }
             
             filteredEvents.forEach(event => {
+                const registrationsForEvent = allRegistrations.filter(reg => 
+                    reg.eventType === event.registrationEventType
+                ).length;
+                
                 const card = document.createElement('div');
                 card.className = 'event-card';
                 card.innerHTML = `
                     <div class="event-card-header">
                         <h3 class="event-card-title">${event.name}</h3>
-                        <span class="event-card-badge">${event.type}</span>
+                        <span class="event-card-badge">${event.tag || 'Event'}</span>
                     </div>
                     <div class="event-card-meta">
                         ${event.schedule ? `
@@ -2232,12 +2224,10 @@
                             <span>${event.schedule}</span>
                         </div>
                         ` : ''}
-                        ${event.registrationEventType ? `
                         <div class="event-card-meta-item">
-                            <i class="fas fa-tag"></i>
-                            <span>${event.registrationEventType}</span>
+                            <i class="fas fa-users"></i>
+                            <span>${registrationsForEvent} Registrations</span>
                         </div>
-                        ` : ''}
                         <div class="event-card-meta-item">
                             <i class="fas fa-eye"></i>
                             <span>${event.visible ? 'Visible' : 'Hidden'}</span>
@@ -2259,10 +2249,12 @@
                             <i class="fas fa-info-circle"></i>
                             Details
                         </button>
+                        ${allRegistrations.filter(reg => reg.eventType === event.registrationEventType).length === 0 ? `
                         <button class="action-btn delete" onclick="deleteEvent('${event.id}')">
                             <i class="fas fa-trash"></i>
                             Delete
                         </button>
+                        ` : ''}
                     </div>
                 `;
                 container.appendChild(card);
@@ -2271,20 +2263,14 @@
 
         function filterEvents() {
             const typeFilter = document.getElementById('eventTypeFilter').value;
-            const visibilityFilter = document.getElementById('eventVisibilityFilter').value;
             const sortFilter = document.getElementById('eventSortFilter').value;
             
             filteredEvents = allEvents.filter(event => {
-                // Type filter
-                if (typeFilter !== 'all' && event.type !== typeFilter) {
-                    return false;
-                }
-                
                 // Visibility filter
-                if (visibilityFilter === 'visible' && !event.visible) {
+                if (typeFilter === 'visible' && !event.visible) {
                     return false;
                 }
-                if (visibilityFilter === 'hidden' && event.visible) {
+                if (typeFilter === 'hidden' && event.visible) {
                     return false;
                 }
                 
@@ -2296,11 +2282,7 @@
                 switch (sortFilter) {
                     case 'name':
                         return a.name.localeCompare(b.name);
-                    case 'date':
-                        // Simple date comparison (you might want to enhance this)
-                        return (a.schedule || '').localeCompare(b.schedule || '');
-                    case 'created':
-                        // For demonstration, using order as creation indicator
+                    case 'newest':
                         return (b.order || 0) - (a.order || 0);
                     default: // 'order'
                         return (a.order || 999) - (b.order || 999);
@@ -2312,7 +2294,6 @@
 
         function clearEventFilters() {
             document.getElementById('eventTypeFilter').value = 'all';
-            document.getElementById('eventVisibilityFilter').value = 'all';
             document.getElementById('eventSortFilter').value = 'order';
             filterEvents();
         }
@@ -2345,7 +2326,7 @@
                         <div>${reg.email || 'N/A'}</div>
                         <div style="color: var(--gray-500); font-size: 0.875rem;">${reg.phone || ''}</div>
                     </td>
-                    <td>${reg.eventType || reg.registrationEventType || 'General'}</td>
+                    <td>${reg.eventType || 'General'}</td>
                     <td>
                         <div>${reg.timestamp.toLocaleDateString()}</div>
                         <small style="color: var(--gray-500);">${reg.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
@@ -2356,7 +2337,7 @@
                             <button class="action-btn view" onclick="viewRegistration('${reg.id}')">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="action-btn edit" onclick="editRegistrationStatus('${reg.id}')">
+                            <button class="action-btn edit" onclick="editRegistration('${reg.id}')">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button class="action-btn delete" onclick="deleteRegistration('${reg.id}')">
@@ -2381,11 +2362,8 @@
                 }
                 
                 // Event filter
-                if (eventFilter !== 'all') {
-                    const eventType = reg.eventType || reg.registrationEventType || '';
-                    if (!eventType.toLowerCase().includes(eventFilter.toLowerCase())) {
-                        return false;
-                    }
+                if (eventFilter !== 'all' && reg.eventType !== eventFilter) {
+                    return false;
                 }
                 
                 // Date filter
@@ -2406,9 +2384,6 @@
                         case 'month':
                             if (regDate.getMonth() !== now.getMonth() || regDate.getFullYear() !== now.getFullYear()) return false;
                             break;
-                        case 'year':
-                            if (regDate.getFullYear() !== now.getFullYear()) return false;
-                            break;
                     }
                 }
                 
@@ -2427,15 +2402,13 @@
                 select.remove(1);
             }
             
-            // Get unique event types from registrations
-            const eventTypes = [...new Set(allRegistrations.map(reg => 
-                reg.eventType || reg.registrationEventType || 'General'
-            ))];
+            // Get unique event types from events
+            const eventTypes = [...new Set(allEvents.map(event => event.registrationEventType))];
             
             eventTypes.forEach(type => {
-                if (type && type !== 'General') {
+                if (type) {
                     const option = document.createElement('option');
-                    option.value = type.toLowerCase().replace(/[^a-z0-9]/g, '-');
+                    option.value = type;
                     option.textContent = type;
                     select.appendChild(option);
                 }
@@ -2462,43 +2435,51 @@
             document.getElementById('eventModal').classList.add('active');
         }
 
-        // Event CRUD Functions (Placeholder implementations)
+        function hideRegistrationModal() {
+            document.getElementById('registrationModal').classList.remove('active');
+        }
+
+        function showRegistrationModal(content, title = 'Registration') {
+            document.getElementById('registrationModalTitle').textContent = title;
+            document.getElementById('registrationModalContent').innerHTML = content;
+            document.getElementById('registrationModal').classList.add('active');
+        }
+
+        // Event CRUD Functions
         function addNewEvent() {
             const form = `
-                <form id="eventForm" onsubmit="saveEvent(event)">
+                <form id="eventForm" onsubmit="saveNewEvent(event)">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label class="form-label">Event Name</label>
-                            <input type="text" class="form-input" name="name" required>
+                            <label class="form-label">Event Name *</label>
+                            <input type="text" class="form-input" name="name" required placeholder="Enter event name">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Event Type</label>
-                            <select class="form-input" name="type" required>
-                                <option value="talk-series">Talk Series</option>
-                                <option value="conference">Conference</option>
-                                <option value="program">Program</option>
-                                <option value="community">Community</option>
-                                <option value="event">General Event</option>
-                            </select>
+                            <label class="form-label">Schedule</label>
+                            <input type="text" class="form-input" name="schedule" placeholder="e.g., Saturdays 7-8 PM EAT">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Schedule/Date</label>
-                            <input type="text" class="form-input" name="schedule" placeholder="e.g., Every Saturday, 7-8 PM">
+                            <label class="form-label">Tag</label>
+                            <input type="text" class="form-input" name="tag" placeholder="e.g., Weekly Series">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Registration Event Type</label>
-                            <input type="text" class="form-input" name="registrationEventType" required>
+                            <label class="form-label">Registration Event Type *</label>
+                            <input type="text" class="form-input" name="registrationEventType" required placeholder="Used for registrations">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-input" name="description" rows="4" required></textarea>
+                            <label class="form-label">Icon Class</label>
+                            <input type="text" class="form-input" name="icon" placeholder="fas fa-calendar" value="fas fa-calendar">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Order</label>
                             <input type="number" class="form-input" name="order" min="1" value="1">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">
+                            <label class="form-label">Description *</label>
+                            <textarea class="form-input" name="description" rows="4" required placeholder="Enter event description"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem;">
                                 <input type="checkbox" name="visible" checked>
                                 Visible on website
                             </label>
@@ -2518,42 +2499,90 @@
             showModal(form, 'Add New Event');
         }
 
-        function saveEvent(e) {
+        async function saveNewEvent(e) {
             e.preventDefault();
-            showNotification("Event saved successfully!", "success");
-            hideModal();
-            // In a real implementation, you would save to Firebase here
+            showLoading("Saving event...");
+            
+            try {
+                const form = e.target;
+                const formData = new FormData(form);
+                const eventData = {
+                    name: formData.get('name'),
+                    description: formData.get('description'),
+                    schedule: formData.get('schedule') || '',
+                    tag: formData.get('tag') || '',
+                    registrationEventType: formData.get('registrationEventType'),
+                    icon: formData.get('icon') || 'fas fa-calendar',
+                    visible: formData.get('visible') === 'on',
+                    order: parseInt(formData.get('order')) || 1
+                };
+                
+                // Generate a new event ID
+                const eventId = 'event' + (allEvents.length + 1);
+                
+                // Save to Firebase
+                await database.ref(`iam-mugera/events/items/${eventId}`).set(eventData);
+                
+                // Reload data
+                await loadInitialData();
+                
+                hideModal();
+                hideLoading();
+                showNotification("Event created successfully!", "success");
+                
+                // Show events page
+                showPage('events');
+                
+            } catch (error) {
+                console.error("Error saving event:", error);
+                hideLoading();
+                showNotification("Failed to save event: " + error.message, "error");
+            }
         }
 
         function editEvent(eventId) {
             const event = allEvents.find(e => e.id === eventId);
-            if (!event) return;
+            if (!event) {
+                showNotification("Event not found", "error");
+                return;
+            }
             
             const form = `
                 <form id="eventForm" onsubmit="updateEvent(event, '${eventId}')">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label class="form-label">Event Name</label>
+                            <label class="form-label">Event Name *</label>
                             <input type="text" class="form-input" name="name" value="${event.name}" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-input" name="description" rows="4" required>${event.description || ''}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Schedule/Date</label>
+                            <label class="form-label">Schedule</label>
                             <input type="text" class="form-input" name="schedule" value="${event.schedule || ''}">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Visibility</label>
-                            <select class="form-input" name="visible">
-                                <option value="true" ${event.visible ? 'selected' : ''}>Visible</option>
-                                <option value="false" ${!event.visible ? 'selected' : ''}>Hidden</option>
-                            </select>
+                            <label class="form-label">Tag</label>
+                            <input type="text" class="form-input" name="tag" value="${event.tag || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Registration Event Type *</label>
+                            <input type="text" class="form-input" name="registrationEventType" value="${event.registrationEventType}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Icon Class</label>
+                            <input type="text" class="form-input" name="icon" value="${event.icon || 'fas fa-calendar'}">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Order</label>
                             <input type="number" class="form-input" name="order" value="${event.order || 1}" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description *</label>
+                            <textarea class="form-input" name="description" rows="4" required>${event.description || ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" name="visible" ${event.visible ? 'checked' : ''}>
+                                Visible on website
+                            </label>
                         </div>
                     </div>
                     <div class="form-actions">
@@ -2570,24 +2599,82 @@
             showModal(form, `Edit: ${event.name}`);
         }
 
-        function updateEvent(e, eventId) {
+        async function updateEvent(e, eventId) {
             e.preventDefault();
-            showNotification("Event updated successfully!", "success");
-            hideModal();
-            // In a real implementation, you would update Firebase here
-        }
-
-        function deleteEvent(eventId) {
-            if (confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
-                showNotification("Event deleted successfully!", "success");
-                // In a real implementation, you would delete from Firebase here
+            showLoading("Updating event...");
+            
+            try {
+                const form = e.target;
+                const formData = new FormData(form);
+                const eventData = {
+                    name: formData.get('name'),
+                    description: formData.get('description'),
+                    schedule: formData.get('schedule') || '',
+                    tag: formData.get('tag') || '',
+                    registrationEventType: formData.get('registrationEventType'),
+                    icon: formData.get('icon') || 'fas fa-calendar',
+                    visible: formData.get('visible') === 'on',
+                    order: parseInt(formData.get('order')) || 1
+                };
+                
+                // Update in Firebase
+                await database.ref(`iam-mugera/events/items/${eventId}`).update(eventData);
+                
+                // Reload data
+                await loadInitialData();
+                
+                hideModal();
+                hideLoading();
+                showNotification("Event updated successfully!", "success");
+                
+            } catch (error) {
+                console.error("Error updating event:", error);
+                hideLoading();
+                showNotification("Failed to update event: " + error.message, "error");
             }
         }
 
-        // Registration CRUD Functions (Placeholder)
+        async function deleteEvent(eventId) {
+            if (!confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
+                return;
+            }
+            
+            showLoading("Deleting event...");
+            
+            try {
+                // Check if event has registrations
+                const event = allEvents.find(e => e.id === eventId);
+                const hasRegistrations = allRegistrations.some(reg => reg.eventType === event.registrationEventType);
+                
+                if (hasRegistrations) {
+                    hideLoading();
+                    showNotification("Cannot delete event with existing registrations", "error");
+                    return;
+                }
+                
+                // Delete from Firebase
+                await database.ref(`iam-mugera/events/items/${eventId}`).remove();
+                
+                // Reload data
+                await loadInitialData();
+                
+                hideLoading();
+                showNotification("Event deleted successfully!", "success");
+                
+            } catch (error) {
+                console.error("Error deleting event:", error);
+                hideLoading();
+                showNotification("Failed to delete event: " + error.message, "error");
+            }
+        }
+
+        // Registration CRUD Functions
         function viewRegistration(regId) {
             const reg = allRegistrations.find(r => r.id === regId);
-            if (!reg) return;
+            if (!reg) {
+                showNotification("Registration not found", "error");
+                return;
+            }
             
             const content = `
                 <div style="line-height: 1.8;">
@@ -2605,14 +2692,285 @@
                             <strong>Registration Date:</strong><br>
                             ${reg.timestamp.toLocaleString()}
                         </div>
-                        <div>
+                        <div style="margin-bottom: 1rem;">
                             <strong>Status:</strong><br>
                             <span class="status-badge status-${reg.status || 'pending'}">${reg.status || 'pending'}</span>
                         </div>
+                        ${reg.referralSource ? `
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Referral Source:</strong><br>
+                            ${reg.referralSource}
+                        </div>
+                        ` : ''}
                         ${reg.message ? `
                         <div style="margin-top: 1rem;">
                             <strong>Message:</strong><br>
                             <p style="color: var(--gray-700);">${reg.message}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="editRegistration('${reg.id}')">
+                        <i class="fas fa-edit"></i>
+                        Edit Registration
+                    </button>
+                    <button type="button" class="btn" onclick="hideRegistrationModal()">
+                        Close
+                    </button>
+                </div>
+            `;
+            showRegistrationModal(content, `Registration: ${reg.fullName || 'View Details'}`);
+        }
+
+        function editRegistration(regId) {
+            const reg = allRegistrations.find(r => r.id === regId);
+            if (!reg) {
+                showNotification("Registration not found", "error");
+                return;
+            }
+            
+            const form = `
+                <form id="registrationForm" onsubmit="updateRegistration(event, '${regId}')">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" class="form-input" name="fullName" value="${reg.fullName || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-input" name="email" value="${reg.email || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="text" class="form-input" name="phone" value="${reg.phone || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Profession</label>
+                            <input type="text" class="form-input" name="profession" value="${reg.profession || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Location</label>
+                            <input type="text" class="form-input" name="location" value="${reg.location || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Event Type</label>
+                            <select class="form-input" name="eventType">
+                                <option value="">Select Event Type</option>
+                                ${allEvents.map(event => `
+                                    <option value="${event.registrationEventType}" ${reg.eventType === event.registrationEventType ? 'selected' : ''}>
+                                        ${event.name}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-input" name="status">
+                                <option value="pending" ${reg.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="confirmed" ${reg.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                                <option value="cancelled" ${reg.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Message</label>
+                            <textarea class="form-input" name="message" rows="3">${reg.message || ''}</textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="hideRegistrationModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-save"></i>
+                            Update Registration
+                        </button>
+                    </div>
+                </form>
+            `;
+            showRegistrationModal(form, `Edit Registration: ${reg.fullName}`);
+        }
+
+        async function updateRegistration(e, regId) {
+            e.preventDefault();
+            showLoading("Updating registration...");
+            
+            try {
+                const form = e.target;
+                const formData = new FormData(form);
+                const regData = {
+                    fullName: formData.get('fullName'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone') || '',
+                    profession: formData.get('profession') || '',
+                    location: formData.get('location') || '',
+                    eventType: formData.get('eventType') || '',
+                    status: formData.get('status') || 'pending',
+                    message: formData.get('message') || '',
+                    // Keep original timestamp and other fields
+                    timestamp: allRegistrations.find(r => r.id === regId).timestamp.toISOString(),
+                    referralSource: allRegistrations.find(r => r.id === regId).referralSource || '',
+                    source: allRegistrations.find(r => r.id === regId).source || 'website'
+                };
+                
+                // Update in Firebase
+                await database.ref(`registrations/${regId}`).update(regData);
+                
+                // Reload data
+                await loadRegistrations();
+                
+                // Update current view
+                if (document.getElementById('registrationsPage').style.display !== 'none') {
+                    updateRegistrationsTable();
+                }
+                if (document.getElementById('dashboardPage').style.display !== 'none') {
+                    updateRecentRegistrationsTable();
+                    updateDashboardStats();
+                }
+                
+                hideRegistrationModal();
+                hideLoading();
+                showNotification("Registration updated successfully!", "success");
+                
+            } catch (error) {
+                console.error("Error updating registration:", error);
+                hideLoading();
+                showNotification("Failed to update registration: " + error.message, "error");
+            }
+        }
+
+        async function deleteRegistration(regId) {
+            if (!confirm("Are you sure you want to delete this registration? This action cannot be undone.")) {
+                return;
+            }
+            
+            showLoading("Deleting registration...");
+            
+            try {
+                // Delete from Firebase
+                await database.ref(`registrations/${regId}`).remove();
+                
+                // Reload data
+                await loadRegistrations();
+                
+                // Update current view
+                if (document.getElementById('registrationsPage').style.display !== 'none') {
+                    updateRegistrationsTable();
+                }
+                if (document.getElementById('dashboardPage').style.display !== 'none') {
+                    updateRecentRegistrationsTable();
+                    updateDashboardStats();
+                    updateAnalyticsStats();
+                }
+                
+                hideLoading();
+                showNotification("Registration deleted successfully!", "success");
+                
+            } catch (error) {
+                console.error("Error deleting registration:", error);
+                hideLoading();
+                showNotification("Failed to delete registration: " + error.message, "error");
+            }
+        }
+
+        // Utility Functions
+        function refreshEvents() {
+            showLoading("Refreshing events...");
+            extractEventsFromData();
+            updateEventsList();
+            hideLoading();
+            showNotification("Events refreshed successfully", "success");
+        }
+
+        async function refreshRegistrations() {
+            showLoading("Refreshing registrations...");
+            await loadRegistrations();
+            if (document.getElementById('registrationsPage').style.display !== 'none') {
+                updateRegistrationsTable();
+            }
+            if (document.getElementById('dashboardPage').style.display !== 'none') {
+                updateRecentRegistrationsTable();
+                updateDashboardStats();
+            }
+            hideLoading();
+            showNotification("Registrations refreshed successfully", "success");
+        }
+
+        function refreshAnalytics() {
+            updateAnalyticsStats();
+            showNotification("Analytics refreshed", "success");
+        }
+
+        function exportRegistrations() {
+            if (allRegistrations.length === 0) {
+                showNotification("No registrations to export", "warning");
+                return;
+            }
+            
+            // Create CSV content
+            let csv = 'Name,Email,Phone,Event,Status,Date\n';
+            allRegistrations.forEach(reg => {
+                csv += `"${reg.fullName || ''}","${reg.email || ''}","${reg.phone || ''}","${reg.eventType || ''}","${reg.status || ''}","${reg.timestamp.toLocaleDateString()}"\n`;
+            });
+            
+            // Create download link
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `registrations_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showNotification("Export completed successfully", "success");
+        }
+
+        function viewEventDetails(eventId) {
+            const event = allEvents.find(e => e.id === eventId);
+            if (!event) return;
+            
+            const registrationsForEvent = allRegistrations.filter(reg => 
+                reg.eventType === event.registrationEventType
+            );
+            
+            const content = `
+                <div style="line-height: 1.8;">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary);">${event.name}</h4>
+                    <div style="background: var(--gray-50); padding: 1.5rem; border-radius: var(--radius-lg);">
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Description:</strong><br>
+                            <p>${event.description || 'No description'}</p>
+                        </div>
+                        ${event.schedule ? `
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Schedule:</strong><br>
+                            ${event.schedule}
+                        </div>
+                        ` : ''}
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Registration Event Type:</strong><br>
+                            ${event.registrationEventType}
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Status:</strong><br>
+                            <span class="status-badge ${event.visible ? 'status-confirmed' : 'status-pending'}">
+                                ${event.visible ? 'Visible' : 'Hidden'}
+                            </span>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Total Registrations:</strong><br>
+                            ${registrationsForEvent.length} registrations
+                        </div>
+                        ${registrationsForEvent.length > 0 ? `
+                        <div style="margin-top: 1rem;">
+                            <strong>Recent Registrations:</strong><br>
+                            <ul style="margin-top: 0.5rem; padding-left: 1rem;">
+                                ${registrationsForEvent.slice(0, 3).map(reg => `
+                                    <li>${reg.fullName} - ${reg.status}</li>
+                                `).join('')}
+                            </ul>
                         </div>
                         ` : ''}
                     </div>
@@ -2623,37 +2981,7 @@
                     </button>
                 </div>
             `;
-            showModal(content, `Registration: ${reg.fullName || 'View Details'}`);
-        }
-
-        // Utility Functions
-        function refreshEvents() {
-            showLoading("Refreshing events...");
-            setTimeout(() => {
-                extractEventsFromData();
-                updateEventsList();
-                hideLoading();
-                showNotification("Events refreshed successfully", "success");
-            }, 500);
-        }
-
-        function refreshRegistrations() {
-            showLoading("Refreshing registrations...");
-            loadRegistrations().then(() => {
-                if (document.getElementById('registrationsPage').style.display !== 'none') {
-                    updateRegistrationsTable();
-                }
-                hideLoading();
-                showNotification("Registrations refreshed successfully", "success");
-            });
-        }
-
-        function exportRegistrations() {
-            showLoading("Preparing export...");
-            setTimeout(() => {
-                hideLoading();
-                showNotification("Export feature will be implemented soon", "info");
-            }, 1000);
+            showModal(content, `Event Details: ${event.name}`);
         }
 
         // Event Listeners
@@ -2690,16 +3018,25 @@
                 });
             });
             
-            // Close modal on overlay click
+            // Close modals on overlay click
             document.getElementById('eventModal').addEventListener('click', (e) => {
                 if (e.target === document.getElementById('eventModal')) {
                     hideModal();
                 }
             });
             
-            // Close modal on ESC
+            document.getElementById('registrationModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('registrationModal')) {
+                    hideRegistrationModal();
+                }
+            });
+            
+            // Close modals on ESC
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') hideModal();
+                if (e.key === 'Escape') {
+                    hideModal();
+                    hideRegistrationModal();
+                }
             });
         }
 
@@ -2715,13 +3052,18 @@
         // Make functions globally available
         window.showPage = showPage;
         window.hideModal = hideModal;
+        window.hideRegistrationModal = hideRegistrationModal;
         window.addNewEvent = addNewEvent;
         window.refreshEvents = refreshEvents;
         window.refreshRegistrations = refreshRegistrations;
+        window.refreshAnalytics = refreshAnalytics;
         window.exportRegistrations = exportRegistrations;
         window.filterEvents = filterEvents;
         window.filterRegistrations = filterRegistrations;
         window.clearEventFilters = clearEventFilters;
+        window.viewRegistration = viewRegistration;
+        window.editRegistration = editRegistration;
+        window.viewEventDetails = viewEventDetails;
     </script>
 </body>
 </html>
