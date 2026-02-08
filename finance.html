@@ -1,0 +1,2934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>I AM MUGERA - Partnerships Management</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0a0a0a;
+            --secondary: #ffffff;
+            --accent: #ca8a04;
+            --accent-light: #fef3c7;
+            --accent-dark: #a16207;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --teal: #14b8a6;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gray-50);
+            color: var(--primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Auth Overlay */
+        .auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(10, 10, 10, 0.95) 0%, 
+                rgba(10, 10, 10, 0.85) 100%),
+                url('https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            padding: 1.5rem;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-2xl);
+            padding: 3rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: var(--shadow-2xl);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo {
+            width: 100%;
+            max-width: 220px;
+            height: auto;
+            margin: 0 auto 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(202, 138, 4, 0.1), rgba(255, 255, 255, 0.2));
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(202, 138, 4, 0.2);
+        }
+
+        .auth-logo img {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+
+        .auth-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-subtitle {
+            color: var(--gray-600);
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+        }
+
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.5rem;
+            display: none;
+            border-left: 4px solid;
+            background: var(--secondary);
+            box-shadow: var(--shadow-sm);
+            font-size: 0.9rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-error {
+            border-left-color: var(--error);
+            background: linear-gradient(to right, rgba(239, 68, 68, 0.05), transparent);
+        }
+
+        .alert.show {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label i {
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1.25rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-md);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--secondary);
+            color: var(--primary);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.15);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: var(--secondary);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(202, 138, 4, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent);
+            color: var(--secondary);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        /* Main Container */
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, 
+                rgba(10, 10, 10, 0.98) 0%, 
+                rgba(10, 10, 10, 0.95) 100%);
+            color: var(--secondary);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 2rem;
+            right: 2rem;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+        }
+
+        .sidebar-logo {
+            width: 100%;
+            max-width: 180px;
+            height: auto;
+            margin: 0 auto 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-logo img {
+            width: 100%;
+            height: auto;
+            filter: brightness(0) invert(1);
+        }
+
+        .sidebar-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-align: center;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.8rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            opacity: 0.8;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 1.5rem 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+            padding: 0 1rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--accent);
+            transform: scaleY(0);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--secondary);
+        }
+
+        .nav-link:hover::before {
+            transform: scaleY(1);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(90deg, rgba(202, 138, 4, 0.2), transparent);
+            color: var(--accent);
+        }
+
+        .nav-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-icon {
+            width: 22px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--accent);
+            color: var(--secondary);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+            background: var(--gray-50);
+        }
+
+        /* Header */
+        .header {
+            background: var(--secondary);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+        }
+
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 2px solid rgba(202, 138, 4, 0.3);
+            color: var(--accent);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: var(--accent);
+            color: var(--secondary);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            color: var(--error);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: var(--error);
+            color: var(--secondary);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--secondary);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: var(--secondary);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-change {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive {
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            color: var(--error);
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: var(--secondary);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .section-tools {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(202, 138, 4, 0.05);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(202, 138, 4, 0.1);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 180px;
+        }
+
+        .filter-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-md);
+            background: var(--secondary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.15);
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--gray-200);
+            box-shadow: var(--shadow-sm);
+            background: var(--secondary);
+            margin-top: 1rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        .data-table th {
+            background: rgba(202, 138, 4, 0.1);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--accent-dark);
+            border-bottom: 2px solid var(--accent);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+            color: var(--gray-700);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background: rgba(202, 138, 4, 0.03);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent-dark);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-confirmed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-completed {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--info);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+        }
+
+        .status-cancelled {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-refunded {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        /* Payment Method Badges */
+        .payment-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .payment-mpesa {
+            background: rgba(0, 179, 86, 0.1);
+            color: #00b356;
+            border: 1px solid rgba(0, 179, 86, 0.3);
+        }
+
+        .payment-bank {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        /* Reason Badges */
+        .reason-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .reason-content {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .reason-event {
+            background: rgba(20, 184, 166, 0.1);
+            color: var(--teal);
+            border: 1px solid rgba(20, 184, 166, 0.3);
+        }
+
+        .reason-general {
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(202, 138, 4, 0.3);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 0.375rem 0.75rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: var(--transition);
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .action-btn.view {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .action-btn.view:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .action-btn.edit {
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--accent-dark);
+            border: 1px solid rgba(202, 138, 4, 0.2);
+        }
+
+        .action-btn.edit:hover {
+            background: rgba(202, 138, 4, 0.2);
+        }
+
+        .action-btn.delete {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .action-btn.delete:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .action-btn.approve {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .action-btn.approve:hover {
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .partnership-card {
+            background: var(--secondary);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .partnership-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent);
+        }
+
+        .partnership-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .partnership-card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .partnership-card-badge {
+            padding: 0.25rem 0.75rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: var(--secondary);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .partnership-card-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .partnership-card-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray-600);
+            font-size: 0.875rem;
+        }
+
+        .partnership-card-meta-item i {
+            color: var(--accent);
+            width: 16px;
+        }
+
+        .amount-display {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success);
+            margin: 0.5rem 0;
+        }
+
+        .partnership-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--secondary);
+            border-radius: var(--radius-2xl);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow-2xl);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .modal-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background: var(--gray-100);
+            color: var(--primary);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-content {
+            background: var(--secondary);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(202, 138, 4, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Notification */
+        .notification-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
+            max-width: 350px;
+        }
+
+        .notification {
+            background: var(--secondary);
+            border-radius: var(--radius-lg);
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideInRight 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .notification.success {
+            border-left-color: var(--success);
+        }
+
+        .notification.error {
+            border-left-color: var(--error);
+        }
+
+        .notification.warning {
+            border-left-color: var(--warning);
+        }
+
+        .notification.info {
+            border-left-color: var(--info);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--gray-500);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--gray-700);
+        }
+
+        .empty-state-text {
+            margin-bottom: 1.5rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Amount Display */
+        .amount-cell {
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .summary-card {
+            background: var(--secondary);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            border: 1px solid var(--gray-200);
+            text-align: center;
+        }
+
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-label {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 250px;
+            }
+            .main-content {
+                margin-left: 250px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .user-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .section-tools {
+                justify-content: center;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+            
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth Overlay -->
+    <div id="authOverlay" class="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA">
+                </div>
+                <h1 class="auth-title">Partnerships Management</h1>
+                <p class="auth-subtitle">Admin Authentication Required</p>
+            </div>
+            
+            <div id="authError" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText">Invalid credentials or session expired</span>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-envelope"></i>
+                    Email Address
+                </label>
+                <input type="email" id="authEmail" class="form-input" placeholder="admin@iammugera.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-lock"></i>
+                    Password
+                </label>
+                <input type="password" id="authPassword" class="form-input" placeholder="••••••••" required>
+            </div>
+            
+            <button type="button" class="btn" id="authBtn">
+                <i class="fas fa-sign-in-alt"></i>
+                Sign In to Partnerships Portal
+            </button>
+            
+            <a href="master-admin.html" class="btn btn-outline" style="margin-top: 1rem;">
+                <i class="fas fa-arrow-left"></i>
+                Back to Master Portal
+            </a>
+            
+            <div style="text-align: center; margin-top: 1.5rem; color: var(--gray-500); font-size: 0.8rem;">
+                <i class="fas fa-shield-alt"></i> Secure Admin Access
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-container" style="display: none;">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA">
+                </div>
+                <h2 class="sidebar-title">Partnerships Management</h2>
+                <p class="sidebar-subtitle">Complete Partnership Administration</p>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt nav-icon"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="partnerships">
+                        <i class="fas fa-handshake nav-icon"></i>
+                        <span>All Partnerships</span>
+                        <span class="nav-badge" id="partnershipCount">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="analytics">
+                        <i class="fas fa-chart-bar nav-icon"></i>
+                        <span>Financial Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="reports">
+                        <i class="fas fa-file-invoice-dollar nav-icon"></i>
+                        <span>Financial Reports</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div style="padding: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto;">
+                <div style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); text-align: center;">
+                    <i class="fas fa-lock"></i> Secure Session Active
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div>
+                    <h1 class="page-title" id="pageTitle">Partnerships Dashboard</h1>
+                    <div class="page-subtitle">
+                        <i class="fas fa-handshake"></i>
+                        <span id="pageSubtitle">Complete Partnership Management System</span>
+                    </div>
+                </div>
+                <div class="user-actions">
+                    <a href="master-admin.html" class="back-btn">
+                        <i class="fas fa-home"></i>
+                        Master Portal
+                    </a>
+                    <div class="user-avatar" id="userAvatar">
+                        A
+                    </div>
+                    <button class="logout-btn" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <div id="dashboardPage" class="page-content">
+                <div class="dashboard-grid">
+                    <div class="stat-card" onclick="showPage('partnerships')">
+                        <div class="stat-icon">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <div class="stat-value" id="totalPartnerships">0</div>
+                        <div class="stat-label">Total Partnerships</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-check-circle"></i>
+                            <span>All Time</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card" onclick="showPage('partnerships')">
+                        <div class="stat-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-value" id="totalAmount">KSh 0</div>
+                        <div class="stat-label">Total Amount</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>Revenue</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card" onclick="showPage('partnerships')">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-value" id="pendingPartnerships">0</div>
+                        <div class="stat-label">Pending</div>
+                        <div class="stat-change warning">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Needs Attention</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card" onclick="showPage('analytics')">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-value" id="avgAmount">KSh 0</div>
+                        <div class="stat-label">Average Amount</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-trend-up"></i>
+                            <span>Performance</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Recent Partnerships</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="showPage('partnerships')">
+                                <i class="fas fa-eye"></i>
+                                View All Partnerships
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="refreshPartnerships()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="cards-grid" id="recentPartnershipsList">
+                        <!-- Partnerships will be loaded here -->
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-handshake-slash"></i>
+                            </div>
+                            <h3 class="empty-state-title">No Partnerships Found</h3>
+                            <p class="empty-state-text">Partnership data will appear here once available.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Quick Summary</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="showPage('reports')">
+                                <i class="fas fa-file-export"></i>
+                                Generate Report
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <div class="summary-value" id="confirmedCount">0</div>
+                            <div class="summary-label">Confirmed</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" id="mpesaCount">0</div>
+                            <div class="summary-label">M-Pesa Payments</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" id="contentCount">0</div>
+                            <div class="summary-label">Content Creation</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" id="eventRegCount">0</div>
+                            <div class="summary-label">Event Registration</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Partnerships Page -->
+            <div id="partnershipsPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Partnership Management</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="refreshPartnerships()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="addManualPartnership()">
+                                <i class="fas fa-plus"></i>
+                                Add Manual Entry
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label class="filter-label">Status</label>
+                            <select id="statusFilter" class="filter-select" onchange="filterPartnerships()">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                                <option value="refunded">Refunded</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Payment Method</label>
+                            <select id="paymentFilter" class="filter-select" onchange="filterPartnerships()">
+                                <option value="all">All Methods</option>
+                                <option value="lipa-na-mpesa">Lipa Na M-Pesa</option>
+                                <option value="bank-transfer">Bank Transfer</option>
+                                <option value="cash">Cash</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Reason</label>
+                            <select id="reasonFilter" class="filter-select" onchange="filterPartnerships()">
+                                <option value="all">All Reasons</option>
+                                <option value="content-creation">Content Creation</option>
+                                <option value="event-registration">Event Registration</option>
+                                <option value="general-support">General Support</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Date Range</label>
+                            <select id="dateFilter" class="filter-select" onchange="filterPartnerships()">
+                                <option value="all">All Time</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="year">This Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Partner Name</th>
+                                    <th>Contact</th>
+                                    <th>Amount</th>
+                                    <th>Reason</th>
+                                    <th>Payment Method</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allPartnerships">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div id="analyticsPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Financial Analytics</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="refreshAnalytics()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh Analytics
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <div class="stat-value" id="totalRevenue">KSh 0</div>
+                            <div class="stat-label">Total Revenue</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="stat-value" id="monthlyRevenue">KSh 0</div>
+                            <div class="stat-label">Monthly Revenue</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="stat-value" id="growthRate">0%</div>
+                            <div class="stat-label">Growth Rate</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div class="stat-value" id="completionRate">0%</div>
+                            <div class="stat-label">Completion Rate</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 2rem; padding: 1.5rem; background: var(--gray-50); border-radius: var(--radius-lg);">
+                        <h3 style="margin-bottom: 1rem; color: var(--gray-700);">Revenue Breakdown</h3>
+                        <div id="analyticsContent">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <h3 class="empty-state-title">Analytics Data</h3>
+                                <p class="empty-state-text">Financial analytics will appear here once you have more data.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Page -->
+            <div id="reportsPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Financial Reports</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="generateReport()">
+                                <i class="fas fa-file-pdf"></i>
+                                Generate PDF Report
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="exportCSV()">
+                                <i class="fas fa-file-csv"></i>
+                                Export CSV
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 2rem;">
+                        <div class="summary-grid">
+                            <div class="summary-card">
+                                <div class="summary-value" id="reportTotal">KSh 0</div>
+                                <div class="summary-label">Total Partnerships</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-value" id="reportConfirmed">KSh 0</div>
+                                <div class="summary-label">Confirmed Amount</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-value" id="reportPending">KSh 0</div>
+                                <div class="summary-label">Pending Amount</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-value" id="reportAvg">KSh 0</div>
+                                <div class="summary-label">Average Amount</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: var(--gray-50); padding: 1.5rem; border-radius: var(--radius-lg);">
+                        <h3 style="margin-bottom: 1rem; color: var(--gray-700);">Report Summary</h3>
+                        <div id="reportSummary">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <h3 class="empty-state-title">No Report Generated</h3>
+                                <p class="empty-state-text">Generate a report to see financial summaries and analytics.</p>
+                                <button class="btn btn-sm" onclick="generateReport()">
+                                    <i class="fas fa-file-alt"></i>
+                                    Generate First Report
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p style="color: var(--gray-700); font-weight: 600;">Loading Partnerships Management System...</p>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Partnership Modal -->
+    <div class="modal-overlay" id="partnershipModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Partnership Details</h3>
+                <button class="modal-close" onclick="hideModal()">&times;</button>
+            </div>
+            <div id="modalContent">
+                <!-- Dynamic form will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+
+        // Initialize Firebase
+        let app;
+        let auth;
+        let database;
+        
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            database = firebase.database();
+            console.log("Firebase initialized successfully");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            showNotification("Firebase initialization failed. Please refresh the page.", "error");
+        }
+
+        // Global State
+        let currentUser = null;
+        let allPartnerships = [];
+        let filteredPartnerships = [];
+
+        // Utility Functions
+        function showLoading(message = "Loading...") {
+            const loading = document.getElementById('loadingOverlay');
+            loading.querySelector('p').textContent = message;
+            loading.classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const icons = {
+                'success': 'check-circle',
+                'error': 'exclamation-circle',
+                'warning': 'exclamation-triangle',
+                'info': 'info-circle'
+            };
+            
+            notification.innerHTML = `
+                <i class="fas fa-${icons[type] || 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Authentication
+        async function authenticate() {
+            showLoading("Checking authentication...");
+            
+            // Check for stored session
+            const storedEmail = localStorage.getItem('adminEmail');
+            const storedToken = localStorage.getItem('adminToken');
+            
+            if (storedEmail && storedToken) {
+                try {
+                    // Check if user is already signed in
+                    if (auth.currentUser) {
+                        currentUser = auth.currentUser;
+                        await loadInitialData();
+                        showPanel();
+                        hideLoading();
+                        showNotification("Welcome back!", "success");
+                        return true;
+                    }
+                } catch (error) {
+                    console.error("Session check failed:", error);
+                }
+            }
+            
+            // Check URL for token from master portal
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlToken = urlParams.get('token');
+            
+            if (urlToken) {
+                try {
+                    await auth.signInWithCustomToken(urlToken);
+                    currentUser = auth.currentUser;
+                    
+                    // Store session
+                    localStorage.setItem('adminToken', urlToken);
+                    localStorage.setItem('adminEmail', currentUser.email);
+                    
+                    await loadInitialData();
+                    showPanel();
+                    hideLoading();
+                    showNotification("Access granted from master portal", "success");
+                    
+                    // Clean URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    
+                    return true;
+                } catch (error) {
+                    console.error("Custom token login failed:", error);
+                    showNotification("Access token invalid or expired", "error");
+                }
+            }
+            
+            // No valid session found
+            hideLoading();
+            document.getElementById('authOverlay').style.display = 'flex';
+            return false;
+        }
+
+        async function login(email, password) {
+            try {
+                showLoading("Authenticating...");
+                document.getElementById('authError').style.display = 'none';
+                
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                
+                // Get ID token
+                const token = await currentUser.getIdToken();
+                
+                // Store session
+                localStorage.setItem('adminToken', token);
+                localStorage.setItem('adminEmail', email);
+                
+                await loadInitialData();
+                showPanel();
+                hideLoading();
+                showNotification("Successfully logged in!", "success");
+                
+                return true;
+            } catch (error) {
+                console.error("Login error:", error);
+                document.getElementById('authError').style.display = 'flex';
+                document.getElementById('errorText').textContent = error.message;
+                hideLoading();
+                return false;
+            }
+        }
+
+        async function logout() {
+            try {
+                showLoading("Logging out...");
+                await auth.signOut();
+                
+                // Clear session
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminEmail');
+                currentUser = null;
+                
+                // Reset UI
+                document.getElementById('adminPanel').style.display = 'none';
+                document.getElementById('authOverlay').style.display = 'flex';
+                document.getElementById('authEmail').value = '';
+                document.getElementById('authPassword').value = '';
+                document.getElementById('authError').style.display = 'none';
+                
+                hideLoading();
+                showNotification("Successfully logged out", "success");
+            } catch (error) {
+                console.error("Logout error:", error);
+                hideLoading();
+                showNotification("Logout failed", "error");
+            }
+        }
+
+        function showPanel() {
+            document.getElementById('authOverlay').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'flex';
+            updateUserInfo();
+            
+            // Show dashboard by default
+            showPage('dashboard');
+        }
+
+        // Data Management
+        async function loadInitialData() {
+            try {
+                showLoading("Loading partnerships data...");
+                
+                // Load partnerships
+                await loadPartnerships();
+                
+                // Update dashboard
+                updateDashboardStats();
+                updateAnalyticsStats();
+                updateReportStats();
+                
+                hideLoading();
+                showNotification("Data loaded successfully", "success");
+                
+            } catch (error) {
+                console.error("Error loading data:", error);
+                hideLoading();
+                showNotification(`Failed to load data: ${error.message}`, "error");
+            }
+        }
+
+        async function loadPartnerships() {
+            try {
+                const snapshot = await database.ref('partnerships').once('value');
+                const data = snapshot.val();
+                
+                if (data) {
+                    allPartnerships = Object.entries(data).map(([id, partner]) => ({
+                        id: id,
+                        fullName: partner.fullName || '',
+                        email: partner.email || '',
+                        phone: partner.phone || '',
+                        amount: partner.amount || '0',
+                        paymentMethod: partner.paymentMethod || '',
+                        reason: partner.reason || '',
+                        source: partner.source || '',
+                        status: partner.status || 'pending',
+                        timestamp: partner.timestamp ? new Date(partner.timestamp) : new Date()
+                    }));
+                    
+                    // Sort by timestamp (newest first)
+                    allPartnerships.sort((a, b) => b.timestamp - a.timestamp);
+                } else {
+                    allPartnerships = [];
+                }
+                
+                filteredPartnerships = [...allPartnerships];
+                
+                // Update UI counts
+                document.getElementById('partnershipCount').textContent = allPartnerships.length;
+                
+                return allPartnerships;
+            } catch (error) {
+                console.error("Error loading partnerships:", error);
+                showNotification("Failed to load partnerships", "error");
+                return [];
+            }
+        }
+
+        function updateDashboardStats() {
+            // Total partnerships
+            document.getElementById('totalPartnerships').textContent = allPartnerships.length;
+            
+            // Total amount
+            const totalAmount = allPartnerships.reduce((sum, partner) => {
+                return sum + (parseFloat(partner.amount) || 0);
+            }, 0);
+            document.getElementById('totalAmount').textContent = `KSh ${totalAmount.toLocaleString()}`;
+            
+            // Pending partnerships
+            const pendingPartnerships = allPartnerships.filter(partner => partner.status === 'pending').length;
+            document.getElementById('pendingPartnerships').textContent = pendingPartnerships;
+            
+            // Average amount
+            const avgAmount = allPartnerships.length > 0 ? totalAmount / allPartnerships.length : 0;
+            document.getElementById('avgAmount').textContent = `KSh ${Math.round(avgAmount).toLocaleString()}`;
+            
+            // Quick summary stats
+            const confirmedCount = allPartnerships.filter(partner => partner.status === 'confirmed').length;
+            document.getElementById('confirmedCount').textContent = confirmedCount;
+            
+            const mpesaCount = allPartnerships.filter(partner => partner.paymentMethod === 'lipa-na-mpesa').length;
+            document.getElementById('mpesaCount').textContent = mpesaCount;
+            
+            const contentCount = allPartnerships.filter(partner => partner.reason === 'content-creation').length;
+            document.getElementById('contentCount').textContent = contentCount;
+            
+            const eventRegCount = allPartnerships.filter(partner => partner.reason === 'event-registration').length;
+            document.getElementById('eventRegCount').textContent = eventRegCount;
+            
+            // Update recent partnerships
+            updateRecentPartnershipsCards();
+        }
+
+        function updateAnalyticsStats() {
+            const totalAmount = allPartnerships.reduce((sum, partner) => {
+                return sum + (parseFloat(partner.amount) || 0);
+            }, 0);
+            document.getElementById('totalRevenue').textContent = `KSh ${totalAmount.toLocaleString()}`;
+            
+            // Monthly revenue (last 30 days)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const monthlyPartnerships = allPartnerships.filter(partner => 
+                partner.timestamp >= thirtyDaysAgo
+            );
+            const monthlyRevenue = monthlyPartnerships.reduce((sum, partner) => {
+                return sum + (parseFloat(partner.amount) || 0);
+            }, 0);
+            document.getElementById('monthlyRevenue').textContent = `KSh ${monthlyRevenue.toLocaleString()}`;
+            
+            // Growth rate (simplified)
+            const confirmedPartnerships = allPartnerships.filter(partner => partner.status === 'confirmed');
+            const growthRate = allPartnerships.length > 0 ? 
+                Math.round((confirmedPartnerships.length / allPartnerships.length) * 100) : 0;
+            document.getElementById('growthRate').textContent = `${growthRate}%`;
+            
+            // Completion rate (confirmed vs total)
+            const completionRate = allPartnerships.length > 0 ? 
+                Math.round((confirmedPartnerships.length / allPartnerships.length) * 100) : 0;
+            document.getElementById('completionRate').textContent = `${completionRate}%`;
+        }
+
+        function updateReportStats() {
+            const totalAmount = allPartnerships.reduce((sum, partner) => {
+                return sum + (parseFloat(partner.amount) || 0);
+            }, 0);
+            document.getElementById('reportTotal').textContent = `KSh ${totalAmount.toLocaleString()}`;
+            
+            const confirmedAmount = allPartnerships
+                .filter(partner => partner.status === 'confirmed')
+                .reduce((sum, partner) => sum + (parseFloat(partner.amount) || 0), 0);
+            document.getElementById('reportConfirmed').textContent = `KSh ${confirmedAmount.toLocaleString()}`;
+            
+            const pendingAmount = allPartnerships
+                .filter(partner => partner.status === 'pending')
+                .reduce((sum, partner) => sum + (parseFloat(partner.amount) || 0), 0);
+            document.getElementById('reportPending').textContent = `KSh ${pendingAmount.toLocaleString()}`;
+            
+            const avgAmount = allPartnerships.length > 0 ? totalAmount / allPartnerships.length : 0;
+            document.getElementById('reportAvg').textContent = `KSh ${Math.round(avgAmount).toLocaleString()}`;
+        }
+
+        function updateRecentPartnershipsCards() {
+            const container = document.getElementById('recentPartnershipsList');
+            container.innerHTML = '';
+            
+            const recentPartnerships = allPartnerships.slice(0, 4);
+            
+            if (recentPartnerships.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-handshake-slash"></i>
+                        </div>
+                        <h3 class="empty-state-title">No Partnerships Found</h3>
+                        <p class="empty-state-text">Partnership data will appear here once available.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            recentPartnerships.forEach(partner => {
+                const card = document.createElement('div');
+                card.className = 'partnership-card';
+                
+                const reasonClass = partner.reason === 'content-creation' ? 'reason-content' : 
+                                  partner.reason === 'event-registration' ? 'reason-event' : 'reason-general';
+                const reasonText = partner.reason === 'content-creation' ? 'Content Creation' :
+                                 partner.reason === 'event-registration' ? 'Event Registration' : 'General Support';
+                
+                const paymentClass = partner.paymentMethod === 'lipa-na-mpesa' ? 'payment-mpesa' : 'payment-bank';
+                const paymentText = partner.paymentMethod === 'lipa-na-mpesa' ? 'M-Pesa' : 
+                                  partner.paymentMethod === 'bank-transfer' ? 'Bank Transfer' : 'Cash';
+                
+                card.innerHTML = `
+                    <div class="partnership-card-header">
+                        <h3 class="partnership-card-title">${partner.fullName || 'Unknown Partner'}</h3>
+                        <span class="partnership-card-badge status-${partner.status}">${partner.status}</span>
+                    </div>
+                    <div class="amount-display">KSh ${parseFloat(partner.amount || 0).toLocaleString()}</div>
+                    <div class="partnership-card-meta">
+                        <div class="partnership-card-meta-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>${partner.email || 'No email'}</span>
+                        </div>
+                        <div class="partnership-card-meta-item">
+                            <i class="fas fa-phone"></i>
+                            <span>${partner.phone || 'No phone'}</span>
+                        </div>
+                        <div class="partnership-card-meta-item">
+                            <i class="fas fa-tag"></i>
+                            <span class="${reasonClass}">${reasonText}</span>
+                        </div>
+                        <div class="partnership-card-meta-item">
+                            <i class="fas fa-credit-card"></i>
+                            <span class="${paymentClass}">${paymentText}</span>
+                        </div>
+                    </div>
+                    <div class="partnership-card-footer">
+                        <button class="action-btn view" onclick="viewPartnership('${partner.id}')">
+                            <i class="fas fa-eye"></i>
+                            View
+                        </button>
+                        <button class="action-btn edit" onclick="editPartnership('${partner.id}')">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </button>
+                        ${partner.status === 'pending' ? `
+                        <button class="action-btn approve" onclick="approvePartnership('${partner.id}')">
+                            <i class="fas fa-check"></i>
+                            Approve
+                        </button>
+                        ` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Page Management
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            // Show selected page
+            const page = document.getElementById(pageId + 'Page');
+            if (page) {
+                page.style.display = 'block';
+                
+                // Update page title
+                const titles = {
+                    'dashboard': 'Partnerships Dashboard',
+                    'partnerships': 'Partnership Management',
+                    'analytics': 'Financial Analytics',
+                    'reports': 'Financial Reports'
+                };
+                
+                const subtitles = {
+                    'dashboard': 'Complete Partnership Management System',
+                    'partnerships': 'Manage all partnership transactions',
+                    'analytics': 'Analytics and financial insights',
+                    'reports': 'Generate financial reports'
+                };
+                
+                document.getElementById('pageTitle').textContent = titles[pageId] || pageId;
+                document.getElementById('pageSubtitle').textContent = subtitles[pageId] || '';
+                
+                // Load page-specific content
+                switch (pageId) {
+                    case 'partnerships':
+                        updatePartnershipsTable();
+                        break;
+                    case 'analytics':
+                        updateAnalyticsStats();
+                        break;
+                    case 'reports':
+                        updateReportStats();
+                        break;
+                    case 'dashboard':
+                        updateDashboardStats();
+                        break;
+                }
+            }
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`.nav-link[data-page="${pageId}"]`)?.classList.add('active');
+        }
+
+        function updateUserInfo() {
+            const email = localStorage.getItem('adminEmail') || currentUser?.email || 'admin@iammugera.com';
+            const name = email.split('@')[0];
+            
+            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+        }
+
+        // Partnership Table Functions
+        function updatePartnershipsTable() {
+            const tableBody = document.getElementById('allPartnerships');
+            tableBody.innerHTML = '';
+            
+            if (filteredPartnerships.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 3rem; color: var(--gray-500);">
+                            <i class="fas fa-handshake-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No partnerships found matching your filters</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            filteredPartnerships.forEach(partner => {
+                const reasonClass = partner.reason === 'content-creation' ? 'reason-content' : 
+                                  partner.reason === 'event-registration' ? 'reason-event' : 'reason-general';
+                const reasonText = partner.reason === 'content-creation' ? 'Content Creation' :
+                                 partner.reason === 'event-registration' ? 'Event Registration' : 'General Support';
+                
+                const paymentClass = partner.paymentMethod === 'lipa-na-mpesa' ? 'payment-mpesa' : 'payment-bank';
+                const paymentText = partner.paymentMethod === 'lipa-na-mpesa' ? 'M-Pesa' : 
+                                  partner.paymentMethod === 'bank-transfer' ? 'Bank Transfer' : 'Cash';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <strong>${partner.fullName || 'N/A'}</strong>
+                    </td>
+                    <td>
+                        <div>${partner.email || 'N/A'}</div>
+                        <div style="color: var(--gray-500); font-size: 0.875rem;">${partner.phone || ''}</div>
+                    </td>
+                    <td class="amount-cell">KSh ${parseFloat(partner.amount || 0).toLocaleString()}</td>
+                    <td><span class="${reasonClass}">${reasonText}</span></td>
+                    <td><span class="${paymentClass}">${paymentText}</span></td>
+                    <td>
+                        <div>${partner.timestamp.toLocaleDateString()}</div>
+                        <small style="color: var(--gray-500);">${partner.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                    </td>
+                    <td><span class="status-badge status-${partner.status}">${partner.status}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" onclick="viewPartnership('${partner.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit" onclick="editPartnership('${partner.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            ${partner.status === 'pending' ? `
+                            <button class="action-btn approve" onclick="approvePartnership('${partner.id}')">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            ` : ''}
+                            <button class="action-btn delete" onclick="deletePartnership('${partner.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function filterPartnerships() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const paymentFilter = document.getElementById('paymentFilter').value;
+            const reasonFilter = document.getElementById('reasonFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            
+            filteredPartnerships = allPartnerships.filter(partner => {
+                // Status filter
+                if (statusFilter !== 'all' && partner.status !== statusFilter) {
+                    return false;
+                }
+                
+                // Payment method filter
+                if (paymentFilter !== 'all' && partner.paymentMethod !== paymentFilter) {
+                    return false;
+                }
+                
+                // Reason filter
+                if (reasonFilter !== 'all' && partner.reason !== reasonFilter) {
+                    return false;
+                }
+                
+                // Date filter
+                if (dateFilter !== 'all') {
+                    const now = new Date();
+                    const partnerDate = partner.timestamp;
+                    
+                    switch (dateFilter) {
+                        case 'today':
+                            if (partnerDate.toDateString() !== now.toDateString()) return false;
+                            break;
+                        case 'week':
+                            const weekStart = new Date(now);
+                            weekStart.setDate(now.getDate() - now.getDay());
+                            weekStart.setHours(0, 0, 0, 0);
+                            if (partnerDate < weekStart) return false;
+                            break;
+                        case 'month':
+                            if (partnerDate.getMonth() !== now.getMonth() || partnerDate.getFullYear() !== now.getFullYear()) return false;
+                            break;
+                        case 'year':
+                            if (partnerDate.getFullYear() !== now.getFullYear()) return false;
+                            break;
+                    }
+                }
+                
+                return true;
+            });
+            
+            updatePartnershipsTable();
+        }
+
+        // Modal Functions
+        function hideModal() {
+            document.getElementById('partnershipModal').classList.remove('active');
+        }
+
+        function showModal(content, title = 'Partnership') {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('partnershipModal').classList.add('active');
+        }
+
+        // Partnership CRUD Functions
+        function viewPartnership(partnerId) {
+            const partner = allPartnerships.find(p => p.id === partnerId);
+            if (!partner) {
+                showNotification("Partnership not found", "error");
+                return;
+            }
+            
+            const reasonText = partner.reason === 'content-creation' ? 'Content Creation' :
+                             partner.reason === 'event-registration' ? 'Event Registration' : 'General Support';
+            
+            const paymentText = partner.paymentMethod === 'lipa-na-mpesa' ? 'Lipa Na M-Pesa' : 
+                              partner.paymentMethod === 'bank-transfer' ? 'Bank Transfer' : 'Cash';
+            
+            const sourceText = partner.source === 'partnership-page' ? 'Partnership Page' : 'Other';
+            
+            const content = `
+                <div style="line-height: 1.8;">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary);">Partnership Details</h4>
+                    <div style="background: var(--gray-50); padding: 1.5rem; border-radius: var(--radius-lg);">
+                        <div style="margin-bottom: 1.5rem; text-align: center;">
+                            <div class="amount-display" style="font-size: 2rem;">KSh ${parseFloat(partner.amount || 0).toLocaleString()}</div>
+                            <div style="margin-top: 0.5rem;">
+                                <span class="status-badge status-${partner.status}">${partner.status}</span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div><strong>Full Name:</strong><br>${partner.fullName || 'N/A'}</div>
+                            <div><strong>Email:</strong><br>${partner.email || 'N/A'}</div>
+                            <div><strong>Phone:</strong><br>${partner.phone || 'N/A'}</div>
+                            <div><strong>Payment Method:</strong><br>${paymentText}</div>
+                            <div><strong>Reason:</strong><br>${reasonText}</div>
+                            <div><strong>Source:</strong><br>${sourceText}</div>
+                        </div>
+                        
+                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                            <strong>Transaction Date:</strong><br>
+                            ${partner.timestamp.toLocaleString()}
+                        </div>
+                        
+                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                            <strong>Partnership ID:</strong><br>
+                            <code style="color: var(--gray-600); font-size: 0.875rem;">${partner.id}</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="editPartnership('${partner.id}')">
+                        <i class="fas fa-edit"></i>
+                        Edit Partnership
+                    </button>
+                    <button type="button" class="btn" onclick="hideModal()">
+                        Close
+                    </button>
+                </div>
+            `;
+            showModal(content, `Partnership: ${partner.fullName || 'View Details'}`);
+        }
+
+        function editPartnership(partnerId) {
+            const partner = allPartnerships.find(p => p.id === partnerId);
+            if (!partner) {
+                showNotification("Partnership not found", "error");
+                return;
+            }
+            
+            const form = `
+                <form id="partnershipForm" onsubmit="updatePartnership(event, '${partnerId}')">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" class="form-input" name="fullName" value="${partner.fullName || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-input" name="email" value="${partner.email || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="text" class="form-input" name="phone" value="${partner.phone || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount (KSh) *</label>
+                            <input type="number" class="form-input" name="amount" value="${parseFloat(partner.amount || 0)}" min="0" step="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Payment Method</label>
+                            <select class="form-input" name="paymentMethod" required>
+                                <option value="lipa-na-mpesa" ${partner.paymentMethod === 'lipa-na-mpesa' ? 'selected' : ''}>Lipa Na M-Pesa</option>
+                                <option value="bank-transfer" ${partner.paymentMethod === 'bank-transfer' ? 'selected' : ''}>Bank Transfer</option>
+                                <option value="cash" ${partner.paymentMethod === 'cash' ? 'selected' : ''}>Cash</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Reason</label>
+                            <select class="form-input" name="reason" required>
+                                <option value="content-creation" ${partner.reason === 'content-creation' ? 'selected' : ''}>Content Creation</option>
+                                <option value="event-registration" ${partner.reason === 'event-registration' ? 'selected' : ''}>Event Registration</option>
+                                <option value="general-support" ${partner.reason === 'general-support' ? 'selected' : ''}>General Support</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-input" name="status" required>
+                                <option value="pending" ${partner.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="confirmed" ${partner.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                                <option value="completed" ${partner.status === 'completed' ? 'selected' : ''}>Completed</option>
+                                <option value="cancelled" ${partner.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                                <option value="refunded" ${partner.status === 'refunded' ? 'selected' : ''}>Refunded</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Source</label>
+                            <select class="form-input" name="source" required>
+                                <option value="partnership-page" ${partner.source === 'partnership-page' ? 'selected' : ''}>Partnership Page</option>
+                                <option value="direct" ${partner.source === 'direct' ? 'selected' : ''}>Direct</option>
+                                <option value="other" ${partner.source === 'other' ? 'selected' : ''}>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="hideModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-save"></i>
+                            Update Partnership
+                        </button>
+                    </div>
+                </form>
+            `;
+            showModal(form, `Edit Partnership: ${partner.fullName}`);
+        }
+
+        async function updatePartnership(e, partnerId) {
+            e.preventDefault();
+            showLoading("Updating partnership...");
+            
+            try {
+                const form = e.target;
+                const formData = new FormData(form);
+                const partnerData = {
+                    fullName: formData.get('fullName'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone') || '',
+                    amount: formData.get('amount'),
+                    paymentMethod: formData.get('paymentMethod'),
+                    reason: formData.get('reason'),
+                    status: formData.get('status'),
+                    source: formData.get('source'),
+                    // Keep original timestamp
+                    timestamp: allPartnerships.find(p => p.id === partnerId).timestamp.toISOString()
+                };
+                
+                // Update in Firebase
+                await database.ref(`partnerships/${partnerId}`).update(partnerData);
+                
+                // Reload data
+                await loadPartnerships();
+                
+                // Update current view
+                if (document.getElementById('partnershipsPage').style.display !== 'none') {
+                    updatePartnershipsTable();
+                }
+                if (document.getElementById('dashboardPage').style.display !== 'none') {
+                    updateRecentPartnershipsCards();
+                    updateDashboardStats();
+                }
+                updateAnalyticsStats();
+                updateReportStats();
+                
+                hideModal();
+                hideLoading();
+                showNotification("Partnership updated successfully!", "success");
+                
+            } catch (error) {
+                console.error("Error updating partnership:", error);
+                hideLoading();
+                showNotification("Failed to update partnership: " + error.message, "error");
+            }
+        }
+
+        async function approvePartnership(partnerId) {
+            showLoading("Approving partnership...");
+            
+            try {
+                // Update status to confirmed
+                await database.ref(`partnerships/${partnerId}/status`).set('confirmed');
+                
+                // Reload data
+                await loadPartnerships();
+                
+                // Update current view
+                if (document.getElementById('partnershipsPage').style.display !== 'none') {
+                    updatePartnershipsTable();
+                }
+                if (document.getElementById('dashboardPage').style.display !== 'none') {
+                    updateRecentPartnershipsCards();
+                    updateDashboardStats();
+                }
+                updateAnalyticsStats();
+                updateReportStats();
+                
+                hideLoading();
+                showNotification("Partnership approved successfully!", "success");
+                
+            } catch (error) {
+                console.error("Error approving partnership:", error);
+                hideLoading();
+                showNotification("Failed to approve partnership: " + error.message, "error");
+            }
+        }
+
+        async function deletePartnership(partnerId) {
+            if (!confirm("Are you sure you want to delete this partnership? This action cannot be undone.")) {
+                return;
+            }
+            
+            showLoading("Deleting partnership...");
+            
+            try {
+                // Delete from Firebase
+                await database.ref(`partnerships/${partnerId}`).remove();
+                
+                // Reload data
+                await loadPartnerships();
+                
+                // Update current view
+                if (document.getElementById('partnershipsPage').style.display !== 'none') {
+                    updatePartnershipsTable();
+                }
+                if (document.getElementById('dashboardPage').style.display !== 'none') {
+                    updateRecentPartnershipsCards();
+                    updateDashboardStats();
+                }
+                updateAnalyticsStats();
+                updateReportStats();
+                
+                hideLoading();
+                showNotification("Partnership deleted successfully!", "success");
+                
+            } catch (error) {
+                console.error("Error deleting partnership:", error);
+                hideLoading();
+                showNotification("Failed to delete partnership: " + error.message, "error");
+            }
+        }
+
+        function addManualPartnership() {
+            const form = `
+                <form id="partnershipForm" onsubmit="createManualPartnership(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" class="form-input" name="fullName" required placeholder="Enter partner's full name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-input" name="email" required placeholder="partner@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="text" class="form-input" name="phone" placeholder="07XXXXXXXX">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount (KSh) *</label>
+                            <input type="number" class="form-input" name="amount" min="0" step="100" required placeholder="5000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Payment Method</label>
+                            <select class="form-input" name="paymentMethod" required>
+                                <option value="lipa-na-mpesa">Lipa Na M-Pesa</option>
+                                <option value="bank-transfer">Bank Transfer</option>
+                                <option value="cash">Cash</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Reason</label>
+                            <select class="form-input" name="reason" required>
+                                <option value="content-creation">Content Creation</option>
+                                <option value="event-registration">Event Registration</option>
+                                <option value="general-support">General Support</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-input" name="status" required>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed" selected>Confirmed</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Source</label>
+                            <select class="form-input" name="source" required>
+                                <option value="manual-entry" selected>Manual Entry</option>
+                                <option value="direct">Direct</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="hideModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-save"></i>
+                            Create Partnership
+                        </button>
+                    </div>
+                </form>
+            `;
+            showModal(form, 'Add Manual Partnership');
+        }
+
+        async function createManualPartnership(e) {
+            e.preventDefault();
+            showLoading("Creating partnership...");
+            
+            try {
+                const form = e.target;
+                const formData = new FormData(form);
+                const partnerData = {
+                    fullName: formData.get('fullName'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone') || '',
+                    amount: formData.get('amount'),
+                    paymentMethod: formData.get('paymentMethod'),
+                    reason: formData.get('reason'),
+                    status: formData.get('status'),
+                    source: formData.get('source'),
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Generate a new partnership ID
+                const partnerId = 'partner_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                
+                // Save to Firebase
+                await database.ref(`partnerships/${partnerId}`).set(partnerData);
+                
+                // Reload data
+                await loadPartnerships();
+                
+                hideModal();
+                hideLoading();
+                showNotification("Manual partnership created successfully!", "success");
+                
+                // Show partnerships page
+                showPage('partnerships');
+                
+            } catch (error) {
+                console.error("Error creating partnership:", error);
+                hideLoading();
+                showNotification("Failed to create partnership: " + error.message, "error");
+            }
+        }
+
+        // Utility Functions
+        async function refreshPartnerships() {
+            showLoading("Refreshing partnerships...");
+            await loadPartnerships();
+            if (document.getElementById('partnershipsPage').style.display !== 'none') {
+                updatePartnershipsTable();
+            }
+            if (document.getElementById('dashboardPage').style.display !== 'none') {
+                updateRecentPartnershipsCards();
+                updateDashboardStats();
+            }
+            updateAnalyticsStats();
+            updateReportStats();
+            hideLoading();
+            showNotification("Partnerships refreshed successfully", "success");
+        }
+
+        function refreshAnalytics() {
+            updateAnalyticsStats();
+            showNotification("Analytics refreshed", "success");
+        }
+
+        function generateReport() {
+            if (allPartnerships.length === 0) {
+                showNotification("No partnerships to generate report", "warning");
+                return;
+            }
+            
+            const confirmedAmount = allPartnerships
+                .filter(p => p.status === 'confirmed')
+                .reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+            
+            const pendingAmount = allPartnerships
+                .filter(p => p.status === 'pending')
+                .reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+            
+            const contentCreationCount = allPartnerships.filter(p => p.reason === 'content-creation').length;
+            const eventRegistrationCount = allPartnerships.filter(p => p.reason === 'event-registration').length;
+            
+            const reportHTML = `
+                <div style="padding: 1rem; background: var(--secondary); border-radius: var(--radius-lg);">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary);">Financial Report Summary</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="background: var(--success-light); padding: 1rem; border-radius: var(--radius-md);">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">KSh ${confirmedAmount.toLocaleString()}</div>
+                            <div style="font-size: 0.875rem; color: var(--gray-600);">Confirmed Revenue</div>
+                        </div>
+                        <div style="background: rgba(245, 158, 11, 0.1); padding: 1rem; border-radius: var(--radius-md);">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--warning);">KSh ${pendingAmount.toLocaleString()}</div>
+                            <div style="font-size: 0.875rem; color: var(--gray-600);">Pending Revenue</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <h5 style="margin-bottom: 0.5rem; color: var(--gray-700);">Breakdown by Reason</h5>
+                        <ul style="list-style: none; padding-left: 0;">
+                            <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between;">
+                                <span>Content Creation</span>
+                                <strong>${contentCreationCount} partnerships</strong>
+                            </li>
+                            <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between;">
+                                <span>Event Registration</span>
+                                <strong>${eventRegistrationCount} partnerships</strong>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                        <small style="color: var(--gray-500);">Report generated on ${new Date().toLocaleString()}</small>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('reportSummary').innerHTML = reportHTML;
+            showNotification("Report generated successfully", "success");
+        }
+
+        function exportCSV() {
+            if (allPartnerships.length === 0) {
+                showNotification("No partnerships to export", "warning");
+                return;
+            }
+            
+            // Create CSV content
+            let csv = 'Name,Email,Phone,Amount,Reason,Payment Method,Status,Date\n';
+            allPartnerships.forEach(partner => {
+                const reasonText = partner.reason === 'content-creation' ? 'Content Creation' :
+                                 partner.reason === 'event-registration' ? 'Event Registration' : 'General Support';
+                
+                const paymentText = partner.paymentMethod === 'lipa-na-mpesa' ? 'M-Pesa' : 
+                                  partner.paymentMethod === 'bank-transfer' ? 'Bank Transfer' : 'Cash';
+                
+                csv += `"${partner.fullName || ''}","${partner.email || ''}","${partner.phone || ''}","KSh ${partner.amount || '0'}","${reasonText}","${paymentText}","${partner.status || ''}","${partner.timestamp.toLocaleDateString()}"\n`;
+            });
+            
+            // Create download link
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `partnerships_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showNotification("CSV export completed successfully", "success");
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Auth button
+            document.getElementById('authBtn').addEventListener('click', async () => {
+                const email = document.getElementById('authEmail').value.trim();
+                const password = document.getElementById('authPassword').value;
+                
+                if (!email || !password) {
+                    showNotification("Please enter both email and password", "error");
+                    return;
+                }
+                
+                await login(email, password);
+            });
+            
+            // Enter key in auth form
+            document.getElementById('authPassword').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('authBtn').click();
+                }
+            });
+            
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // Navigation links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.getAttribute('data-page');
+                    showPage(page);
+                });
+            });
+            
+            // Close modal on overlay click
+            document.getElementById('partnershipModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('partnershipModal')) {
+                    hideModal();
+                }
+            });
+            
+            // Close modal on ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') hideModal();
+            });
+        }
+
+        // Initialize
+        async function init() {
+            setupEventListeners();
+            await authenticate();
+        }
+
+        // Start when page loads
+        window.addEventListener('DOMContentLoaded', init);
+
+        // Make functions globally available
+        window.showPage = showPage;
+        window.hideModal = hideModal;
+        window.refreshPartnerships = refreshPartnerships;
+        window.refreshAnalytics = refreshAnalytics;
+        window.generateReport = generateReport;
+        window.exportCSV = exportCSV;
+        window.filterPartnerships = filterPartnerships;
+        window.viewPartnership = viewPartnership;
+        window.editPartnership = editPartnership;
+        window.approvePartnership = approvePartnership;
+        window.addManualPartnership = addManualPartnership;
+    </script>
+</body>
+</html>
