@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>I AM MUGERA - Partnerships Management</title>
+    <title>I AM MUGERA - Payments & Partnerships Management</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -28,6 +28,8 @@
             --info: #3b82f6;
             --purple: #8b5cf6;
             --teal: #14b8a6;
+            --pink: #ec4899;
+            --orange: #f97316;
             --gray-50: #f9fafb;
             --gray-100: #f3f4f6;
             --gray-200: #e5e7eb;
@@ -70,7 +72,7 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Auth Overlay */
+        /* Auth Overlay - Same as before */
         .auth-overlay {
             position: fixed;
             top: 0;
@@ -285,7 +287,7 @@
             to { opacity: 1; }
         }
 
-        /* Sidebar */
+        /* Sidebar - Updated with orders icon */
         .sidebar {
             width: 280px;
             background: linear-gradient(135deg, 
@@ -664,6 +666,44 @@
             flex-wrap: wrap;
         }
 
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--gray-200);
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--gray-600);
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab.active {
+            color: var(--accent);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent);
+        }
+
         /* Filters */
         .filters {
             display: flex;
@@ -721,7 +761,7 @@
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 900px;
+            min-width: 1000px;
         }
 
         .data-table th {
@@ -795,6 +835,18 @@
             border: 1px solid rgba(139, 92, 246, 0.3);
         }
 
+        .status-shipped {
+            background: rgba(236, 72, 153, 0.1);
+            color: var(--pink);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+        }
+
+        .status-delivered {
+            background: rgba(20, 184, 166, 0.1);
+            color: var(--teal);
+            border: 1px solid rgba(20, 184, 166, 0.3);
+        }
+
         /* Payment Method Badges */
         .payment-badge {
             padding: 0.25rem 0.5rem;
@@ -816,6 +868,35 @@
             background: rgba(59, 130, 246, 0.1);
             color: var(--info);
             border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .payment-cash {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* Type Badges */
+        .type-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .type-partnership {
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(202, 138, 4, 0.3);
+        }
+
+        .type-order {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--info);
+            border: 1px solid rgba(37, 99, 235, 0.3);
         }
 
         /* Reason Badges */
@@ -912,6 +993,26 @@
             background: rgba(16, 185, 129, 0.2);
         }
 
+        .action-btn.ship {
+            background: rgba(236, 72, 153, 0.1);
+            color: var(--pink);
+            border: 1px solid rgba(236, 72, 153, 0.2);
+        }
+
+        .action-btn.ship:hover {
+            background: rgba(236, 72, 153, 0.2);
+        }
+
+        .action-btn.complete {
+            background: rgba(20, 184, 166, 0.1);
+            color: var(--teal);
+            border: 1px solid rgba(20, 184, 166, 0.2);
+        }
+
+        .action-btn.complete:hover {
+            background: rgba(20, 184, 166, 0.2);
+        }
+
         /* Cards Grid */
         .cards-grid {
             display: grid;
@@ -920,7 +1021,7 @@
             margin-top: 1.5rem;
         }
 
-        .partnership-card {
+        .payment-card {
             background: var(--secondary);
             border-radius: var(--radius-lg);
             padding: 1.5rem;
@@ -931,20 +1032,20 @@
             overflow: hidden;
         }
 
-        .partnership-card:hover {
+        .payment-card:hover {
             transform: translateY(-3px);
             box-shadow: var(--shadow-lg);
             border-color: var(--accent);
         }
 
-        .partnership-card-header {
+        .payment-card-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 1rem;
         }
 
-        .partnership-card-title {
+        .payment-card-title {
             font-family: 'Space Grotesk', sans-serif;
             font-size: 1.125rem;
             font-weight: 700;
@@ -952,7 +1053,7 @@
             margin: 0;
         }
 
-        .partnership-card-badge {
+        .payment-card-badge {
             padding: 0.25rem 0.75rem;
             background: linear-gradient(135deg, var(--accent), var(--accent-dark));
             color: var(--secondary);
@@ -963,14 +1064,14 @@
             letter-spacing: 0.5px;
         }
 
-        .partnership-card-meta {
+        .payment-card-meta {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
             margin-bottom: 1rem;
         }
 
-        .partnership-card-meta-item {
+        .payment-card-meta-item {
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -978,7 +1079,7 @@
             font-size: 0.875rem;
         }
 
-        .partnership-card-meta-item i {
+        .payment-card-meta-item i {
             color: var(--accent);
             width: 16px;
         }
@@ -990,7 +1091,7 @@
             margin: 0.5rem 0;
         }
 
-        .partnership-card-footer {
+        .payment-card-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -1027,7 +1128,7 @@
             border-radius: var(--radius-2xl);
             padding: 2.5rem;
             width: 100%;
-            max-width: 700px;
+            max-width: 800px;
             max-height: 90vh;
             overflow-y: auto;
             position: relative;
@@ -1257,6 +1358,23 @@
             letter-spacing: 0.5px;
         }
 
+        /* Product Info */
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .product-price {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .sidebar {
@@ -1324,6 +1442,16 @@
             .summary-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                min-width: 120px;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -1335,8 +1463,8 @@
                 <div class="auth-logo">
                     <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA">
                 </div>
-                <h1 class="auth-title">Partnerships Management</h1>
-                <p class="auth-subtitle">Admin Authentication Required</p>
+                <h1 class="auth-title">Payments & Partnerships</h1>
+                <p class="auth-subtitle">Complete Payment Management System</p>
             </div>
             
             <div id="authError" class="alert alert-error">
@@ -1362,10 +1490,10 @@
             
             <button type="button" class="btn" id="authBtn">
                 <i class="fas fa-sign-in-alt"></i>
-                Sign In to Partnerships Portal
+                Sign In to Payments Portal
             </button>
             
-            <a href="admin.html" class="btn btn-outline" style="margin-top: 1rem;">
+            <a href="master-admin.html" class="btn btn-outline" style="margin-top: 1rem;">
                 <i class="fas fa-arrow-left"></i>
                 Back to Master Portal
             </a>
@@ -1384,8 +1512,8 @@
                 <div class="sidebar-logo">
                     <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA">
                 </div>
-                <h2 class="sidebar-title">Partnerships Management</h2>
-                <p class="sidebar-subtitle">Complete Partnership Administration</p>
+                <h2 class="sidebar-title">Payments Management</h2>
+                <p class="sidebar-subtitle">Complete Payment Administration</p>
             </div>
             
             <ul class="nav-menu">
@@ -1396,22 +1524,30 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="payments">
+                        <i class="fas fa-money-bill-wave nav-icon"></i>
+                        <span>All Payments</span>
+                        <span class="nav-badge" id="totalPaymentsCount">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="#" class="nav-link" data-page="partnerships">
                         <i class="fas fa-handshake nav-icon"></i>
-                        <span>All Partnerships</span>
+                        <span>Partnerships</span>
                         <span class="nav-badge" id="partnershipCount">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="orders">
+                        <i class="fas fa-shopping-cart nav-icon"></i>
+                        <span>Product Orders</span>
+                        <span class="nav-badge" id="orderCount">0</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="#" class="nav-link" data-page="analytics">
                         <i class="fas fa-chart-bar nav-icon"></i>
                         <span>Financial Analytics</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-page="reports">
-                        <i class="fas fa-file-invoice-dollar nav-icon"></i>
-                        <span>Financial Reports</span>
                     </a>
                 </li>
             </ul>
@@ -1428,10 +1564,10 @@
             <!-- Header -->
             <header class="header">
                 <div>
-                    <h1 class="page-title" id="pageTitle">Partnerships Dashboard</h1>
+                    <h1 class="page-title" id="pageTitle">Payments Dashboard</h1>
                     <div class="page-subtitle">
-                        <i class="fas fa-handshake"></i>
-                        <span id="pageSubtitle">Complete Partnership Management System</span>
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span id="pageSubtitle">Complete Payment Management System</span>
                     </div>
                 </div>
                 <div class="user-actions">
@@ -1452,35 +1588,35 @@
             <!-- Dashboard Page -->
             <div id="dashboardPage" class="page-content">
                 <div class="dashboard-grid">
-                    <div class="stat-card" onclick="showPage('partnerships')">
-                        <div class="stat-icon">
-                            <i class="fas fa-handshake"></i>
-                        </div>
-                        <div class="stat-value" id="totalPartnerships">0</div>
-                        <div class="stat-label">Total Partnerships</div>
-                        <div class="stat-change positive">
-                            <i class="fas fa-check-circle"></i>
-                            <span>All Time</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card" onclick="showPage('partnerships')">
+                    <div class="stat-card" onclick="showPage('payments')">
                         <div class="stat-icon">
                             <i class="fas fa-money-bill-wave"></i>
                         </div>
-                        <div class="stat-value" id="totalAmount">KSh 0</div>
-                        <div class="stat-label">Total Amount</div>
+                        <div class="stat-value" id="totalRevenue">KSh 0</div>
+                        <div class="stat-label">Total Revenue</div>
                         <div class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>Revenue</span>
+                            <i class="fas fa-check-circle"></i>
+                            <span>All Payments</span>
                         </div>
                     </div>
                     
-                    <div class="stat-card" onclick="showPage('partnerships')">
+                    <div class="stat-card" onclick="showPage('orders')">
+                        <div class="stat-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-value" id="totalOrders">0</div>
+                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-box"></i>
+                            <span>Products Sold</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card" onclick="showPage('payments')">
                         <div class="stat-icon">
                             <i class="fas fa-clock"></i>
                         </div>
-                        <div class="stat-value" id="pendingPartnerships">0</div>
+                        <div class="stat-value" id="pendingPayments">0</div>
                         <div class="stat-label">Pending</div>
                         <div class="stat-change warning">
                             <i class="fas fa-exclamation-circle"></i>
@@ -1492,8 +1628,8 @@
                         <div class="stat-icon">
                             <i class="fas fa-chart-line"></i>
                         </div>
-                        <div class="stat-value" id="avgAmount">KSh 0</div>
-                        <div class="stat-label">Average Amount</div>
+                        <div class="stat-value" id="avgOrderValue">KSh 0</div>
+                        <div class="stat-label">Avg Order Value</div>
                         <div class="stat-change positive">
                             <i class="fas fa-trend-up"></i>
                             <span>Performance</span>
@@ -1503,27 +1639,27 @@
 
                 <div class="content-section">
                     <div class="section-header">
-                        <h2 class="section-title">Recent Partnerships</h2>
+                        <h2 class="section-title">Recent Payments</h2>
                         <div class="section-tools">
-                            <button class="btn btn-sm" onclick="showPage('partnerships')">
+                            <button class="btn btn-sm" onclick="showPage('payments')">
                                 <i class="fas fa-eye"></i>
-                                View All Partnerships
+                                View All Payments
                             </button>
-                            <button class="btn btn-outline btn-sm" onclick="refreshPartnerships()">
+                            <button class="btn btn-outline btn-sm" onclick="refreshAllData()">
                                 <i class="fas fa-sync-alt"></i>
                                 Refresh
                             </button>
                         </div>
                     </div>
                     
-                    <div class="cards-grid" id="recentPartnershipsList">
-                        <!-- Partnerships will be loaded here -->
+                    <div class="cards-grid" id="recentPaymentsList">
+                        <!-- Payments will be loaded here -->
                         <div class="empty-state">
                             <div class="empty-state-icon">
-                                <i class="fas fa-handshake-slash"></i>
+                                <i class="fas fa-money-bill-wave-slash"></i>
                             </div>
-                            <h3 class="empty-state-title">No Partnerships Found</h3>
-                            <p class="empty-state-text">Partnership data will appear here once available.</p>
+                            <h3 class="empty-state-title">No Payments Found</h3>
+                            <p class="empty-state-text">Payment data will appear here once available.</p>
                         </div>
                     </div>
                 </div>
@@ -1532,9 +1668,9 @@
                     <div class="section-header">
                         <h2 class="section-title">Quick Summary</h2>
                         <div class="section-tools">
-                            <button class="btn btn-sm" onclick="showPage('reports')">
-                                <i class="fas fa-file-export"></i>
-                                Generate Report
+                            <button class="btn btn-sm" onclick="showPage('analytics')">
+                                <i class="fas fa-chart-pie"></i>
+                                View Analytics
                             </button>
                         </div>
                     </div>
@@ -1553,26 +1689,121 @@
                             <div class="summary-label">Content Creation</div>
                         </div>
                         <div class="summary-card">
-                            <div class="summary-value" id="eventRegCount">0</div>
-                            <div class="summary-label">Event Registration</div>
+                            <div class="summary-value" id="productSales">0</div>
+                            <div class="summary-label">Product Sales</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- All Partnerships Page -->
+            <!-- All Payments Page -->
+            <div id="paymentsPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Payment Management</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="refreshAllData()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="addManualPayment()">
+                                <i class="fas fa-plus"></i>
+                                Add Manual Entry
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="tabs" id="paymentsTabs">
+                        <button class="tab active" onclick="switchPaymentTab('all')">All Payments</button>
+                        <button class="tab" onclick="switchPaymentTab('partnerships')">Partnerships</button>
+                        <button class="tab" onclick="switchPaymentTab('orders')">Product Orders</button>
+                    </div>
+                    
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label class="filter-label">Status</label>
+                            <select id="statusFilter" class="filter-select" onchange="filterPayments()">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="completed">Completed</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</div>
+                                <option value="cancelled">Cancelled</option>
+                                <option value="refunded">Refunded</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Payment Method</label>
+                            <select id="paymentFilter" class="filter-select" onchange="filterPayments()">
+                                <option value="all">All Methods</option>
+                                <option value="M-Pesa">M-Pesa</option>
+                                <option value="lipa-na-mpesa">Lipa Na M-Pesa</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="bank-transfer">Bank Transfer (Partnerships)</option>
+                                <option value="Cash">Cash</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Date Range</label>
+                            <select id="dateFilter" class="filter-select" onchange="filterPayments()">
+                                <option value="all">All Time</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                                <option value="year">This Year</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Amount Range</label>
+                            <select id="amountFilter" class="filter-select" onchange="filterPayments()">
+                                <option value="all">All Amounts</option>
+                                <option value="0-1000">Under KSh 1,000</option>
+                                <option value="1000-5000">KSh 1,000 - 5,000</option>
+                                <option value="5000-10000">KSh 5,000 - 10,000</option>
+                                <option value="10000+">Over KSh 10,000</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Customer/Partner</th>
+                                    <th>Details</th>
+                                    <th>Amount</th>
+                                    <th>Payment Method</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allPayments">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Partnerships Page -->
             <div id="partnershipsPage" class="page-content" style="display: none;">
                 <div class="content-section">
                     <div class="section-header">
                         <h2 class="section-title">Partnership Management</h2>
                         <div class="section-tools">
-                            <button class="btn btn-sm" onclick="refreshPartnerships()">
+                            <button class="btn btn-sm" onclick="refreshAllData()">
                                 <i class="fas fa-sync-alt"></i>
                                 Refresh
                             </button>
                             <button class="btn btn-outline btn-sm" onclick="addManualPartnership()">
                                 <i class="fas fa-plus"></i>
-                                Add Manual Entry
+                                Add Partnership
                             </button>
                         </div>
                     </div>
@@ -1580,7 +1811,7 @@
                     <div class="filters">
                         <div class="filter-group">
                             <label class="filter-label">Status</label>
-                            <select id="statusFilter" class="filter-select" onchange="filterPartnerships()">
+                            <select id="partnershipStatusFilter" class="filter-select" onchange="filterPartnerships()">
                                 <option value="all">All Status</option>
                                 <option value="pending">Pending</option>
                                 <option value="confirmed">Confirmed</option>
@@ -1592,7 +1823,7 @@
                         
                         <div class="filter-group">
                             <label class="filter-label">Payment Method</label>
-                            <select id="paymentFilter" class="filter-select" onchange="filterPartnerships()">
+                            <select id="partnershipPaymentFilter" class="filter-select" onchange="filterPartnerships()">
                                 <option value="all">All Methods</option>
                                 <option value="lipa-na-mpesa">Lipa Na M-Pesa</option>
                                 <option value="bank-transfer">Bank Transfer</option>
@@ -1602,22 +1833,11 @@
                         
                         <div class="filter-group">
                             <label class="filter-label">Reason</label>
-                            <select id="reasonFilter" class="filter-select" onchange="filterPartnerships()">
+                            <select id="partnershipReasonFilter" class="filter-select" onchange="filterPartnerships()">
                                 <option value="all">All Reasons</option>
                                 <option value="content-creation">Content Creation</option>
                                 <option value="event-registration">Event Registration</option>
                                 <option value="general-support">General Support</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label class="filter-label">Date Range</label>
-                            <select id="dateFilter" class="filter-select" onchange="filterPartnerships()">
-                                <option value="all">All Time</option>
-                                <option value="today">Today</option>
-                                <option value="week">This Week</option>
-                                <option value="month">This Month</option>
-                                <option value="year">This Year</option>
                             </select>
                         </div>
                     </div>
@@ -1636,7 +1856,77 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="allPartnerships">
+                            <tbody id="allPartnershipsTable">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Page -->
+            <div id="ordersPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Order Management</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="refreshAllData()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="addManualOrder()">
+                                <i class="fas fa-plus"></i>
+                                Add Order
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label class="filter-label">Status</label>
+                            <select id="orderStatusFilter" class="filter-select" onchange="filterOrders()">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Payment Method</label>
+                            <select id="orderPaymentFilter" class="filter-select" onchange="filterOrders()">
+                                <option value="all">All Methods</option>
+                                <option value="M-Pesa">M-Pesa</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Cash on Delivery">Cash on Delivery</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Product</label>
+                            <select id="orderProductFilter" class="filter-select" onchange="filterOrders()">
+                                <option value="all">All Products</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Product</th>
+                                    <th>Amount</th>
+                                    <th>Address</th>
+                                    <th>Payment Method</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allOrdersTable">
                                 <!-- Dynamic content -->
                             </tbody>
                         </table>
@@ -1650,9 +1940,13 @@
                     <div class="section-header">
                         <h2 class="section-title">Financial Analytics</h2>
                         <div class="section-tools">
-                            <button class="btn btn-sm" onclick="refreshAnalytics()">
+                            <button class="btn btn-sm" onclick="refreshAllData()">
                                 <i class="fas fa-sync-alt"></i>
                                 Refresh Analytics
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="generateReport()">
+                                <i class="fas fa-file-export"></i>
+                                Generate Report
                             </button>
                         </div>
                     </div>
@@ -1662,7 +1956,7 @@
                             <div class="stat-icon">
                                 <i class="fas fa-chart-pie"></i>
                             </div>
-                            <div class="stat-value" id="totalRevenue">KSh 0</div>
+                            <div class="stat-value" id="totalRevenueAnalytics">KSh 0</div>
                             <div class="stat-label">Total Revenue</div>
                         </div>
                         
@@ -1692,7 +1986,7 @@
                     </div>
                     
                     <div style="margin-top: 2rem; padding: 1.5rem; background: var(--gray-50); border-radius: var(--radius-lg);">
-                        <h3 style="margin-bottom: 1rem; color: var(--gray-700);">Revenue Breakdown</h3>
+                        <h3 style="margin-bottom: 1rem; color: var(--gray-700);">Revenue Breakdown by Type</h3>
                         <div id="analyticsContent">
                             <div class="empty-state">
                                 <div class="empty-state-icon">
@@ -1705,63 +1999,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Reports Page -->
-            <div id="reportsPage" class="page-content" style="display: none;">
-                <div class="content-section">
-                    <div class="section-header">
-                        <h2 class="section-title">Financial Reports</h2>
-                        <div class="section-tools">
-                            <button class="btn btn-sm" onclick="generateReport()">
-                                <i class="fas fa-file-pdf"></i>
-                                Generate PDF Report
-                            </button>
-                            <button class="btn btn-outline btn-sm" onclick="exportCSV()">
-                                <i class="fas fa-file-csv"></i>
-                                Export CSV
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 2rem;">
-                        <div class="summary-grid">
-                            <div class="summary-card">
-                                <div class="summary-value" id="reportTotal">KSh 0</div>
-                                <div class="summary-label">Total Partnerships</div>
-                            </div>
-                            <div class="summary-card">
-                                <div class="summary-value" id="reportConfirmed">KSh 0</div>
-                                <div class="summary-label">Confirmed Amount</div>
-                            </div>
-                            <div class="summary-card">
-                                <div class="summary-value" id="reportPending">KSh 0</div>
-                                <div class="summary-label">Pending Amount</div>
-                            </div>
-                            <div class="summary-card">
-                                <div class="summary-value" id="reportAvg">KSh 0</div>
-                                <div class="summary-label">Average Amount</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="background: var(--gray-50); padding: 1.5rem; border-radius: var(--radius-lg);">
-                        <h3 style="margin-bottom: 1rem; color: var(--gray-700);">Report Summary</h3>
-                        <div id="reportSummary">
-                            <div class="empty-state">
-                                <div class="empty-state-icon">
-                                    <i class="fas fa-file-alt"></i>
-                                </div>
-                                <h3 class="empty-state-title">No Report Generated</h3>
-                                <p class="empty-state-text">Generate a report to see financial summaries and analytics.</p>
-                                <button class="btn btn-sm" onclick="generateReport()">
-                                    <i class="fas fa-file-alt"></i>
-                                    Generate First Report
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </main>
     </div>
 
@@ -1769,18 +2006,18 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-content">
             <div class="loading-spinner"></div>
-            <p style="color: var(--gray-700); font-weight: 600;">Loading Partnerships Management System...</p>
+            <p style="color: var(--gray-700); font-weight: 600;">Loading Payments Management System...</p>
         </div>
     </div>
 
     <!-- Notification Container -->
     <div class="notification-container" id="notificationContainer"></div>
 
-    <!-- Partnership Modal -->
-    <div class="modal-overlay" id="partnershipModal">
+    <!-- Payment Modal -->
+    <div class="modal-overlay" id="paymentModal">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title" id="modalTitle">Partnership Details</h3>
+                <h3 class="modal-title" id="modalTitle">Payment Details</h3>
                 <button class="modal-close" onclick="hideModal()">&times;</button>
             </div>
             <div id="modalContent">
@@ -1819,7 +2056,12 @@
         // Global State
         let currentUser = null;
         let allPartnerships = [];
+        let allOrders = [];
+        let allPayments = []; // Combined array of partnerships and orders
+        let filteredPayments = [];
         let filteredPartnerships = [];
+        let filteredOrders = [];
+        let currentPaymentTab = 'all';
 
         // Utility Functions
         function showLoading(message = "Loading...") {
@@ -1984,15 +2226,23 @@
         // Data Management
         async function loadInitialData() {
             try {
-                showLoading("Loading partnerships data...");
+                showLoading("Loading payments data...");
                 
-                // Load partnerships
-                await loadPartnerships();
+                // Load partnerships and orders
+                await Promise.all([
+                    loadPartnerships(),
+                    loadOrders()
+                ]);
+                
+                // Combine all payments
+                combineAllPayments();
                 
                 // Update dashboard
                 updateDashboardStats();
                 updateAnalyticsStats();
-                updateReportStats();
+                
+                // Update filter options
+                updateProductFilterOptions();
                 
                 hideLoading();
                 showNotification("Data loaded successfully", "success");
@@ -2012,6 +2262,7 @@
                 if (data) {
                     allPartnerships = Object.entries(data).map(([id, partner]) => ({
                         id: id,
+                        type: 'partnership',
                         fullName: partner.fullName || '',
                         email: partner.email || '',
                         phone: partner.phone || '',
@@ -2042,157 +2293,327 @@
             }
         }
 
+        async function loadOrders() {
+            try {
+                const snapshot = await database.ref('orders').once('value');
+                const data = snapshot.val();
+                
+                if (data) {
+                    allOrders = Object.entries(data).map(([id, order]) => ({
+                        id: id,
+                        type: 'order',
+                        fullName: order.fullName || '',
+                        email: order.email || '',
+                        phone: order.phone || '',
+                        address: order.address || '',
+                        productName: order.productName || '',
+                        productPrice: order.productPrice || '0',
+                        paymentMethod: order.paymentMethod || '',
+                        instructions: order.instructions || '',
+                        status: order.status || 'pending',
+                        orderType: order.type || 'product_order',
+                        timestamp: order.timestamp ? new Date(order.timestamp) : new Date()
+                    }));
+                    
+                    // Sort by timestamp (newest first)
+                    allOrders.sort((a, b) => b.timestamp - a.timestamp);
+                } else {
+                    allOrders = [];
+                }
+                
+                filteredOrders = [...allOrders];
+                
+                // Update UI counts
+                document.getElementById('orderCount').textContent = allOrders.length;
+                
+                return allOrders;
+            } catch (error) {
+                console.error("Error loading orders:", error);
+                showNotification("Failed to load orders", "error");
+                return [];
+            }
+        }
+
+        function combineAllPayments() {
+            allPayments = [];
+            
+            // Add partnerships
+            allPartnerships.forEach(partner => {
+                allPayments.push({
+                    ...partner,
+                    amountNumber: parseFloat(partner.amount) || 0
+                });
+            });
+            
+            // Add orders
+            allOrders.forEach(order => {
+                // Extract price from string like "KSh 2,200"
+                const priceStr = order.productPrice || '0';
+                const priceNum = parseFloat(priceStr.replace(/[^0-9.]/g, '')) || 0;
+                
+                allPayments.push({
+                    ...order,
+                    amountNumber: priceNum
+                });
+            });
+            
+            // Sort by timestamp (newest first)
+            allPayments.sort((a, b) => b.timestamp - a.timestamp);
+            
+            filteredPayments = [...allPayments];
+            
+            // Update total payments count
+            document.getElementById('totalPaymentsCount').textContent = allPayments.length;
+        }
+
         function updateDashboardStats() {
-            // Total partnerships
-            document.getElementById('totalPartnerships').textContent = allPartnerships.length;
-            
-            // Total amount
-            const totalAmount = allPartnerships.reduce((sum, partner) => {
-                return sum + (parseFloat(partner.amount) || 0);
+            // Total revenue
+            const totalRevenue = allPayments.reduce((sum, payment) => {
+                return sum + (payment.amountNumber || 0);
             }, 0);
-            document.getElementById('totalAmount').textContent = `KSh ${totalAmount.toLocaleString()}`;
+            document.getElementById('totalRevenue').textContent = `KSh ${totalRevenue.toLocaleString()}`;
             
-            // Pending partnerships
-            const pendingPartnerships = allPartnerships.filter(partner => partner.status === 'pending').length;
-            document.getElementById('pendingPartnerships').textContent = pendingPartnerships;
+            // Total orders
+            document.getElementById('totalOrders').textContent = allOrders.length;
             
-            // Average amount
-            const avgAmount = allPartnerships.length > 0 ? totalAmount / allPartnerships.length : 0;
-            document.getElementById('avgAmount').textContent = `KSh ${Math.round(avgAmount).toLocaleString()}`;
+            // Pending payments (both partnerships and orders)
+            const pendingPayments = allPayments.filter(payment => payment.status === 'pending').length;
+            document.getElementById('pendingPayments').textContent = pendingPayments;
+            
+            // Average order value
+            const orderTotal = allOrders.reduce((sum, order) => {
+                const priceNum = parseFloat(order.productPrice?.replace(/[^0-9.]/g, '') || 0);
+                return sum + priceNum;
+            }, 0);
+            const avgOrderValue = allOrders.length > 0 ? orderTotal / allOrders.length : 0;
+            document.getElementById('avgOrderValue').textContent = `KSh ${Math.round(avgOrderValue).toLocaleString()}`;
             
             // Quick summary stats
-            const confirmedCount = allPartnerships.filter(partner => partner.status === 'confirmed').length;
+            const confirmedCount = allPayments.filter(payment => payment.status === 'confirmed').length;
             document.getElementById('confirmedCount').textContent = confirmedCount;
             
-            const mpesaCount = allPartnerships.filter(partner => partner.paymentMethod === 'lipa-na-mpesa').length;
+            const mpesaCount = allPayments.filter(payment => 
+                payment.paymentMethod === 'M-Pesa' || payment.paymentMethod === 'lipa-na-mpesa'
+            ).length;
             document.getElementById('mpesaCount').textContent = mpesaCount;
             
             const contentCount = allPartnerships.filter(partner => partner.reason === 'content-creation').length;
             document.getElementById('contentCount').textContent = contentCount;
             
-            const eventRegCount = allPartnerships.filter(partner => partner.reason === 'event-registration').length;
-            document.getElementById('eventRegCount').textContent = eventRegCount;
+            const productSales = allOrders.length;
+            document.getElementById('productSales').textContent = productSales;
             
-            // Update recent partnerships
-            updateRecentPartnershipsCards();
+            // Update recent payments
+            updateRecentPaymentsCards();
         }
 
         function updateAnalyticsStats() {
-            const totalAmount = allPartnerships.reduce((sum, partner) => {
-                return sum + (parseFloat(partner.amount) || 0);
+            const totalRevenue = allPayments.reduce((sum, payment) => {
+                return sum + (payment.amountNumber || 0);
             }, 0);
-            document.getElementById('totalRevenue').textContent = `KSh ${totalAmount.toLocaleString()}`;
+            document.getElementById('totalRevenueAnalytics').textContent = `KSh ${totalRevenue.toLocaleString()}`;
             
             // Monthly revenue (last 30 days)
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-            const monthlyPartnerships = allPartnerships.filter(partner => 
-                partner.timestamp >= thirtyDaysAgo
+            const monthlyPayments = allPayments.filter(payment => 
+                payment.timestamp >= thirtyDaysAgo
             );
-            const monthlyRevenue = monthlyPartnerships.reduce((sum, partner) => {
-                return sum + (parseFloat(partner.amount) || 0);
+            const monthlyRevenue = monthlyPayments.reduce((sum, payment) => {
+                return sum + (payment.amountNumber || 0);
             }, 0);
             document.getElementById('monthlyRevenue').textContent = `KSh ${monthlyRevenue.toLocaleString()}`;
             
             // Growth rate (simplified)
-            const confirmedPartnerships = allPartnerships.filter(partner => partner.status === 'confirmed');
-            const growthRate = allPartnerships.length > 0 ? 
-                Math.round((confirmedPartnerships.length / allPartnerships.length) * 100) : 0;
+            const confirmedPayments = allPayments.filter(payment => payment.status === 'confirmed');
+            const growthRate = allPayments.length > 0 ? 
+                Math.round((confirmedPayments.length / allPayments.length) * 100) : 0;
             document.getElementById('growthRate').textContent = `${growthRate}%`;
             
             // Completion rate (confirmed vs total)
-            const completionRate = allPartnerships.length > 0 ? 
-                Math.round((confirmedPartnerships.length / allPartnerships.length) * 100) : 0;
+            const completionRate = allPayments.length > 0 ? 
+                Math.round((confirmedPayments.length / allPayments.length) * 100) : 0;
             document.getElementById('completionRate').textContent = `${completionRate}%`;
+            
+            // Update analytics content
+            updateAnalyticsContent();
         }
 
-        function updateReportStats() {
-            const totalAmount = allPartnerships.reduce((sum, partner) => {
+        function updateAnalyticsContent() {
+            const container = document.getElementById('analyticsContent');
+            
+            if (allPayments.length === 0) {
+                return;
+            }
+            
+            // Calculate breakdown by type
+            const partnershipRevenue = allPartnerships.reduce((sum, partner) => {
                 return sum + (parseFloat(partner.amount) || 0);
             }, 0);
-            document.getElementById('reportTotal').textContent = `KSh ${totalAmount.toLocaleString()}`;
             
-            const confirmedAmount = allPartnerships
-                .filter(partner => partner.status === 'confirmed')
-                .reduce((sum, partner) => sum + (parseFloat(partner.amount) || 0), 0);
-            document.getElementById('reportConfirmed').textContent = `KSh ${confirmedAmount.toLocaleString()}`;
+            const orderRevenue = allOrders.reduce((sum, order) => {
+                const priceNum = parseFloat(order.productPrice?.replace(/[^0-9.]/g, '') || 0);
+                return sum + priceNum;
+            }, 0);
             
-            const pendingAmount = allPartnerships
-                .filter(partner => partner.status === 'pending')
-                .reduce((sum, partner) => sum + (parseFloat(partner.amount) || 0), 0);
-            document.getElementById('reportPending').textContent = `KSh ${pendingAmount.toLocaleString()}`;
+            const totalRevenue = partnershipRevenue + orderRevenue;
             
-            const avgAmount = allPartnerships.length > 0 ? totalAmount / allPartnerships.length : 0;
-            document.getElementById('reportAvg').textContent = `KSh ${Math.round(avgAmount).toLocaleString()}`;
+            const partnershipPercentage = totalRevenue > 0 ? Math.round((partnershipRevenue / totalRevenue) * 100) : 0;
+            const orderPercentage = totalRevenue > 0 ? Math.round((orderRevenue / totalRevenue) * 100) : 0;
+            
+            const content = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div>
+                        <h4 style="margin-bottom: 1rem; color: var(--gray-700);">Revenue by Type</h4>
+                        <div style="background: var(--secondary); padding: 1rem; border-radius: var(--radius-md);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Partnerships</span>
+                                <strong>KSh ${partnershipRevenue.toLocaleString()} (${partnershipPercentage}%)</strong>
+                            </div>
+                            <div style="height: 8px; background: var(--gray-200); border-radius: 4px; margin-bottom: 1rem;">
+                                <div style="width: ${partnershipPercentage}%; height: 100%; background: var(--accent); border-radius: 4px;"></div>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Product Orders</span>
+                                <strong>KSh ${orderRevenue.toLocaleString()} (${orderPercentage}%)</strong>
+                            </div>
+                            <div style="height: 8px; background: var(--gray-200); border-radius: 4px;">
+                                <div style="width: ${orderPercentage}%; height: 100%; background: var(--success); border-radius: 4px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 style="margin-bottom: 1rem; color: var(--gray-700);">Top Products</h4>
+                        <div style="background: var(--secondary); padding: 1rem; border-radius: var(--radius-md);">
+                            ${getTopProductsHTML()}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = content;
         }
 
-        function updateRecentPartnershipsCards() {
-            const container = document.getElementById('recentPartnershipsList');
+        function getTopProductsHTML() {
+            // Group orders by product
+            const productSales = {};
+            allOrders.forEach(order => {
+                const productName = order.productName || 'Unknown Product';
+                const price = parseFloat(order.productPrice?.replace(/[^0-9.]/g, '') || 0);
+                
+                if (!productSales[productName]) {
+                    productSales[productName] = {
+                        count: 0,
+                        revenue: 0
+                    };
+                }
+                
+                productSales[productName].count++;
+                productSales[productName].revenue += price;
+            });
+            
+            // Sort by revenue
+            const sortedProducts = Object.entries(productSales)
+                .sort(([, a], [, b]) => b.revenue - a.revenue)
+                .slice(0, 5);
+            
+            if (sortedProducts.length === 0) {
+                return '<p style="color: var(--gray-500); text-align: center;">No product sales data</p>';
+            }
+            
+            let html = '';
+            sortedProducts.forEach(([productName, data], index) => {
+                html += `
+                    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; ${index < sortedProducts.length - 1 ? 'border-bottom: 1px solid var(--gray-200);' : ''}">
+                        <div>
+                            <div style="font-weight: 600;">${productName}</div>
+                            <div style="font-size: 0.875rem; color: var(--gray-500);">${data.count} sales</div>
+                        </div>
+                        <div style="font-weight: 700; color: var(--success);">KSh ${data.revenue.toLocaleString()}</div>
+                    </div>
+                `;
+            });
+            
+            return html;
+        }
+
+        function updateRecentPaymentsCards() {
+            const container = document.getElementById('recentPaymentsList');
             container.innerHTML = '';
             
-            const recentPartnerships = allPartnerships.slice(0, 4);
+            const recentPayments = allPayments.slice(0, 4);
             
-            if (recentPartnerships.length === 0) {
+            if (recentPayments.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <div class="empty-state-icon">
-                            <i class="fas fa-handshake-slash"></i>
+                            <i class="fas fa-money-bill-wave-slash"></i>
                         </div>
-                        <h3 class="empty-state-title">No Partnerships Found</h3>
-                        <p class="empty-state-text">Partnership data will appear here once available.</p>
+                        <h3 class="empty-state-title">No Payments Found</h3>
+                        <p class="empty-state-text">Payment data will appear here once available.</p>
                     </div>
                 `;
                 return;
             }
             
-            recentPartnerships.forEach(partner => {
+            recentPayments.forEach(payment => {
                 const card = document.createElement('div');
-                card.className = 'partnership-card';
+                card.className = 'payment-card';
                 
-                const reasonClass = partner.reason === 'content-creation' ? 'reason-content' : 
-                                  partner.reason === 'event-registration' ? 'reason-event' : 'reason-general';
-                const reasonText = partner.reason === 'content-creation' ? 'Content Creation' :
-                                 partner.reason === 'event-registration' ? 'Event Registration' : 'General Support';
+                // Determine display based on type
+                let title, details, badgeColor, typeText;
                 
-                const paymentClass = partner.paymentMethod === 'lipa-na-mpesa' ? 'payment-mpesa' : 'payment-bank';
-                const paymentText = partner.paymentMethod === 'lipa-na-mpesa' ? 'M-Pesa' : 
-                                  partner.paymentMethod === 'bank-transfer' ? 'Bank Transfer' : 'Cash';
+                if (payment.type === 'partnership') {
+                    title = payment.fullName || 'Unknown Partner';
+                    details = payment.reason === 'content-creation' ? 'Content Creation' :
+                             payment.reason === 'event-registration' ? 'Event Registration' : 'General Support';
+                    badgeColor = 'var(--accent)';
+                    typeText = 'Partnership';
+                } else {
+                    title = payment.fullName || 'Unknown Customer';
+                    details = payment.productName || 'Product Order';
+                    badgeColor = 'var(--info)';
+                    typeText = 'Order';
+                }
+                
+                const paymentClass = payment.paymentMethod === 'M-Pesa' || payment.paymentMethod === 'lipa-na-mpesa' ? 'payment-mpesa' : 
+                                   payment.paymentMethod === 'Bank Transfer' || payment.paymentMethod === 'bank-transfer' ? 'payment-bank' : 'payment-cash';
+                const paymentText = payment.paymentMethod === 'lipa-na-mpesa' ? 'M-Pesa' : 
+                                  payment.paymentMethod === 'bank-transfer' ? 'Bank Transfer' : payment.paymentMethod || 'Cash';
                 
                 card.innerHTML = `
-                    <div class="partnership-card-header">
-                        <h3 class="partnership-card-title">${partner.fullName || 'Unknown Partner'}</h3>
-                        <span class="partnership-card-badge status-${partner.status}">${partner.status}</span>
+                    <div class="payment-card-header">
+                        <h3 class="payment-card-title">${title}</h3>
+                        <span class="payment-card-badge" style="background: ${badgeColor};">${typeText}</span>
                     </div>
-                    <div class="amount-display">KSh ${parseFloat(partner.amount || 0).toLocaleString()}</div>
-                    <div class="partnership-card-meta">
-                        <div class="partnership-card-meta-item">
-                            <i class="fas fa-envelope"></i>
-                            <span>${partner.email || 'No email'}</span>
-                        </div>
-                        <div class="partnership-card-meta-item">
-                            <i class="fas fa-phone"></i>
-                            <span>${partner.phone || 'No phone'}</span>
-                        </div>
-                        <div class="partnership-card-meta-item">
+                    <div class="amount-display">KSh ${payment.amountNumber.toLocaleString()}</div>
+                    <div class="payment-card-meta">
+                        <div class="payment-card-meta-item">
                             <i class="fas fa-tag"></i>
-                            <span class="${reasonClass}">${reasonText}</span>
+                            <span>${details}</span>
                         </div>
-                        <div class="partnership-card-meta-item">
+                        <div class="payment-card-meta-item">
                             <i class="fas fa-credit-card"></i>
                             <span class="${paymentClass}">${paymentText}</span>
                         </div>
+                        <div class="payment-card-meta-item">
+                            <i class="fas fa-clock"></i>
+                            <span>${payment.timestamp.toLocaleDateString()}</span>
+                        </div>
                     </div>
-                    <div class="partnership-card-footer">
-                        <button class="action-btn view" onclick="viewPartnership('${partner.id}')">
+                    <div class="payment-card-footer">
+                        <button class="action-btn view" onclick="viewPayment('${payment.type}', '${payment.id}')">
                             <i class="fas fa-eye"></i>
                             View
                         </button>
-                        <button class="action-btn edit" onclick="editPartnership('${partner.id}')">
+                        <button class="action-btn edit" onclick="editPayment('${payment.type}', '${payment.id}')">
                             <i class="fas fa-edit"></i>
                             Edit
                         </button>
-                        ${partner.status === 'pending' ? `
-                        <button class="action-btn approve" onclick="approvePartnership('${partner.id}')">
+                        ${payment.status === 'pending' ? `
+                        <button class="action-btn approve" onclick="approvePayment('${payment.type}', '${payment.id}')">
                             <i class="fas fa-check"></i>
                             Approve
                         </button>
@@ -2201,6 +2622,33 @@
                 `;
                 container.appendChild(card);
             });
+        }
+
+        function updateProductFilterOptions() {
+            const select = document.getElementById('orderProductFilter');
+            const currentValue = select.value;
+            
+            // Clear existing options except "All Products"
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+            
+            // Get unique product names from orders
+            const productNames = [...new Set(allOrders.map(order => order.productName))];
+            
+            productNames.forEach(name => {
+                if (name) {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    select.appendChild(option);
+                }
+            });
+            
+            // Restore previous selection if possible
+            if (currentValue !== 'all') {
+                select.value = currentValue;
+            }
         }
 
         // Page Management
@@ -2217,17 +2665,19 @@
                 
                 // Update page title
                 const titles = {
-                    'dashboard': 'Partnerships Dashboard',
+                    'dashboard': 'Payments Dashboard',
+                    'payments': 'Payment Management',
                     'partnerships': 'Partnership Management',
-                    'analytics': 'Financial Analytics',
-                    'reports': 'Financial Reports'
+                    'orders': 'Order Management',
+                    'analytics': 'Financial Analytics'
                 };
                 
                 const subtitles = {
-                    'dashboard': 'Complete Partnership Management System',
-                    'partnerships': 'Manage all partnership transactions',
-                    'analytics': 'Analytics and financial insights',
-                    'reports': 'Generate financial reports'
+                    'dashboard': 'Complete Payment Management System',
+                    'payments': 'Manage all payments and transactions',
+                    'partnerships': 'Manage partnership payments',
+                    'orders': 'Manage product orders and sales',
+                    'analytics': 'Analytics and financial insights'
                 };
                 
                 document.getElementById('pageTitle').textContent = titles[pageId] || pageId;
@@ -2235,14 +2685,17 @@
                 
                 // Load page-specific content
                 switch (pageId) {
+                    case 'payments':
+                        updatePaymentsTable();
+                        break;
                     case 'partnerships':
                         updatePartnershipsTable();
                         break;
+                    case 'orders':
+                        updateOrdersTable();
+                        break;
                     case 'analytics':
                         updateAnalyticsStats();
-                        break;
-                    case 'reports':
-                        updateReportStats();
                         break;
                     case 'dashboard':
                         updateDashboardStats();
@@ -2264,9 +2717,200 @@
             document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
         }
 
-        // Partnership Table Functions
+        // Tab Management
+        function switchPaymentTab(tab) {
+            currentPaymentTab = tab;
+            
+            // Update active tab
+            document.querySelectorAll('#paymentsTabs .tab').forEach(tabEl => {
+                tabEl.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Filter payments based on tab
+            filterPayments();
+        }
+
+        // Payment Table Functions
+        function updatePaymentsTable() {
+            const tableBody = document.getElementById('allPayments');
+            tableBody.innerHTML = '';
+            
+            if (filteredPayments.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 3rem; color: var(--gray-500);">
+                            <i class="fas fa-money-bill-wave-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No payments found matching your filters</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            filteredPayments.forEach(payment => {
+                const typeClass = payment.type === 'partnership' ? 'type-partnership' : 'type-order';
+                const typeText = payment.type === 'partnership' ? 'Partnership' : 'Order';
+                
+                let details = '';
+                if (payment.type === 'partnership') {
+                    const reasonText = payment.reason === 'content-creation' ? 'Content Creation' :
+                                     payment.reason === 'event-registration' ? 'Event Registration' : 'General Support';
+                    details = `<span class="reason-badge ${payment.reason === 'content-creation' ? 'reason-content' : payment.reason === 'event-registration' ? 'reason-event' : 'reason-general'}">${reasonText}</span>`;
+                } else {
+                    details = `
+                        <div class="product-info">
+                            <div class="product-name">${payment.productName || 'Product Order'}</div>
+                            <div class="product-price">${payment.productPrice || ''}</div>
+                        </div>
+                    `;
+                }
+                
+                const paymentClass = payment.paymentMethod === 'M-Pesa' || payment.paymentMethod === 'lipa-na-mpesa' ? 'payment-mpesa' : 
+                                   payment.paymentMethod === 'Bank Transfer' || payment.paymentMethod === 'bank-transfer' ? 'payment-bank' : 'payment-cash';
+                const paymentText = payment.paymentMethod === 'lipa-na-mpesa' ? 'M-Pesa' : 
+                                  payment.paymentMethod === 'bank-transfer' ? 'Bank Transfer' : payment.paymentMethod || 'Cash';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="${typeClass}">${typeText}</span></td>
+                    <td>
+                        <strong>${payment.fullName || 'N/A'}</strong>
+                        <div style="color: var(--gray-500); font-size: 0.875rem;">${payment.email || ''}</div>
+                    </td>
+                    <td>${details}</td>
+                    <td class="amount-cell">KSh ${payment.amountNumber.toLocaleString()}</td>
+                    <td><span class="${paymentClass}">${paymentText}</span></td>
+                    <td>
+                        <div>${payment.timestamp.toLocaleDateString()}</div>
+                        <small style="color: var(--gray-500);">${payment.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                    </td>
+                    <td><span class="status-badge status-${payment.status}">${payment.status}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" onclick="viewPayment('${payment.type}', '${payment.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit" onclick="editPayment('${payment.type}', '${payment.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            ${payment.status === 'pending' ? `
+                            <button class="action-btn approve" onclick="approvePayment('${payment.type}', '${payment.id}')">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            ` : ''}
+                            ${payment.type === 'order' && payment.status === 'confirmed' ? `
+                            <button class="action-btn ship" onclick="shipOrder('${payment.id}')">
+                                <i class="fas fa-shipping-fast"></i>
+                            </button>
+                            ` : ''}
+                            ${payment.type === 'order' && payment.status === 'shipped' ? `
+                            <button class="action-btn complete" onclick="deliverOrder('${payment.id}')">
+                                <i class="fas fa-check-circle"></i>
+                            </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function filterPayments() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const paymentFilter = document.getElementById('paymentFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const amountFilter = document.getElementById('amountFilter').value;
+            
+            // Start with all payments or filtered by tab
+            let paymentsToFilter = allPayments;
+            
+            if (currentPaymentTab === 'partnerships') {
+                paymentsToFilter = allPartnerships.map(p => ({...p, amountNumber: parseFloat(p.amount) || 0}));
+            } else if (currentPaymentTab === 'orders') {
+                paymentsToFilter = allOrders.map(o => {
+                    const priceNum = parseFloat(o.productPrice?.replace(/[^0-9.]/g, '') || 0);
+                    return {...o, amountNumber: priceNum};
+                });
+            }
+            
+            filteredPayments = paymentsToFilter.filter(payment => {
+                // Status filter
+                if (statusFilter !== 'all' && payment.status !== statusFilter) {
+                    return false;
+                }
+                
+                // Payment method filter
+                if (paymentFilter !== 'all') {
+                    if (paymentFilter === 'M-Pesa' && payment.paymentMethod !== 'M-Pesa' && payment.paymentMethod !== 'lipa-na-mpesa') {
+                        return false;
+                    }
+                    if (paymentFilter === 'lipa-na-mpesa' && payment.paymentMethod !== 'lipa-na-mpesa') {
+                        return false;
+                    }
+                    if (paymentFilter === 'Bank Transfer' && payment.paymentMethod !== 'Bank Transfer' && payment.paymentMethod !== 'bank-transfer') {
+                        return false;
+                    }
+                    if (paymentFilter === 'bank-transfer' && payment.paymentMethod !== 'bank-transfer') {
+                        return false;
+                    }
+                    if (paymentFilter === 'Cash' && payment.paymentMethod !== 'Cash') {
+                        return false;
+                    }
+                }
+                
+                // Date filter
+                if (dateFilter !== 'all') {
+                    const now = new Date();
+                    const paymentDate = payment.timestamp;
+                    
+                    switch (dateFilter) {
+                        case 'today':
+                            if (paymentDate.toDateString() !== now.toDateString()) return false;
+                            break;
+                        case 'week':
+                            const weekStart = new Date(now);
+                            weekStart.setDate(now.getDate() - now.getDay());
+                            weekStart.setHours(0, 0, 0, 0);
+                            if (paymentDate < weekStart) return false;
+                            break;
+                        case 'month':
+                            if (paymentDate.getMonth() !== now.getMonth() || paymentDate.getFullYear() !== now.getFullYear()) return false;
+                            break;
+                        case 'year':
+                            if (paymentDate.getFullYear() !== now.getFullYear()) return false;
+                            break;
+                    }
+                }
+                
+                // Amount filter
+                if (amountFilter !== 'all') {
+                    const amount = payment.amountNumber || 0;
+                    switch (amountFilter) {
+                        case '0-1000':
+                            if (amount >= 1000) return false;
+                            break;
+                        case '1000-5000':
+                            if (amount < 1000 || amount >= 5000) return false;
+                            break;
+                        case '5000-10000':
+                            if (amount < 5000 || amount >= 10000) return false;
+                            break;
+                        case '10000+':
+                            if (amount < 10000) return false;
+                            break;
+                    }
+                }
+                
+                return true;
+            });
+            
+            updatePaymentsTable();
+        }
+
+        // Partnerships Table Functions
         function updatePartnershipsTable() {
-            const tableBody = document.getElementById('allPartnerships');
+            const tableBody = document.getElementById('allPartnershipsTable');
             tableBody.innerHTML = '';
             
             if (filteredPartnerships.length === 0) {
@@ -2293,9 +2937,7 @@
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>
-                        <strong>${partner.fullName || 'N/A'}</strong>
-                    </td>
+                    <td><strong>${partner.fullName || 'N/A'}</strong></td>
                     <td>
                         <div>${partner.email || 'N/A'}</div>
                         <div style="color: var(--gray-500); font-size: 0.875rem;">${partner.phone || ''}</div>
@@ -2310,20 +2952,17 @@
                     <td><span class="status-badge status-${partner.status}">${partner.status}</span></td>
                     <td>
                         <div class="action-buttons">
-                            <button class="action-btn view" onclick="viewPartnership('${partner.id}')">
+                            <button class="action-btn view" onclick="viewPayment('partnership', '${partner.id}')">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="action-btn edit" onclick="editPartnership('${partner.id}')">
+                            <button class="action-btn edit" onclick="editPayment('partnership', '${partner.id}')">
                                 <i class="fas fa-edit"></i>
                             </button>
                             ${partner.status === 'pending' ? `
-                            <button class="action-btn approve" onclick="approvePartnership('${partner.id}')">
+                            <button class="action-btn approve" onclick="approvePayment('partnership', '${partner.id}')">
                                 <i class="fas fa-check"></i>
                             </button>
                             ` : ''}
-                            <button class="action-btn delete" onclick="deletePartnership('${partner.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
                         </div>
                     </td>
                 `;
@@ -2332,10 +2971,9 @@
         }
 
         function filterPartnerships() {
-            const statusFilter = document.getElementById('statusFilter').value;
-            const paymentFilter = document.getElementById('paymentFilter').value;
-            const reasonFilter = document.getElementById('reasonFilter').value;
-            const dateFilter = document.getElementById('dateFilter').value;
+            const statusFilter = document.getElementById('partnershipStatusFilter').value;
+            const paymentFilter = document.getElementById('partnershipPaymentFilter').value;
+            const reasonFilter = document.getElementById('partnershipReasonFilter').value;
             
             filteredPartnerships = allPartnerships.filter(partner => {
                 // Status filter
@@ -2353,299 +2991,536 @@
                     return false;
                 }
                 
-                // Date filter
-                if (dateFilter !== 'all') {
-                    const now = new Date();
-                    const partnerDate = partner.timestamp;
-                    
-                    switch (dateFilter) {
-                        case 'today':
-                            if (partnerDate.toDateString() !== now.toDateString()) return false;
-                            break;
-                        case 'week':
-                            const weekStart = new Date(now);
-                            weekStart.setDate(now.getDate() - now.getDay());
-                            weekStart.setHours(0, 0, 0, 0);
-                            if (partnerDate < weekStart) return false;
-                            break;
-                        case 'month':
-                            if (partnerDate.getMonth() !== now.getMonth() || partnerDate.getFullYear() !== now.getFullYear()) return false;
-                            break;
-                        case 'year':
-                            if (partnerDate.getFullYear() !== now.getFullYear()) return false;
-                            break;
-                    }
-                }
-                
                 return true;
             });
             
             updatePartnershipsTable();
         }
 
+        // Orders Table Functions
+        function updateOrdersTable() {
+            const tableBody = document.getElementById('allOrdersTable');
+            tableBody.innerHTML = '';
+            
+            if (filteredOrders.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 3rem; color: var(--gray-500);">
+                            <i class="fas fa-shopping-cart" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No orders found matching your filters</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            filteredOrders.forEach(order => {
+                const paymentClass = order.paymentMethod === 'M-Pesa' ? 'payment-mpesa' : 
+                                   order.paymentMethod === 'Bank Transfer' ? 'payment-bank' : 'payment-cash';
+                const paymentText = order.paymentMethod || 'Cash';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <strong>${order.fullName || 'N/A'}</strong>
+                        <div style="color: var(--gray-500); font-size: 0.875rem;">${order.email || ''}</div>
+                    </td>
+                    <td>
+                        <div class="product-info">
+                            <div class="product-name">${order.productName || 'Product Order'}</div>
+                            <div class="product-price">${order.productPrice || ''}</div>
+                        </div>
+                    </td>
+                    <td class="amount-cell">${order.productPrice || 'KSh 0'}</td>
+                    <td>${order.address || 'N/A'}</td>
+                    <td><span class="${paymentClass}">${paymentText}</span></td>
+                    <td>
+                        <div>${order.timestamp.toLocaleDateString()}</div>
+                        <small style="color: var(--gray-500);">${order.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                    </td>
+                    <td><span class="status-badge status-${order.status}">${order.status}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" onclick="viewPayment('order', '${order.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit" onclick="editPayment('order', '${order.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            ${order.status === 'pending' ? `
+                            <button class="action-btn approve" onclick="approvePayment('order', '${order.id}')">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            ` : ''}
+                            ${order.status === 'confirmed' ? `
+                            <button class="action-btn ship" onclick="shipOrder('${order.id}')">
+                                <i class="fas fa-shipping-fast"></i>
+                            </button>
+                            ` : ''}
+                            ${order.status === 'shipped' ? `
+                            <button class="action-btn complete" onclick="deliverOrder('${order.id}')">
+                                <i class="fas fa-check-circle"></i>
+                            </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function filterOrders() {
+            const statusFilter = document.getElementById('orderStatusFilter').value;
+            const paymentFilter = document.getElementById('orderPaymentFilter').value;
+            const productFilter = document.getElementById('orderProductFilter').value;
+            
+            filteredOrders = allOrders.filter(order => {
+                // Status filter
+                if (statusFilter !== 'all' && order.status !== statusFilter) {
+                    return false;
+                }
+                
+                // Payment method filter
+                if (paymentFilter !== 'all' && order.paymentMethod !== paymentFilter) {
+                    return false;
+                }
+                
+                // Product filter
+                if (productFilter !== 'all' && order.productName !== productFilter) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            updateOrdersTable();
+        }
+
         // Modal Functions
         function hideModal() {
-            document.getElementById('partnershipModal').classList.remove('active');
+            document.getElementById('paymentModal').classList.remove('active');
         }
 
-        function showModal(content, title = 'Partnership') {
+        function showModal(content, title = 'Payment') {
             document.getElementById('modalTitle').textContent = title;
             document.getElementById('modalContent').innerHTML = content;
-            document.getElementById('partnershipModal').classList.add('active');
+            document.getElementById('paymentModal').classList.add('active');
         }
 
-        // Partnership CRUD Functions
-        function viewPartnership(partnerId) {
-            const partner = allPartnerships.find(p => p.id === partnerId);
-            if (!partner) {
-                showNotification("Partnership not found", "error");
+        // Payment CRUD Functions
+        function viewPayment(type, id) {
+            let payment;
+            
+            if (type === 'partnership') {
+                payment = allPartnerships.find(p => p.id === id);
+            } else {
+                payment = allOrders.find(o => o.id === id);
+            }
+            
+            if (!payment) {
+                showNotification("Payment not found", "error");
                 return;
             }
             
-            const reasonText = partner.reason === 'content-creation' ? 'Content Creation' :
-                             partner.reason === 'event-registration' ? 'Event Registration' : 'General Support';
+            let content;
             
-            const paymentText = partner.paymentMethod === 'lipa-na-mpesa' ? 'Lipa Na M-Pesa' : 
-                              partner.paymentMethod === 'bank-transfer' ? 'Bank Transfer' : 'Cash';
-            
-            const sourceText = partner.source === 'partnership-page' ? 'Partnership Page' : 'Other';
-            
-            const content = `
-                <div style="line-height: 1.8;">
-                    <h4 style="margin-bottom: 1rem; color: var(--primary);">Partnership Details</h4>
-                    <div style="background: var(--gray-50); padding: 1.5rem; border-radius: var(--radius-lg);">
-                        <div style="margin-bottom: 1.5rem; text-align: center;">
-                            <div class="amount-display" style="font-size: 2rem;">KSh ${parseFloat(partner.amount || 0).toLocaleString()}</div>
-                            <div style="margin-top: 0.5rem;">
-                                <span class="status-badge status-${partner.status}">${partner.status}</span>
+            if (type === 'partnership') {
+                const reasonText = payment.reason === 'content-creation' ? 'Content Creation' :
+                                 payment.reason === 'event-registration' ? 'Event Registration' : 'General Support';
+                
+                const paymentText = payment.paymentMethod === 'lipa-na-mpesa' ? 'Lipa Na M-Pesa' : 
+                                  payment.paymentMethod === 'bank-transfer' ? 'Bank Transfer' : 'Cash';
+                
+                const sourceText = payment.source === 'partnership-page' ? 'Partnership Page' : 'Other';
+                
+                content = `
+                    <div style="line-height: 1.8;">
+                        <h4 style="margin-bottom: 1rem; color: var(--primary);">Partnership Details</h4>
+                        <div style="background: var(--gray-50); padding: 1.5rem; border-radius: var(--radius-lg);">
+                            <div style="margin-bottom: 1.5rem; text-align: center;">
+                                <div class="amount-display" style="font-size: 2rem;">KSh ${parseFloat(payment.amount || 0).toLocaleString()}</div>
+                                <div style="margin-top: 0.5rem;">
+                                    <span class="status-badge status-${payment.status}">${payment.status}</span>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                            <div><strong>Full Name:</strong><br>${partner.fullName || 'N/A'}</div>
-                            <div><strong>Email:</strong><br>${partner.email || 'N/A'}</div>
-                            <div><strong>Phone:</strong><br>${partner.phone || 'N/A'}</div>
-                            <div><strong>Payment Method:</strong><br>${paymentText}</div>
-                            <div><strong>Reason:</strong><br>${reasonText}</div>
-                            <div><strong>Source:</strong><br>${sourceText}</div>
-                        </div>
-                        
-                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
-                            <strong>Transaction Date:</strong><br>
-                            ${partner.timestamp.toLocaleString()}
-                        </div>
-                        
-                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
-                            <strong>Partnership ID:</strong><br>
-                            <code style="color: var(--gray-600); font-size: 0.875rem;">${partner.id}</code>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-outline" onclick="editPartnership('${partner.id}')">
-                        <i class="fas fa-edit"></i>
-                        Edit Partnership
-                    </button>
-                    <button type="button" class="btn" onclick="hideModal()">
-                        Close
-                    </button>
-                </div>
-            `;
-            showModal(content, `Partnership: ${partner.fullName || 'View Details'}`);
-        }
-
-        function editPartnership(partnerId) {
-            const partner = allPartnerships.find(p => p.id === partnerId);
-            if (!partner) {
-                showNotification("Partnership not found", "error");
-                return;
-            }
-            
-            const form = `
-                <form id="partnershipForm" onsubmit="updatePartnership(event, '${partnerId}')">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">Full Name *</label>
-                            <input type="text" class="form-input" name="fullName" value="${partner.fullName || ''}" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Email *</label>
-                            <input type="email" class="form-input" name="email" value="${partner.email || ''}" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Phone</label>
-                            <input type="text" class="form-input" name="phone" value="${partner.phone || ''}">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Amount (KSh) *</label>
-                            <input type="number" class="form-input" name="amount" value="${parseFloat(partner.amount || 0)}" min="0" step="100" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Payment Method</label>
-                            <select class="form-input" name="paymentMethod" required>
-                                <option value="lipa-na-mpesa" ${partner.paymentMethod === 'lipa-na-mpesa' ? 'selected' : ''}>Lipa Na M-Pesa</option>
-                                <option value="bank-transfer" ${partner.paymentMethod === 'bank-transfer' ? 'selected' : ''}>Bank Transfer</option>
-                                <option value="cash" ${partner.paymentMethod === 'cash' ? 'selected' : ''}>Cash</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Reason</label>
-                            <select class="form-input" name="reason" required>
-                                <option value="content-creation" ${partner.reason === 'content-creation' ? 'selected' : ''}>Content Creation</option>
-                                <option value="event-registration" ${partner.reason === 'event-registration' ? 'selected' : ''}>Event Registration</option>
-                                <option value="general-support" ${partner.reason === 'general-support' ? 'selected' : ''}>General Support</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Status</label>
-                            <select class="form-input" name="status" required>
-                                <option value="pending" ${partner.status === 'pending' ? 'selected' : ''}>Pending</option>
-                                <option value="confirmed" ${partner.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
-                                <option value="completed" ${partner.status === 'completed' ? 'selected' : ''}>Completed</option>
-                                <option value="cancelled" ${partner.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                                <option value="refunded" ${partner.status === 'refunded' ? 'selected' : ''}>Refunded</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Source</label>
-                            <select class="form-input" name="source" required>
-                                <option value="partnership-page" ${partner.source === 'partnership-page' ? 'selected' : ''}>Partnership Page</option>
-                                <option value="direct" ${partner.source === 'direct' ? 'selected' : ''}>Direct</option>
-                                <option value="other" ${partner.source === 'other' ? 'selected' : ''}>Other</option>
-                            </select>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                <div><strong>Full Name:</strong><br>${payment.fullName || 'N/A'}</div>
+                                <div><strong>Email:</strong><br>${payment.email || 'N/A'}</div>
+                                <div><strong>Phone:</strong><br>${payment.phone || 'N/A'}</div>
+                                <div><strong>Payment Method:</strong><br>${paymentText}</div>
+                                <div><strong>Reason:</strong><br>${reasonText}</div>
+                                <div><strong>Source:</strong><br>${sourceText}</div>
+                            </div>
+                            
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                                <strong>Transaction Date:</strong><br>
+                                ${payment.timestamp.toLocaleString()}
+                            </div>
+                            
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                                <strong>Partnership ID:</strong><br>
+                                <code style="color: var(--gray-600); font-size: 0.875rem;">${payment.id}</code>
+                            </div>
                         </div>
                     </div>
                     <div class="form-actions">
-                        <button type="button" class="btn btn-outline" onclick="hideModal()">
-                            Cancel
+                        <button type="button" class="btn btn-outline" onclick="editPayment('${type}', '${payment.id}')">
+                            <i class="fas fa-edit"></i>
+                            Edit Partnership
                         </button>
-                        <button type="submit" class="btn">
-                            <i class="fas fa-save"></i>
-                            Update Partnership
+                        <button type="button" class="btn" onclick="hideModal()">
+                            Close
                         </button>
                     </div>
-                </form>
-            `;
-            showModal(form, `Edit Partnership: ${partner.fullName}`);
+                `;
+            } else {
+                const paymentText = payment.paymentMethod || 'Cash';
+                
+                content = `
+                    <div style="line-height: 1.8;">
+                        <h4 style="margin-bottom: 1rem; color: var(--primary);">Order Details</h4>
+                        <div style="background: var(--gray-50); padding: 1.5rem; border-radius: var(--radius-lg);">
+                            <div style="margin-bottom: 1.5rem; text-align: center;">
+                                <div class="amount-display" style="font-size: 2rem;">${payment.productPrice || 'KSh 0'}</div>
+                                <div style="margin-top: 0.5rem;">
+                                    <span class="status-badge status-${payment.status}">${payment.status}</span>
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                <div><strong>Customer Name:</strong><br>${payment.fullName || 'N/A'}</div>
+                                <div><strong>Email:</strong><br>${payment.email || 'N/A'}</div>
+                                <div><strong>Phone:</strong><br>${payment.phone || 'N/A'}</div>
+                                <div><strong>Payment Method:</strong><br>${paymentText}</div>
+                                <div><strong>Product:</strong><br>${payment.productName || 'N/A'}</div>
+                                <div><strong>Address:</strong><br>${payment.address || 'N/A'}</div>
+                            </div>
+                            
+                            ${payment.instructions ? `
+                            <div style="margin-bottom: 1rem;">
+                                <strong>Special Instructions:</strong><br>
+                                <p style="color: var(--gray-700);">${payment.instructions}</p>
+                            </div>
+                            ` : ''}
+                            
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                                <strong>Order Date:</strong><br>
+                                ${payment.timestamp.toLocaleString()}
+                            </div>
+                            
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                                <strong>Order ID:</strong><br>
+                                <code style="color: var(--gray-600); font-size: 0.875rem;">${payment.id}</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="editPayment('${type}', '${payment.id}')">
+                            <i class="fas fa-edit"></i>
+                            Edit Order
+                        </button>
+                        <button type="button" class="btn" onclick="hideModal()">
+                            Close
+                        </button>
+                    </div>
+                `;
+            }
+            
+            showModal(content, `${type === 'partnership' ? 'Partnership' : 'Order'}: ${payment.fullName || 'View Details'}`);
         }
 
-        async function updatePartnership(e, partnerId) {
+        function editPayment(type, id) {
+            let payment;
+            let title;
+            
+            if (type === 'partnership') {
+                payment = allPartnerships.find(p => p.id === id);
+                title = 'Edit Partnership';
+            } else {
+                payment = allOrders.find(o => o.id === id);
+                title = 'Edit Order';
+            }
+            
+            if (!payment) {
+                showNotification("Payment not found", "error");
+                return;
+            }
+            
+            let form;
+            
+            if (type === 'partnership') {
+                form = `
+                    <form id="paymentForm" onsubmit="updatePayment(event, '${type}', '${id}')">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" class="form-input" name="fullName" value="${payment.fullName || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email *</label>
+                                <input type="email" class="form-input" name="email" value="${payment.email || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone</label>
+                                <input type="text" class="form-input" name="phone" value="${payment.phone || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Amount (KSh) *</label>
+                                <input type="number" class="form-input" name="amount" value="${parseFloat(payment.amount || 0)}" min="0" step="100" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Payment Method</label>
+                                <select class="form-input" name="paymentMethod" required>
+                                    <option value="lipa-na-mpesa" ${payment.paymentMethod === 'lipa-na-mpesa' ? 'selected' : ''}>Lipa Na M-Pesa</option>
+                                    <option value="bank-transfer" ${payment.paymentMethod === 'bank-transfer' ? 'selected' : ''}>Bank Transfer</option>
+                                    <option value="cash" ${payment.paymentMethod === 'cash' ? 'selected' : ''}>Cash</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Reason</label>
+                                <select class="form-input" name="reason" required>
+                                    <option value="content-creation" ${payment.reason === 'content-creation' ? 'selected' : ''}>Content Creation</option>
+                                    <option value="event-registration" ${payment.reason === 'event-registration' ? 'selected' : ''}>Event Registration</option>
+                                    <option value="general-support" ${payment.reason === 'general-support' ? 'selected' : ''}>General Support</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Status</label>
+                                <select class="form-input" name="status" required>
+                                    <option value="pending" ${payment.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="confirmed" ${payment.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                                    <option value="completed" ${payment.status === 'completed' ? 'selected' : ''}>Completed</option>
+                                    <option value="cancelled" ${payment.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                                    <option value="refunded" ${payment.status === 'refunded' ? 'selected' : ''}>Refunded</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Source</label>
+                                <select class="form-input" name="source" required>
+                                    <option value="partnership-page" ${payment.source === 'partnership-page' ? 'selected' : ''}>Partnership Page</option>
+                                    <option value="direct" ${payment.source === 'direct' ? 'selected' : ''}>Direct</option>
+                                    <option value="other" ${payment.source === 'other' ? 'selected' : ''}>Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" onclick="hideModal()">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn">
+                                <i class="fas fa-save"></i>
+                                Update Partnership
+                            </button>
+                        </div>
+                    </form>
+                `;
+            } else {
+                form = `
+                    <form id="paymentForm" onsubmit="updatePayment(event, '${type}', '${id}')">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Customer Name *</label>
+                                <input type="text" class="form-input" name="fullName" value="${payment.fullName || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email *</label>
+                                <input type="email" class="form-input" name="email" value="${payment.email || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone</label>
+                                <input type="text" class="form-input" name="phone" value="${payment.phone || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Address</label>
+                                <input type="text" class="form-input" name="address" value="${payment.address || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Product Name *</label>
+                                <input type="text" class="form-input" name="productName" value="${payment.productName || ''}" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Product Price *</label>
+                                <input type="text" class="form-input" name="productPrice" value="${payment.productPrice || ''}" required placeholder="KSh 2,200">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Payment Method</label>
+                                <select class="form-input" name="paymentMethod" required>
+                                    <option value="M-Pesa" ${payment.paymentMethod === 'M-Pesa' ? 'selected' : ''}>M-Pesa</option>
+                                    <option value="Bank Transfer" ${payment.paymentMethod === 'Bank Transfer' ? 'selected' : ''}>Bank Transfer</option>
+                                    <option value="Cash on Delivery" ${payment.paymentMethod === 'Cash on Delivery' ? 'selected' : ''}>Cash on Delivery</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Status</label>
+                                <select class="form-input" name="status" required>
+                                    <option value="pending" ${payment.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="confirmed" ${payment.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                                    <option value="shipped" ${payment.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                                    <option value="delivered" ${payment.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                                    <option value="cancelled" ${payment.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Special Instructions</label>
+                                <textarea class="form-input" name="instructions" rows="3">${payment.instructions || ''}</textarea>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" onclick="hideModal()">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn">
+                                <i class="fas fa-save"></i>
+                                Update Order
+                            </button>
+                        </div>
+                    </form>
+                `;
+            }
+            
+            showModal(form, `${title}: ${payment.fullName}`);
+        }
+
+        async function updatePayment(e, type, id) {
             e.preventDefault();
-            showLoading("Updating partnership...");
+            showLoading("Updating payment...");
             
             try {
                 const form = e.target;
                 const formData = new FormData(form);
-                const partnerData = {
-                    fullName: formData.get('fullName'),
-                    email: formData.get('email'),
-                    phone: formData.get('phone') || '',
-                    amount: formData.get('amount'),
-                    paymentMethod: formData.get('paymentMethod'),
-                    reason: formData.get('reason'),
-                    status: formData.get('status'),
-                    source: formData.get('source'),
-                    // Keep original timestamp
-                    timestamp: allPartnerships.find(p => p.id === partnerId).timestamp.toISOString()
-                };
                 
-                // Update in Firebase
-                await database.ref(`partnerships/${partnerId}`).update(partnerData);
+                if (type === 'partnership') {
+                    const partnerData = {
+                        fullName: formData.get('fullName'),
+                        email: formData.get('email'),
+                        phone: formData.get('phone') || '',
+                        amount: formData.get('amount'),
+                        paymentMethod: formData.get('paymentMethod'),
+                        reason: formData.get('reason'),
+                        status: formData.get('status'),
+                        source: formData.get('source'),
+                        timestamp: allPartnerships.find(p => p.id === id).timestamp.toISOString()
+                    };
+                    
+                    await database.ref(`partnerships/${id}`).update(partnerData);
+                } else {
+                    const orderData = {
+                        fullName: formData.get('fullName'),
+                        email: formData.get('email'),
+                        phone: formData.get('phone') || '',
+                        address: formData.get('address') || '',
+                        productName: formData.get('productName'),
+                        productPrice: formData.get('productPrice'),
+                        paymentMethod: formData.get('paymentMethod'),
+                        status: formData.get('status'),
+                        instructions: formData.get('instructions') || '',
+                        timestamp: allOrders.find(o => o.id === id).timestamp.toISOString(),
+                        type: 'product_order'
+                    };
+                    
+                    await database.ref(`orders/${id}`).update(orderData);
+                }
                 
                 // Reload data
-                await loadPartnerships();
-                
-                // Update current view
-                if (document.getElementById('partnershipsPage').style.display !== 'none') {
-                    updatePartnershipsTable();
-                }
-                if (document.getElementById('dashboardPage').style.display !== 'none') {
-                    updateRecentPartnershipsCards();
-                    updateDashboardStats();
-                }
-                updateAnalyticsStats();
-                updateReportStats();
+                await refreshAllData();
                 
                 hideModal();
                 hideLoading();
-                showNotification("Partnership updated successfully!", "success");
+                showNotification("Payment updated successfully!", "success");
                 
             } catch (error) {
-                console.error("Error updating partnership:", error);
+                console.error("Error updating payment:", error);
                 hideLoading();
-                showNotification("Failed to update partnership: " + error.message, "error");
+                showNotification("Failed to update payment: " + error.message, "error");
             }
         }
 
-        async function approvePartnership(partnerId) {
-            showLoading("Approving partnership...");
+        async function approvePayment(type, id) {
+            showLoading("Approving payment...");
             
             try {
-                // Update status to confirmed
-                await database.ref(`partnerships/${partnerId}/status`).set('confirmed');
-                
-                // Reload data
-                await loadPartnerships();
-                
-                // Update current view
-                if (document.getElementById('partnershipsPage').style.display !== 'none') {
-                    updatePartnershipsTable();
+                if (type === 'partnership') {
+                    await database.ref(`partnerships/${id}/status`).set('confirmed');
+                } else {
+                    await database.ref(`orders/${id}/status`).set('confirmed');
                 }
-                if (document.getElementById('dashboardPage').style.display !== 'none') {
-                    updateRecentPartnershipsCards();
-                    updateDashboardStats();
-                }
-                updateAnalyticsStats();
-                updateReportStats();
+                
+                await refreshAllData();
                 
                 hideLoading();
-                showNotification("Partnership approved successfully!", "success");
+                showNotification("Payment approved successfully!", "success");
                 
             } catch (error) {
-                console.error("Error approving partnership:", error);
+                console.error("Error approving payment:", error);
                 hideLoading();
-                showNotification("Failed to approve partnership: " + error.message, "error");
+                showNotification("Failed to approve payment: " + error.message, "error");
             }
         }
 
-        async function deletePartnership(partnerId) {
-            if (!confirm("Are you sure you want to delete this partnership? This action cannot be undone.")) {
-                return;
-            }
-            
-            showLoading("Deleting partnership...");
+        async function shipOrder(orderId) {
+            showLoading("Marking as shipped...");
             
             try {
-                // Delete from Firebase
-                await database.ref(`partnerships/${partnerId}`).remove();
+                await database.ref(`orders/${orderId}/status`).set('shipped');
                 
-                // Reload data
-                await loadPartnerships();
-                
-                // Update current view
-                if (document.getElementById('partnershipsPage').style.display !== 'none') {
-                    updatePartnershipsTable();
-                }
-                if (document.getElementById('dashboardPage').style.display !== 'none') {
-                    updateRecentPartnershipsCards();
-                    updateDashboardStats();
-                }
-                updateAnalyticsStats();
-                updateReportStats();
+                await refreshAllData();
                 
                 hideLoading();
-                showNotification("Partnership deleted successfully!", "success");
+                showNotification("Order marked as shipped!", "success");
                 
             } catch (error) {
-                console.error("Error deleting partnership:", error);
+                console.error("Error shipping order:", error);
                 hideLoading();
-                showNotification("Failed to delete partnership: " + error.message, "error");
+                showNotification("Failed to ship order: " + error.message, "error");
             }
+        }
+
+        async function deliverOrder(orderId) {
+            showLoading("Marking as delivered...");
+            
+            try {
+                await database.ref(`orders/${orderId}/status`).set('delivered');
+                
+                await refreshAllData();
+                
+                hideLoading();
+                showNotification("Order marked as delivered!", "success");
+                
+            } catch (error) {
+                console.error("Error delivering order:", error);
+                hideLoading();
+                showNotification("Failed to deliver order: " + error.message, "error");
+            }
+        }
+
+        // Manual Entry Functions
+        function addManualPayment() {
+            const form = `
+                <div style="text-align: center; padding: 2rem;">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary);">Add Manual Payment</h4>
+                    <p style="color: var(--gray-600); margin-bottom: 2rem;">Choose the type of payment you want to add:</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                        <button class="btn btn-outline" onclick="addManualPartnership()" style="padding: 1.5rem;">
+                            <i class="fas fa-handshake" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                            <div>Add Partnership</div>
+                        </button>
+                        <button class="btn btn-outline" onclick="addManualOrder()" style="padding: 1.5rem;">
+                            <i class="fas fa-shopping-cart" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                            <div>Add Product Order</div>
+                        </button>
+                    </div>
+                    <button type="button" class="btn" onclick="hideModal()">
+                        Cancel
+                    </button>
+                </div>
+            `;
+            showModal(form, 'Add Manual Payment');
         }
 
         function addManualPartnership() {
             const form = `
-                <form id="partnershipForm" onsubmit="createManualPartnership(event)">
+                <form id="paymentForm" onsubmit="createManualPartnership(event)">
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">Full Name *</label>
@@ -2729,20 +3604,15 @@
                     timestamp: new Date().toISOString()
                 };
                 
-                // Generate a new partnership ID
                 const partnerId = 'partner_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                
-                // Save to Firebase
                 await database.ref(`partnerships/${partnerId}`).set(partnerData);
                 
-                // Reload data
-                await loadPartnerships();
+                await refreshAllData();
                 
                 hideModal();
                 hideLoading();
                 showNotification("Manual partnership created successfully!", "success");
                 
-                // Show partnerships page
                 showPage('partnerships');
                 
             } catch (error) {
@@ -2752,71 +3622,191 @@
             }
         }
 
+        function addManualOrder() {
+            const form = `
+                <form id="paymentForm" onsubmit="createManualOrder(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Customer Name *</label>
+                            <input type="text" class="form-input" name="fullName" required placeholder="Enter customer name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-input" name="email" required placeholder="customer@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="text" class="form-input" name="phone" placeholder="07XXXXXXXX">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Address</label>
+                            <input type="text" class="form-input" name="address" placeholder="Delivery address">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Product Name *</label>
+                            <input type="text" class="form-input" name="productName" required placeholder="Executive Coaching Workbook">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Product Price *</label>
+                            <input type="text" class="form-input" name="productPrice" required placeholder="KSh 2,200">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Payment Method</label>
+                            <select class="form-input" name="paymentMethod" required>
+                                <option value="M-Pesa">M-Pesa</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Cash on Delivery">Cash on Delivery</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-input" name="status" required>
+                                <option value="pending">Pending</option>
+                                <option value="confirmed" selected>Confirmed</option>
+                                <option value="shipped">Shipped</option>
+                                <option value="delivered">Delivered</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Special Instructions</label>
+                            <textarea class="form-input" name="instructions" rows="3" placeholder="Any special instructions"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="hideModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-save"></i>
+                            Create Order
+                        </button>
+                    </div>
+                </form>
+            `;
+            showModal(form, 'Add Manual Order');
+        }
+
+        async function createManualOrder(e) {
+            e.preventDefault();
+            showLoading("Creating order...");
+            
+            try {
+                const form = e.target;
+                const formData = new FormData(form);
+                const orderData = {
+                    fullName: formData.get('fullName'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone') || '',
+                    address: formData.get('address') || '',
+                    productName: formData.get('productName'),
+                    productPrice: formData.get('productPrice'),
+                    paymentMethod: formData.get('paymentMethod'),
+                    status: formData.get('status'),
+                    instructions: formData.get('instructions') || '',
+                    type: 'product_order',
+                    timestamp: new Date().toISOString()
+                };
+                
+                const orderId = 'order_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                await database.ref(`orders/${orderId}`).set(orderData);
+                
+                await refreshAllData();
+                
+                hideModal();
+                hideLoading();
+                showNotification("Manual order created successfully!", "success");
+                
+                showPage('orders');
+                
+            } catch (error) {
+                console.error("Error creating order:", error);
+                hideLoading();
+                showNotification("Failed to create order: " + error.message, "error");
+            }
+        }
+
         // Utility Functions
-        async function refreshPartnerships() {
-            showLoading("Refreshing partnerships...");
-            await loadPartnerships();
+        async function refreshAllData() {
+            showLoading("Refreshing all data...");
+            await Promise.all([
+                loadPartnerships(),
+                loadOrders()
+            ]);
+            combineAllPayments();
+            
+            // Update all views
+            updateDashboardStats();
+            updateAnalyticsStats();
+            updateProductFilterOptions();
+            
+            if (document.getElementById('paymentsPage').style.display !== 'none') {
+                updatePaymentsTable();
+            }
             if (document.getElementById('partnershipsPage').style.display !== 'none') {
                 updatePartnershipsTable();
             }
-            if (document.getElementById('dashboardPage').style.display !== 'none') {
-                updateRecentPartnershipsCards();
-                updateDashboardStats();
+            if (document.getElementById('ordersPage').style.display !== 'none') {
+                updateOrdersTable();
             }
-            updateAnalyticsStats();
-            updateReportStats();
+            if (document.getElementById('dashboardPage').style.display !== 'none') {
+                updateRecentPaymentsCards();
+            }
+            
             hideLoading();
-            showNotification("Partnerships refreshed successfully", "success");
-        }
-
-        function refreshAnalytics() {
-            updateAnalyticsStats();
-            showNotification("Analytics refreshed", "success");
+            showNotification("All data refreshed successfully", "success");
         }
 
         function generateReport() {
-            if (allPartnerships.length === 0) {
-                showNotification("No partnerships to generate report", "warning");
+            if (allPayments.length === 0) {
+                showNotification("No payments to generate report", "warning");
                 return;
             }
             
-            const confirmedAmount = allPartnerships
-                .filter(p => p.status === 'confirmed')
-                .reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+            // Create a simple report
+            const partnershipRevenue = allPartnerships.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+            const orderRevenue = allOrders.reduce((sum, o) => {
+                const price = parseFloat(o.productPrice?.replace(/[^0-9.]/g, '') || 0);
+                return sum + price;
+            }, 0);
+            const totalRevenue = partnershipRevenue + orderRevenue;
             
-            const pendingAmount = allPartnerships
-                .filter(p => p.status === 'pending')
-                .reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+            const confirmedCount = allPayments.filter(p => p.status === 'confirmed').length;
+            const pendingCount = allPayments.filter(p => p.status === 'pending').length;
             
-            const contentCreationCount = allPartnerships.filter(p => p.reason === 'content-creation').length;
-            const eventRegistrationCount = allPartnerships.filter(p => p.reason === 'event-registration').length;
-            
-            const reportHTML = `
-                <div style="padding: 1rem; background: var(--secondary); border-radius: var(--radius-lg);">
-                    <h4 style="margin-bottom: 1rem; color: var(--primary);">Financial Report Summary</h4>
+            const report = `
+                <div style="background: var(--secondary); padding: 1.5rem; border-radius: var(--radius-lg); margin-top: 1rem;">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary);">Financial Report</h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                         <div style="background: var(--success-light); padding: 1rem; border-radius: var(--radius-md);">
-                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">KSh ${confirmedAmount.toLocaleString()}</div>
-                            <div style="font-size: 0.875rem; color: var(--gray-600);">Confirmed Revenue</div>
+                            <div style="font-size: 1.25rem; font-weight: 700; color: var(--success);">KSh ${totalRevenue.toLocaleString()}</div>
+                            <div style="font-size: 0.875rem; color: var(--gray-600);">Total Revenue</div>
                         </div>
-                        <div style="background: rgba(245, 158, 11, 0.1); padding: 1rem; border-radius: var(--radius-md);">
-                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--warning);">KSh ${pendingAmount.toLocaleString()}</div>
-                            <div style="font-size: 0.875rem; color: var(--gray-600);">Pending Revenue</div>
+                        <div style="background: rgba(59, 130, 246, 0.1); padding: 1rem; border-radius: var(--radius-md);">
+                            <div style="font-size: 1.25rem; font-weight: 700; color: var(--info);">${allPayments.length}</div>
+                            <div style="font-size: 0.875rem; color: var(--gray-600);">Total Payments</div>
                         </div>
                     </div>
                     
                     <div style="margin-top: 1.5rem;">
-                        <h5 style="margin-bottom: 0.5rem; color: var(--gray-700);">Breakdown by Reason</h5>
+                        <h5 style="margin-bottom: 0.5rem; color: var(--gray-700);">Revenue Breakdown</h5>
                         <ul style="list-style: none; padding-left: 0;">
                             <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between;">
-                                <span>Content Creation</span>
-                                <strong>${contentCreationCount} partnerships</strong>
+                                <span>Partnerships</span>
+                                <strong>KSh ${partnershipRevenue.toLocaleString()}</strong>
                             </li>
                             <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between;">
-                                <span>Event Registration</span>
-                                <strong>${eventRegistrationCount} partnerships</strong>
+                                <span>Product Orders</span>
+                                <strong>KSh ${orderRevenue.toLocaleString()}</strong>
                             </li>
                         </ul>
+                    </div>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <h5 style="margin-bottom: 0.5rem; color: var(--gray-700);">Status Summary</h5>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <span class="status-badge status-confirmed">Confirmed: ${confirmedCount}</span>
+                            <span class="status-badge status-pending">Pending: ${pendingCount}</span>
+                        </div>
                     </div>
                     
                     <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
@@ -2825,40 +3815,11 @@
                 </div>
             `;
             
-            document.getElementById('reportSummary').innerHTML = reportHTML;
+            // In a real implementation, you would generate a PDF or export file
             showNotification("Report generated successfully", "success");
-        }
-
-        function exportCSV() {
-            if (allPartnerships.length === 0) {
-                showNotification("No partnerships to export", "warning");
-                return;
-            }
             
-            // Create CSV content
-            let csv = 'Name,Email,Phone,Amount,Reason,Payment Method,Status,Date\n';
-            allPartnerships.forEach(partner => {
-                const reasonText = partner.reason === 'content-creation' ? 'Content Creation' :
-                                 partner.reason === 'event-registration' ? 'Event Registration' : 'General Support';
-                
-                const paymentText = partner.paymentMethod === 'lipa-na-mpesa' ? 'M-Pesa' : 
-                                  partner.paymentMethod === 'bank-transfer' ? 'Bank Transfer' : 'Cash';
-                
-                csv += `"${partner.fullName || ''}","${partner.email || ''}","${partner.phone || ''}","KSh ${partner.amount || '0'}","${reasonText}","${paymentText}","${partner.status || ''}","${partner.timestamp.toLocaleDateString()}"\n`;
-            });
-            
-            // Create download link
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `partnerships_${new Date().toISOString().split('T')[0]}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            
-            showNotification("CSV export completed successfully", "success");
+            // For now, just show it in analytics
+            document.getElementById('analyticsContent').innerHTML = report;
         }
 
         // Event Listeners
@@ -2896,8 +3857,8 @@
             });
             
             // Close modal on overlay click
-            document.getElementById('partnershipModal').addEventListener('click', (e) => {
-                if (e.target === document.getElementById('partnershipModal')) {
+            document.getElementById('paymentModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('paymentModal')) {
                     hideModal();
                 }
             });
@@ -2920,15 +3881,20 @@
         // Make functions globally available
         window.showPage = showPage;
         window.hideModal = hideModal;
-        window.refreshPartnerships = refreshPartnerships;
-        window.refreshAnalytics = refreshAnalytics;
+        window.refreshAllData = refreshAllData;
         window.generateReport = generateReport;
-        window.exportCSV = exportCSV;
+        window.switchPaymentTab = switchPaymentTab;
+        window.filterPayments = filterPayments;
         window.filterPartnerships = filterPartnerships;
-        window.viewPartnership = viewPartnership;
-        window.editPartnership = editPartnership;
-        window.approvePartnership = approvePartnership;
+        window.filterOrders = filterOrders;
+        window.viewPayment = viewPayment;
+        window.editPayment = editPayment;
+        window.approvePayment = approvePayment;
+        window.shipOrder = shipOrder;
+        window.deliverOrder = deliverOrder;
+        window.addManualPayment = addManualPayment;
         window.addManualPartnership = addManualPartnership;
+        window.addManualOrder = addManualOrder;
     </script>
 </body>
 </html>
