@@ -12,17 +12,19 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary: #0a0a0a;
-            --secondary: #ffffff;
-            --accent: #ca8a04;
-            --accent-light: #fef3c7;
-            --accent-dark: #a16207;
+            --black: #0a0a0a;
+            --white: #ffffff;
+            --gray: #f9f9f9;
+            --dark-gray: #1a1a1a;
+            --light-gray: #e8e8e8;
+            --gold: #ca8a04;
+            --gold-light: #fef3c7;
+            --gold-dark: #a16207;
             --success: #10b981;
-            --success-light: #d1fae5;
             --error: #ef4444;
             --warning: #f59e0b;
             --info: #3b82f6;
@@ -30,26 +32,17 @@
             --teal: #14b8a6;
             --pink: #ec4899;
             --orange: #f97316;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-400: #9ca3af;
-            --gray-500: #6b7280;
-            --gray-600: #4b5563;
-            --gray-700: #374151;
-            --gray-800: #1f2937;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            --radius-sm: 0.375rem;
-            --radius-md: 0.5rem;
-            --radius-lg: 0.75rem;
-            --radius-xl: 1rem;
-            --radius-2xl: 1.5rem;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 24px;
         }
 
         * {
@@ -59,115 +52,121 @@
         }
 
         html {
-            font-size: 16px;
+            font-size: 15px;
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--gray-50);
-            color: var(--primary);
+            color: var(--white);
             line-height: 1.6;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
         }
 
-        /* Auth Overlay - Same as before */
-        .auth-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, 
-                rgba(10, 10, 10, 0.95) 0%, 
-                rgba(10, 10, 10, 0.85) 100%),
-                url('https://i.postimg.cc/fyxmyB9n/20260204_1035_Image_Generation_remix_01kgks60qgeata5pv0jy8vkg0d.png');
+        .professional-bg {
+            background: 
+                linear-gradient(135deg, 
+                    rgba(10, 10, 10, 0.92) 0%, 
+                    rgba(10, 10, 10, 0.88) 100%),
+                url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2071&q=80');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        /* Login Page */
+        .login-container {
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 3000;
             padding: 1.5rem;
+            position: relative;
         }
 
-        .auth-card {
-            background: rgba(255, 255, 255, 0.98);
+        .login-card {
+            background: rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(20px);
             border-radius: var(--radius-2xl);
-            padding: 3rem;
+            padding: 3.5rem;
             width: 100%;
             max-width: 480px;
             box-shadow: var(--shadow-2xl);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             position: relative;
+            z-index: 1;
+            transform: translateY(0);
+            transition: var(--transition);
             overflow: hidden;
         }
 
-        .auth-card::before {
+        .login-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
         }
 
-        .auth-header {
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-2xl), 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-logo {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
 
-        .auth-logo {
-            width: 100%;
-            max-width: 220px;
-            height: auto;
-            margin: 0 auto 1.5rem;
-            padding: 1.5rem;
-            background: linear-gradient(135deg, rgba(202, 138, 4, 0.1), rgba(255, 255, 255, 0.2));
-            border-radius: var(--radius-xl);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid rgba(202, 138, 4, 0.2);
-        }
-
-        .auth-logo img {
-            width: 100%;
-            height: auto;
+        .login-logo img {
+            height: 90px;
+            width: auto;
+            margin-bottom: 1rem;
             filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
         }
 
-        .auth-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--primary);
+        .login-logo h1 {
+            font-size: 2rem;
+            color: var(--white);
             margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-weight: 700;
         }
 
-        .auth-subtitle {
-            color: var(--gray-600);
+        .login-logo p {
+            color: rgba(255, 255, 255, 0.8);
             font-size: 0.95rem;
             letter-spacing: 0.5px;
         }
 
         .alert {
-            padding: 1rem 1.25rem;
+            padding: 1.25rem 1.5rem;
             border-radius: var(--radius-md);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.75rem;
             display: none;
             border-left: 4px solid;
-            background: var(--secondary);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: var(--white);
             box-shadow: var(--shadow-sm);
-            font-size: 0.9rem;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-error {
+            border-left-color: var(--error);
+            background: linear-gradient(to right, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
+        }
+
+        .alert.show {
+            display: flex;
             animation: slideIn 0.3s ease;
         }
 
@@ -182,58 +181,53 @@
             }
         }
 
-        .alert-error {
-            border-left-color: var(--error);
-            background: linear-gradient(to right, rgba(239, 68, 68, 0.05), transparent);
-        }
-
-        .alert.show {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.75rem;
         }
 
         .form-label {
             display: block;
-            margin-bottom: 0.5rem;
-            color: var(--primary);
+            margin-bottom: 0.75rem;
+            color: var(--white);
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
         .form-label i {
-            color: var(--accent);
+            color: var(--gold);
             font-size: 0.9rem;
         }
 
         .form-input {
             width: 100%;
-            padding: 0.875rem 1.25rem;
-            border: 1px solid var(--gray-300);
+            padding: 1rem 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: var(--radius-md);
             font-family: 'Inter', sans-serif;
             font-size: 1rem;
             transition: var(--transition);
-            background: var(--secondary);
-            color: var(--primary);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
         }
 
         .form-input:focus {
             outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.15);
+            border-color: var(--gold);
+            box-shadow: 0 0 0 4px rgba(202, 138, 4, 0.25);
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .btn {
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: var(--secondary);
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: var(--white);
             border: none;
             border-radius: var(--radius-md);
             padding: 1rem 2rem;
@@ -245,55 +239,73 @@
             justify-content: center;
             gap: 0.75rem;
             transition: var(--transition);
+            width: 100%;
             position: relative;
             overflow: hidden;
         }
 
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
         .btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(202, 138, 4, 0.4);
+            box-shadow: 0 10px 25px rgba(202, 138, 4, 0.5);
         }
 
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none !important;
         }
 
         .btn-outline {
             background: transparent;
-            border: 2px solid var(--accent);
-            color: var(--accent);
+            border: 2px solid rgba(202, 138, 4, 0.4);
+            color: var(--gold);
         }
 
         .btn-outline:hover {
-            background: var(--accent);
-            color: var(--secondary);
+            background: var(--gold);
+            color: var(--white);
         }
 
         .btn-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
         }
 
-        /* Main Container */
+        /* Admin Panel */
         .admin-container {
-            display: flex;
+            display: none;
             min-height: 100vh;
-            opacity: 0;
-            animation: fadeIn 0.5s ease forwards;
+            background: 
+                linear-gradient(135deg, 
+                    rgba(10, 10, 10, 0.92) 0%, 
+                    rgba(10, 10, 10, 0.88) 100%),
+                url('https://i.postimg.cc/fyxmyB9n/20260204_1035_Image_Generation_remix_01kgks60qgeata5pv0jy8vkg0d.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
 
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-
-        /* Sidebar - Updated with orders icon */
+        /* Sidebar */
         .sidebar {
             width: 280px;
-            background: linear-gradient(135deg, 
-                rgba(10, 10, 10, 0.98) 0%, 
-                rgba(10, 10, 10, 0.95) 100%);
-            color: var(--secondary);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
             position: fixed;
             height: 100vh;
             overflow-y: auto;
@@ -314,67 +326,55 @@
             left: 2rem;
             right: 2rem;
             height: 2px;
-            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
         }
 
         .sidebar-logo {
-            width: 100%;
-            max-width: 180px;
-            height: auto;
-            margin: 0 auto 1.5rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-lg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            margin-bottom: 1.5rem;
         }
 
         .sidebar-logo img {
-            width: 100%;
-            height: auto;
-            filter: brightness(0) invert(1);
+            height: 70px;
+            width: auto;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
         }
 
         .sidebar-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            text-align: center;
-            color: var(--secondary);
-            margin-bottom: 0.5rem;
+            color: var(--white);
+            margin-bottom: 0.25rem;
         }
 
         .sidebar-subtitle {
-            font-size: 0.8rem;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.7);
-            opacity: 0.8;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .nav-menu {
             list-style: none;
-            padding: 1.5rem 0;
+            padding: 2rem 0;
         }
 
         .nav-item {
             margin-bottom: 0.5rem;
-            padding: 0 1rem;
         }
 
         .nav-link {
             display: flex;
             align-items: center;
             gap: 1rem;
-            padding: 1rem 1.25rem;
+            padding: 1rem 2rem;
             color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             transition: var(--transition);
             position: relative;
             font-weight: 500;
-            border-radius: var(--radius-md);
-            overflow: hidden;
         }
 
         .nav-link::before {
@@ -384,14 +384,14 @@
             top: 0;
             width: 3px;
             height: 100%;
-            background: var(--accent);
+            background: var(--gold);
             transform: scaleY(0);
             transition: var(--transition);
         }
 
         .nav-link:hover {
             background: rgba(255, 255, 255, 0.1);
-            color: var(--secondary);
+            color: var(--white);
         }
 
         .nav-link:hover::before {
@@ -400,7 +400,7 @@
 
         .nav-link.active {
             background: linear-gradient(90deg, rgba(202, 138, 4, 0.2), transparent);
-            color: var(--accent);
+            color: var(--gold);
         }
 
         .nav-link.active::before {
@@ -408,15 +408,14 @@
         }
 
         .nav-icon {
-            width: 22px;
+            width: 20px;
             text-align: center;
-            font-size: 1.1rem;
         }
 
         .nav-badge {
             margin-left: auto;
-            background: var(--accent);
-            color: var(--secondary);
+            background: var(--gold);
+            color: var(--white);
             font-size: 0.75rem;
             padding: 0.25rem 0.5rem;
             border-radius: 10px;
@@ -427,21 +426,20 @@
 
         /* Main Content */
         .main-content {
-            flex: 1;
             margin-left: 280px;
             padding: 2rem;
             min-height: 100vh;
-            background: var(--gray-50);
         }
 
         /* Header */
         .header {
-            background: var(--secondary);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
             border-radius: var(--radius-xl);
             padding: 1.5rem 2rem;
             margin-bottom: 2rem;
             box-shadow: var(--shadow-lg);
-            border: 1px solid var(--gray-200);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -456,19 +454,18 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
         }
 
         .page-title {
-            font-family: 'Space Grotesk', sans-serif;
             font-size: 1.75rem;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--white);
             margin: 0;
         }
 
         .page-subtitle {
-            color: var(--gray-600);
+            color: rgba(255, 255, 255, 0.8);
             font-size: 0.875rem;
             margin-top: 0.25rem;
             display: flex;
@@ -484,8 +481,8 @@
 
         .back-btn {
             background: transparent;
-            border: 2px solid rgba(202, 138, 4, 0.3);
-            color: var(--accent);
+            border: 2px solid rgba(202, 138, 4, 0.4);
+            color: var(--gold);
             padding: 0.5rem 1rem;
             border-radius: var(--radius-md);
             cursor: pointer;
@@ -499,19 +496,21 @@
         }
 
         .back-btn:hover {
-            background: var(--accent);
-            color: var(--secondary);
+            background: var(--gold);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(202, 138, 4, 0.4);
         }
 
         .user-avatar {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--secondary);
+            color: var(--white);
             font-weight: bold;
             font-size: 1rem;
             box-shadow: var(--shadow-md);
@@ -519,7 +518,7 @@
 
         .logout-btn {
             background: transparent;
-            border: 2px solid rgba(239, 68, 68, 0.3);
+            border: 2px solid rgba(239, 68, 68, 0.4);
             color: var(--error);
             padding: 0.5rem 1rem;
             border-radius: var(--radius-md);
@@ -534,23 +533,31 @@
 
         .logout-btn:hover {
             background: var(--error);
-            color: var(--secondary);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Page Content */
+        .page-content {
+            display: none;
         }
 
         /* Dashboard Grid */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
         .stat-card {
-            background: var(--secondary);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
             border-radius: var(--radius-xl);
-            padding: 1.5rem;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--gray-200);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             transition: var(--transition);
             position: relative;
             overflow: hidden;
@@ -559,8 +566,8 @@
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--accent);
+            box-shadow: var(--shadow-xl);
+            border-color: rgba(202, 138, 4, 0.3);
         }
 
         .stat-card::before {
@@ -569,33 +576,33 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
         }
 
         .stat-icon {
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            background: linear-gradient(135deg, rgba(202, 138, 4, 0.2), rgba(161, 98, 7, 0.2));
             border-radius: var(--radius-lg);
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 1rem;
             font-size: 1.5rem;
-            color: var(--secondary);
+            color: var(--gold);
         }
 
         .stat-value {
             font-size: 2.5rem;
             font-weight: 800;
-            color: var(--primary);
+            color: var(--white);
             margin-bottom: 0.25rem;
             line-height: 1;
         }
 
         .stat-label {
-            color: var(--gray-600);
+            color: rgba(255, 255, 255, 0.8);
             font-size: 0.9rem;
             font-weight: 600;
             text-transform: uppercase;
@@ -620,12 +627,13 @@
 
         /* Content Sections */
         .content-section {
-            background: var(--secondary);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
             border-radius: var(--radius-xl);
             padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--gray-200);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
             overflow: hidden;
         }
@@ -637,7 +645,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
         }
 
         .section-header {
@@ -646,16 +654,15 @@
             align-items: center;
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid var(--gray-200);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             flex-wrap: wrap;
             gap: 1rem;
         }
 
         .section-title {
-            font-family: 'Space Grotesk', sans-serif;
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--white);
             margin: 0;
         }
 
@@ -669,7 +676,7 @@
         /* Tabs */
         .tabs {
             display: flex;
-            border-bottom: 2px solid var(--gray-200);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
             margin-bottom: 1.5rem;
         }
 
@@ -680,18 +687,18 @@
             font-family: 'Inter', sans-serif;
             font-size: 0.95rem;
             font-weight: 600;
-            color: var(--gray-600);
+            color: rgba(255, 255, 255, 0.7);
             cursor: pointer;
             position: relative;
             transition: var(--transition);
         }
 
         .tab:hover {
-            color: var(--primary);
+            color: var(--white);
         }
 
         .tab.active {
-            color: var(--accent);
+            color: var(--gold);
         }
 
         .tab.active::after {
@@ -701,7 +708,7 @@
             left: 0;
             right: 0;
             height: 2px;
-            background: var(--accent);
+            background: var(--gold);
         }
 
         /* Filters */
@@ -712,9 +719,9 @@
             flex-wrap: wrap;
             margin-bottom: 1.5rem;
             padding: 1rem;
-            background: rgba(202, 138, 4, 0.05);
+            background: rgba(202, 138, 4, 0.1);
             border-radius: var(--radius-lg);
-            border: 1px solid rgba(202, 138, 4, 0.1);
+            border: 1px solid rgba(202, 138, 4, 0.2);
         }
 
         .filter-group {
@@ -727,16 +734,17 @@
         .filter-label {
             font-size: 0.8rem;
             font-weight: 600;
-            color: var(--primary);
+            color: var(--gold);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
         .filter-select {
             padding: 0.5rem 0.75rem;
-            border: 1px solid var(--gray-300);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: var(--radius-md);
-            background: var(--secondary);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
             font-family: 'Inter', sans-serif;
             font-size: 0.875rem;
             transition: var(--transition);
@@ -744,17 +752,17 @@
 
         .filter-select:focus {
             outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.15);
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.25);
         }
 
         /* Tables */
         .table-container {
             overflow-x: auto;
             border-radius: var(--radius-lg);
-            border: 1px solid var(--gray-200);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: var(--shadow-sm);
-            background: var(--secondary);
+            background: rgba(255, 255, 255, 0.05);
             margin-top: 1rem;
         }
 
@@ -765,12 +773,12 @@
         }
 
         .data-table th {
-            background: rgba(202, 138, 4, 0.1);
+            background: rgba(202, 138, 4, 0.2);
             padding: 1rem;
             text-align: left;
             font-weight: 600;
-            color: var(--accent-dark);
-            border-bottom: 2px solid var(--accent);
+            color: var(--gold);
+            border-bottom: 2px solid var(--gold);
             font-size: 0.875rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -778,8 +786,8 @@
 
         .data-table td {
             padding: 1rem;
-            border-bottom: 1px solid var(--gray-200);
-            color: var(--gray-700);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
             font-size: 0.9rem;
             vertical-align: middle;
         }
@@ -789,7 +797,7 @@
         }
 
         .data-table tr:hover {
-            background: rgba(202, 138, 4, 0.03);
+            background: rgba(255, 255, 255, 0.05);
         }
 
         /* Status Badges */
@@ -806,43 +814,43 @@
         }
 
         .status-pending {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--accent-dark);
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--gold);
             border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
         .status-confirmed {
-            background: rgba(16, 185, 129, 0.1);
+            background: rgba(16, 185, 129, 0.2);
             color: var(--success);
             border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
         .status-completed {
-            background: rgba(37, 99, 235, 0.1);
+            background: rgba(37, 99, 235, 0.2);
             color: var(--info);
             border: 1px solid rgba(37, 99, 235, 0.3);
         }
 
         .status-cancelled {
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.2);
             color: var(--error);
             border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
         .status-refunded {
-            background: rgba(139, 92, 246, 0.1);
+            background: rgba(139, 92, 246, 0.2);
             color: var(--purple);
             border: 1px solid rgba(139, 92, 246, 0.3);
         }
 
         .status-shipped {
-            background: rgba(236, 72, 153, 0.1);
+            background: rgba(236, 72, 153, 0.2);
             color: var(--pink);
             border: 1px solid rgba(236, 72, 153, 0.3);
         }
 
         .status-delivered {
-            background: rgba(20, 184, 166, 0.1);
+            background: rgba(20, 184, 166, 0.2);
             color: var(--teal);
             border: 1px solid rgba(20, 184, 166, 0.3);
         }
@@ -859,19 +867,19 @@
         }
 
         .payment-mpesa {
-            background: rgba(0, 179, 86, 0.1);
+            background: rgba(0, 179, 86, 0.2);
             color: #00b356;
             border: 1px solid rgba(0, 179, 86, 0.3);
         }
 
         .payment-bank {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(59, 130, 246, 0.2);
             color: var(--info);
             border: 1px solid rgba(59, 130, 246, 0.3);
         }
 
         .payment-cash {
-            background: rgba(16, 185, 129, 0.1);
+            background: rgba(16, 185, 129, 0.2);
             color: var(--success);
             border: 1px solid rgba(16, 185, 129, 0.3);
         }
@@ -888,44 +896,15 @@
         }
 
         .type-partnership {
-            background: rgba(202, 138, 4, 0.1);
-            color: var(--accent);
+            background: rgba(202, 138, 4, 0.2);
+            color: var(--gold);
             border: 1px solid rgba(202, 138, 4, 0.3);
         }
 
         .type-order {
-            background: rgba(37, 99, 235, 0.1);
+            background: rgba(37, 99, 235, 0.2);
             color: var(--info);
             border: 1px solid rgba(37, 99, 235, 0.3);
-        }
-
-        /* Reason Badges */
-        .reason-badge {
-            padding: 0.25rem 0.5rem;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .reason-content {
-            background: rgba(139, 92, 246, 0.1);
-            color: var(--purple);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-        }
-
-        .reason-event {
-            background: rgba(20, 184, 166, 0.1);
-            color: var(--teal);
-            border: 1px solid rgba(20, 184, 166, 0.3);
-        }
-
-        .reason-general {
-            background: rgba(202, 138, 4, 0.1);
-            color: var(--accent);
-            border: 1px solid rgba(202, 138, 4, 0.3);
         }
 
         /* Action Buttons */
@@ -954,63 +933,63 @@
         }
 
         .action-btn.view {
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(59, 130, 246, 0.2);
             color: var(--info);
-            border: 1px solid rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
         }
 
         .action-btn.view:hover {
-            background: rgba(59, 130, 246, 0.2);
+            background: rgba(59, 130, 246, 0.3);
         }
 
         .action-btn.edit {
-            background: rgba(202, 138, 4, 0.1);
-            color: var(--accent-dark);
-            border: 1px solid rgba(202, 138, 4, 0.2);
+            background: rgba(202, 138, 4, 0.2);
+            color: var(--gold);
+            border: 1px solid rgba(202, 138, 4, 0.3);
         }
 
         .action-btn.edit:hover {
-            background: rgba(202, 138, 4, 0.2);
+            background: rgba(202, 138, 4, 0.3);
         }
 
         .action-btn.delete {
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.2);
             color: var(--error);
-            border: 1px solid rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
         .action-btn.delete:hover {
-            background: rgba(239, 68, 68, 0.2);
+            background: rgba(239, 68, 68, 0.3);
         }
 
         .action-btn.approve {
-            background: rgba(16, 185, 129, 0.1);
+            background: rgba(16, 185, 129, 0.2);
             color: var(--success);
-            border: 1px solid rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
         .action-btn.approve:hover {
-            background: rgba(16, 185, 129, 0.2);
+            background: rgba(16, 185, 129, 0.3);
         }
 
         .action-btn.ship {
-            background: rgba(236, 72, 153, 0.1);
+            background: rgba(236, 72, 153, 0.2);
             color: var(--pink);
-            border: 1px solid rgba(236, 72, 153, 0.2);
+            border: 1px solid rgba(236, 72, 153, 0.3);
         }
 
         .action-btn.ship:hover {
-            background: rgba(236, 72, 153, 0.2);
+            background: rgba(236, 72, 153, 0.3);
         }
 
         .action-btn.complete {
-            background: rgba(20, 184, 166, 0.1);
+            background: rgba(20, 184, 166, 0.2);
             color: var(--teal);
-            border: 1px solid rgba(20, 184, 166, 0.2);
+            border: 1px solid rgba(20, 184, 166, 0.3);
         }
 
         .action-btn.complete:hover {
-            background: rgba(20, 184, 166, 0.2);
+            background: rgba(20, 184, 166, 0.3);
         }
 
         /* Cards Grid */
@@ -1022,11 +1001,12 @@
         }
 
         .payment-card {
-            background: var(--secondary);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
             border-radius: var(--radius-lg);
             padding: 1.5rem;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--gray-200);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             transition: var(--transition);
             position: relative;
             overflow: hidden;
@@ -1034,8 +1014,8 @@
 
         .payment-card:hover {
             transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--accent);
+            box-shadow: var(--shadow-xl);
+            border-color: rgba(202, 138, 4, 0.3);
         }
 
         .payment-card-header {
@@ -1046,17 +1026,16 @@
         }
 
         .payment-card-title {
-            font-family: 'Space Grotesk', sans-serif;
             font-size: 1.125rem;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--white);
             margin: 0;
         }
 
         .payment-card-badge {
             padding: 0.25rem 0.75rem;
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: var(--secondary);
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: var(--white);
             border-radius: var(--radius-sm);
             font-size: 0.75rem;
             font-weight: 600;
@@ -1075,12 +1054,12 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: var(--gray-600);
+            color: rgba(255, 255, 255, 0.8);
             font-size: 0.875rem;
         }
 
         .payment-card-meta-item i {
-            color: var(--accent);
+            color: var(--gold);
             width: 16px;
         }
 
@@ -1097,7 +1076,7 @@
             align-items: center;
             margin-top: 1rem;
             padding-top: 1rem;
-            border-top: 1px solid var(--gray-200);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* Modal */
@@ -1107,7 +1086,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1124,7 +1103,8 @@
         }
 
         .modal {
-            background: var(--secondary);
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(30px);
             border-radius: var(--radius-2xl);
             padding: 2.5rem;
             width: 100%;
@@ -1134,6 +1114,7 @@
             position: relative;
             box-shadow: var(--shadow-2xl);
             animation: modalSlideIn 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         @keyframes modalSlideIn {
@@ -1153,19 +1134,18 @@
             align-items: center;
             margin-bottom: 2rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid var(--gray-200);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .modal-title {
-            font-family: 'Space Grotesk', sans-serif;
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--white);
             margin: 0;
         }
 
         .modal-close {
-            background: none;
+            background: rgba(255, 255, 255, 0.1);
             border: none;
             width: 32px;
             height: 32px;
@@ -1174,14 +1154,13 @@
             align-items: center;
             justify-content: center;
             font-size: 1.25rem;
-            color: var(--gray-600);
+            color: var(--white);
             cursor: pointer;
             transition: var(--transition);
         }
 
         .modal-close:hover {
-            background: var(--gray-100);
-            color: var(--primary);
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .form-grid {
@@ -1197,7 +1176,7 @@
             justify-content: flex-end;
             margin-top: 2rem;
             padding-top: 1.5rem;
-            border-top: 1px solid var(--gray-200);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* Loading */
@@ -1207,7 +1186,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1223,13 +1202,15 @@
         }
 
         .loading-content {
-            background: var(--secondary);
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(30px);
             border-radius: var(--radius-xl);
             padding: 2rem;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .loading-spinner {
@@ -1237,7 +1218,7 @@
             height: 50px;
             border: 3px solid rgba(202, 138, 4, 0.1);
             border-radius: 50%;
-            border-top-color: var(--accent);
+            border-top-color: var(--gold);
             animation: spin 1s linear infinite;
         }
 
@@ -1255,16 +1236,19 @@
         }
 
         .notification {
-            background: var(--secondary);
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
             border-radius: var(--radius-lg);
             padding: 1rem 1.25rem;
             margin-bottom: 0.75rem;
-            box-shadow: var(--shadow-lg);
+            box-shadow: var(--shadow-xl);
             display: flex;
             align-items: center;
             gap: 0.75rem;
             animation: slideInRight 0.3s ease;
             border-left: 4px solid;
+            color: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         @keyframes slideInRight {
@@ -1280,38 +1264,43 @@
 
         .notification.success {
             border-left-color: var(--success);
+            background: linear-gradient(to right, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
         }
 
         .notification.error {
             border-left-color: var(--error);
+            background: linear-gradient(to right, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
         }
 
         .notification.warning {
             border-left-color: var(--warning);
+            background: linear-gradient(to right, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
         }
 
         .notification.info {
             border-left-color: var(--info);
+            background: linear-gradient(to right, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
         }
 
         /* Empty State */
         .empty-state {
             text-align: center;
             padding: 3rem 1rem;
-            color: var(--gray-500);
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .empty-state-icon {
             font-size: 3rem;
             margin-bottom: 1rem;
             opacity: 0.5;
+            color: var(--gold);
         }
 
         .empty-state-title {
             font-size: 1.25rem;
             font-weight: 600;
             margin-bottom: 0.5rem;
-            color: var(--gray-700);
+            color: var(--white);
         }
 
         .empty-state-text {
@@ -1336,22 +1325,23 @@
         }
 
         .summary-card {
-            background: var(--secondary);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
             border-radius: var(--radius-lg);
             padding: 1.5rem;
-            border: 1px solid var(--gray-200);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
         }
 
         .summary-value {
             font-size: 2rem;
             font-weight: 800;
-            color: var(--primary);
+            color: var(--white);
             margin-bottom: 0.25rem;
         }
 
         .summary-label {
-            color: var(--gray-600);
+            color: rgba(255, 255, 255, 0.8);
             font-size: 0.875rem;
             font-weight: 600;
             text-transform: uppercase;
@@ -1367,24 +1357,15 @@
 
         .product-name {
             font-weight: 600;
-            color: var(--primary);
+            color: var(--white);
         }
 
         .product-price {
             font-size: 0.875rem;
-            color: var(--gray-600);
+            color: rgba(255, 255, 255, 0.8);
         }
 
         /* Responsive */
-        @media (max-width: 1200px) {
-            .sidebar {
-                width: 250px;
-            }
-            .main-content {
-                margin-left: 250px;
-            }
-        }
-
         @media (max-width: 992px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -1452,19 +1433,47 @@
                 min-width: 120px;
                 text-align: center;
             }
+            
+            .login-card {
+                padding: 2.5rem 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar-header {
+                padding: 1.5rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .header {
+                padding: 1.5rem;
+            }
+            
+            .content-section {
+                padding: 1.5rem;
+            }
+            
+            .modal {
+                padding: 1.5rem;
+            }
+            
+            .login-card {
+                padding: 2rem 1.5rem;
+            }
         }
     </style>
 </head>
-<body>
-    <!-- Auth Overlay -->
-    <div id="authOverlay" class="auth-overlay">
-        <div class="auth-card">
-            <div class="auth-header">
-                <div class="auth-logo">
-                    <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA">
-                </div>
-                <h1 class="auth-title">Payments & Partnerships</h1>
-                <p class="auth-subtitle">Complete Payment Management System</p>
+<body class="professional-bg">
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA">
+                <h1>Payments Management</h1>
+                <p>Admin Authentication Required</p>
             </div>
             
             <div id="authError" class="alert alert-error">
@@ -1475,7 +1484,7 @@
             <div class="form-group">
                 <label class="form-label">
                     <i class="fas fa-envelope"></i>
-                    Email Address
+                    Admin Email
                 </label>
                 <input type="email" id="authEmail" class="form-input" placeholder="admin@iammugera.com" required>
             </div>
@@ -1498,14 +1507,14 @@
                 Back to Master Portal
             </a>
             
-            <div style="text-align: center; margin-top: 1.5rem; color: var(--gray-500); font-size: 0.8rem;">
+            <p style="text-align: center; margin-top: 1.5rem; color: rgba(255, 255, 255, 0.7); font-size: 0.85rem;">
                 <i class="fas fa-shield-alt"></i> Secure Admin Access
-            </div>
+            </p>
         </div>
     </div>
 
     <!-- Admin Panel -->
-    <div id="adminPanel" class="admin-container" style="display: none;">
+    <div id="adminPanel" class="admin-container">
         <!-- Sidebar -->
         <nav class="sidebar">
             <div class="sidebar-header">
@@ -1553,9 +1562,9 @@
             </ul>
             
             <div style="padding: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto;">
-                <div style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); text-align: center;">
+                <p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); text-align: center;">
                     <i class="fas fa-lock"></i> Secure Session Active
-                </div>
+                </p>
             </div>
         </nav>
 
@@ -1728,7 +1737,7 @@
                                 <option value="confirmed">Confirmed</option>
                                 <option value="completed">Completed</option>
                                 <option value="shipped">Shipped</option>
-                                <option value="delivered">Delivered</div>
+                                <option value="delivered">Delivered</option>
                                 <option value="cancelled">Cancelled</option>
                                 <option value="refunded">Refunded</option>
                             </select>
@@ -1985,8 +1994,8 @@
                         </div>
                     </div>
                     
-                    <div style="margin-top: 2rem; padding: 1.5rem; background: var(--gray-50); border-radius: var(--radius-lg);">
-                        <h3 style="margin-bottom: 1rem; color: var(--gray-700);">Revenue Breakdown by Type</h3>
+                    <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.05); border-radius: var(--radius-lg);">
+                        <h3 style="margin-bottom: 1rem; color: var(--white);">Revenue Breakdown by Type</h3>
                         <div id="analyticsContent">
                             <div class="empty-state">
                                 <div class="empty-state-icon">
@@ -2006,7 +2015,7 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-content">
             <div class="loading-spinner"></div>
-            <p style="color: var(--gray-700); font-weight: 600;">Loading Payments Management System...</p>
+            <p style="color: var(--white); font-weight: 600;">Loading Payments Management System...</p>
         </div>
     </div>
 
@@ -2027,7 +2036,7 @@
     </div>
 
     <script>
-        // Firebase Configuration
+        // Firebase Configuration - SAME AS BEFORE
         const firebaseConfig = {
             apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
             authDomain: "mugera-e51cc.firebaseapp.com",
@@ -2038,7 +2047,7 @@
             appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
         };
 
-        // Initialize Firebase
+        // Initialize Firebase - SAME AS BEFORE
         let app;
         let auth;
         let database;
@@ -2053,7 +2062,7 @@
             showNotification("Firebase initialization failed. Please refresh the page.", "error");
         }
 
-        // Global State
+        // Global State - SAME AS BEFORE
         let currentUser = null;
         let allPartnerships = [];
         let allOrders = [];
@@ -2063,7 +2072,7 @@
         let filteredOrders = [];
         let currentPaymentTab = 'all';
 
-        // Utility Functions
+        // Utility Functions - UPDATED FOR DARK THEME
         function showLoading(message = "Loading...") {
             const loading = document.getElementById('loadingOverlay');
             loading.querySelector('p').textContent = message;
@@ -2100,7 +2109,7 @@
             }, 3000);
         }
 
-        // Authentication
+        // Authentication - SAME AS BEFORE
         async function authenticate() {
             showLoading("Checking authentication...");
             
@@ -2154,7 +2163,7 @@
             
             // No valid session found
             hideLoading();
-            document.getElementById('authOverlay').style.display = 'flex';
+            document.getElementById('loginPage').style.display = 'flex';
             return false;
         }
 
@@ -2200,7 +2209,7 @@
                 
                 // Reset UI
                 document.getElementById('adminPanel').style.display = 'none';
-                document.getElementById('authOverlay').style.display = 'flex';
+                document.getElementById('loginPage').style.display = 'flex';
                 document.getElementById('authEmail').value = '';
                 document.getElementById('authPassword').value = '';
                 document.getElementById('authError').style.display = 'none';
@@ -2215,15 +2224,15 @@
         }
 
         function showPanel() {
-            document.getElementById('authOverlay').style.display = 'none';
-            document.getElementById('adminPanel').style.display = 'flex';
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
             updateUserInfo();
             
             // Show dashboard by default
             showPage('dashboard');
         }
 
-        // Data Management
+        // Data Management - SAME AS BEFORE
         async function loadInitialData() {
             try {
                 showLoading("Loading payments data...");
@@ -2464,29 +2473,29 @@
             const content = `
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                     <div>
-                        <h4 style="margin-bottom: 1rem; color: var(--gray-700);">Revenue by Type</h4>
-                        <div style="background: var(--secondary); padding: 1rem; border-radius: var(--radius-md);">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <h4 style="margin-bottom: 1rem; color: var(--white);">Revenue by Type</h4>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: var(--radius-md);">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: rgba(255, 255, 255, 0.9);">
                                 <span>Partnerships</span>
                                 <strong>KSh ${partnershipRevenue.toLocaleString()} (${partnershipPercentage}%)</strong>
                             </div>
-                            <div style="height: 8px; background: var(--gray-200); border-radius: 4px; margin-bottom: 1rem;">
-                                <div style="width: ${partnershipPercentage}%; height: 100%; background: var(--accent); border-radius: 4px;"></div>
+                            <div style="height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; margin-bottom: 1rem;">
+                                <div style="width: ${partnershipPercentage}%; height: 100%; background: var(--gold); border-radius: 4px;"></div>
                             </div>
                             
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: rgba(255, 255, 255, 0.9);">
                                 <span>Product Orders</span>
                                 <strong>KSh ${orderRevenue.toLocaleString()} (${orderPercentage}%)</strong>
                             </div>
-                            <div style="height: 8px; background: var(--gray-200); border-radius: 4px;">
+                            <div style="height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px;">
                                 <div style="width: ${orderPercentage}%; height: 100%; background: var(--success); border-radius: 4px;"></div>
                             </div>
                         </div>
                     </div>
                     
                     <div>
-                        <h4 style="margin-bottom: 1rem; color: var(--gray-700);">Top Products</h4>
-                        <div style="background: var(--secondary); padding: 1rem; border-radius: var(--radius-md);">
+                        <h4 style="margin-bottom: 1rem; color: var(--white);">Top Products</h4>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: var(--radius-md);">
                             ${getTopProductsHTML()}
                         </div>
                     </div>
@@ -2520,16 +2529,16 @@
                 .slice(0, 5);
             
             if (sortedProducts.length === 0) {
-                return '<p style="color: var(--gray-500); text-align: center;">No product sales data</p>';
+                return '<p style="color: rgba(255, 255, 255, 0.7); text-align: center;">No product sales data</p>';
             }
             
             let html = '';
             sortedProducts.forEach(([productName, data], index) => {
                 html += `
-                    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; ${index < sortedProducts.length - 1 ? 'border-bottom: 1px solid var(--gray-200);' : ''}">
+                    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; ${index < sortedProducts.length - 1 ? 'border-bottom: 1px solid rgba(255, 255, 255, 0.1);' : ''} color: rgba(255, 255, 255, 0.9);">
                         <div>
                             <div style="font-weight: 600;">${productName}</div>
-                            <div style="font-size: 0.875rem; color: var(--gray-500);">${data.count} sales</div>
+                            <div style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.7);">${data.count} sales</div>
                         </div>
                         <div style="font-weight: 700; color: var(--success);">KSh ${data.revenue.toLocaleString()}</div>
                     </div>
@@ -2569,7 +2578,7 @@
                     title = payment.fullName || 'Unknown Partner';
                     details = payment.reason === 'content-creation' ? 'Content Creation' :
                              payment.reason === 'event-registration' ? 'Event Registration' : 'General Support';
-                    badgeColor = 'var(--accent)';
+                    badgeColor = 'var(--gold)';
                     typeText = 'Partnership';
                 } else {
                     title = payment.fullName || 'Unknown Customer';
@@ -2731,7 +2740,7 @@
             filterPayments();
         }
 
-        // Payment Table Functions
+        // Payment Table Functions - UPDATED FOR DARK THEME
         function updatePaymentsTable() {
             const tableBody = document.getElementById('allPayments');
             tableBody.innerHTML = '';
@@ -2739,7 +2748,7 @@
             if (filteredPayments.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="8" style="text-align: center; padding: 3rem; color: var(--gray-500);">
+                        <td colspan="8" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
                             <i class="fas fa-money-bill-wave-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
                             <p>No payments found matching your filters</p>
                         </td>
@@ -2756,7 +2765,7 @@
                 if (payment.type === 'partnership') {
                     const reasonText = payment.reason === 'content-creation' ? 'Content Creation' :
                                      payment.reason === 'event-registration' ? 'Event Registration' : 'General Support';
-                    details = `<span class="reason-badge ${payment.reason === 'content-creation' ? 'reason-content' : payment.reason === 'event-registration' ? 'reason-event' : 'reason-general'}">${reasonText}</span>`;
+                    details = `<span class="type-badge ${payment.reason === 'content-creation' ? 'type-partnership' : 'type-order'}">${reasonText}</span>`;
                 } else {
                     details = `
                         <div class="product-info">
@@ -2775,15 +2784,15 @@
                 row.innerHTML = `
                     <td><span class="${typeClass}">${typeText}</span></td>
                     <td>
-                        <strong>${payment.fullName || 'N/A'}</strong>
-                        <div style="color: var(--gray-500); font-size: 0.875rem;">${payment.email || ''}</div>
+                        <strong style="color: var(--white);">${payment.fullName || 'N/A'}</strong>
+                        <div style="color: rgba(255, 255, 255, 0.7); font-size: 0.875rem;">${payment.email || ''}</div>
                     </td>
                     <td>${details}</td>
                     <td class="amount-cell">KSh ${payment.amountNumber.toLocaleString()}</td>
                     <td><span class="${paymentClass}">${paymentText}</span></td>
                     <td>
-                        <div>${payment.timestamp.toLocaleDateString()}</div>
-                        <small style="color: var(--gray-500);">${payment.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                        <div style="color: var(--white);">${payment.timestamp.toLocaleDateString()}</div>
+                        <small style="color: rgba(255, 255, 255, 0.7);">${payment.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
                     </td>
                     <td><span class="status-badge status-${payment.status}">${payment.status}</span></td>
                     <td>
@@ -2908,7 +2917,7 @@
             updatePaymentsTable();
         }
 
-        // Partnerships Table Functions
+        // Partnerships Table Functions - UPDATED FOR DARK THEME
         function updatePartnershipsTable() {
             const tableBody = document.getElementById('allPartnershipsTable');
             tableBody.innerHTML = '';
@@ -2916,7 +2925,7 @@
             if (filteredPartnerships.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="8" style="text-align: center; padding: 3rem; color: var(--gray-500);">
+                        <td colspan="8" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
                             <i class="fas fa-handshake-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
                             <p>No partnerships found matching your filters</p>
                         </td>
@@ -2926,28 +2935,23 @@
             }
             
             filteredPartnerships.forEach(partner => {
-                const reasonClass = partner.reason === 'content-creation' ? 'reason-content' : 
-                                  partner.reason === 'event-registration' ? 'reason-event' : 'reason-general';
-                const reasonText = partner.reason === 'content-creation' ? 'Content Creation' :
-                                 partner.reason === 'event-registration' ? 'Event Registration' : 'General Support';
-                
                 const paymentClass = partner.paymentMethod === 'lipa-na-mpesa' ? 'payment-mpesa' : 'payment-bank';
                 const paymentText = partner.paymentMethod === 'lipa-na-mpesa' ? 'M-Pesa' : 
                                   partner.paymentMethod === 'bank-transfer' ? 'Bank Transfer' : 'Cash';
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><strong>${partner.fullName || 'N/A'}</strong></td>
+                    <td><strong style="color: var(--white);">${partner.fullName || 'N/A'}</strong></td>
                     <td>
-                        <div>${partner.email || 'N/A'}</div>
-                        <div style="color: var(--gray-500); font-size: 0.875rem;">${partner.phone || ''}</div>
+                        <div style="color: var(--white);">${partner.email || 'N/A'}</div>
+                        <div style="color: rgba(255, 255, 255, 0.7); font-size: 0.875rem;">${partner.phone || ''}</div>
                     </td>
                     <td class="amount-cell">KSh ${parseFloat(partner.amount || 0).toLocaleString()}</td>
-                    <td><span class="${reasonClass}">${reasonText}</span></td>
+                    <td><span class="type-badge type-partnership">${partner.reason === 'content-creation' ? 'Content Creation' : partner.reason === 'event-registration' ? 'Event Registration' : 'General Support'}</span></td>
                     <td><span class="${paymentClass}">${paymentText}</span></td>
                     <td>
-                        <div>${partner.timestamp.toLocaleDateString()}</div>
-                        <small style="color: var(--gray-500);">${partner.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                        <div style="color: var(--white);">${partner.timestamp.toLocaleDateString()}</div>
+                        <small style="color: rgba(255, 255, 255, 0.7);">${partner.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
                     </td>
                     <td><span class="status-badge status-${partner.status}">${partner.status}</span></td>
                     <td>
@@ -2997,7 +3001,7 @@
             updatePartnershipsTable();
         }
 
-        // Orders Table Functions
+        // Orders Table Functions - UPDATED FOR DARK THEME
         function updateOrdersTable() {
             const tableBody = document.getElementById('allOrdersTable');
             tableBody.innerHTML = '';
@@ -3005,7 +3009,7 @@
             if (filteredOrders.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="8" style="text-align: center; padding: 3rem; color: var(--gray-500);">
+                        <td colspan="8" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
                             <i class="fas fa-shopping-cart" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
                             <p>No orders found matching your filters</p>
                         </td>
@@ -3022,8 +3026,8 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>
-                        <strong>${order.fullName || 'N/A'}</strong>
-                        <div style="color: var(--gray-500); font-size: 0.875rem;">${order.email || ''}</div>
+                        <strong style="color: var(--white);">${order.fullName || 'N/A'}</strong>
+                        <div style="color: rgba(255, 255, 255, 0.7); font-size: 0.875rem;">${order.email || ''}</div>
                     </td>
                     <td>
                         <div class="product-info">
@@ -3032,11 +3036,11 @@
                         </div>
                     </td>
                     <td class="amount-cell">${order.productPrice || 'KSh 0'}</td>
-                    <td>${order.address || 'N/A'}</td>
+                    <td style="color: rgba(255, 255, 255, 0.9);">${order.address || 'N/A'}</td>
                     <td><span class="${paymentClass}">${paymentText}</span></td>
                     <td>
-                        <div>${order.timestamp.toLocaleDateString()}</div>
-                        <small style="color: var(--gray-500);">${order.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                        <div style="color: var(--white);">${order.timestamp.toLocaleDateString()}</div>
+                        <small style="color: rgba(255, 255, 255, 0.7);">${order.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
                     </td>
                     <td><span class="status-badge status-${order.status}">${order.status}</span></td>
                     <td>
@@ -3107,7 +3111,7 @@
             document.getElementById('paymentModal').classList.add('active');
         }
 
-        // Payment CRUD Functions
+        // Payment CRUD Functions - UPDATED FOR DARK THEME FORMS
         function viewPayment(type, id) {
             let payment;
             
@@ -3134,9 +3138,9 @@
                 const sourceText = payment.source === 'partnership-page' ? 'Partnership Page' : 'Other';
                 
                 content = `
-                    <div style="line-height: 1.8;">
-                        <h4 style="margin-bottom: 1rem; color: var(--primary);">Partnership Details</h4>
-                        <div style="background: var(--gray-50); padding: 1.5rem; border-radius: var(--radius-lg);">
+                    <div style="line-height: 1.8; color: var(--white);">
+                        <h4 style="margin-bottom: 1rem;">Partnership Details</h4>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-lg);">
                             <div style="margin-bottom: 1.5rem; text-align: center;">
                                 <div class="amount-display" style="font-size: 2rem;">KSh ${parseFloat(payment.amount || 0).toLocaleString()}</div>
                                 <div style="margin-top: 0.5rem;">
@@ -3145,22 +3149,22 @@
                             </div>
                             
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                                <div><strong>Full Name:</strong><br>${payment.fullName || 'N/A'}</div>
-                                <div><strong>Email:</strong><br>${payment.email || 'N/A'}</div>
-                                <div><strong>Phone:</strong><br>${payment.phone || 'N/A'}</div>
-                                <div><strong>Payment Method:</strong><br>${paymentText}</div>
-                                <div><strong>Reason:</strong><br>${reasonText}</div>
-                                <div><strong>Source:</strong><br>${sourceText}</div>
+                                <div><strong>Full Name:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${payment.fullName || 'N/A'}</span></div>
+                                <div><strong>Email:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${payment.email || 'N/A'}</span></div>
+                                <div><strong>Phone:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${payment.phone || 'N/A'}</span></div>
+                                <div><strong>Payment Method:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${paymentText}</span></div>
+                                <div><strong>Reason:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${reasonText}</span></div>
+                                <div><strong>Source:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${sourceText}</span></div>
                             </div>
                             
-                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.9);">
                                 <strong>Transaction Date:</strong><br>
                                 ${payment.timestamp.toLocaleString()}
                             </div>
                             
-                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.9);">
                                 <strong>Partnership ID:</strong><br>
-                                <code style="color: var(--gray-600); font-size: 0.875rem;">${payment.id}</code>
+                                <code style="color: rgba(255, 255, 255, 0.7); font-size: 0.875rem;">${payment.id}</code>
                             </div>
                         </div>
                     </div>
@@ -3178,9 +3182,9 @@
                 const paymentText = payment.paymentMethod || 'Cash';
                 
                 content = `
-                    <div style="line-height: 1.8;">
-                        <h4 style="margin-bottom: 1rem; color: var(--primary);">Order Details</h4>
-                        <div style="background: var(--gray-50); padding: 1.5rem; border-radius: var(--radius-lg);">
+                    <div style="line-height: 1.8; color: var(--white);">
+                        <h4 style="margin-bottom: 1rem;">Order Details</h4>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-lg);">
                             <div style="margin-bottom: 1.5rem; text-align: center;">
                                 <div class="amount-display" style="font-size: 2rem;">${payment.productPrice || 'KSh 0'}</div>
                                 <div style="margin-top: 0.5rem;">
@@ -3189,29 +3193,29 @@
                             </div>
                             
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                                <div><strong>Customer Name:</strong><br>${payment.fullName || 'N/A'}</div>
-                                <div><strong>Email:</strong><br>${payment.email || 'N/A'}</div>
-                                <div><strong>Phone:</strong><br>${payment.phone || 'N/A'}</div>
-                                <div><strong>Payment Method:</strong><br>${paymentText}</div>
-                                <div><strong>Product:</strong><br>${payment.productName || 'N/A'}</div>
-                                <div><strong>Address:</strong><br>${payment.address || 'N/A'}</div>
+                                <div><strong>Customer Name:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${payment.fullName || 'N/A'}</span></div>
+                                <div><strong>Email:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${payment.email || 'N/A'}</span></div>
+                                <div><strong>Phone:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${payment.phone || 'N/A'}</span></div>
+                                <div><strong>Payment Method:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${paymentText}</span></div>
+                                <div><strong>Product:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${payment.productName || 'N/A'}</span></div>
+                                <div><strong>Address:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${payment.address || 'N/A'}</span></div>
                             </div>
                             
                             ${payment.instructions ? `
                             <div style="margin-bottom: 1rem;">
                                 <strong>Special Instructions:</strong><br>
-                                <p style="color: var(--gray-700);">${payment.instructions}</p>
+                                <p style="color: rgba(255, 255, 255, 0.9);">${payment.instructions}</p>
                             </div>
                             ` : ''}
                             
-                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.9);">
                                 <strong>Order Date:</strong><br>
                                 ${payment.timestamp.toLocaleString()}
                             </div>
                             
-                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
+                            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.9);">
                                 <strong>Order ID:</strong><br>
-                                <code style="color: var(--gray-600); font-size: 0.875rem;">${payment.id}</code>
+                                <code style="color: rgba(255, 255, 255, 0.7); font-size: 0.875rem;">${payment.id}</code>
                             </div>
                         </div>
                     </div>
@@ -3494,12 +3498,12 @@
             }
         }
 
-        // Manual Entry Functions
+        // Manual Entry Functions - UPDATED FOR DARK THEME FORMS
         function addManualPayment() {
             const form = `
                 <div style="text-align: center; padding: 2rem;">
-                    <h4 style="margin-bottom: 1rem; color: var(--primary);">Add Manual Payment</h4>
-                    <p style="color: var(--gray-600); margin-bottom: 2rem;">Choose the type of payment you want to add:</p>
+                    <h4 style="margin-bottom: 1rem; color: var(--white);">Add Manual Payment</h4>
+                    <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 2rem;">Choose the type of payment you want to add:</p>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
                         <button class="btn btn-outline" onclick="addManualPartnership()" style="padding: 1.5rem;">
                             <i class="fas fa-handshake" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
@@ -3725,7 +3729,7 @@
             }
         }
 
-        // Utility Functions
+        // Utility Functions - UPDATED FOR DARK THEME
         async function refreshAllData() {
             showLoading("Refreshing all data...");
             await Promise.all([
@@ -3774,27 +3778,27 @@
             const pendingCount = allPayments.filter(p => p.status === 'pending').length;
             
             const report = `
-                <div style="background: var(--secondary); padding: 1.5rem; border-radius: var(--radius-lg); margin-top: 1rem;">
-                    <h4 style="margin-bottom: 1rem; color: var(--primary);">Financial Report</h4>
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-lg); margin-top: 1rem;">
+                    <h4 style="margin-bottom: 1rem; color: var(--white);">Financial Report</h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                        <div style="background: var(--success-light); padding: 1rem; border-radius: var(--radius-md);">
+                        <div style="background: rgba(16, 185, 129, 0.2); padding: 1rem; border-radius: var(--radius-md);">
                             <div style="font-size: 1.25rem; font-weight: 700; color: var(--success);">KSh ${totalRevenue.toLocaleString()}</div>
-                            <div style="font-size: 0.875rem; color: var(--gray-600);">Total Revenue</div>
+                            <div style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.8);">Total Revenue</div>
                         </div>
-                        <div style="background: rgba(59, 130, 246, 0.1); padding: 1rem; border-radius: var(--radius-md);">
+                        <div style="background: rgba(59, 130, 246, 0.2); padding: 1rem; border-radius: var(--radius-md);">
                             <div style="font-size: 1.25rem; font-weight: 700; color: var(--info);">${allPayments.length}</div>
-                            <div style="font-size: 0.875rem; color: var(--gray-600);">Total Payments</div>
+                            <div style="font-size: 0.875rem; color: rgba(255, 255, 255, 0.8);">Total Payments</div>
                         </div>
                     </div>
                     
                     <div style="margin-top: 1.5rem;">
-                        <h5 style="margin-bottom: 0.5rem; color: var(--gray-700);">Revenue Breakdown</h5>
+                        <h5 style="margin-bottom: 0.5rem; color: var(--white);">Revenue Breakdown</h5>
                         <ul style="list-style: none; padding-left: 0;">
-                            <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between;">
+                            <li style="padding: 0.5rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; color: rgba(255, 255, 255, 0.9);">
                                 <span>Partnerships</span>
                                 <strong>KSh ${partnershipRevenue.toLocaleString()}</strong>
                             </li>
-                            <li style="padding: 0.5rem 0; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between;">
+                            <li style="padding: 0.5rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; color: rgba(255, 255, 255, 0.9);">
                                 <span>Product Orders</span>
                                 <strong>KSh ${orderRevenue.toLocaleString()}</strong>
                             </li>
@@ -3802,15 +3806,15 @@
                     </div>
                     
                     <div style="margin-top: 1.5rem;">
-                        <h5 style="margin-bottom: 0.5rem; color: var(--gray-700);">Status Summary</h5>
+                        <h5 style="margin-bottom: 0.5rem; color: var(--white);">Status Summary</h5>
                         <div style="display: flex; gap: 0.5rem;">
                             <span class="status-badge status-confirmed">Confirmed: ${confirmedCount}</span>
                             <span class="status-badge status-pending">Pending: ${pendingCount}</span>
                         </div>
                     </div>
                     
-                    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--gray-200);">
-                        <small style="color: var(--gray-500);">Report generated on ${new Date().toLocaleString()}</small>
+                    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                        <small style="color: rgba(255, 255, 255, 0.7);">Report generated on ${new Date().toLocaleString()}</small>
                     </div>
                 </div>
             `;
