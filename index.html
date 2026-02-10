@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
-    <title id="pageTitle">Loading...</title>
+    <title id="pageTitle">I AM MUGERA | Public Speaking, Life Coaching & Author</title>
     <link rel="icon" type="image/x-icon" id="pageFavicon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Fonts -->
@@ -13,7 +13,174 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
     <style>
+        /* Add these new styles at the top of your existing CSS */
+        
+        /* Enhanced Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .loading-spinner {
+            width: 70px;
+            height: 70px;
+            border: 3px solid rgba(202, 138, 4, 0.1);
+            border-top: 3px solid var(--gold);
+            border-radius: 50%;
+            animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 30px rgba(202, 138, 4, 0.3);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Quote Typing Animation Container */
+        .quote-container {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .quote-icon {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            opacity: 0.7;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .quote-text {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            line-height: 1.4;
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            min-height: 140px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .typing-container {
+            display: inline-block;
+            text-align: left;
+            position: relative;
+        }
+
+        .typing-line {
+            display: inline;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 2.2rem;
+            background-color: var(--gold);
+            margin-left: 4px;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .quote-author {
+            font-family: 'Umsaga', serif;
+            font-size: 1.2rem;
+            color: var(--gold-light);
+            margin-top: 2rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 7s;
+        }
+
+        .quote-author span {
+            display: block;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.5rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            margin-top: 3rem;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards;
+            animation-delay: 8s;
+            text-align: center;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Enhanced transitions for page load */
+        .page-content {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .page-content.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Enhanced waitlist modal styles */
+        .waitlist-modal .registration-modal {
+            max-width: 500px;
+        }
+
+        .waitlist-description {
+            text-align: center;
+            color: var(--dark-gray);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            padding: 0 1rem;
+        }
+
+        /* Add to your existing CSS: */
         :root {
             --black: #0a0a0a;
             --white: #ffffff;
@@ -43,6 +210,7 @@
             --radius-full: 9999px;
         }
 
+        /* Rest of your existing CSS remains exactly the same... */
         * {
             margin: 0;
             padding: 0;
@@ -63,35 +231,6 @@
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-        }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--white);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid var(--light-gray);
-            border-top: 3px solid var(--gold);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         .umsaga-font {
@@ -398,7 +537,7 @@
             margin: 0 auto;
             width: 100%;
             position: relative;
-            z-index: 3; /* Higher than the overlays */
+            z-index: 3;
         }
 
         .hero-tagline {
@@ -438,7 +577,6 @@
             flex-wrap: wrap;
         }
 
-        /* Text container with background for better readability */
         .hero-text-container {
             position: relative;
             padding: 2.5rem;
@@ -468,7 +606,7 @@
             pointer-events: none;
         }
 
-        /* Automatic Slideshow Section - UPDATED FOR BETTER RESPONSIVENESS */
+        /* Automatic Slideshow Section */
         .slideshow-section {
             padding: 4rem 1.5rem;
             background: linear-gradient(135deg, var(--white) 0%, var(--african-pattern-bg) 100%);
@@ -574,7 +712,6 @@
             background: var(--white);
         }
 
-        /* Updated for full image display on all devices */
         .slide-image {
             flex: 0 0 50%;
             height: 100%;
@@ -2467,10 +2604,28 @@
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
+    <!-- Enhanced Loading Overlay with Quote Typing Animation -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
-        <p style="color: var(--gold); font-weight: 600; margin-top: 1rem;">Loading I AM MUGERA...</p>
+        
+        <div class="quote-container">
+            <div class="quote-icon">
+                <i class="fas fa-quote-left"></i>
+            </div>
+            
+            <div class="quote-text" id="quoteText">
+                <!-- Quote will be typed here -->
+            </div>
+            
+            <div class="quote-author" id="quoteAuthor">
+                - Mugera W.
+                <span>Public Speaker, Life Coach & Author</span>
+            </div>
+            
+            <div class="loading-subtitle">
+                Preparing an extraordinary experience for you...
+            </div>
+        </div>
     </div>
 
     <!-- Header (dynamically loaded) -->
@@ -2483,9 +2638,7 @@
     <div class="mobile-menu" id="mobileMenu"></div>
 
     <!-- Main Content Sections -->
-    <main id="mainContent">
-        <!-- Sections will be dynamically loaded here -->
-    </main>
+    <main id="mainContent" class="page-content"></main>
 
     <!-- Footer (dynamically loaded) -->
     <footer id="mainFooter"></footer>
@@ -2662,14 +2815,18 @@
         </div>
     </div>
 
-    <!-- Waitlist Modal -->
+    <!-- Enhanced Waitlist Modal -->
     <div class="modal-overlay waitlist-modal" id="waitlistModal">
         <div class="registration-modal">
             <button class="modal-close" onclick="closeWaitlistModal()">&times;</button>
             <h2 class="modal-title">Join the Waitlist</h2>
             <p class="modal-subtitle">Be the first to receive this publication</p>
             
-            <form class="registration-form" id="waitlistForm" onsubmit="submitWaitlist(event)">
+            <div class="waitlist-description">
+                <p>Be among the first to access groundbreaking insights when this publication releases. Join our exclusive waitlist for early access and special benefits.</p>
+            </div>
+            
+            <form class="registration-form" id="waitlistForm">
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-user"></i> Full Name *</label>
                     <input type="text" class="form-input" id="waitlistName" required placeholder="Enter your full name">
@@ -2699,16 +2856,22 @@
                     </select>
                 </div>
                 
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-comment-dots"></i> Any specific expectations?</label>
+                    <textarea class="form-textarea" id="waitlistExpectations" placeholder="What do you hope to gain from this publication?" rows="3"></textarea>
+                </div>
+                
                 <button type="submit" class="form-submit" id="waitlistSubmitBtn">
                     <i class="fas fa-bell"></i>
                     <span>Join Waitlist</span>
                 </button>
             </form>
             
-            <div class="form-success" id="waitlistSuccess" style="display: none;">
+            <div class="form-success" id="waitlistSuccess">
                 <i class="fas fa-check-circle"></i>
                 <h3>You're on the Waitlist!</h3>
-                <p>Thank you for joining the waitlist. You'll be among the first to receive updates.</p>
+                <p>Thank you for joining the waitlist. We'll notify you as soon as the publication is available.</p>
+                <p style="font-size: 0.9rem; color: var(--dark-gray); margin-top: 1rem;">You'll receive exclusive updates and early access opportunities.</p>
                 <button class="cta-button" onclick="closeWaitlistModal()" style="margin-top: 1.5rem; width: 100%;">
                     <i class="fas fa-check"></i>
                     <span>Close</span>
@@ -2731,11 +2894,13 @@
 
         // Initialize Firebase
         let database;
+        let analytics;
         let brandData = {};
         
         try {
             firebase.initializeApp(firebaseConfig);
             database = firebase.database();
+            analytics = firebase.analytics();
             console.log("Firebase initialized successfully");
         } catch (error) {
             console.error("Firebase initialization error:", error);
@@ -2748,16 +2913,101 @@
 
         // Initialize everything when DOM loads
         document.addEventListener('DOMContentLoaded', function() {
-            loadAllContent();
-            initMobileMenu();
-            initHeaderScroll();
+            startTypingAnimation();
+            trackVisitor();
         });
+
+        // Professional Typing Animation for the Quote
+        function startTypingAnimation() {
+            const quote = "Humans are very special and blessed beings, they just need to be reminded time and again.";
+            const quoteText = document.getElementById('quoteText');
+            const quoteAuthor = document.getElementById('quoteAuthor');
+            const typingContainer = document.createElement('div');
+            typingContainer.className = 'typing-container';
+            quoteText.innerHTML = '';
+            quoteText.appendChild(typingContainer);
+            
+            let charIndex = 0;
+            const typingSpeed = 50; // milliseconds per character
+            const pauseAfterTyping = 1000; // pause after typing is complete
+            
+            function typeCharacter() {
+                if (charIndex < quote.length) {
+                    // Add current character with typing effect
+                    const span = document.createElement('span');
+                    span.className = 'typing-line';
+                    span.textContent = quote.substring(0, charIndex + 1);
+                    typingContainer.innerHTML = '';
+                    typingContainer.appendChild(span);
+                    
+                    // Add cursor
+                    const cursor = document.createElement('span');
+                    cursor.className = 'cursor';
+                    typingContainer.appendChild(cursor);
+                    
+                    charIndex++;
+                    setTimeout(typeCharacter, typingSpeed);
+                } else {
+                    // Add final cursor blink
+                    const cursor = document.createElement('span');
+                    cursor.className = 'cursor';
+                    typingContainer.appendChild(cursor);
+                    
+                    // Pause, then load content
+                    setTimeout(() => {
+                        loadAllContent();
+                    }, pauseAfterTyping);
+                }
+            }
+            
+            typeCharacter();
+        }
+
+        // Track Visitor with Firebase
+        async function trackVisitor() {
+            if (!database) return;
+            
+            try {
+                const visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const visitorData = {
+                    timestamp: new Date().toISOString(),
+                    userAgent: navigator.userAgent,
+                    screenResolution: `${window.screen.width}x${window.screen.height}`,
+                    language: navigator.language,
+                    platform: navigator.platform,
+                    referrer: document.referrer || 'direct',
+                    url: window.location.href,
+                    isMobile: /Mobi|Android/i.test(navigator.userAgent),
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                };
+                
+                // Track page view with analytics
+                if (analytics) {
+                    analytics.logEvent('page_view', {
+                        page_location: window.location.href,
+                        page_title: document.title
+                    });
+                }
+                
+                // Store visitor data in Firebase
+                await database.ref('visitors/' + visitorId).set(visitorData);
+                
+                // Update visitor count
+                const visitorCountRef = database.ref('visitorCount');
+                const snapshot = await visitorCountRef.once('value');
+                let currentCount = snapshot.val() || 0;
+                await visitorCountRef.set(currentCount + 1);
+                
+                console.log('Visitor tracked successfully');
+                
+            } catch (error) {
+                console.error('Error tracking visitor:', error);
+            }
+        }
 
         // Load all content from Firebase
         async function loadAllContent() {
             try {
-                showLoading(true);
-                
                 // Load all brand data at once
                 const snapshot = await database.ref('iam-mugera').once('value');
                 if (!snapshot.exists()) {
@@ -2789,21 +3039,18 @@
                 // Initialize smooth scrolling after content is loaded
                 initSmoothScrolling();
                 
-                // Hide loading overlay
+                // Hide loading overlay with smooth transition
                 setTimeout(() => {
-                    showLoading(false);
+                    document.getElementById('loadingOverlay').style.opacity = '0';
+                    document.getElementById('loadingOverlay').style.visibility = 'hidden';
+                    document.querySelector('.page-content').classList.add('loaded');
                 }, 500);
                 
             } catch (error) {
                 console.error('Error loading content:', error);
                 showError('Failed to load content. Please check your connection and refresh.');
-                showLoading(false);
+                document.getElementById('loadingOverlay').style.display = 'none';
             }
-        }
-
-        function showLoading(show) {
-            const overlay = document.getElementById('loadingOverlay');
-            overlay.style.display = show ? 'flex' : 'none';
         }
 
         function showError(message) {
@@ -3058,7 +3305,7 @@
                                         
                                         <button class="cta-button" onclick="openWaitlistModal()" style="margin-top: 1.5rem;">
                                             <i class="fas fa-book-reader"></i>
-                                            <span>Read Abstract</span>
+                                            <span>Join Waitlist</span>
                                         </button>
                                     </div>
                                 </div>
@@ -3280,7 +3527,7 @@
             updateSlideshow();
         }
 
-        // NEW FUNCTION: Load Featured Products (replaces store section)
+        // Load Featured Products (replaces store section)
         function loadFeaturedProducts() {
             if (!brandData.store) return;
             
@@ -3327,7 +3574,7 @@
             main.appendChild(featuredSection);
         }
 
-        // NEW FUNCTION: Get featured products (most bought and latest)
+        // Get featured products (most bought and latest)
         function getFeaturedProducts() {
             if (!brandData.store?.products) {
                 return {
@@ -3429,7 +3676,7 @@
             };
         }
 
-        // NEW FUNCTION: Generate featured product card
+        // Generate featured product card
         function generateFeaturedProductCard(product, type) {
             if (!product) return '';
             
@@ -4188,8 +4435,13 @@
             currentProduct = null;
         }
 
+        // Enhanced Waitlist Modal Functions
         function openWaitlistModal() {
-            document.getElementById('waitlistModal').classList.add('active');
+            const modal = document.getElementById('waitlistModal');
+            document.getElementById('waitlistForm').style.display = 'flex';
+            document.getElementById('waitlistSuccess').style.display = 'none';
+            
+            modal.classList.add('active');
             document.body.style.overflow = 'hidden';
             clearForm('waitlistForm');
         }
@@ -4277,6 +4529,97 @@
             });
             
             return isValid;
+        }
+
+        // Enhanced Waitlist Form Validation
+        function validateWaitlistForm() {
+            let isValid = true;
+            
+            document.querySelectorAll('#waitlistForm .form-error').forEach(el => {
+                el.classList.remove('show');
+            });
+            
+            const requiredFields = [
+                { id: 'waitlistName', errorId: 'waitlistNameError' },
+                { id: 'waitlistEmail', errorId: 'waitlistEmailError' }
+            ];
+            
+            requiredFields.forEach(field => {
+                const element = document.getElementById(field.id);
+                if (!element || !element.value.trim()) {
+                    document.getElementById(field.errorId).classList.add('show');
+                    isValid = false;
+                } else if (field.id === 'waitlistEmail') {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(element.value.trim())) {
+                        document.getElementById(field.errorId).classList.add('show');
+                        isValid = false;
+                    }
+                }
+            });
+            
+            return isValid;
+        }
+
+        // Enhanced Waitlist Form Submission
+        async function submitWaitlist(event) {
+            if (event) event.preventDefault();
+            
+            if (!validateWaitlistForm()) return;
+            
+            const submitBtn = document.getElementById('waitlistSubmitBtn');
+            const form = document.getElementById('waitlistForm');
+            const successMsg = document.getElementById('waitlistSuccess');
+            
+            const waitlistData = {
+                fullName: document.getElementById('waitlistName').value.trim(),
+                email: document.getElementById('waitlistEmail').value.trim(),
+                profession: document.getElementById('waitlistProfession').value.trim(),
+                interest: document.getElementById('waitlistInterest').value,
+                expectations: document.getElementById('waitlistExpectations').value.trim(),
+                timestamp: new Date().toISOString(),
+                source: 'author_publication_waitlist',
+                publicationType: 'featured_article',
+                status: 'waiting'
+            };
+            
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Processing...</span>';
+                
+                if (database) {
+                    const waitlistId = 'waitlist_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    await database.ref('waitlists/' + waitlistId).set(waitlistData);
+                    
+                    // Update waitlist count
+                    const waitlistCountRef = database.ref('waitlistCount');
+                    const snapshot = await waitlistCountRef.once('value');
+                    let currentCount = snapshot.val() || 0;
+                    await waitlistCountRef.set(currentCount + 1);
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                form.style.display = 'none';
+                successMsg.style.display = 'block';
+                
+                console.log('Waitlist submission successful');
+                
+                // Track waitlist signup with analytics
+                if (analytics) {
+                    analytics.logEvent('waitlist_signup', {
+                        publication_type: 'featured_article',
+                        interest_area: waitlistData.interest
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Error submitting waitlist:', error);
+                alert('There was an error submitting your waitlist request. Please try again or contact us directly.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-bell"></i><span>Join Waitlist</span>';
+            }
         }
 
         // Form Submission
@@ -4371,6 +4714,9 @@
                 submitBtn.innerHTML = '<i class="fas fa-shopping-cart"></i><span>Place Order</span>';
             }
         }
+
+        // Initialize waitlist form submission
+        document.getElementById('waitlistForm')?.addEventListener('submit', submitWaitlist);
 
         // Clean up slideshow interval when leaving page
         window.addEventListener('beforeunload', () => {
