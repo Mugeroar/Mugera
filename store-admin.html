@@ -1023,6 +1023,12 @@
             border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
+        .category-general {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
         /* Product Badges */
         .product-badge {
             padding: 0.2rem 0.5rem;
@@ -1560,17 +1566,6 @@
                     
                     <div class="cards-grid" id="recentProductsList">
                         <!-- Products will be loaded here -->
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="fas fa-box-open"></i>
-                            </div>
-                            <h3 class="empty-state-title">No Products Found</h3>
-                            <p class="empty-state-text">Start by adding your first product to the store.</p>
-                            <button class="btn btn-sm" onclick="addNewProduct()">
-                                <i class="fas fa-plus"></i>
-                                Add First Product
-                            </button>
-                        </div>
                     </div>
                 </div>
 
@@ -1594,7 +1589,8 @@
                             <thead>
                                 <tr>
                                     <th>Customer</th>
-                                    <th>Product</th>
+                                    <th>Type</th>
+                                    <th>Items</th>
                                     <th>Amount</th>
                                     <th>Date</th>
                                     <th>Status</th>
@@ -1645,6 +1641,7 @@
                                 <option value="apparel">Apparel</option>
                                 <option value="books">Books</option>
                                 <option value="materials">Materials</option>
+                                <option value="general">General</option>
                             </select>
                         </div>
                         
@@ -1685,21 +1682,25 @@
                     
                     <div class="filters">
                         <div class="filter-group">
+                            <label class="filter-label">Order Type</label>
+                            <select id="orderTypeFilter" class="filter-select" onchange="filterOrders()">
+                                <option value="all">All Types</option>
+                                <option value="cart_order">Cart Orders</option>
+                                <option value="product_order">Single Product</option>
+                                <option value="custom_order">Custom Orders</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
                             <label class="filter-label">Status</label>
                             <select id="orderStatusFilter" class="filter-select" onchange="filterOrders()">
                                 <option value="all">All Status</option>
                                 <option value="pending">Pending</option>
                                 <option value="processing">Processing</option>
+                                <option value="confirmed">Confirmed</option>
                                 <option value="shipped">Shipped</option>
                                 <option value="delivered">Delivered</option>
                                 <option value="cancelled">Cancelled</option>
-                            </select>
-                        </div>
-                        
-                        <div class="filter-group">
-                            <label class="filter-label">Product</label>
-                            <select id="orderProductFilter" class="filter-select" onchange="filterOrders()">
-                                <option value="all">All Products</option>
                             </select>
                         </div>
                         
@@ -1720,7 +1721,8 @@
                                 <tr>
                                     <th>Order ID</th>
                                     <th>Customer</th>
-                                    <th>Product</th>
+                                    <th>Type</th>
+                                    <th>Items</th>
                                     <th>Amount</th>
                                     <th>Date</th>
                                     <th>Status</th>
@@ -1782,16 +1784,11 @@
                         </div>
                     </div>
                     
-                    <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.05); border-radius: var(--radius-lg);">
-                        <h3 style="margin-bottom: 1rem; color: var(--white);">Sales by Category</h3>
+                    <div class="content-section" style="margin-top: 2rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--white);">Sales Analysis</h3>
                         <div id="analyticsContent">
-                            <div class="empty-state">
-                                <div class="empty-state-icon">
-                                    <i class="fas fa-chart-bar"></i>
-                                </div>
-                                <h3 class="empty-state-title">Analytics Data</h3>
-                                <p class="empty-state-text">Sales analytics will appear here once you have more data.</p>
-                            </div>
+                            <div id="salesByCategory" style="margin-bottom: 2rem;"></div>
+                            <div id="recentSales" style="margin-top: 2rem;"></div>
                         </div>
                     </div>
                 </div>
@@ -1912,6 +1909,24 @@
             if (!priceStr) return 0;
             const numStr = priceStr.replace(/[^0-9.]/g, '');
             return parseFloat(numStr) || 0;
+        }
+
+        function formatCurrency(amount) {
+            return 'KSh ' + amount.toLocaleString('en-KE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function getCategoryName(categoryKey) {
+            const categories = {
+                'apparel': 'Apparel',
+                'books': 'Books',
+                'materials': 'Materials',
+                'general': 'General'
+            };
+            return categories[categoryKey] || categoryKey;
+        }
+
+        function getProductById(productId) {
+            return allProducts.find(p => p.id === productId);
         }
 
         // Authentication
@@ -2084,9 +2099,9 @@
                         originalPrice: product.originalPrice || '',
                         category: product.category || 'materials',
                         status: product.status || 'available',
-                        stock: product.stock || 0,
+                        stock: parseInt(product.stock) || 0,
                         visible: product.visible !== false,
-                        order: product.order || 999,
+                        order: parseInt(product.order) || 999,
                         image: product.image || '',
                         badge: product.badge || ''
                     });
@@ -2100,7 +2115,6 @@
             
             // Update UI counts
             document.getElementById('productCount').textContent = allProducts.length;
-            updateProductFilterOptions();
             
             console.log('Extracted products:', allProducts);
         }
@@ -2110,33 +2124,50 @@
                 const snapshot = await database.ref('orders').once('value');
                 const data = snapshot.val();
                 
+                allOrders = [];
+                
                 if (data) {
-                    allOrders = Object.entries(data).map(([id, order]) => ({
-                        id: id,
-                        fullName: order.fullName || '',
-                        email: order.email || '',
-                        phone: order.phone || '',
-                        address: order.address || '',
-                        instructions: order.instructions || '',
-                        paymentMethod: order.paymentMethod || '',
-                        productName: order.productName || '',
-                        productPrice: order.productPrice || 'KSh 0',
-                        status: order.status || 'pending',
-                        timestamp: order.timestamp ? new Date(order.timestamp) : new Date(),
-                        type: order.type || 'product_order'
-                    }));
+                    Object.entries(data).forEach(([id, order]) => {
+                        const orderData = {
+                            id: id,
+                            fullName: order.fullName || '',
+                            email: order.email || '',
+                            phone: order.phone || '',
+                            address: order.address || '',
+                            instructions: order.instructions || '',
+                            paymentMethod: order.paymentMethod || '',
+                            productName: order.productName || '',
+                            productPrice: order.productPrice || 'KSh 0',
+                            status: order.status || 'pending',
+                            timestamp: order.timestamp ? new Date(order.timestamp) : new Date(),
+                            type: order.type || 'product_order',
+                            deliveryOption: order.deliveryOption || '',
+                            deliveryFee: order.deliveryFee || 0,
+                            subtotal: order.subtotal || 0,
+                            totalAmount: order.totalAmount || 0
+                        };
+                        
+                        // Handle cart orders
+                        if (order.type === 'cart_order' && order.items && Array.isArray(order.items)) {
+                            orderData.items = order.items;
+                            orderData.totalItems = order.items.reduce((total, item) => total + (item.quantity || 1), 0);
+                            orderData.productName = `Cart (${orderData.totalItems} items)`;
+                            orderData.productPrice = formatCurrency(order.totalAmount || 0);
+                        } else if (order.type === 'custom_order') {
+                            orderData.productName = 'Custom Order';
+                        }
+                        
+                        allOrders.push(orderData);
+                    });
                     
                     // Sort by timestamp (newest first)
                     allOrders.sort((a, b) => b.timestamp - a.timestamp);
-                } else {
-                    allOrders = [];
                 }
                 
                 filteredOrders = [...allOrders];
                 
                 // Update UI counts
                 document.getElementById('orderCount').textContent = allOrders.length;
-                updateOrderFilterOptions();
                 
                 return allOrders;
             } catch (error) {
@@ -2162,10 +2193,14 @@
             let totalRevenue = 0;
             allOrders.forEach(order => {
                 if (order.status !== 'cancelled') {
-                    totalRevenue += parsePrice(order.productPrice);
+                    if (order.type === 'cart_order') {
+                        totalRevenue += order.totalAmount || 0;
+                    } else {
+                        totalRevenue += parsePrice(order.productPrice);
+                    }
                 }
             });
-            document.getElementById('revenue').textContent = `KSh ${totalRevenue.toLocaleString()}`;
+            document.getElementById('revenue').textContent = formatCurrency(totalRevenue);
             
             // Update recent orders table
             updateRecentOrdersTable();
@@ -2181,10 +2216,14 @@
             let totalRevenue = 0;
             allOrders.forEach(order => {
                 if (order.status !== 'cancelled') {
-                    totalRevenue += parsePrice(order.productPrice);
+                    if (order.type === 'cart_order') {
+                        totalRevenue += order.totalAmount || 0;
+                    } else {
+                        totalRevenue += parsePrice(order.productPrice);
+                    }
                 }
             });
-            document.getElementById('totalRevenueAnalytics').textContent = `KSh ${totalRevenue.toLocaleString()}`;
+            document.getElementById('totalRevenueAnalytics').textContent = formatCurrency(totalRevenue);
             
             // Total stock
             let totalStock = 0;
@@ -2198,6 +2237,62 @@
             const totalOrders = allOrders.length;
             const conversionRate = totalOrders > 0 ? Math.round((deliveredOrders / totalOrders) * 100) : 0;
             document.getElementById('conversionRate').textContent = `${conversionRate}%`;
+            
+            // Update analytics content
+            updateAnalyticsContent();
+        }
+
+        function updateAnalyticsContent() {
+            // Sales by category
+            const categorySales = {};
+            allOrders.forEach(order => {
+                if (order.status !== 'cancelled') {
+                    if (order.type === 'cart_order' && order.items) {
+                        order.items.forEach(item => {
+                            const product = getProductById(item.id);
+                            const category = product?.category || 'general';
+                            const amount = (item.price || 0) * (item.quantity || 1);
+                            categorySales[category] = (categorySales[category] || 0) + amount;
+                        });
+                    } else if (order.type === 'product_order') {
+                        // Find product by name
+                        const product = allProducts.find(p => p.name === order.productName);
+                        const category = product?.category || 'general';
+                        const amount = parsePrice(order.productPrice);
+                        categorySales[category] = (categorySales[category] || 0) + amount;
+                    }
+                }
+            });
+            
+            const salesByCategory = document.getElementById('salesByCategory');
+            if (Object.keys(categorySales).length > 0) {
+                let html = '<h4 style="margin-bottom: 1rem;">Sales by Category</h4><div style="display: flex; flex-direction: column; gap: 0.5rem;">';
+                Object.entries(categorySales)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([category, amount]) => {
+                        const categoryName = getCategoryName(category);
+                        const percentage = totalRevenue > 0 ? Math.round((amount / totalRevenue) * 100) : 0;
+                        html += `
+                            <div style="background: rgba(255, 255, 255, 0.05); padding: 0.75rem; border-radius: var(--radius-md);">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                                    <span>${categoryName}</span>
+                                    <span style="font-weight: bold; color: var(--gold);">${formatCurrency(amount)}</span>
+                                </div>
+                                <div style="height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; overflow: hidden;">
+                                    <div style="width: ${percentage}%; height: 100%; background: var(--gold);"></div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-top: 0.25rem;">
+                                    <small style="color: rgba(255, 255, 255, 0.7);">${percentage}% of total</small>
+                                    <small style="color: rgba(255, 255, 255, 0.7);">${percentage}%</small>
+                                </div>
+                            </div>
+                        `;
+                    });
+                html += '</div>';
+                salesByCategory.innerHTML = html;
+            } else {
+                salesByCategory.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-chart-bar"></i></div><h3 class="empty-state-title">No Sales Data</h3><p class="empty-state-text">Sales analytics will appear here once you have more orders.</p></div>';
+            }
         }
 
         function updateRecentOrdersTable() {
@@ -2209,7 +2304,7 @@
             if (recentOrders.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                        <td colspan="7" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
                             <i class="fas fa-shopping-cart" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
                             <p>No recent orders found</p>
                         </td>
@@ -2219,11 +2314,19 @@
             }
             
             recentOrders.forEach(order => {
+                let itemsText = '';
+                if (order.type === 'cart_order' && order.items) {
+                    itemsText = `${order.totalItems || 0} items`;
+                } else {
+                    itemsText = order.productName || 'N/A';
+                }
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><strong>${order.fullName || 'N/A'}</strong><br><small style="color: rgba(255, 255, 255, 0.7);">${order.phone || ''}</small></td>
-                    <td>${order.productName || 'N/A'}</td>
-                    <td>${order.productPrice || 'KSh 0'}</td>
+                    <td><span class="category-tag category-${order.type === 'cart_order' ? 'general' : 'apparel'}">${order.type === 'cart_order' ? 'Cart' : 'Single'}</span></td>
+                    <td>${itemsText}</td>
+                    <td>${order.type === 'cart_order' ? formatCurrency(order.totalAmount || 0) : order.productPrice || 'KSh 0'}</td>
                     <td>${order.timestamp.toLocaleDateString()}</td>
                     <td><span class="status-badge status-${order.status || 'pending'}">${order.status || 'pending'}</span></td>
                     <td>
@@ -2246,7 +2349,7 @@
             
             if (recentProducts.length === 0) {
                 container.innerHTML = `
-                    <div class="empty-state">
+                    <div class="empty-state" style="grid-column: 1 / -1;">
                         <div class="empty-state-icon">
                             <i class="fas fa-box-open"></i>
                         </div>
@@ -2262,9 +2365,15 @@
             }
             
             recentProducts.forEach(product => {
-                const ordersForProduct = allOrders.filter(order => 
-                    order.productName === product.name
-                ).length;
+                // Count orders for this product
+                let ordersForProduct = 0;
+                allOrders.forEach(order => {
+                    if (order.type === 'cart_order' && order.items) {
+                        ordersForProduct += order.items.filter(item => item.id === product.id).length;
+                    } else if (order.productName === product.name) {
+                        ordersForProduct++;
+                    }
+                });
                 
                 const card = document.createElement('div');
                 card.className = 'product-card';
@@ -2313,15 +2422,6 @@
                 `;
                 container.appendChild(card);
             });
-        }
-
-        function getCategoryName(categoryKey) {
-            const categories = {
-                'apparel': 'Apparel',
-                'books': 'Books',
-                'materials': 'Materials'
-            };
-            return categories[categoryKey] || categoryKey;
         }
 
         // Page Management
@@ -2408,9 +2508,15 @@
             }
             
             filteredProducts.forEach(product => {
-                const ordersForProduct = allOrders.filter(order => 
-                    order.productName === product.name
-                ).length;
+                // Count orders for this product
+                let ordersForProduct = 0;
+                allOrders.forEach(order => {
+                    if (order.type === 'cart_order' && order.items) {
+                        ordersForProduct += order.items.filter(item => item.id === product.id).length;
+                    } else if (order.productName === product.name) {
+                        ordersForProduct++;
+                    }
+                });
                 
                 const card = document.createElement('div');
                 card.className = 'product-card';
@@ -2534,7 +2640,7 @@
             if (filteredOrders.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                        <td colspan="8" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
                             <i class="fas fa-shopping-cart" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
                             <p>No orders found matching your filters</p>
                         </td>
@@ -2544,6 +2650,22 @@
             }
             
             filteredOrders.forEach(order => {
+                let itemsText = '';
+                let orderType = 'Single';
+                let typeClass = 'apparel';
+                
+                if (order.type === 'cart_order' && order.items) {
+                    itemsText = `${order.totalItems || 0} items`;
+                    orderType = 'Cart';
+                    typeClass = 'general';
+                } else if (order.type === 'custom_order') {
+                    itemsText = 'Custom Order';
+                    orderType = 'Custom';
+                    typeClass = 'general';
+                } else {
+                    itemsText = order.productName || 'N/A';
+                }
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>
@@ -2554,8 +2676,9 @@
                         ${order.email ? `<br><small style="color: rgba(255, 255, 255, 0.7);">${order.email}</small>` : ''}
                         ${order.phone ? `<br><small style="color: rgba(255, 255, 255, 0.7);">${order.phone}</small>` : ''}
                     </td>
-                    <td>${order.productName || 'N/A'}</td>
-                    <td>${order.productPrice || 'KSh 0'}</td>
+                    <td><span class="category-tag category-${typeClass}">${orderType}</span></td>
+                    <td>${itemsText}</td>
+                    <td>${order.type === 'cart_order' ? formatCurrency(order.totalAmount || 0) : order.productPrice || 'KSh 0'}</td>
                     <td>
                         <div>${order.timestamp.toLocaleDateString()}</div>
                         <small style="color: rgba(255, 255, 255, 0.7);">${order.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
@@ -2580,18 +2703,18 @@
         }
 
         function filterOrders() {
+            const typeFilter = document.getElementById('orderTypeFilter').value;
             const statusFilter = document.getElementById('orderStatusFilter').value;
-            const productFilter = document.getElementById('orderProductFilter').value;
             const dateFilter = document.getElementById('orderDateFilter').value;
             
             filteredOrders = allOrders.filter(order => {
-                // Status filter
-                if (statusFilter !== 'all' && order.status !== statusFilter) {
+                // Type filter
+                if (typeFilter !== 'all' && order.type !== typeFilter) {
                     return false;
                 }
                 
-                // Product filter
-                if (productFilter !== 'all' && order.productName !== productFilter) {
+                // Status filter
+                if (statusFilter !== 'all' && order.status !== statusFilter) {
                     return false;
                 }
                 
@@ -2620,37 +2743,6 @@
             });
             
             updateOrdersTable();
-        }
-
-        function updateProductFilterOptions() {
-            const select = document.getElementById('orderProductFilter');
-            const currentValue = select.value;
-            
-            // Clear existing options except "All Products"
-            while (select.options.length > 1) {
-                select.remove(1);
-            }
-            
-            // Get unique product names from products
-            const productNames = [...new Set(allProducts.map(product => product.name))];
-            
-            productNames.forEach(name => {
-                if (name) {
-                    const option = document.createElement('option');
-                    option.value = name;
-                    option.textContent = name;
-                    select.appendChild(option);
-                }
-            });
-            
-            // Restore previous selection if possible
-            if (currentValue !== 'all') {
-                select.value = currentValue;
-            }
-        }
-
-        function updateOrderFilterOptions() {
-            updateProductFilterOptions();
         }
 
         // Modal Functions
@@ -2689,6 +2781,7 @@
                                 <option value="apparel">Apparel</option>
                                 <option value="books">Books</option>
                                 <option value="materials">Materials</option>
+                                <option value="general">General</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -2829,6 +2922,7 @@
                                 <option value="apparel" ${product.category === 'apparel' ? 'selected' : ''}>Apparel</option>
                                 <option value="books" ${product.category === 'books' ? 'selected' : ''}>Books</option>
                                 <option value="materials" ${product.category === 'materials' ? 'selected' : ''}>Materials</option>
+                                <option value="general" ${product.category === 'general' ? 'selected' : ''}>General</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -2955,7 +3049,17 @@
             try {
                 // Check if product has orders
                 const product = allProducts.find(p => p.id === productId);
-                const hasOrders = allOrders.some(order => order.productName === product.name);
+                let hasOrders = false;
+                
+                allOrders.forEach(order => {
+                    if (order.type === 'cart_order' && order.items) {
+                        if (order.items.some(item => item.id === productId)) {
+                            hasOrders = true;
+                        }
+                    } else if (order.productName === product.name) {
+                        hasOrders = true;
+                    }
+                });
                 
                 if (hasOrders) {
                     hideLoading();
@@ -2987,20 +3091,57 @@
                 return;
             }
             
+            let itemsHtml = '';
+            if (order.type === 'cart_order' && order.items) {
+                itemsHtml = '<h5 style="margin-top: 1rem; margin-bottom: 0.5rem;">Cart Items:</h5><div style="background: rgba(255, 255, 255, 0.05); padding: 0.75rem; border-radius: var(--radius-sm);">';
+                order.items.forEach(item => {
+                    const product = getProductById(item.id);
+                    const itemTotal = (item.price || 0) * (item.quantity || 1);
+                    itemsHtml += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <div>
+                                <div><strong>${item.name}</strong></div>
+                                <small style="color: rgba(255, 255, 255, 0.7);">Qty: ${item.quantity || 1} × ${formatCurrency(item.price || 0)}</small>
+                            </div>
+                            <div style="font-weight: bold; color: var(--gold);">${formatCurrency(itemTotal)}</div>
+                        </div>
+                    `;
+                });
+                itemsHtml += '</div>';
+            }
+            
             const content = `
                 <div style="line-height: 1.8; color: var(--white);">
                     <h4 style="margin-bottom: 1rem;">Order Details</h4>
                     <div style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-lg);">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                             <div><strong>Order ID:</strong><br><small style="color: rgba(255, 255, 255, 0.7);">${order.id}</small></div>
+                            <div><strong>Order Type:</strong><br>${order.type === 'cart_order' ? 'Cart Order' : order.type === 'custom_order' ? 'Custom Order' : 'Single Product'}</div>
                             <div><strong>Customer Name:</strong><br>${order.fullName || 'N/A'}</div>
                             <div><strong>Email:</strong><br>${order.email || 'N/A'}</div>
                             <div><strong>Phone:</strong><br>${order.phone || 'N/A'}</div>
-                            <div><strong>Product:</strong><br>${order.productName || 'N/A'}</div>
-                            <div><strong>Amount:</strong><br>${order.productPrice || 'KSh 0'}</div>
+                            <div><strong>Product:</strong><br>${order.type === 'cart_order' ? 'Cart Order' : order.productName || 'N/A'}</div>
+                            <div><strong>Amount:</strong><br>${order.type === 'cart_order' ? formatCurrency(order.totalAmount || 0) : order.productPrice || 'KSh 0'}</div>
                             <div><strong>Payment Method:</strong><br>${order.paymentMethod || 'N/A'}</div>
                             <div><strong>Status:</strong><br><span class="status-badge status-${order.status || 'pending'}">${order.status || 'pending'}</span></div>
                         </div>
+                        ${order.type === 'cart_order' ? `
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Order Summary:</strong><br>
+                            <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
+                                <span>Subtotal:</span>
+                                <span>${formatCurrency(order.subtotal || 0)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Delivery Fee (${order.deliveryOption === 'express' ? 'Express' : 'Standard'}):</span>
+                                <span>${formatCurrency(order.deliveryFee || 0)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-weight: bold; color: var(--gold); border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 0.5rem; margin-top: 0.5rem;">
+                                <span>Total:</span>
+                                <span>${formatCurrency(order.totalAmount || 0)}</span>
+                            </div>
+                        </div>
+                        ` : ''}
                         <div style="margin-bottom: 1rem;">
                             <strong>Shipping Address:</strong><br>
                             ${order.address || 'N/A'}
@@ -3009,6 +3150,7 @@
                             <strong>Order Date:</strong><br>
                             ${order.timestamp.toLocaleString()}
                         </div>
+                        ${itemsHtml}
                         ${order.instructions ? `
                         <div style="margin-top: 1rem;">
                             <strong>Special Instructions:</strong><br>
@@ -3057,19 +3199,15 @@
                             <textarea class="form-input" name="address" rows="2">${order.address || ''}</textarea>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Product</label>
-                            <select class="form-input" name="productName">
-                                <option value="">Select Product</option>
-                                ${allProducts.map(product => `
-                                    <option value="${product.name}" ${order.productName === product.name ? 'selected' : ''}>
-                                        ${product.name} - ${product.price}
-                                    </option>
-                                `).join('')}
+                            <label class="form-label">Status</label>
+                            <select class="form-input" name="status">
+                                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                                <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                                <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
                             </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Product Price</label>
-                            <input type="text" class="form-input" name="productPrice" value="${order.productPrice || 'KSh 0'}">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Payment Method</label>
@@ -3077,16 +3215,7 @@
                                 <option value="M-Pesa" ${order.paymentMethod === 'M-Pesa' ? 'selected' : ''}>M-Pesa</option>
                                 <option value="Bank Transfer" ${order.paymentMethod === 'Bank Transfer' ? 'selected' : ''}>Bank Transfer</option>
                                 <option value="Cash on Delivery" ${order.paymentMethod === 'Cash on Delivery' ? 'selected' : ''}>Cash on Delivery</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Status</label>
-                            <select class="form-input" name="status">
-                                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
-                                <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
-                                <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
-                                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                                <option value="Card" ${order.paymentMethod === 'Card' ? 'selected' : ''}>Credit/Debit Card</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -3122,12 +3251,7 @@
                     address: formData.get('address') || '',
                     instructions: formData.get('instructions') || '',
                     paymentMethod: formData.get('paymentMethod') || '',
-                    productName: formData.get('productName') || '',
-                    productPrice: formData.get('productPrice') || 'KSh 0',
-                    status: formData.get('status') || 'pending',
-                    // Keep original timestamp and other fields
-                    timestamp: allOrders.find(o => o.id === orderId).timestamp.toISOString(),
-                    type: 'product_order'
+                    status: formData.get('status') || 'pending'
                 };
                 
                 // Update in Firebase
@@ -3143,6 +3267,7 @@
                 if (document.getElementById('dashboardPage').style.display !== 'none') {
                     updateRecentOrdersTable();
                     updateDashboardStats();
+                    updateAnalyticsStats();
                 }
                 
                 hideOrderModal();
@@ -3214,7 +3339,9 @@
         }
 
         function refreshAnalytics() {
+            showLoading("Refreshing analytics...");
             updateAnalyticsStats();
+            hideLoading();
             showNotification("Analytics refreshed", "success");
         }
 
@@ -3225,9 +3352,16 @@
             }
             
             // Create CSV content
-            let csv = 'Order ID,Customer Name,Email,Phone,Product,Amount,Status,Date,Payment Method\n';
+            let csv = 'Order ID,Order Type,Customer Name,Email,Phone,Product,Amount,Status,Date,Payment Method,Address\n';
             allOrders.forEach(order => {
-                csv += `"${order.id}","${order.fullName || ''}","${order.email || ''}","${order.phone || ''}","${order.productName || ''}","${order.productPrice || ''}","${order.status || ''}","${order.timestamp.toLocaleDateString()}","${order.paymentMethod || ''}"\n`;
+                let productInfo = '';
+                if (order.type === 'cart_order') {
+                    productInfo = `Cart (${order.totalItems || 0} items)`;
+                } else {
+                    productInfo = order.productName || '';
+                }
+                
+                csv += `"${order.id}","${order.type || ''}","${order.fullName || ''}","${order.email || ''}","${order.phone || ''}","${productInfo}","${order.type === 'cart_order' ? (order.totalAmount || 0) : parsePrice(order.productPrice) || 0}","${order.status || ''}","${order.timestamp.toISOString()}","${order.paymentMethod || ''}","${order.address || ''}"\n`;
             });
             
             // Create download link
@@ -3245,12 +3379,18 @@
         }
 
         function viewProductDetails(productId) {
-            const product = allProducts.find(p => p.id === productId);
+            const product = getProductById(productId);
             if (!product) return;
             
-            const ordersForProduct = allOrders.filter(order => 
-                order.productName === product.name
-            );
+            // Count orders for this product
+            let ordersForProduct = 0;
+            allOrders.forEach(order => {
+                if (order.type === 'cart_order' && order.items) {
+                    ordersForProduct += order.items.filter(item => item.id === productId).length;
+                } else if (order.productName === product.name) {
+                    ordersForProduct++;
+                }
+            });
             
             const content = `
                 <div style="line-height: 1.8; color: var(--white);">
@@ -3279,21 +3419,27 @@
                         </div>
                         <div style="margin-bottom: 1rem;">
                             <strong>Total Orders:</strong><br>
-                            ${ordersForProduct.length} orders
+                            ${ordersForProduct} orders
                         </div>
-                        ${ordersForProduct.length > 0 ? `
-                        <div style="margin-top: 1rem;">
-                            <strong>Recent Orders:</strong><br>
-                            <ul style="margin-top: 0.5rem; padding-left: 1rem;">
-                                ${ordersForProduct.slice(0, 3).map(order => `
-                                    <li>${order.fullName} - ${order.status} (${order.productPrice})</li>
-                                `).join('')}
-                            </ul>
+                        ${product.order ? `
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Display Order:</strong><br>
+                            ${product.order}
+                        </div>
+                        ` : ''}
+                        ${product.badge ? `
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Badge:</strong><br>
+                            <span class="badge-${product.badge.toLowerCase()}">${product.badge}</span>
                         </div>
                         ` : ''}
                     </div>
                 </div>
                 <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="editProduct('${product.id}')">
+                        <i class="fas fa-edit"></i>
+                        Edit Product
+                    </button>
                     <button type="button" class="btn" onclick="hideModal()">
                         Close
                     </button>
@@ -3382,6 +3528,7 @@
         window.viewOrder = viewOrder;
         window.editOrder = editOrder;
         window.viewProductDetails = viewProductDetails;
+        window.editProduct = editProduct;
     </script>
 </body>
 </html>
