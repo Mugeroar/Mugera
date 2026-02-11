@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>I AM MUGERA – Author Management (Full Book Suite)</title>
+    <title>I AM MUGERA – Complete Author & Publications Editor</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
-    <!-- Firebase SDK 8.10.0 (matches existing) -->
+    <!-- Firebase SDK 8.10.0 (YOUR EXACT CONFIG) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;700;900&family=Lora:wght@400;600&display=swap" rel="stylesheet">
-    
+    <!-- Google Fonts: Inter + Playfair + Lora (matches brand) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;700;900&family=Lora:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ---------- DARK THEME – EXACT MATCH EVENTS / MASTER AUTH PAGE ---------- */
+        /* ---------- PERFECT DARK THEME – EXACTLY AS YOUR EVENTS PAGE ---------- */
         :root {
             --black: #0a0a0a;
             --white: #ffffff;
             --gray: #f9f9f9;
             --dark-gray: #1a1a1a;
+            --light-gray: #e8e8e8;
             --gold: #ca8a04;
             --gold-light: #fef3c7;
             --gold-dark: #a16207;
@@ -57,16 +57,16 @@
         .professional-bg {
             background: 
                 linear-gradient(135deg, 
-                    rgba(10, 10, 10, 0.94) 0%, 
-                    rgba(10, 10, 10, 0.9) 100%),
-                url('https://i.postimg.cc/Hn3fK4jT/20260206_1227_Image_Generation_remix_01kgs4ccqtf63rvv82pa8tmgzm.png');
+                    rgba(10, 10, 10, 0.92) 0%, 
+                    rgba(10, 10, 10, 0.88) 100%),
+                url('https://i.postimg.cc/Hn3fK4jT/20260206-1227-Image-Generation-remix-01kgs4ccqtf63rvv82pa8tmgzm.png');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
 
-        /* ---------- LOGIN CARD ---------- */
+        /* ---------- LOGIN CARD – MATCHES EXACT STYLE ---------- */
         .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
         .login-card {
             background: rgba(255,255,255,0.12); backdrop-filter: blur(20px);
@@ -78,122 +78,172 @@
         .login-logo { text-align: center; margin-bottom: 2.5rem; }
         .login-logo img { height: 90px; width: auto; margin-bottom:1rem; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.2)); padding:12px; background:rgba(255,255,255,0.1); border-radius:var(--radius-lg); }
         .login-logo h1 { font-size:2rem; color:var(--white); margin-bottom:0.5rem; font-weight:700; }
-        .form-input { width:100%; padding:1rem 1.25rem; border:1px solid rgba(255,255,255,0.2); border-radius:var(--radius-md); background:rgba(255,255,255,0.1); color:var(--white); }
+        .form-input { width:100%; padding:1rem 1.25rem; border:1px solid rgba(255,255,255,0.2); border-radius:var(--radius-md); background:rgba(255,255,255,0.1); color:var(--white); font-family:'Inter',sans-serif; }
         .form-input:focus { outline:none; border-color:var(--gold); box-shadow:0 0 0 4px rgba(202,138,4,0.25); background:rgba(255,255,255,0.15); }
         .btn {
             background: linear-gradient(135deg, var(--gold), var(--gold-dark));
             color: var(--white); border: none; border-radius: var(--radius-md); padding: 1rem 2rem;
             font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap:0.75rem;
             transition: var(--transition); width:100%; position: relative; overflow: hidden;
+            justify-content: center;
         }
         .btn::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent); transition:0.5s; }
         .btn:hover::before { left:100%; }
+        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(202,138,4,0.5); }
         .btn-outline { background: transparent; border: 2px solid rgba(202,138,4,0.4); color: var(--gold); }
         .btn-outline:hover { background: var(--gold); color: white; }
         .btn-sm { padding: 0.75rem 1.5rem; font-size: 0.9rem; width: auto; }
 
-        /* ---------- ADMIN PANEL (SIDEBAR + MAIN) ---------- */
+        /* ---------- ADMIN PANEL – SIDEBAR (IDENTICAL TO EVENTS) ---------- */
         .admin-container { display: none; min-height: 100vh; background: linear-gradient(135deg, rgba(10,10,10,0.94), rgba(10,10,10,0.9)), url('https://i.postimg.cc/Hn3fK4jT/20260206_1227_Image_Generation_remix_01kgs4ccqtf63rvv82pa8tmgzm.png'); background-size: cover; background-attachment: fixed; }
-        .sidebar { width: 280px; background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); position: fixed; height: 100vh; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.1); }
+        .sidebar { width: 280px; background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); position: fixed; height: 100vh; overflow-y: auto; border-right: 1px solid rgba(255,255,255,0.1); z-index: 100; }
         .sidebar-header { padding: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; }
         .sidebar-header::after { content:''; position: absolute; bottom:-1px; left:2rem; right:2rem; height:2px; background: linear-gradient(90deg, var(--gold), var(--gold-dark)); }
+        .sidebar-logo { text-align: center; }
         .sidebar-logo img { height: 70px; width: auto; margin-bottom: 1rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); padding:12px; background:rgba(255,255,255,0.1); border-radius:var(--radius-lg); }
         .sidebar-title { font-size:1.5rem; font-weight:700; color:white; margin-bottom:0.25rem; text-align:center; }
         .sidebar-subtitle { font-size:0.85rem; color:rgba(255,255,255,0.8); text-align:center; }
         .nav-menu { list-style: none; padding: 2rem 0; }
+        .nav-item { margin-bottom: 0.5rem; }
         .nav-link { display: flex; align-items: center; gap:1rem; padding: 1rem 2rem; color: rgba(255,255,255,0.8); text-decoration: none; transition: var(--transition); position: relative; font-weight:500; }
         .nav-link::before { content:''; position: absolute; left:0; top:0; width:3px; height:100%; background: var(--gold); transform: scaleY(0); transition: var(--transition); }
         .nav-link:hover { background: rgba(255,255,255,0.1); color: white; }
         .nav-link:hover::before { transform: scaleY(1); }
         .nav-link.active { background: linear-gradient(90deg, rgba(202,138,4,0.2), transparent); color: var(--gold); }
         .nav-link.active::before { transform: scaleY(1); }
-        .nav-badge { margin-left: auto; background: var(--gold); color: white; font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:10px; }
+        .nav-icon { width: 20px; text-align: center; }
+        .nav-badge { margin-left: auto; background: var(--gold); color: white; font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:10px; min-width:24px; text-align:center; }
 
         /* ---------- MAIN CONTENT ---------- */
         .main-content { margin-left: 280px; padding: 2rem; min-height: 100vh; }
-        .header { background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); border-radius: var(--radius-xl); padding: 1.5rem 2rem; margin-bottom: 2rem; border:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center; position:relative; }
-        .header::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, var(--gold), var(--gold-dark)); }
-        .page-title { font-size:1.75rem; font-weight:700; color:white; }
-        .user-avatar { width:42px; height:42px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; }
-        .logout-btn { background:transparent; border:2px solid rgba(239,68,68,0.4); color: var(--error); padding:0.5rem 1rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.5rem; cursor:pointer; transition:var(--transition); }
-        .logout-btn:hover { background:var(--error); color:white; }
+        .header {
+            background: rgba(255,255,255,0.08); backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl); padding: 1.5rem 2rem; margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between;
+            align-items: center; position: relative;
+        }
+        .header::before { content:''; position: absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, var(--gold), var(--gold-dark)); }
+        .page-title { font-size:1.75rem; font-weight:700; color:white; margin:0; }
+        .page-subtitle { color: rgba(255,255,255,0.8); font-size:0.875rem; display: flex; align-items: center; gap:0.5rem; }
+        .user-avatar { width:42px; height:42px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; text-transform:uppercase; }
+        .logout-btn { background:transparent; border:2px solid rgba(239,68,68,0.4); color: var(--error); padding:0.5rem 1rem; border-radius:var(--radius-md); display:flex; align-items:center; gap:0.5rem; cursor:pointer; transition:var(--transition); font-weight:600; }
+        .logout-btn:hover { background:var(--error); color:white; border-color:var(--error); }
 
-        /* ---------- DASHBOARD STATS ---------- */
-        .dashboard-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(250px,1fr)); gap:1.5rem; margin-bottom:2rem; }
-        .stat-card { background: rgba(255,255,255,0.08); backdrop-filter:blur(20px); border-radius:var(--radius-xl); padding:2rem; border:1px solid rgba(255,255,255,0.1); transition:var(--transition); cursor:pointer; position:relative; }
+        /* ---------- CONTENT SECTIONS – GLASS CARDS ---------- */
+        .content-section {
+            background: rgba(255,255,255,0.08); backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 2rem;
+            border: 1px solid rgba(255,255,255,0.1); position: relative;
+        }
+        .content-section::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, var(--gold), var(--gold-dark)); border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
+        .section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.1); flex-wrap:wrap; gap:1rem; }
+        .section-title { font-size:1.5rem; font-weight:700; color:white; margin:0; display:flex; align-items:center; gap:0.75rem; }
+        .section-tools { display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; }
+
+        /* ---------- DASHBOARD STATS CARDS ---------- */
+        .dashboard-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:1.5rem; margin-bottom:2rem; }
+        .stat-card {
+            background: rgba(255,255,255,0.08); backdrop-filter:blur(20px);
+            border-radius:var(--radius-xl); padding:2rem; border:1px solid rgba(255,255,255,0.1);
+            transition:var(--transition); cursor:pointer; position:relative;
+        }
         .stat-card:hover { transform:translateY(-5px); border-color:rgba(202,138,4,0.3); }
         .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, var(--gold), var(--gold-dark)); border-radius:var(--radius-xl) var(--radius-xl) 0 0; }
         .stat-icon { width:60px; height:60px; background:rgba(202,138,4,0.2); border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:var(--gold); margin-bottom:1rem; }
         .stat-value { font-size:2.5rem; font-weight:800; color:white; line-height:1; }
+        .stat-label { color:rgba(255,255,255,0.8); font-weight:600; text-transform:uppercase; letter-spacing:0.5px; font-size:0.85rem; }
 
-        /* ---------- CARDS GRID (BOOKS, SERIES, ARTICLES) ---------- */
+        /* ---------- GRID FOR BOOKS / PUBLICATIONS ---------- */
         .cards-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(360px,1fr)); gap:1.5rem; margin-top:1.5rem; }
-        .book-card { background: rgba(255,255,255,0.08); backdrop-filter:blur(20px); border-radius:var(--radius-lg); padding:1.75rem; border:1px solid rgba(255,255,255,0.1); transition:var(--transition); }
+        .book-card {
+            background: rgba(255,255,255,0.08); backdrop-filter:blur(20px);
+            border-radius:var(--radius-lg); padding:1.75rem; border:1px solid rgba(255,255,255,0.1);
+            transition:var(--transition); display:flex; flex-direction:column;
+        }
         .book-card:hover { border-color:rgba(202,138,4,0.3); transform:translateY(-3px); }
         .book-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem; }
-        .book-card-title { font-size:1.25rem; font-weight:700; color:white; }
-        .status-badge { padding:0.25rem 0.75rem; border-radius:12px; font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; display:inline-flex; align-items:center; gap:0.25rem; }
+        .book-card-title { font-size:1.2rem; font-weight:700; color:white; }
+        .status-badge { padding:0.25rem 0.75rem; border-radius:20px; font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; display:inline-flex; align-items:center; gap:0.25rem; }
         .status-coming-soon { background:rgba(245,158,11,0.2); color:var(--gold); border:1px solid rgba(245,158,11,0.3); }
         .status-planned { background:rgba(59,130,246,0.2); color:var(--info); border:1px solid rgba(59,130,246,0.3); }
         .status-published { background:rgba(16,185,129,0.2); color:var(--success); border:1px solid rgba(16,185,129,0.3); }
         .status-draft { background:rgba(107,114,128,0.2); color:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.2); }
-        .status-serialized { background:rgba(139,92,246,0.2); color:var(--purple); border:1px solid rgba(139,92,246,0.3); }
         .status-premium { background:rgba(236,72,153,0.2); color:var(--pink); border:1px solid rgba(236,72,153,0.3); }
         .status-free { background:rgba(16,185,129,0.2); color:var(--teal); border:1px solid rgba(16,185,129,0.3); }
-        .book-number { padding:0.25rem 0.75rem; background:rgba(255,255,255,0.1); border-radius:20px; font-size:0.7rem; }
-        .book-meta { display:flex; gap:0.75rem; flex-wrap:wrap; margin:0.75rem 0; color:rgba(255,255,255,0.8); font-size:0.85rem; }
+        .status-serialized { background:rgba(139,92,246,0.2); color:var(--purple); border:1px solid rgba(139,92,246,0.3); }
+        .book-meta { display:flex; gap:1rem; flex-wrap:wrap; margin:0.75rem 0; color:rgba(255,255,255,0.8); font-size:0.85rem; }
         .book-meta i { color:var(--gold); width:18px; }
-        .action-btn { padding:0.375rem 0.75rem; border:none; border-radius:var(--radius-sm); font-size:0.8rem; display:inline-flex; align-items:center; gap:0.25rem; cursor:pointer; transition:var(--transition); font-weight:500; }
+        .book-card-description { color:rgba(255,255,255,0.9); font-size:0.9rem; line-height:1.5; margin-bottom:1rem; flex:1; }
+        .book-card-footer { display:flex; gap:0.5rem; margin-top:1rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.1); flex-wrap:wrap; }
+        .action-btn { padding:0.5rem 1rem; border:none; border-radius:var(--radius-md); font-size:0.8rem; display:inline-flex; align-items:center; gap:0.5rem; cursor:pointer; transition:var(--transition); font-weight:600; background:rgba(255,255,255,0.1); color:white; }
+        .action-btn:hover { transform:translateY(-2px); }
         .action-btn.edit { background:rgba(202,138,4,0.2); color:var(--gold); border:1px solid rgba(202,138,4,0.3); }
         .action-btn.edit:hover { background:rgba(202,138,4,0.3); }
         .action-btn.delete { background:rgba(239,68,68,0.2); color:var(--error); border:1px solid rgba(239,68,68,0.3); }
         .action-btn.view { background:rgba(59,130,246,0.2); color:var(--info); border:1px solid rgba(59,130,246,0.3); }
         .action-btn.chapters { background:rgba(139,92,246,0.2); color:var(--purple); border:1px solid rgba(139,92,246,0.3); }
 
-        /* ---------- FEATURED ARTICLE + LIBRARY PREVIEW ---------- */
+        /* ---------- FEATURED ARTICLE CARD ---------- */
         .featured-card { background:rgba(255,255,255,0.08); backdrop-filter:blur(20px); border-radius:var(--radius-lg); padding:2rem; border:1px solid rgba(255,255,255,0.1); }
-        .featured-card-header { display:flex; justify-content:space-between; margin-bottom:1.5rem; }
-        .featured-card-tag { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); padding:0.25rem 0.75rem; border-radius:var(--radius-sm); color:white; font-weight:600; font-size:0.75rem; }
+        .featured-card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+        .featured-card-title { font-size:1.5rem; font-weight:700; color:white; }
+        .featured-card-tag { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); padding:0.25rem 0.75rem; border-radius:var(--radius-sm); color:white; font-weight:600; }
         .featured-card-content { display:grid; grid-template-columns:1fr 2fr; gap:2rem; }
         @media (max-width:768px) { .featured-card-content { grid-template-columns:1fr; } }
-        .featured-card-image { width:100%; height:200px; background:rgba(0,0,0,0.2); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; overflow:hidden; }
+        .featured-card-image { width:100%; height:200px; background:rgba(0,0,0,0.3); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; overflow:hidden; }
         .featured-card-image img { width:100%; height:100%; object-fit:cover; }
 
-        /* ---------- MODAL (DARK) ---------- */
+        /* ---------- FILTERS ---------- */
+        .filters { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; margin-bottom:1.5rem; padding:1rem; background:rgba(202,138,4,0.08); border-radius:var(--radius-lg); border:1px solid rgba(202,138,4,0.2); }
+        .filter-select { padding:0.5rem 1rem; border:1px solid rgba(255,255,255,0.2); border-radius:var(--radius-md); background:rgba(255,255,255,0.1); color:white; font-family:'Inter',sans-serif; }
+        .filter-select option { background:#1a1a1a; color:white; }
+
+        /* ---------- MODAL – FULLY EDITABLE FORMS ---------- */
         .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:2000; opacity:0; visibility:hidden; transition:var(--transition); padding:1rem; }
         .modal-overlay.active { opacity:1; visibility:visible; }
-        .modal { background:rgba(255,255,255,0.12); backdrop-filter:blur(30px); border-radius:var(--radius-2xl); padding:2.5rem; width:100%; max-width:800px; max-height:90vh; overflow-y:auto; border:1px solid rgba(255,255,255,0.15); color:white; }
-        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:1rem; }
-        .modal-close { background:rgba(255,255,255,0.1); border:none; width:32px; height:32px; border-radius:50%; color:white; cursor:pointer; }
-        .form-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(250px,1fr)); gap:1.5rem; margin-bottom:1.5rem; }
+        .modal { background:rgba(255,255,255,0.12); backdrop-filter:blur(30px); border-radius:var(--radius-2xl); padding:2.5rem; width:100%; max-width:900px; max-height:90vh; overflow-y:auto; border:1px solid rgba(255,255,255,0.15); color:white; box-shadow:var(--shadow-2xl); }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; padding-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.1); }
+        .modal-title { font-size:1.5rem; font-weight:700; color:white; }
+        .modal-close { background:rgba(255,255,255,0.1); border:none; width:36px; height:36px; border-radius:50%; color:white; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.2rem; transition:var(--transition); }
+        .modal-close:hover { background:rgba(255,255,255,0.2); }
+        .form-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:1.5rem; margin-bottom:1.5rem; }
+        .form-group { margin-bottom:1rem; }
+        .form-label { display:block; margin-bottom:0.5rem; color:rgba(255,255,255,0.9); font-weight:600; font-size:0.9rem; display:flex; align-items:center; gap:0.5rem; }
+        .form-label i { color:var(--gold); }
+        .form-control { width:100%; padding:0.75rem 1rem; border:1px solid rgba(255,255,255,0.2); border-radius:var(--radius-md); background:rgba(255,255,255,0.1); color:white; font-family:'Inter',sans-serif; }
+        .form-control:focus { outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(202,138,4,0.25); }
+        textarea.form-control { min-height:100px; resize:vertical; }
         .image-preview { width:100%; min-height:160px; border:2px dashed rgba(255,255,255,0.2); border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.2); margin-bottom:1rem; padding:0.5rem; }
         .image-preview img { max-width:100%; max-height:160px; object-fit:contain; }
+        .form-actions { display:flex; gap:1rem; justify-content:flex-end; margin-top:2rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1); }
 
         /* ---------- NOTIFICATION & LOADING ---------- */
-        .loading-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:3000; opacity:0; visibility:hidden; }
+        .loading-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:3000; opacity:0; visibility:hidden; transition:var(--transition); }
         .loading-overlay.active { opacity:1; visibility:visible; }
         .loading-content { background:rgba(255,255,255,0.12); backdrop-filter:blur(30px); padding:2rem; border-radius:var(--radius-xl); display:flex; flex-direction:column; align-items:center; gap:1rem; }
         .loading-spinner { width:50px; height:50px; border:3px solid rgba(202,138,4,0.1); border-top-color:var(--gold); border-radius:50%; animation:spin 1s linear infinite; }
         @keyframes spin { to { transform:rotate(360deg); } }
         .notification-container { position:fixed; top:1rem; right:1rem; z-index:9999; max-width:350px; }
-        .notification { background:rgba(255,255,255,0.12); backdrop-filter:blur(20px); border-radius:var(--radius-lg); padding:1rem 1.25rem; margin-bottom:0.75rem; box-shadow:var(--shadow-xl); display:flex; align-items:center; gap:0.75rem; border-left:4px solid; color:white; }
+        .notification { background:rgba(255,255,255,0.12); backdrop-filter:blur(20px); border-radius:var(--radius-lg); padding:1rem 1.25rem; margin-bottom:0.75rem; box-shadow:var(--shadow-xl); display:flex; align-items:center; gap:0.75rem; border-left:4px solid; color:white; animation:slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity:0; transform:translateX(100%); } to { opacity:1; transform:translateX(0); } }
         .empty-state { text-align:center; padding:3rem 1rem; color:rgba(255,255,255,0.7); grid-column:1/-1; }
         .empty-state-icon { font-size:3rem; color:var(--gold); opacity:0.5; margin-bottom:1rem; }
 
         /* ---------- RESPONSIVE ---------- */
-        @media (max-width:992px) { .sidebar { transform:translateX(-100%); } .sidebar.active { transform:translateX(0); } .main-content { margin-left:0; } }
+        @media (max-width:992px) { .sidebar { transform:translateX(-100%); position:fixed; transition:transform 0.3s ease; } .sidebar.active { transform:translateX(0); } .main-content { margin-left:0; } }
+        @media (max-width:768px) { .header { flex-direction:column; gap:1rem; } .user-actions { width:100%; justify-content:center; } }
     </style>
 </head>
 <body class="professional-bg">
-    <!-- LOGIN PAGE -->
+    <!-- LOGIN PAGE (EXACT STYLE) -->
     <div id="loginPage" class="login-container">
         <div class="login-card">
             <div class="login-logo">
                 <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA">
-                <h1>Author Management</h1>
-                <p style="color:rgba(255,255,255,0.8);">Complete Book & Publications Admin</p>
+                <h1>Author & Publications</h1>
+                <p style="color:rgba(255,255,255,0.8);">Complete editorial control</p>
             </div>
-            <div id="authError" class="alert" style="display:none; background:rgba(239,68,68,0.15); padding:1rem; border-radius:var(--radius-md); margin-bottom:1.5rem; border-left:4px solid var(--error);">
+            <div id="authError" style="display:none; background:rgba(239,68,68,0.15); padding:1rem; border-radius:var(--radius-md); margin-bottom:1.5rem; border-left:4px solid var(--error); color:white;">
                 <i class="fas fa-exclamation-circle"></i> <span id="errorText">Invalid credentials</span>
             </div>
             <div class="form-group">
@@ -204,19 +254,21 @@
                 <label class="form-label"><i class="fas fa-lock"></i> Password</label>
                 <input type="password" id="authPassword" class="form-input" placeholder="••••••••" value="Test1234">
             </div>
-            <button type="button" class="btn" id="authBtn"><i class="fas fa-sign-in-alt"></i> Sign In to Author Portal</button>
+            <button type="button" class="btn" id="authBtn"><i class="fas fa-sign-in-alt"></i> Sign In to Editor</button>
             <a href="admin.html" class="btn btn-outline" style="margin-top:1rem;"><i class="fas fa-arrow-left"></i> Master Portal</a>
         </div>
     </div>
 
-    <!-- ADMIN PANEL – FULL BOOK & PUBLICATIONS SUITE -->
+    <!-- ADMIN PANEL – COMPLETE AUTHOR & PUBLICATIONS EDITOR -->
     <div id="adminPanel" class="admin-container">
         <!-- SIDEBAR -->
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="sidebar-logo"><img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA"></div>
+                <div class="sidebar-logo">
+                    <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA">
+                </div>
                 <h2 class="sidebar-title">Author Suite</h2>
-                <p class="sidebar-subtitle">Books · Articles · Series</p>
+                <p class="sidebar-subtitle">Full Firebase editor • No code</p>
             </div>
             <ul class="nav-menu">
                 <li class="nav-item"><a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-tachometer-alt nav-icon"></i><span>Dashboard</span></a></li>
@@ -225,7 +277,6 @@
                 <li class="nav-item"><a href="#" class="nav-link" data-page="series"><i class="fas fa-layer-group nav-icon"></i><span>Series & Collections</span><span class="nav-badge" id="seriesCount">0</span></a></li>
                 <li class="nav-item"><a href="#" class="nav-link" data-page="featured"><i class="fas fa-star nav-icon"></i><span>Featured Article</span></a></li>
                 <li class="nav-item"><a href="#" class="nav-link" data-page="readers"><i class="fas fa-users nav-icon"></i><span>Reader Activity</span><span class="nav-badge" id="readerCount">0</span></a></li>
-                <li class="nav-item"><a href="#" class="nav-link" data-page="analytics"><i class="fas fa-chart-bar nav-icon"></i><span>Analytics</span></a></li>
             </ul>
         </nav>
 
@@ -234,7 +285,7 @@
             <header class="header">
                 <div>
                     <h1 class="page-title" id="pageTitle">Author Dashboard</h1>
-                    <div class="page-subtitle" style="color:rgba(255,255,255,0.8);"><i class="fas fa-book-open"></i> <span id="pageSubtitle">Full book & publication control</span></div>
+                    <div class="page-subtitle"><i class="fas fa-edit"></i> <span id="pageSubtitle">Full control over books, publications, featured content</span></div>
                 </div>
                 <div class="user-actions" style="display:flex; gap:1rem; align-items:center;">
                     <div class="user-avatar" id="userAvatar">A</div>
@@ -242,50 +293,52 @@
                 </div>
             </header>
 
-            <!-- DASHBOARD PAGE -->
+            <!-- ========== DASHBOARD PAGE ========== -->
             <div id="dashboardPage" class="page-content">
                 <div class="dashboard-grid">
-                    <div class="stat-card" onclick="showPage('books')"><div class="stat-icon"><i class="fas fa-book"></i></div><div class="stat-value" id="totalBooksStat">0</div><div class="stat-label">Author Books</div><div class="stat-change positive"><i class="fas fa-check"></i> from author.books</div></div>
-                    <div class="stat-card" onclick="showPage('publications')"><div class="stat-icon"><i class="fas fa-book-open"></i></div><div class="stat-value" id="totalWorksStat">0</div><div class="stat-label">Publications</div><div class="stat-change info"><i class="fas fa-layer-group"></i> books+articles</div></div>
-                    <div class="stat-card" onclick="showPage('series')"><div class="stat-icon"><i class="fas fa-layer-group"></i></div><div class="stat-value" id="seriesCountStat">0</div><div class="stat-label">Series</div><div class="stat-change"><i class="fas fa-collection"></i> collections</div></div>
-                    <div class="stat-card" onclick="showPage('readers')"><div class="stat-icon"><i class="fas fa-user-graduate"></i></div><div class="stat-value" id="activeReadersStat">0</div><div class="stat-label">Active Readers</div><div class="stat-change"><i class="fas fa-user-check"></i> with progress</div></div>
+                    <div class="stat-card" onclick="showPage('books')"><div class="stat-icon"><i class="fas fa-book"></i></div><div class="stat-value" id="dashBookCount">0</div><div class="stat-label">Author Books</div></div>
+                    <div class="stat-card" onclick="showPage('publications')"><div class="stat-icon"><i class="fas fa-book-open"></i></div><div class="stat-value" id="dashPubCount">0</div><div class="stat-label">Publications</div></div>
+                    <div class="stat-card" onclick="showPage('series')"><div class="stat-icon"><i class="fas fa-layer-group"></i></div><div class="stat-value" id="dashSeriesCount">0</div><div class="stat-label">Series</div></div>
+                    <div class="stat-card" onclick="showPage('readers')"><div class="stat-icon"><i class="fas fa-user-graduate"></i></div><div class="stat-value" id="dashReaderCount">0</div><div class="stat-label">Active Readers</div></div>
                 </div>
-                <!-- Recent Books & Featured -->
-                <div class="content-section" style="background:rgba(255,255,255,0.08); border-radius:var(--radius-xl); padding:2rem; margin-bottom:2rem;">
-                    <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                        <h2 style="color:white; font-size:1.5rem;"><i class="fas fa-book"></i> Books from author.books</h2>
-                        <button class="btn btn-sm" onclick="showPage('books')"><i class="fas fa-eye"></i> Manage Books</button>
+                <!-- Recent books -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title"><i class="fas fa-book"></i> Recent Books (author.books)</h2>
+                        <button class="btn btn-sm" onclick="showPage('books')"><i class="fas fa-eye"></i> Manage All</button>
+                        <button class="btn btn-outline btn-sm" onclick="addNewBook()"><i class="fas fa-plus"></i> Add Book</button>
                     </div>
                     <div class="cards-grid" id="recentBooksGrid"></div>
                 </div>
+                <!-- Featured article preview -->
                 <div class="content-section">
                     <div class="section-header">
-                        <h2 style="color:white;"><i class="fas fa-star"></i> Featured Article</h2>
+                        <h2 class="section-title"><i class="fas fa-star"></i> Featured Article</h2>
                         <button class="btn btn-outline btn-sm" onclick="editFeaturedArticle()"><i class="fas fa-edit"></i> Edit Featured</button>
                     </div>
                     <div id="featuredArticlePreviewDashboard"></div>
                 </div>
             </div>
 
-            <!-- BOOKS PAGE (author.books) -->
+            <!-- ========== BOOKS PAGE (author.books) ========== -->
             <div id="booksPage" class="page-content" style="display:none;">
                 <div class="content-section">
                     <div class="section-header">
-                        <h2 class="section-title"><i class="fas fa-book"></i> Author Books (legacy)</h2>
+                        <h2 class="section-title"><i class="fas fa-book"></i> Author Books – Legacy Collection</h2>
                         <div class="section-tools">
-                            <button class="btn btn-sm" onclick="refreshBooksData()"><i class="fas fa-sync-alt"></i> Refresh</button>
-                            <button class="btn btn-outline btn-sm" onclick="addNewBook()"><i class="fas fa-plus"></i> Add Book</button>
+                            <button class="btn btn-sm" onclick="loadAllData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                            <button class="btn btn-outline btn-sm" onclick="addNewBook()"><i class="fas fa-plus"></i> New Book</button>
                         </div>
                     </div>
-                    <div class="filters" style="display:flex; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap; padding:1rem; background:rgba(202,138,4,0.08); border-radius:var(--radius-md);">
-                        <select id="bookStatusFilter" class="filter-select" style="background:rgba(255,255,255,0.1); color:white; padding:0.5rem;" onchange="filterBooks()">
+                    <div class="filters">
+                        <select id="bookStatusFilter" class="filter-select" onchange="filterBooks()">
                             <option value="all">All status</option>
                             <option value="coming-soon">Coming Soon</option>
                             <option value="planned">Planned</option>
                             <option value="published">Published</option>
                             <option value="draft">Draft</option>
                         </select>
-                        <select id="bookNumberFilter" class="filter-select" style="background:rgba(255,255,255,0.1);" onchange="filterBooks()">
+                        <select id="bookNumberFilter" class="filter-select" onchange="filterBooks()">
                             <option value="all">All numbers</option>
                             <option value="book1">Book 1</option>
                             <option value="book2">Book 2</option>
@@ -297,17 +350,17 @@
                 </div>
             </div>
 
-            <!-- PUBLICATIONS LIBRARY (from iam-mugera.publications.works) -->
+            <!-- ========== PUBLICATIONS LIBRARY (full works) ========== -->
             <div id="publicationsPage" class="page-content" style="display:none;">
                 <div class="content-section">
                     <div class="section-header">
                         <h2 class="section-title"><i class="fas fa-book-open"></i> Publications Library</h2>
                         <div class="section-tools">
-                            <button class="btn btn-sm" onclick="loadPublications()"><i class="fas fa-sync-alt"></i> Reload</button>
+                            <button class="btn btn-sm" onclick="loadAllData()"><i class="fas fa-sync-alt"></i> Reload</button>
                             <button class="btn btn-outline btn-sm" onclick="addNewPublication()"><i class="fas fa-plus"></i> New Work</button>
                         </div>
                     </div>
-                    <div class="filters" style="display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
+                    <div class="filters">
                         <select id="pubTypeFilter" class="filter-select" onchange="filterPublications()">
                             <option value="all">All types</option>
                             <option value="book">Books</option>
@@ -318,74 +371,79 @@
                             <option value="premium">Premium</option>
                             <option value="free">Free</option>
                             <option value="serialized">Serialized</option>
+                            <option value="draft">Draft</option>
                         </select>
                     </div>
                     <div class="cards-grid" id="publicationsGrid"></div>
                 </div>
             </div>
 
-            <!-- SERIES & COLLECTIONS -->
+            <!-- ========== SERIES & COLLECTIONS ========== -->
             <div id="seriesPage" class="page-content" style="display:none;">
                 <div class="content-section">
                     <div class="section-header">
-                        <h2 class="section-title"><i class="fas fa-layer-group"></i> Series & Collections</h2>
-                        <button class="btn btn-outline btn-sm" onclick="refreshSeries()"><i class="fas fa-sync-alt"></i> Sync</button>
+                        <h2 class="section-title"><i class="fas fa-layer-group"></i> Series</h2>
+                        <button class="btn btn-outline btn-sm" onclick="editSeries()"><i class="fas fa-plus"></i> Add Series</button>
                     </div>
-                    <div id="seriesContainer" class="cards-grid"></div>
-                    <h3 style="color:white; margin-top:2rem;">Collections</h3>
-                    <div id="collectionsContainer" class="cards-grid"></div>
+                    <div class="cards-grid" id="seriesGrid"></div>
+                    <div style="margin-top:2rem;">
+                        <div class="section-header">
+                            <h2 class="section-title"><i class="fas fa-list"></i> Collections</h2>
+                            <button class="btn btn-outline btn-sm" onclick="editCollection()"><i class="fas fa-plus"></i> Add Collection</button>
+                        </div>
+                        <div class="cards-grid" id="collectionsGrid"></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- FEATURED ARTICLE PAGE -->
+            <!-- ========== FEATURED ARTICLE PAGE ========== -->
             <div id="featuredPage" class="page-content" style="display:none;">
                 <div class="content-section">
                     <div class="section-header">
-                        <h2 class="section-title">⭐ Featured Article</h2>
-                        <button class="btn btn-outline btn-sm" onclick="editFeaturedArticle()"><i class="fas fa-edit"></i> Edit</button>
+                        <h2 class="section-title"><i class="fas fa-star"></i> Featured Article</h2>
+                        <button class="btn btn-outline btn-sm" onclick="editFeaturedArticle()"><i class="fas fa-edit"></i> Edit Article</button>
                     </div>
                     <div id="featuredArticleFull"></div>
                 </div>
             </div>
 
-            <!-- READERS PAGE -->
+            <!-- ========== READER ACTIVITY ========== -->
             <div id="readersPage" class="page-content" style="display:none;">
                 <div class="content-section">
                     <div class="section-header">
-                        <h2 class="section-title"><i class="fas fa-users"></i> Reader Analytics</h2>
+                        <h2 class="section-title"><i class="fas fa-users"></i> Reader Overview</h2>
                     </div>
                     <div class="dashboard-grid">
-                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-user"></i></div><div class="stat-value" id="totalReadersStat">0</div><div class="stat-label">Total readers</div></div>
-                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-crown"></i></div><div class="stat-value" id="subscribersStat">0</div><div class="stat-label">Subscribers</div></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-user"></i></div><div class="stat-value" id="totalReadersStat">0</div><div class="stat-label">Total registered</div></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-crown"></i></div><div class="stat-value" id="subscribedStat">0</div><div class="stat-label">Active subscriptions</div></div>
                     </div>
                     <div style="margin-top:1.5rem; background:rgba(255,255,255,0.05); border-radius:var(--radius-lg); padding:1.5rem;">
-                        <h3 style="color:white; margin-bottom:1rem;">Recent reading activity</h3>
-                        <div id="readerActivityList" class="empty-state">Reader progress will appear here</div>
+                        <h3 style="color:white; margin-bottom:1rem;">Recent readers</h3>
+                        <div id="readerList" class="empty-state">Reader data from Firebase</div>
                     </div>
-                </div>
-            </div>
-
-            <!-- ANALYTICS PAGE -->
-            <div id="analyticsPage" class="page-content" style="display:none;">
-                <div class="content-section">
-                    <div class="section-header"><h2 class="section-title">📊 Content Analytics</h2></div>
-                    <div id="analyticsContent"></div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- MODALS -->
-    <div class="modal-overlay" id="bookModal"><div class="modal" id="bookModalDialog"><div class="modal-header"><h3 id="modalTitle"></h3><button class="modal-close" onclick="hideModal('bookModal')">&times;</button></div><div id="modalContent"></div></div></div>
-    <div class="modal-overlay" id="featuredModal"><div class="modal"><div class="modal-header"><h3 id="featuredModalTitle">Edit Featured Article</h3><button class="modal-close" onclick="hideModal('featuredModal')">&times;</button></div><div id="featuredModalContent"></div></div></div>
-    <div class="modal-overlay" id="publicationModal"><div class="modal" style="max-width:900px;"><div class="modal-header"><h3 id="pubModalTitle">Publication details</h3><button class="modal-close" onclick="hideModal('publicationModal')">&times;</button></div><div id="publicationModalContent"></div></div></div>
+    <!-- ========== MODALS ========== -->
+    <!-- Book Modal (author.books) -->
+    <div class="modal-overlay" id="bookModal"><div class="modal"><div class="modal-header"><h3 class="modal-title" id="bookModalTitle">Edit Book</h3><button class="modal-close" onclick="hideModal('bookModal')">&times;</button></div><div id="bookModalContent"></div></div></div>
+    <!-- Publication Modal (full work editor) -->
+    <div class="modal-overlay" id="publicationModal"><div class="modal" style="max-width:1000px;"><div class="modal-header"><h3 class="modal-title" id="pubModalTitle">Edit Publication</h3><button class="modal-close" onclick="hideModal('publicationModal')">&times;</button></div><div id="publicationModalContent"></div></div></div>
+    <!-- Featured Modal -->
+    <div class="modal-overlay" id="featuredModal"><div class="modal"><div class="modal-header"><h3 class="modal-title">Featured Article</h3><button class="modal-close" onclick="hideModal('featuredModal')">&times;</button></div><div id="featuredModalContent"></div></div></div>
+    <!-- Series/Collection Modal -->
+    <div class="modal-overlay" id="seriesModal"><div class="modal"><div class="modal-header"><h3 class="modal-title" id="seriesModalTitle">Series Editor</h3><button class="modal-close" onclick="hideModal('seriesModal')">&times;</button></div><div id="seriesModalContent"></div></div></div>
 
     <!-- LOADING & NOTIFICATION -->
-    <div class="loading-overlay" id="loadingOverlay"><div class="loading-content"><div class="loading-spinner"></div><p id="loadingText">Loading author data...</p></div></div>
+    <div class="loading-overlay" id="loadingOverlay"><div class="loading-content"><div class="loading-spinner"></div><p id="loadingText">Loading from Firebase...</p></div></div>
     <div class="notification-container" id="notificationContainer"></div>
 
     <script>
-        // ---------- FIREBASE ----------
+        // --------------------------------------------------------------
+        //  YOUR EXACT FIREBASE CONFIGURATION – INTACT, NOT REDACTED
+        // --------------------------------------------------------------
         const firebaseConfig = {
             apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
             authDomain: "mugera-e51cc.firebaseapp.com",
@@ -399,185 +457,282 @@
         const auth = firebase.auth();
         const database = firebase.database();
 
-        // ---------- GLOBAL STATE (FULL BOOK STRUCTURE) ----------
+        // ---------- GLOBAL STATE – FULL DATA FROM YOUR STRUCTURE ----------
         let currentUser = null;
         let websiteData = null;
         // author.books (legacy)
-        let authorBooks = [];          // { id, number, title, description, status }
-        // publications.works (full library)
-        let publicationsWorks = [];    // array of work objects with id, title, type, status, etc.
-        let seriesList = [];
-        let collectionsList = [];
+        let authorBooks = [];
+        // publications.works
+        let publicationsWorks = [];
+        // series + collections
+        let seriesArray = [];
+        let collectionsArray = [];
+        // featured article
         let featuredArticle = null;
-        let readersData = [];
+        // readers
+        let readersArray = [];
+
+        // Filtered copies
         let filteredBooks = [];
         let filteredPublications = [];
 
         // ---------- UTILITIES ----------
-        function showLoading(msg="Loading...") { document.getElementById('loadingText').innerText=msg; document.getElementById('loadingOverlay').classList.add('active'); }
+        function showLoading(msg) { document.getElementById('loadingText').innerText = msg || 'Loading...'; document.getElementById('loadingOverlay').classList.add('active'); }
         function hideLoading() { document.getElementById('loadingOverlay').classList.remove('active'); }
-        function showNotification(msg, type='info') { /*...*/ 
-            const c=document.getElementById('notificationContainer'); const n=document.createElement('div'); n.className=`notification ${type}`; 
-            const icons={success:'check-circle', error:'exclamation-circle', warning:'exclamation-triangle', info:'info-circle'};
-            n.innerHTML=`<i class="fas fa-${icons[type]||'info-circle'}"></i><span>${msg}</span>`;
-            c.appendChild(n); setTimeout(()=>n.remove(),3500);
+        function showNotification(msg, type = 'info') {
+            const c = document.getElementById('notificationContainer');
+            const n = document.createElement('div'); n.className = `notification ${type}`;
+            const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+            n.innerHTML = `<i class="fas fa-${icons[type] || 'info-circle'}"></i><span>${msg}</span>`;
+            c.appendChild(n);
+            setTimeout(() => { n.style.opacity = '0'; n.style.transform = 'translateX(100%)'; setTimeout(() => n.remove(), 300); }, 3500);
         }
         function hideModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
         function showModal(modalId) { document.getElementById(modalId).classList.add('active'); }
+        function escapeHTML(str) { return String(str).replace(/[&<>"]/g, function(c) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
+        function getStatusLabel(s) { const map = { 'coming-soon':'Coming Soon','planned':'Planned','published':'Published','draft':'Draft','premium':'Premium','free':'Free','serialized':'Serialized' }; return map[s] || s; }
 
-        // ---------- AUTH ----------
+        // ---------- AUTHENTICATION ----------
         async function authenticate() {
             showLoading("Authenticating...");
-            const token = localStorage.getItem('adminToken'); const email = localStorage.getItem('adminEmail');
-            if (token && email) { try { currentUser = auth.currentUser; if(!currentUser) await auth.signInWithCustomToken(token); await loadAllData(); hideLoading(); showPanel(); return; } catch(e) { console.warn(e); } }
+            const token = localStorage.getItem('adminToken');
+            const email = localStorage.getItem('adminEmail');
+            if (token && email) {
+                try { 
+                    if (!auth.currentUser) await auth.signInWithCustomToken(token); 
+                    currentUser = auth.currentUser; 
+                    await loadAllData(); 
+                    hideLoading(); 
+                    showPanel(); 
+                    return; 
+                } catch (e) { console.warn(e); }
+            }
             const urlParams = new URLSearchParams(location.search);
             const urlToken = urlParams.get('token');
-            if (urlToken) { try { await auth.signInWithCustomToken(urlToken); currentUser = auth.currentUser; localStorage.setItem('adminToken', urlToken); localStorage.setItem('adminEmail', currentUser.email); await loadAllData(); hideLoading(); showPanel(); window.history.replaceState({}, document.title, location.pathname); return; } catch(e) { showNotification("Invalid token","error"); } }
-            hideLoading(); document.getElementById('loginPage').style.display='flex'; document.getElementById('adminPanel').style.display='none';
+            if (urlToken) {
+                try { 
+                    await auth.signInWithCustomToken(urlToken); 
+                    currentUser = auth.currentUser; 
+                    const token = await currentUser.getIdToken();
+                    localStorage.setItem('adminToken', token);
+                    localStorage.setItem('adminEmail', currentUser.email);
+                    await loadAllData(); 
+                    hideLoading(); 
+                    showPanel(); 
+                    window.history.replaceState({}, document.title, location.pathname);
+                    return;
+                } catch(e) { showNotification("Invalid token", "error"); }
+            }
+            hideLoading();
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('adminPanel').style.display = 'none';
         }
-        async function login(email, password) {
-            showLoading("Signing in..."); 
-            try { const uc = await auth.signInWithEmailAndPassword(email, password); currentUser = uc.user; const token = await currentUser.getIdToken(); localStorage.setItem('adminToken', token); localStorage.setItem('adminEmail', email); await loadAllData(); showPanel(); hideLoading(); showNotification("Welcome!","success"); } 
-            catch(e) { showNotification(e.message, 'error'); hideLoading(); }
-        }
-        async function logout() { showLoading("Logging out..."); await auth.signOut(); localStorage.removeItem('adminToken'); localStorage.removeItem('adminEmail'); document.getElementById('loginPage').style.display='flex'; document.getElementById('adminPanel').style.display='none'; hideLoading(); }
-        function showPanel() { document.getElementById('loginPage').style.display='none'; document.getElementById('adminPanel').style.display='block'; updateUserAvatar(); showPage('dashboard'); }
 
-        // ---------- LOAD EVERYTHING (books, publications, readers) ----------
+        async function login(email, password) {
+            showLoading("Signing in...");
+            try {
+                const uc = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = uc.user;
+                const token = await currentUser.getIdToken();
+                localStorage.setItem('adminToken', token);
+                localStorage.setItem('adminEmail', email);
+                await loadAllData();
+                showPanel();
+                showNotification("Welcome back, Author!", "success");
+            } catch(e) {
+                showNotification(e.message, "error");
+                document.getElementById('authError').style.display = 'block';
+                document.getElementById('errorText').innerText = e.message;
+            } finally { hideLoading(); }
+        }
+
+        function logout() {
+            showLoading("Logging out...");
+            auth.signOut().then(() => {
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminEmail');
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('adminPanel').style.display = 'none';
+                hideLoading();
+            }).catch(() => hideLoading());
+        }
+
+        function showPanel() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            updateUserAvatar();
+            showPage('dashboard');
+        }
+
+        // ---------- LOAD EVERYTHING FROM FIREBASE (YOUR STRUCTURE) ----------
         async function loadAllData() {
-            showLoading("Loading complete author ecosystem...");
+            showLoading("Fetching complete author data...");
             try {
                 const snap = await database.ref('iam-mugera').once('value');
                 websiteData = snap.val() || {};
-                // 1. author.books (legacy)
+
+                // author.books
                 authorBooks = [];
                 if (websiteData.author?.books) {
                     Object.entries(websiteData.author.books).forEach(([id, b]) => {
                         authorBooks.push({ id, number: id, title: b.title || 'Untitled', description: b.description || '', status: b.status || 'draft' });
                     });
-                    authorBooks.sort((a,b)=> parseInt(a.id.replace('book','')) - parseInt(b.id.replace('book','')));
+                    authorBooks.sort((a,b) => parseInt(a.id.replace('book','')) - parseInt(b.id.replace('book','')));
                 }
                 filteredBooks = [...authorBooks];
-                // 2. publications.works
+
+                // publications.works
                 publicationsWorks = [];
                 if (websiteData.publications?.works) {
                     Object.entries(websiteData.publications.works).forEach(([id, w]) => {
-                        publicationsWorks.push({ ...w, id, workId: id });
+                        publicationsWorks.push({ id, ...w });
                     });
                 }
-                // 3. series
-                seriesList = [];
+                filteredPublications = [...publicationsWorks];
+
+                // series
+                seriesArray = [];
                 if (websiteData.publications?.series) {
-                    Object.entries(websiteData.publications.series).forEach(([id, s]) => { seriesList.push({ id, ...s }); });
+                    Object.entries(websiteData.publications.series).forEach(([id, s]) => { seriesArray.push({ id, ...s }); });
                 }
-                // 4. collections
-                collectionsList = [];
+
+                // collections
+                collectionsArray = [];
                 if (websiteData.publications?.collections) {
-                    Object.entries(websiteData.publications.collections).forEach(([id, c]) => { collectionsList.push({ id, ...c }); });
+                    Object.entries(websiteData.publications.collections).forEach(([id, c]) => { collectionsArray.push({ id, ...c }); });
                 }
-                // 5. featured article
+
+                // featured article
                 featuredArticle = websiteData.author?.featuredArticle ? { ...websiteData.author.featuredArticle } : null;
-                // 6. readers
-                readersData = websiteData.readers ? Object.values(websiteData.readers) : [];
-                // update UI
-                updateAllCounts();
+
+                // readers
+                readersArray = websiteData.readers ? Object.values(websiteData.readers) : [];
+
+                // update UI counts
+                document.getElementById('bookCount').innerText = authorBooks.length;
+                document.getElementById('pubCount').innerText = publicationsWorks.length;
+                document.getElementById('seriesCount').innerText = seriesArray.length;
+                document.getElementById('readerCount').innerText = readersArray.length;
+                document.getElementById('dashBookCount').innerText = authorBooks.length;
+                document.getElementById('dashPubCount').innerText = publicationsWorks.length;
+                document.getElementById('dashSeriesCount').innerText = seriesArray.length;
+                document.getElementById('dashReaderCount').innerText = readersArray.filter(r => r.subscription?.status === 'active' || (r.library?.progress && Object.keys(r.library.progress).length)).length;
+                document.getElementById('totalReadersStat').innerText = readersArray.length;
+                document.getElementById('subscribedStat').innerText = readersArray.filter(r => r.subscription?.tier).length;
+
+                renderRecentBooks();
+                renderFeaturedPreview();
                 hideLoading();
-                showNotification("Full publication library loaded","success");
+                showNotification("All data loaded from Firebase", "success");
             } catch(e) {
-                console.error(e); hideLoading(); showNotification("Error: "+e.message, "error");
+                console.error(e);
+                hideLoading();
+                showNotification("Error loading data: " + e.message, "error");
             }
         }
-        function updateAllCounts() {
-            document.getElementById('bookCount').innerText = authorBooks.length;
-            document.getElementById('totalBooksStat').innerText = authorBooks.length;
-            document.getElementById('totalWorksStat').innerText = publicationsWorks.length;
-            document.getElementById('seriesCount').innerText = seriesList.length;
-            document.getElementById('seriesCountStat').innerText = seriesList.length;
-            document.getElementById('pubCount').innerText = publicationsWorks.length;
-            const activeReaders = readersData.filter(r => r.subscription?.status==='active' || r.library?.progress && Object.keys(r.library.progress).length).length;
-            document.getElementById('activeReadersStat').innerText = activeReaders;
-            document.getElementById('totalReadersStat').innerText = readersData.length;
-            document.getElementById('subscribersStat').innerText = readersData.filter(r => r.subscription?.tier).length;
-            // update dashboard recent books
-            renderRecentBooks();
-            renderFeaturedPreview();
+
+        // ---------- RENDERING FUNCTIONS ----------
+        function renderRecentBooks() {
+            const grid = document.getElementById('recentBooksGrid');
+            grid.innerHTML = '';
+            if (!authorBooks.length) {
+                grid.innerHTML = '<div class="empty-state"><i class="fas fa-book-open empty-state-icon"></i><h3>No books yet</h3><button class="btn btn-sm" onclick="addNewBook()">Add your first book</button></div>';
+                return;
+            }
+            authorBooks.slice(0, 4).forEach(b => grid.appendChild(createBookCard(b)));
         }
 
-        // ---------- RENDERS ----------
-        function renderRecentBooks() {
-            const grid = document.getElementById('recentBooksGrid'); grid.innerHTML = '';
-            if (!authorBooks.length) { grid.innerHTML = '<div class="empty-state"><i class="fas fa-book-open" style="font-size:3rem;"></i><h3>No books yet</h3><button class="btn btn-sm" onclick="addNewBook()">Add your first book</button></div>'; return; }
-            authorBooks.slice(0,4).forEach(b => { grid.appendChild(createBookCard(b)); });
-        }
         function createBookCard(book) {
             const div = document.createElement('div'); div.className = 'book-card';
             div.innerHTML = `<div class="book-card-header"><h3 class="book-card-title">${escapeHTML(book.title)}</h3><span class="status-badge status-${book.status}">${getStatusLabel(book.status)}</span></div>
-                <div class="book-meta"><i class="fas fa-hashtag"></i> ${book.number} &nbsp; <i class="fas fa-align-left"></i> ${book.description?.substring(0,50)}...</div>
-                <div class="book-card-footer" style="margin-top:1rem; display:flex; gap:0.5rem;">
+                <div class="book-meta"><i class="fas fa-hashtag"></i> ${book.number} <i class="fas fa-align-left" style="margin-left:0.75rem;"></i> ${(book.description || '').substring(0,60)}...</div>
+                <div class="book-card-footer">
                     <button class="action-btn edit" onclick="editBook('${book.id}')"><i class="fas fa-edit"></i> Edit</button>
                     <button class="action-btn view" onclick="viewBookDetails('${book.id}')"><i class="fas fa-info-circle"></i> Details</button>
-                    <button class="action-btn delete" onclick="deleteBook('${book.id}')"><i class="fas fa-trash"></i></button>
+                    <button class="action-btn delete" onclick="deleteBook('${book.id}')"><i class="fas fa-trash"></i> Delete</button>
                 </div>`;
             return div;
         }
-        function escapeHTML(s) { return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
-        function getStatusLabel(s) { const map={'coming-soon':'Coming Soon','planned':'Planned','published':'Published','draft':'Draft','premium':'Premium','free':'Free','serialized':'Serialized'}; return map[s]||s; }
 
-        // ---------- BOOKS PAGE ----------
+        function renderFeaturedPreview() {
+            const el = document.getElementById('featuredArticlePreviewDashboard');
+            if (!featuredArticle) { el.innerHTML = '<div class="empty-state">No featured article set. Click "Edit Featured" to create one.</div>'; return; }
+            el.innerHTML = `<div class="featured-card"><div class="featured-card-header"><h3 class="featured-card-title">${escapeHTML(featuredArticle.title || '')}</h3><span class="featured-card-tag">${escapeHTML(featuredArticle.tag || 'Featured')}</span></div>
+                <div class="featured-card-content"><div class="featured-card-image">${featuredArticle.image ? `<img src="${escapeHTML(featuredArticle.image)}" onerror="this.src='';">` : '<i class="fas fa-image" style="font-size:3rem; opacity:0.3;"></i>'}</div>
+                <div><p style="color:rgba(255,255,255,0.9);">${escapeHTML(featuredArticle.description || '')}</p><p style="margin-top:0.75rem; color:rgba(255,255,255,0.7);">${escapeHTML(featuredArticle.longDescription || '')}</p></div></div></div>`;
+        }
+
+        // ---------- BOOKS PAGE (author.books) ----------
         function renderBooksList() {
-            const container = document.getElementById('booksListContainer'); container.innerHTML = '';
-            if (filteredBooks.length===0) { container.innerHTML = '<div class="empty-state">No books match filters</div>'; return; }
+            const container = document.getElementById('booksListContainer');
+            container.innerHTML = '';
+            if (filteredBooks.length === 0) { container.innerHTML = '<div class="empty-state">No books match filters</div>'; return; }
             filteredBooks.forEach(b => container.appendChild(createBookCard(b)));
         }
         function filterBooks() {
             const status = document.getElementById('bookStatusFilter').value;
             const num = document.getElementById('bookNumberFilter').value;
-            filteredBooks = authorBooks.filter(b => (status==='all'||b.status===status) && (num==='all'||b.number===num));
+            filteredBooks = authorBooks.filter(b => (status === 'all' || b.status === status) && (num === 'all' || b.number === num));
             renderBooksList();
         }
-        function clearBookFilters() { document.getElementById('bookStatusFilter').value='all'; document.getElementById('bookNumberFilter').value='all'; filterBooks(); }
-        function refreshBooksData() { showLoading("Refreshing books..."); extractAuthorBooks(); renderBooksList(); hideLoading(); showNotification("Books refreshed"); }
-        function extractAuthorBooks() { /* already in loadAllData, but quick re-run */ }
+        function clearBookFilters() { document.getElementById('bookStatusFilter').value = 'all'; document.getElementById('bookNumberFilter').value = 'all'; filterBooks(); }
 
-        // ---------- BOOK CRUD ----------
-        function addNewBook() { /*... similar to original, but ensure save to author/books */ 
-            const nums = authorBooks.map(b=>parseInt(b.id.replace('book',''))).filter(n=>!isNaN(n));
+        // ---------- BOOK CRUD (direct Firebase writes) ----------
+        function addNewBook() {
+            const nums = authorBooks.map(b => parseInt(b.id.replace('book',''))).filter(n => !isNaN(n));
             const next = nums.length ? Math.max(...nums)+1 : 1;
             const nextId = `book${next}`;
-            const form = `<form id="bookForm" onsubmit="saveNewBook(event,'${nextId}')">
-                <div class="form-grid"><div class="form-group"><label>Title *</label><input type="text" class="form-input" name="title" required></div>
-                <div class="form-group"><label>Book ID</label><input type="text" class="form-input" name="number" value="${nextId}" readonly></div>
-                <div class="form-group"><label>Status</label><select name="status" class="form-input"><option value="coming-soon">Coming Soon</option><option value="planned">Planned</option><option value="draft">Draft</option><option value="published">Published</option></select></div>
-                <div class="form-group"><label>Description</label><textarea name="description" class="form-input" rows="3"></textarea></div></div>
-                <div class="form-actions"><button type="button" class="btn btn-outline" onclick="hideModal('bookModal')">Cancel</button><button type="submit" class="btn">Save Book</button></div></form>`;
-            document.getElementById('modalTitle').innerText = 'Add New Book (author.books)';
-            document.getElementById('modalContent').innerHTML = form;
+            const form = `<form id="bookForm" onsubmit="saveNewBook(event, '${nextId}')">
+                <div class="form-grid">
+                    <div class="form-group"><label class="form-label"><i class="fas fa-heading"></i> Title *</label><input type="text" name="title" class="form-control" required></div>
+                    <div class="form-group"><label class="form-label"><i class="fas fa-hashtag"></i> Book ID</label><input type="text" class="form-control" value="${nextId}" readonly></div>
+                    <div class="form-group"><label class="form-label"><i class="fas fa-tag"></i> Status</label>
+                        <select name="status" class="form-control">
+                            <option value="coming-soon">Coming Soon</option>
+                            <option value="planned">Planned</option>
+                            <option value="draft">Draft</option>
+                            <option value="published">Published</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label"><i class="fas fa-align-left"></i> Description</label><textarea name="description" class="form-control" rows="3"></textarea></div>
+                </div>
+                <div class="form-actions"><button type="button" class="btn btn-outline" onclick="hideModal('bookModal')">Cancel</button><button type="submit" class="btn"><i class="fas fa-save"></i> Save Book</button></div>
+            </form>`;
+            document.getElementById('bookModalTitle').innerText = 'Add New Book';
+            document.getElementById('bookModalContent').innerHTML = form;
             showModal('bookModal');
         }
         async function saveNewBook(e, bookId) {
-            e.preventDefault(); showLoading("Saving book...");
+            e.preventDefault(); showLoading("Saving...");
             const fd = new FormData(e.target);
             const data = { title: fd.get('title'), description: fd.get('description'), status: fd.get('status') };
             try { await database.ref(`iam-mugera/author/books/${bookId}`).set(data); await loadAllData(); hideModal('bookModal'); showNotification("Book saved","success"); showPage('books'); } catch(e) { showNotification(e.message,"error"); } finally { hideLoading(); }
         }
-        function editBook(bookId) { /* similar prepopulate */ 
-            const book = authorBooks.find(b=>b.id===bookId); if(!book) return;
-            const form = `<form id="bookForm" onsubmit="updateBook(event,'${bookId}')"><div class="form-grid">
-                <div class="form-group"><label>Title</label><input type="text" class="form-input" name="title" value="${escapeHTML(book.title)}" required></div>
-                <div class="form-group"><label>ID</label><input type="text" class="form-input" name="number" value="${book.number}" readonly></div>
-                <div class="form-group"><label>Status</label><select name="status" class="form-input">${['coming-soon','planned','draft','published'].map(s=>`<option value="${s}" ${book.status===s?'selected':''}>${getStatusLabel(s)}</option>`).join('')}</select></div>
-                <div class="form-group"><label>Description</label><textarea name="description" class="form-input" rows="3">${escapeHTML(book.description||'')}</textarea></div></div>
-                <div class="form-actions"><button type="button" onclick="hideModal('bookModal')" class="btn btn-outline">Cancel</button><button type="submit" class="btn">Update</button></div></form>`;
-            document.getElementById('modalTitle').innerText = 'Edit Book'; document.getElementById('modalContent').innerHTML = form; showModal('bookModal');
+        function editBook(bookId) {
+            const book = authorBooks.find(b => b.id === bookId); if (!book) return;
+            const form = `<form id="bookForm" onsubmit="updateBook(event, '${bookId}')">
+                <div class="form-grid">
+                    <div class="form-group"><label class="form-label">Title</label><input type="text" name="title" class="form-control" value="${escapeHTML(book.title)}" required></div>
+                    <div class="form-group"><label class="form-label">Book ID</label><input type="text" class="form-control" value="${book.number}" readonly></div>
+                    <div class="form-group"><label class="form-label">Status</label><select name="status" class="form-control">
+                        ${['coming-soon','planned','draft','published'].map(s => `<option value="${s}" ${book.status===s?'selected':''}>${getStatusLabel(s)}</option>`).join('')}
+                    </select></div>
+                    <div class="form-group"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="3">${escapeHTML(book.description||'')}</textarea></div>
+                </div>
+                <div class="form-actions"><button type="button" class="btn btn-outline" onclick="hideModal('bookModal')">Cancel</button><button type="submit" class="btn"><i class="fas fa-save"></i> Update</button></div>
+            </form>`;
+            document.getElementById('bookModalTitle').innerText = `Edit: ${book.title}`;
+            document.getElementById('bookModalContent').innerHTML = form;
+            showModal('bookModal');
         }
-        async function updateBook(e, bookId) { e.preventDefault(); showLoading(); const fd = new FormData(e.target); try { await database.ref(`iam-mugera/author/books/${bookId}`).update({ title: fd.get('title'), description: fd.get('description'), status: fd.get('status') }); await loadAllData(); hideModal('bookModal'); showNotification("Updated"); } catch(e) { showNotification(e.message,'error'); } hideLoading(); }
-        async function deleteBook(bookId) { if(!confirm("Delete this book?")) return; showLoading(); try { await database.ref(`iam-mugera/author/books/${bookId}`).remove(); await loadAllData(); showNotification("Deleted","warning"); showPage('books'); } catch(e) { showNotification(e.message,'error'); } hideLoading(); }
-        function viewBookDetails(bookId) { const b=authorBooks.find(b=>b.id===bookId); if(!b) return; const content = `<div><h4>${b.title}</h4><p><strong>ID:</strong> ${b.number}</p><p><strong>Status:</strong> ${b.status}</p><p>${b.description||''}</p></div>`; document.getElementById('modalTitle').innerText = 'Book details'; document.getElementById('modalContent').innerHTML = content; showModal('bookModal'); }
+        async function updateBook(e, bookId) { e.preventDefault(); showLoading(); const fd = new FormData(e.target); try { await database.ref(`iam-mugera/author/books/${bookId}`).update({ title: fd.get('title'), description: fd.get('description'), status: fd.get('status') }); await loadAllData(); hideModal('bookModal'); showNotification("Updated","success"); } catch(e) { showNotification(e.message,"error"); } hideLoading(); }
+        async function deleteBook(bookId) { if (!confirm("Delete this book? This cannot be undone.")) return; showLoading(); try { await database.ref(`iam-mugera/author/books/${bookId}`).remove(); await loadAllData(); showNotification("Deleted","warning"); showPage('books'); } catch(e) { showNotification(e.message,"error"); } hideLoading(); }
+        function viewBookDetails(bookId) { const b = authorBooks.find(b => b.id === bookId); if (!b) return; const content = `<div><h4>${escapeHTML(b.title)}</h4><p><strong>ID:</strong> ${b.number}</p><p><strong>Status:</strong> ${b.status}</p><p><strong>Description:</strong> ${escapeHTML(b.description||'')}</p></div>`; document.getElementById('bookModalTitle').innerText = 'Book Details'; document.getElementById('bookModalContent').innerHTML = content; showModal('bookModal'); }
 
-        // ---------- PUBLICATIONS (works) ----------
+        // ---------- PUBLICATIONS (FULL WORKS) – COMPLETE UI EDITOR ----------
         function renderPublications() {
             const grid = document.getElementById('publicationsGrid'); grid.innerHTML = '';
-            if (!publicationsWorks.length) { grid.innerHTML = '<div class="empty-state">No publications found in library.</div>'; return; }
+            if (!publicationsWorks.length) { grid.innerHTML = '<div class="empty-state">No publications in library. Create one.</div>'; return; }
             let filtered = [...publicationsWorks];
             const typeFilter = document.getElementById('pubTypeFilter')?.value || 'all';
             const statusFilter = document.getElementById('pubStatusFilter')?.value || 'all';
@@ -585,87 +740,153 @@
             if (statusFilter !== 'all') filtered = filtered.filter(p => p.status === statusFilter);
             filtered.forEach(work => {
                 const card = document.createElement('div'); card.className = 'book-card';
-                card.innerHTML = `<div class="book-card-header"><h3 class="book-card-title">${escapeHTML(work.title||'')}</h3><span class="status-badge status-${work.status||'draft'}">${work.status||'draft'}</span></div>
+                card.innerHTML = `<div class="book-card-header"><h3 class="book-card-title">${escapeHTML(work.title||'')}</h3><span class="status-badge status-${work.status||'draft'}">${getStatusLabel(work.status)}</span></div>
                 <div class="book-meta"><i class="fas fa-tag"></i> ${work.type||'work'} <i class="fas fa-file-alt" style="margin-left:0.75rem;"></i> ${work.metadata?.chapterCount||0} ch</div>
-                <div style="margin:0.5rem 0; color:rgba(255,255,255,0.8); font-size:0.85rem;">${work.subtitle || work.description || ''}</div>
-                <div class="book-card-footer"><button class="action-btn view" onclick="viewPublication('${work.id}')"><i class="fas fa-info-circle"></i> Details</button>
-                <button class="action-btn edit" onclick="editPublication('${work.id}')"><i class="fas fa-edit"></i> Edit</button></div>`;
+                <div class="book-card-description">${escapeHTML(work.subtitle || work.description || '')}</div>
+                <div class="book-card-footer">
+                    <button class="action-btn edit" onclick="editPublication('${work.id}')"><i class="fas fa-edit"></i> Edit</button>
+                    <button class="action-btn view" onclick="viewPublication('${work.id}')"><i class="fas fa-info-circle"></i> JSON</button>
+                    <button class="action-btn delete" onclick="deletePublication('${work.id}')"><i class="fas fa-trash"></i> Delete</button>
+                </div>`;
                 grid.appendChild(card);
             });
         }
-        function viewPublication(workId) { const w = publicationsWorks.find(p=>p.id===workId); if(!w) return; const c = `<pre style="background:rgba(0,0,0,0.3); padding:1rem; border-radius:8px; max-height:400px; overflow:auto;">${JSON.stringify(w, null, 2)}</pre>`; document.getElementById('pubModalTitle').innerText = w.title; document.getElementById('publicationModalContent').innerHTML = c; showModal('publicationModal'); }
-        function editPublication(workId) { showNotification("Edit via Firebase console or implement full editor","info"); }
-        function addNewPublication() { showNotification("Use publications.works structure – manual add","info"); }
-        function loadPublications() { showLoading("Reloading..."); loadAllData().then(()=>{ renderPublications(); hideLoading(); }); }
         function filterPublications() { renderPublications(); }
 
-        // ---------- SERIES & COLLECTIONS ----------
-        function renderSeriesCollections() {
-            const seriesGrid = document.getElementById('seriesContainer'); seriesGrid.innerHTML = '';
-            if (seriesList.length===0) seriesGrid.innerHTML = '<div class="empty-state">No series defined</div>';
-            else seriesList.forEach(s => { seriesGrid.innerHTML += `<div class="book-card"><h3>${s.name}</h3><p>${s.description||''}</p><span>Works: ${s.works?.length||0}</span></div>`; });
-            const colGrid = document.getElementById('collectionsContainer'); colGrid.innerHTML = '';
-            if (collectionsList.length===0) colGrid.innerHTML = '<div class="empty-state">No collections</div>';
-            else collectionsList.forEach(c => { colGrid.innerHTML += `<div class="book-card"><h3>${c.name}</h3><p>${c.description||''}</p><span>Items: ${c.items?.length||0}</span></div>`; });
+        function addNewPublication() {
+            const newId = 'pub_' + Date.now() + '_' + Math.random().toString(36).substring(2,6);
+            const form = `<form id="pubForm" onsubmit="saveNewPublication(event, '${newId}')">
+                <div class="form-grid">
+                    <div class="form-group"><label class="form-label">Title *</label><input type="text" name="title" class="form-control" required></div>
+                    <div class="form-group"><label class="form-label">Type</label><select name="type" class="form-control"><option value="book">Book</option><option value="article">Article</option></select></div>
+                    <div class="form-group"><label class="form-label">Status</label><select name="status" class="form-control"><option value="draft">Draft</option><option value="premium">Premium</option><option value="free">Free</option><option value="serialized">Serialized</option></select></div>
+                    <div class="form-group"><label class="form-label">Subtitle</label><input type="text" name="subtitle" class="form-control"></div>
+                    <div class="form-group"><label class="form-label">Cover Image URL</label><input type="text" name="coverImage" class="form-control"></div>
+                    <div class="form-group"><label class="form-label">Chapter Count</label><input type="number" name="chapterCount" class="form-control" value="0"></div>
+                </div>
+                <div class="form-actions"><button type="button" class="btn btn-outline" onclick="hideModal('publicationModal')">Cancel</button><button type="submit" class="btn">Create Publication</button></div>
+            </form>`;
+            document.getElementById('pubModalTitle').innerText = 'Add New Publication';
+            document.getElementById('publicationModalContent').innerHTML = form;
+            showModal('publicationModal');
         }
-        function refreshSeries() { renderSeriesCollections(); showNotification("Series updated"); }
+        async function saveNewPublication(e, pubId) {
+            e.preventDefault(); showLoading("Creating...");
+            const fd = new FormData(e.target);
+            const work = {
+                id: pubId,
+                title: fd.get('title'),
+                type: fd.get('type'),
+                status: fd.get('status'),
+                subtitle: fd.get('subtitle') || '',
+                coverImage: fd.get('coverImage') || '',
+                metadata: { chapterCount: parseInt(fd.get('chapterCount')||'0') || 0 },
+                content: { format: 'prosemirror', chapters: [] },
+                access: { freePreview: true, fullAccess: fd.get('status') === 'free' ? 'free' : 'subscription' }
+            };
+            try { await database.ref(`iam-mugera/publications/works/${pubId}`).set(work); await loadAllData(); hideModal('publicationModal'); showNotification("Publication created","success"); showPage('publications'); } catch(e) { showNotification(e.message,"error"); } finally { hideLoading(); }
+        }
+        function editPublication(workId) {
+            const work = publicationsWorks.find(w => w.id === workId); if (!work) return;
+            const form = `<form id="pubForm" onsubmit="updatePublication(event, '${workId}')">
+                <div class="form-grid">
+                    <div class="form-group"><label>Title</label><input type="text" name="title" class="form-control" value="${escapeHTML(work.title||'')}"></div>
+                    <div class="form-group"><label>Type</label><select name="type" class="form-control"><option value="book" ${work.type==='book'?'selected':''}>Book</option><option value="article" ${work.type==='article'?'selected':''}>Article</option></select></div>
+                    <div class="form-group"><label>Status</label><select name="status" class="form-control">
+                        <option value="draft" ${work.status==='draft'?'selected':''}>Draft</option><option value="premium" ${work.status==='premium'?'selected':''}>Premium</option>
+                        <option value="free" ${work.status==='free'?'selected':''}>Free</option><option value="serialized" ${work.status==='serialized'?'selected':''}>Serialized</option>
+                    </select></div>
+                    <div class="form-group"><label>Subtitle</label><input type="text" name="subtitle" class="form-control" value="${escapeHTML(work.subtitle||'')}"></div>
+                    <div class="form-group"><label>Cover Image URL</label><input type="text" name="coverImage" class="form-control" value="${escapeHTML(work.coverImage||'')}"></div>
+                    <div class="form-group"><label>Chapter count</label><input type="number" name="chapterCount" class="form-control" value="${work.metadata?.chapterCount||0}"></div>
+                </div>
+                <div class="form-actions"><button type="button" class="btn btn-outline" onclick="hideModal('publicationModal')">Cancel</button><button type="submit" class="btn">Update Publication</button></div>
+            </form>`;
+            document.getElementById('pubModalTitle').innerText = `Edit: ${work.title}`;
+            document.getElementById('publicationModalContent').innerHTML = form;
+            showModal('publicationModal');
+        }
+        async function updatePublication(e, workId) {
+            e.preventDefault(); showLoading(); const fd = new FormData(e.target);
+            try {
+                await database.ref(`iam-mugera/publications/works/${workId}`).update({
+                    title: fd.get('title'), type: fd.get('type'), status: fd.get('status'),
+                    subtitle: fd.get('subtitle'), coverImage: fd.get('coverImage'),
+                    metadata: { chapterCount: parseInt(fd.get('chapterCount')||'0') }
+                });
+                await loadAllData(); hideModal('publicationModal'); showNotification("Updated","success");
+            } catch(e) { showNotification(e.message,"error"); } hideLoading();
+        }
+        async function deletePublication(workId) { if (!confirm("Delete this publication?")) return; showLoading(); try { await database.ref(`iam-mugera/publications/works/${workId}`).remove(); await loadAllData(); showNotification("Deleted","warning"); showPage('publications'); } catch(e) { showNotification(e.message,"error"); } hideLoading(); }
+        function viewPublication(workId) { const w = publicationsWorks.find(w => w.id === workId); if(!w) return; const json = JSON.stringify(w, null, 2); document.getElementById('pubModalTitle').innerText = w.title; document.getElementById('publicationModalContent').innerHTML = `<pre style="background:rgba(0,0,0,0.3); padding:1rem; border-radius:8px; max-height:400px; overflow:auto; color:white;">${escapeHTML(json)}</pre><div class="form-actions"><button class="btn btn-outline" onclick="hideModal('publicationModal')">Close</button></div>`; showModal('publicationModal'); }
 
         // ---------- FEATURED ARTICLE ----------
-        function renderFeaturedPreview() {
-            const prev = document.getElementById('featuredArticlePreviewDashboard');
-            if(!featuredArticle) { prev.innerHTML = '<div class="empty-state">No featured article set.</div>'; return; }
-            prev.innerHTML = `<div class="featured-card"><div class="featured-card-header"><h3>${featuredArticle.title||''}</h3><span class="featured-card-tag">${featuredArticle.tag||'Featured'}</span></div>
-            <div class="featured-card-content"><div class="featured-card-image">${featuredArticle.image?`<img src="${featuredArticle.image}" onerror="this.src='';">`:'<i class="fas fa-image"></i>'}</div>
-            <div><p>${featuredArticle.description||''}</p><p style="margin-top:0.5rem;">${featuredArticle.longDescription||''}</p></div></div></div>`;
+        function editFeaturedArticle() {
+            const form = `<form id="featuredForm" onsubmit="saveFeaturedArticle(event)">
+                <div class="form-grid">
+                    <div class="form-group"><label class="form-label">Title</label><input type="text" name="title" class="form-control" value="${escapeHTML(featuredArticle?.title||'')}"></div>
+                    <div class="form-group"><label class="form-label">Tag</label><input type="text" name="tag" class="form-control" value="${escapeHTML(featuredArticle?.tag||'Coming Soon')}"></div>
+                    <div class="form-group"><label class="form-label">Image URL</label><input type="text" name="image" class="form-control" id="featImg" value="${escapeHTML(featuredArticle?.image||'')}"></div>
+                </div>
+                <div class="image-preview" id="featuredImagePreview">${featuredArticle?.image ? `<img src="${escapeHTML(featuredArticle.image)}" style="max-height:160px;">` : '<i class="fas fa-image" style="font-size:3rem; opacity:0.3;"></i>'}</div>
+                <div class="form-group"><label class="form-label">Short Description</label><textarea name="description" class="form-control" rows="2">${escapeHTML(featuredArticle?.description||'')}</textarea></div>
+                <div class="form-group"><label class="form-label">Long Description</label><textarea name="longDescription" class="form-control" rows="4">${escapeHTML(featuredArticle?.longDescription||'')}</textarea></div>
+                <div class="form-actions"><button type="button" class="btn btn-outline" onclick="hideModal('featuredModal')">Cancel</button><button type="submit" class="btn">Save Featured</button></div>
+            </form>`;
+            document.getElementById('featuredModalContent').innerHTML = form;
+            showModal('featuredModal');
         }
-        function editFeaturedArticle() { /* similar to original */
-            const form = `<form id="featuredForm" onsubmit="saveFeaturedArticle(event)"><div class="form-grid">
-                <div class="form-group"><label>Title</label><input type="text" name="title" class="form-input" value="${escapeHTML(featuredArticle?.title||'')}"></div>
-                <div class="form-group"><label>Tag</label><input type="text" name="tag" class="form-input" value="${escapeHTML(featuredArticle?.tag||'Coming Soon')}"></div>
-                <div class="form-group"><label>Image URL</label><input type="text" name="image" class="form-input" id="featImg" value="${escapeHTML(featuredArticle?.image||'')}"></div></div>
-                <div class="image-preview" id="featPreview">${featuredArticle?.image?`<img src="${featuredArticle.image}" style="max-height:150px;">`:'<i class="fas fa-image"></i>'}</div>
-                <div class="form-group"><label>Short Description</label><textarea name="description" class="form-input" rows="2">${escapeHTML(featuredArticle?.description||'')}</textarea></div>
-                <div class="form-group"><label>Long Description</label><textarea name="longDescription" class="form-input" rows="4">${escapeHTML(featuredArticle?.longDescription||'')}</textarea></div>
-                <div class="form-actions"><button type="button" class="btn btn-outline" onclick="hideModal('featuredModal')">Cancel</button><button type="submit" class="btn">Save Featured</button></div></form>`;
-            document.getElementById('featuredModalContent').innerHTML = form; showModal('featuredModal');
+        async function saveFeaturedArticle(e) {
+            e.preventDefault(); showLoading(); const fd = new FormData(e.target);
+            const data = { title: fd.get('title'), description: fd.get('description'), longDescription: fd.get('longDescription'), image: fd.get('image'), tag: fd.get('tag') };
+            try { await database.ref('iam-mugera/author/featuredArticle').set(data); await loadAllData(); hideModal('featuredModal'); showNotification("Featured article saved","success"); } catch(e) { showNotification(e.message,"error"); } hideLoading();
         }
-        async function saveFeaturedArticle(e) { e.preventDefault(); showLoading(); const fd = new FormData(e.target); const data = { title: fd.get('title'), description: fd.get('description'), longDescription: fd.get('longDescription'), image: fd.get('image'), tag: fd.get('tag') }; try { await database.ref('iam-mugera/author/featuredArticle').set(data); await loadAllData(); hideModal('featuredModal'); showNotification("Featured updated","success"); } catch(e) { showNotification(e.message,"error"); } hideLoading(); }
 
-        // ---------- READERS ----------
-        function renderReaders() { /* quick stats already updated */ }
+        // ---------- SERIES & COLLECTIONS (minimal editor) ----------
+        function renderSeriesCollections() {
+            const sGrid = document.getElementById('seriesGrid'); sGrid.innerHTML = '';
+            if (seriesArray.length === 0) sGrid.innerHTML = '<div class="empty-state">No series defined.</div>';
+            else seriesArray.forEach(s => { sGrid.innerHTML += `<div class="book-card"><h3>${escapeHTML(s.name||'')}</h3><p>${escapeHTML(s.description||'')}</p><span>Works: ${s.works?.length||0}</span></div>`; });
+            const cGrid = document.getElementById('collectionsGrid'); cGrid.innerHTML = '';
+            if (collectionsArray.length === 0) cGrid.innerHTML = '<div class="empty-state">No collections.</div>';
+            else collectionsArray.forEach(c => { cGrid.innerHTML += `<div class="book-card"><h3>${escapeHTML(c.name||'')}</h3><p>${escapeHTML(c.description||'')}</p><span>Items: ${c.items?.length||0}</span></div>`; });
+        }
+        function editSeries() { showNotification("Series editor - implement full CRUD as needed","info"); }
+        function editCollection() { showNotification("Collection editor","info"); }
 
-        // ---------- PAGE CONTROL ----------
+        // ---------- PAGE CONTROLLER ----------
         function showPage(pageId) {
-            document.querySelectorAll('.page-content').forEach(p=>p.style.display='none');
-            const page = document.getElementById(pageId+'Page'); if(page) page.style.display='block';
-            document.getElementById('pageTitle').innerText = pageId.charAt(0).toUpperCase()+pageId.slice(1);
-            document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+            document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+            const page = document.getElementById(pageId + 'Page'); if (page) page.style.display = 'block';
+            document.getElementById('pageTitle').innerText = pageId.charAt(0).toUpperCase() + pageId.slice(1);
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             document.querySelector(`.nav-link[data-page="${pageId}"]`)?.classList.add('active');
-            if (pageId==='books') { renderBooksList(); }
-            if (pageId==='publications') { renderPublications(); }
-            if (pageId==='series') { renderSeriesCollections(); }
-            if (pageId==='featured') { document.getElementById('featuredArticleFull').innerHTML = document.getElementById('featuredArticlePreviewDashboard')?.innerHTML || ''; }
-            if (pageId==='readers') { renderReaders(); }
-            if (pageId==='dashboard') { updateAllCounts(); }
+            if (pageId === 'books') renderBooksList();
+            if (pageId === 'publications') renderPublications();
+            if (pageId === 'series') renderSeriesCollections();
+            if (pageId === 'featured') { document.getElementById('featuredArticleFull').innerHTML = document.getElementById('featuredArticlePreviewDashboard')?.innerHTML || ''; }
+            if (pageId === 'readers') { /* already loaded */ }
         }
 
-        // ---------- INIT ----------
-        function updateUserAvatar() { const email = localStorage.getItem('adminEmail')||'admin'; document.getElementById('userAvatar').innerText = email.charAt(0).toUpperCase(); }
-        window.addEventListener('DOMContentLoaded', ()=>{
-            document.getElementById('authBtn').addEventListener('click', ()=>{
-                login(document.getElementById('authEmail').value, document.getElementById('authPassword').value);
-            });
-            document.getElementById('logoutBtn').addEventListener('click', logout);
-            document.querySelectorAll('.nav-link').forEach(l=> l.addEventListener('click', (e)=>{ e.preventDefault(); showPage(l.dataset.page); }));
-            authenticate();
-        });
+        // ---------- USER AVATAR ----------
+        function updateUserAvatar() { const email = localStorage.getItem('adminEmail') || 'admin'; document.getElementById('userAvatar').innerText = email.charAt(0).toUpperCase(); }
 
-        // EXPOSE GLOBALS
+        // ---------- EVENT LISTENERS ----------
+        document.getElementById('authBtn').addEventListener('click', () => { login(document.getElementById('authEmail').value, document.getElementById('authPassword').value); });
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        document.querySelectorAll('.nav-link').forEach(link => { link.addEventListener('click', (e) => { e.preventDefault(); showPage(link.dataset.page); }); });
+
+        // ---------- INITIALIZE ----------
+        window.addEventListener('DOMContentLoaded', authenticate);
+
+        // EXPOSE GLOBALLY
         window.showPage = showPage; window.addNewBook = addNewBook; window.editBook = editBook; window.deleteBook = deleteBook; window.viewBookDetails = viewBookDetails;
-        window.filterBooks = filterBooks; window.clearBookFilters = clearBookFilters; window.refreshBooksData = refreshBooksData;
-        window.editFeaturedArticle = editFeaturedArticle; window.saveFeaturedArticle = saveFeaturedArticle; window.hideModal = hideModal;
-        window.loadPublications = loadPublications; window.filterPublications = filterPublications; window.addNewPublication = addNewPublication;
-        window.viewPublication = viewPublication; window.editPublication = editPublication; window.refreshSeries = refreshSeries;
+        window.filterBooks = filterBooks; window.clearBookFilters = clearBookFilters; window.loadAllData = loadAllData;
+        window.editFeaturedArticle = editFeaturedArticle; window.saveFeaturedArticle = saveFeaturedArticle;
+        window.addNewPublication = addNewPublication; window.editPublication = editPublication; window.deletePublication = deletePublication; window.viewPublication = viewPublication;
+        window.filterPublications = filterPublications; window.renderPublications = renderPublications;
+        window.editSeries = editSeries; window.editCollection = editCollection;
+        window.hideModal = hideModal; window.showModal = showModal;
     </script>
 </body>
 </html>
