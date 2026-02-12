@@ -18,7 +18,7 @@
         // FIREBASE INITIALIZATION — YOUR EXACT CONFIG
         // ------------------------------------------------------------
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getDatabase, ref, get, child, push, set, runTransaction, increment } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+        import { getDatabase, ref, get, child, push, set, runTransaction, increment, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDF0C1QPJ0CfDfBCtupIuyI-ezgpr6tE0w",
@@ -35,7 +35,7 @@
         const dbRef = ref(db);
 
         // ------------------------------------------------------------
-        // STATE — PURE FIREBASE, NO FALLBACKS
+        // STATE — PURE FIREBASE
         // ------------------------------------------------------------
         let authorProfile = null;
         let featuredCarousel = null;
@@ -43,9 +43,44 @@
         let articles = null;
         let researchPapers = null;
         let siteConfig = null;
+        let waitlists = null;
 
         // ------------------------------------------------------------
-        // LOAD FIREBASE DATA — STRICT: ONLY RENDER IF DATA EXISTS
+        // GLOBAL NOTIFICATION SYSTEM — PERFECTLY STYLED
+        // ------------------------------------------------------------
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notification-container');
+            const id = 'notif-' + Date.now();
+            
+            const notification = document.createElement('div');
+            notification.id = id;
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div class="notification-icon">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                </div>
+                <div class="notification-content">
+                    <p>${message}</p>
+                </div>
+                <button class="notification-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.animation = 'slideOut 0.3s ease forwards';
+                    setTimeout(() => el.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // ------------------------------------------------------------
+        // LOAD FIREBASE DATA
         // ------------------------------------------------------------
         async function loadFirebaseData() {
             try {
@@ -60,6 +95,7 @@
                     articles = data.articles || null;
                     researchPapers = data.researchPapers || null;
                     siteConfig = data.siteConfig || null;
+                    waitlists = data.waitlists || {};
 
                     // Hide loading with fade
                     document.getElementById('loading').style.opacity = '0';
@@ -68,13 +104,11 @@
                         document.body.style.overflow = 'auto';
                     }, 800);
 
-                    // Render header and footer first (they use author data)
                     renderHeader();
                     renderFooter();
                     
-                    // Render sections only if data exists
                     if (authorProfile) renderHero();
-                    if (featuredCarousel?.latestPublications?.length) renderFeatured();
+                    if (featuredCarousel?.latestPublications?.length) renderFeaturedCarousel();
                     if (books && Object.keys(books).length > 0) renderBooks();
                     if (articles && Object.keys(articles).length > 0) renderArticles();
                     if (researchPapers && Object.keys(researchPapers).length > 0) renderResearch();
@@ -85,12 +119,10 @@
             } catch (error) {
                 console.error('Firebase error:', error);
                 showEmptyState('Unable to load content');
+                showNotification('Failed to load content. Please refresh.', 'error');
             }
         }
 
-        // ------------------------------------------------------------
-        // ELEGANT EMPTY STATE
-        // ------------------------------------------------------------
         function showEmptyState(message) {
             document.getElementById('loading').style.display = 'none';
             document.body.innerHTML = `
@@ -103,7 +135,7 @@
         }
 
         // ------------------------------------------------------------
-        // RENDER HEADER — PERFECTLY PADDED, REFINED NAVIGATION
+        // RENDER HEADER
         // ------------------------------------------------------------
         function renderHeader() {
             const header = document.getElementById('header');
@@ -127,7 +159,7 @@
         }
 
         // ------------------------------------------------------------
-        // RENDER HERO — Refined, timeless
+        // RENDER HERO
         // ------------------------------------------------------------
         function renderHero() {
             const hero = document.getElementById('hero');
@@ -159,17 +191,17 @@
         }
 
         // ------------------------------------------------------------
-        // RENDER FEATURED — Latest publications in elegant cards
+        // ✅ AUTO-PLAYING CAROUSEL — perfect styling, infinite loop
         // ------------------------------------------------------------
-        function renderFeatured() {
+        function renderFeaturedCarousel() {
             const section = document.getElementById('featured');
             section.style.display = 'block';
             
-            let itemsHtml = '';
-            featuredCarousel.latestPublications.forEach(item => {
+            let slidesHtml = '';
+            featuredCarousel.latestPublications.forEach((item, index) => {
                 if (item.type === 'book') {
-                    itemsHtml += `
-                        <div class="feature-card">
+                    slidesHtml += `
+                        <div class="carousel-slide" data-index="${index}">
                             <div class="card-category" style="background: #eae2d1; color: #7a5c3a;">
                                 <i class="fas fa-book"></i> Book
                             </div>
@@ -184,8 +216,8 @@
                     `;
                 } else if (item.type === 'article') {
                     const rc = item.reactionCounts || {};
-                    itemsHtml += `
-                        <div class="feature-card">
+                    slidesHtml += `
+                        <div class="carousel-slide" data-index="${index}">
                             <div class="card-category" style="background: #e2e6f0; color: #2c3e5c;">
                                 <i class="fas fa-newspaper"></i> Article
                             </div>
@@ -204,8 +236,8 @@
                     `;
                 } else if (item.type === 'research') {
                     const rc = item.reactionCounts || {};
-                    itemsHtml += `
-                        <div class="feature-card">
+                    slidesHtml += `
+                        <div class="carousel-slide" data-index="${index}">
                             <div class="card-category" style="background: #e0e8d9; color: #3a5a40;">
                                 <i class="fas fa-flask"></i> Research
                             </div>
@@ -224,22 +256,102 @@
                     `;
                 }
             });
-            
+
             section.innerHTML = `
                 <div class="container">
                     <div class="section-header">
                         <h2 class="section-title">Latest <span>publications</span></h2>
                         <p class="section-subtitle">Recent work from the author</p>
                     </div>
-                    <div class="featured-grid">
-                        ${itemsHtml}
+                    <div class="carousel-container">
+                        <button class="carousel-arrow carousel-prev"><i class="fas fa-chevron-left"></i></button>
+                        <div class="carousel-track-wrapper">
+                            <div class="carousel-track">
+                                ${slidesHtml}
+                                <!-- Duplicate first slides for seamless infinite loop -->
+                                ${slidesHtml.split('</div>').slice(0, 3).join('</div>')}
+                            </div>
+                        </div>
+                        <button class="carousel-arrow carousel-next"><i class="fas fa-chevron-right"></i></button>
                     </div>
+                    <div class="carousel-dots"></div>
                 </div>
             `;
+
+            // Initialize auto-play carousel
+            initCarousel();
         }
 
         // ------------------------------------------------------------
-        // RENDER BOOKS — With purchase and waitlist
+        // CAROUSEL AUTO-PLAY WITH INFINITE LOOP
+        // ------------------------------------------------------------
+        function initCarousel() {
+            const track = document.querySelector('.carousel-track');
+            if (!track) return;
+            
+            const slides = Array.from(track.children);
+            const slideWidth = slides[0]?.offsetWidth || 340;
+            const gap = 28; // 1.8rem = 28.8px ≈ 28
+            const scrollAmount = slideWidth + gap;
+            
+            // Set up auto-play
+            let autoPlayInterval;
+            
+            function startAutoPlay() {
+                autoPlayInterval = setInterval(() => {
+                    const currentScroll = track.scrollLeft;
+                    const maxScroll = track.scrollWidth - track.clientWidth;
+                    
+                    if (currentScroll >= maxScroll - 10) {
+                        // Jump to beginning seamlessly
+                        track.scrollTo({ left: 0, behavior: 'instant' });
+                    } else {
+                        track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                    }
+                }, 4000);
+            }
+            
+            function stopAutoPlay() {
+                clearInterval(autoPlayInterval);
+            }
+            
+            // Event listeners for hover pause
+            track.addEventListener('mouseenter', stopAutoPlay);
+            track.addEventListener('mouseleave', startAutoPlay);
+            
+            // Manual navigation
+            const prevBtn = document.querySelector('.carousel-prev');
+            const nextBtn = document.querySelector('.carousel-next');
+            
+            if (prevBtn && nextBtn) {
+                prevBtn.addEventListener('click', () => {
+                    stopAutoPlay();
+                    track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                    setTimeout(startAutoPlay, 5000);
+                });
+                
+                nextBtn.addEventListener('click', () => {
+                    stopAutoPlay();
+                    track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                    setTimeout(startAutoPlay, 5000);
+                });
+            }
+            
+            // Start auto-play
+            startAutoPlay();
+            
+            // Pause auto-play when tab not visible
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    stopAutoPlay();
+                } else {
+                    startAutoPlay();
+                }
+            });
+        }
+
+        // ------------------------------------------------------------
+        // RENDER BOOKS — with ORDER FORM & WAITLIST (FIREBASE)
         // ------------------------------------------------------------
         function renderBooks() {
             const section = document.getElementById('books');
@@ -278,8 +390,28 @@
                                         `<span class="format-badge">${f.type} · ${f.price}</span>`
                                     ).join('') : ''}
                                 </div>
-                                <button class="btn btn-primary view-book" data-book-id="${book.id}">
-                                    <i class="fas fa-info-circle"></i> View details & order
+                                <!-- ORDER FORM -->
+                                <div class="order-form-container">
+                                    <h4 style="font-size:1rem; margin: 1rem 0 0.5rem; color: #7a5c3a;"><i class="fas fa-truck"></i> Order now</h4>
+                                    <form class="order-form">
+                                        <input type="hidden" name="publicationId" value="${book.id}">
+                                        <input type="hidden" name="publicationType" value="book">
+                                        <input type="text" name="customerName" placeholder="Your full name" required class="order-input">
+                                        <input type="email" name="customerEmail" placeholder="Your email" required class="order-input">
+                                        <select name="format" required class="order-input">
+                                            <option value="">Select format</option>
+                                            ${book.formats ? book.formats.map(f => 
+                                                `<option value="${f.type.toLowerCase()}">${f.type} - ${f.price}</option>`
+                                            ).join('') : ''}
+                                        </select>
+                                        <input type="number" name="quantity" value="1" min="1" max="10" class="order-input" style="width:100px;">
+                                        <button type="submit" class="btn btn-primary" style="margin-top:0.8rem;">
+                                            <i class="fas fa-credit-card"></i> Place order
+                                        </button>
+                                    </form>
+                                </div>
+                                <button class="btn btn-secondary view-book" data-book-id="${book.id}" style="margin-top:1rem;">
+                                    <i class="fas fa-info-circle"></i> Details
                                 </button>
                             </div>
                         </div>
@@ -298,7 +430,7 @@
                             <h4>${book.title}</h4>
                             <p class="forthcoming-subtitle">${book.subtitle || ''}</p>
                             <p class="forthcoming-date">Expected: ${book.expectedPublication || 'TBA'}</p>
-                            <button class="btn btn-waitlist" data-waitlist-id="${book.id}" data-type="book">
+                            <button class="btn btn-waitlist waitlist-trigger" data-publication-id="${book.id}" data-type="book">
                                 <i class="fas fa-bell"></i> Join waitlist
                                 ${book.waitlistCount ? `<span class="waitlist-count">${book.waitlistCount}</span>` : ''}
                             </button>
@@ -311,6 +443,12 @@
             html += `</div>`;
             section.innerHTML = html;
             
+            // Attach order form submission
+            section.querySelectorAll('.order-form').forEach(form => {
+                form.addEventListener('submit', handleOrderSubmit);
+            });
+            
+            // Book detail modal
             section.querySelectorAll('.view-book').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const bookId = e.currentTarget.dataset.bookId;
@@ -318,9 +456,10 @@
                 });
             });
             
-            section.querySelectorAll('.btn-waitlist').forEach(btn => {
+            // Waitlist triggers
+            section.querySelectorAll('.waitlist-trigger').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const pubId = e.currentTarget.dataset.waitlistId;
+                    const pubId = e.currentTarget.dataset.publicationId;
                     const type = e.currentTarget.dataset.type;
                     openWaitlistModal(pubId, type);
                 });
@@ -328,7 +467,132 @@
         }
 
         // ------------------------------------------------------------
-        // RENDER ARTICLES — With COMPLETE REACTION & COMMENT BACKEND
+        // 🔥 ORDER SUBMIT — writes to Firebase /orders
+        // ------------------------------------------------------------
+        async function handleOrderSubmit(e) {
+            e.preventDefault();
+            const form = e.currentTarget;
+            const formData = new FormData(form);
+            
+            const orderData = {
+                orderId: 'ORD-' + Date.now(),
+                customerEmail: formData.get('customerEmail'),
+                customerName: formData.get('customerName'),
+                items: [{
+                    publicationId: formData.get('publicationId'),
+                    format: formData.get('format'),
+                    quantity: parseInt(formData.get('quantity')) || 1,
+                    price: 0
+                }],
+                total: 0,
+                currency: 'KSh',
+                status: 'pending',
+                orderDate: new Date().toISOString(),
+                fulfillmentStatus: 'pending'
+            };
+
+            try {
+                const ordersRef = ref(db, 'orders/' + orderData.orderId);
+                await set(ordersRef, orderData);
+                showNotification('✅ Order placed! We will contact you soon.', 'success');
+                form.reset();
+            } catch (error) {
+                console.error('Order submission failed:', error);
+                showNotification('❌ Order failed. Please try again.', 'error');
+            }
+        }
+
+        // ------------------------------------------------------------
+        // 🔥 WAITLIST SUBMIT — FULLY FUNCTIONAL, WRITES TO FIREBASE
+        // ------------------------------------------------------------
+        async function handleWaitlistSubmit(e) {
+            e.preventDefault();
+            
+            const form = e.currentTarget;
+            const formData = new FormData(form);
+            
+            const publicationId = formData.get('publicationId');
+            const publicationType = formData.get('publicationType');
+            const fullName = formData.get('fullName');
+            const email = formData.get('email');
+            
+            if (!publicationId || !email) {
+                showNotification('Please provide your email address.', 'error');
+                return;
+            }
+            
+            // Disable submit button to prevent double submission
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+            
+            try {
+                // Create unique waitlist entry
+                const waitlistEntry = {
+                    email,
+                    fullName: fullName || 'Anonymous',
+                    signedUpAt: new Date().toISOString(),
+                    notified: false,
+                    userAgent: navigator.userAgent
+                };
+                
+                // Path: /waitlists/{publicationId}_{publicationType}/entries
+                const waitlistPath = `waitlists/${publicationId}_${publicationType}/entries`;
+                const entriesRef = ref(db, waitlistPath);
+                
+                // Push new entry
+                await push(entriesRef, waitlistEntry);
+                
+                // Increment totalCount using transaction
+                const countRef = ref(db, `waitlists/${publicationId}_${publicationType}/totalCount`);
+                await runTransaction(countRef, (current) => {
+                    return (current || 0) + 1;
+                });
+                
+                // Show success notification
+                showNotification('✨ You\'re on the waitlist! We\'ll notify you when it\'s available.', 'success');
+                
+                // Close modal after short delay
+                setTimeout(() => {
+                    closeModal('waitlistModal');
+                    form.reset();
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Waitlist submission failed:', error);
+                showNotification('❌ Could not join waitlist. Please try again.', 'error');
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
+        // ------------------------------------------------------------
+        // OPEN WAITLIST MODAL — with form reset
+        // ------------------------------------------------------------
+        window.openWaitlistModal = function(publicationId, type) {
+            const modal = document.getElementById('waitlistModal');
+            const form = document.getElementById('waitlistFormElement');
+            
+            // Reset form
+            form.reset();
+            
+            // Set hidden fields
+            document.getElementById('waitlistPubId').value = publicationId || '';
+            document.getElementById('waitlistPubType').value = type || '';
+            
+            // Show form, hide success
+            form.style.display = 'block';
+            document.getElementById('waitlistSuccess').style.display = 'none';
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+
+        // ------------------------------------------------------------
+        // RENDER ARTICLES
         // ------------------------------------------------------------
         function renderArticles() {
             const section = document.getElementById('articles');
@@ -383,7 +647,7 @@
         }
 
         // ------------------------------------------------------------
-        // RENDER RESEARCH PAPERS
+        // RENDER RESEARCH
         // ------------------------------------------------------------
         function renderResearch() {
             const section = document.getElementById('research');
@@ -442,7 +706,7 @@
                                 <p>${(paper.abstract || '').substring(0, 100)}...</p>
                                 <small>Expected: ${paper.expectedCompletion || 'TBA'}</small>
                             </div>
-                            <button class="btn btn-waitlist" data-waitlist-id="${paper.id}" data-type="research">
+                            <button class="btn btn-waitlist waitlist-trigger" data-publication-id="${paper.id}" data-type="research">
                                 <i class="fas fa-bell"></i> Notify
                             </button>
                         </div>
@@ -455,9 +719,9 @@
             section.innerHTML = html;
             attachReactionHandlers();
             
-            section.querySelectorAll('.btn-waitlist').forEach(btn => {
+            section.querySelectorAll('.waitlist-trigger').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const pubId = e.currentTarget.dataset.waitlistId;
+                    const pubId = e.currentTarget.dataset.publicationId;
                     const type = e.currentTarget.dataset.type;
                     openWaitlistModal(pubId, type);
                 });
@@ -465,7 +729,7 @@
         }
 
         // ------------------------------------------------------------
-        // REACTION HANDLERS — FULL FIREBASE INTEGRATION
+        // REACTION HANDLERS
         // ------------------------------------------------------------
         function attachReactionHandlers() {
             document.querySelectorAll('.like-btn').forEach(btn => {
@@ -482,38 +746,33 @@
             });
         }
 
-        // Unified reaction handler (like/share) — writes to Firebase
         async function handleReaction(e) {
             e.preventDefault();
             const btn = e.currentTarget;
             const type = btn.classList.contains('like-btn') ? 'likes' : 'shares';
             const id = btn.dataset.id;
-            const contentType = btn.dataset.type; // 'article' or 'research'
+            const contentType = btn.dataset.type;
             const countSpan = btn.querySelector(`.${type === 'likes' ? 'like-count' : 'share-count'}`);
             
-            // Optimistic update
             let current = parseInt(countSpan.innerText) || 0;
             countSpan.innerText = current + 1;
             btn.style.color = '#c2a477';
             
             try {
-                // Update Firebase using transaction
                 const path = contentType === 'article' ? `articles/${id}/reactions/${type}` : `researchPapers/${id}/reactions/${type}`;
                 const reactionRef = ref(db, path);
-                await runTransaction(reactionRef, (currentVal) => {
-                    return (currentVal || 0) + 1;
-                });
-                console.log(`${type} updated for ${id}`);
+                await runTransaction(reactionRef, (currentVal) => (currentVal || 0) + 1);
+                showNotification(`${type === 'likes' ? '❤️ Liked' : '🔄 Shared'}!`, 'success');
             } catch (error) {
                 console.error('Reaction update failed:', error);
-                // Rollback optimistic update
                 countSpan.innerText = current;
                 btn.style.color = '';
+                showNotification('Reaction failed. Please try again.', 'error');
             }
         }
 
         // ------------------------------------------------------------
-        // COMMENT MODAL — FULL FIREBASE READ/WRITE
+        // COMMENT MODAL
         // ------------------------------------------------------------
         window.openCommentModal = async function(e) {
             e.preventDefault();
@@ -521,18 +780,15 @@
             const articleId = btn.dataset.id;
             const contentType = btn.dataset.type;
             
-            if (contentType !== 'article') return; // only articles support comments for now
+            if (contentType !== 'article') return;
             
             const modal = document.getElementById('commentModal');
-            const modalContent = document.getElementById('commentModalContent');
             const commentList = document.getElementById('commentList');
             const commentForm = document.getElementById('commentForm');
-            const commentCount = btn.querySelector('.comment-count');
+            const commentCountSpan = btn.querySelector('.comment-count');
             
-            // Store current article ID in modal for form submission
             modal.dataset.articleId = articleId;
             
-            // Load comments from Firebase
             try {
                 const commentsRef = ref(db, `articles/${articleId}/comments`);
                 const snapshot = await get(commentsRef);
@@ -547,7 +803,7 @@
                         commentsHtml += `
                             <div class="comment-item">
                                 <div class="comment-author">
-                                    <i class="fas fa-user-circle"></i> ${cmt.author || 'Anonymous'}
+                                    <i class="fas fa-user-circle"></i> ${cmt.userName || 'Anonymous'}
                                 </div>
                                 <div class="comment-text">${cmt.text || ''}</div>
                                 <div class="comment-meta">${new Date(cmt.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
@@ -560,59 +816,65 @@
                 
                 commentList.innerHTML = commentsHtml;
                 
-                // Set up form submission for this modal session
                 commentForm.onsubmit = async (e) => {
                     e.preventDefault();
                     const nameInput = document.getElementById('commentName');
                     const textInput = document.getElementById('commentText');
                     
-                    const author = nameInput.value.trim() || 'Anonymous';
+                    const userName = nameInput.value.trim() || 'Anonymous';
                     const text = textInput.value.trim();
                     if (!text) return;
                     
                     const newComment = {
-                        author,
+                        userId: 'web_user_' + Date.now(),
+                        userName,
                         text,
-                        timestamp: Date.now()
+                        timestamp: Date.now(),
+                        likes: 0
                     };
                     
                     try {
                         const commentsRef = ref(db, `articles/${articleId}/comments`);
-                        const newCommentRef = await push(commentsRef, newComment);
+                        await push(commentsRef, newComment);
                         
-                        // Increment comment count in reactions
                         const countRef = ref(db, `articles/${articleId}/reactions/comments`);
                         await runTransaction(countRef, (current) => (current || 0) + 1);
                         
-                        // Update UI
-                        const newCommentHtml = `
-                            <div class="comment-item">
-                                <div class="comment-author"><i class="fas fa-user-circle"></i> ${author}</div>
-                                <div class="comment-text">${text}</div>
-                                <div class="comment-meta">Just now</div>
-                            </div>
-                        `;
-                        commentList.insertAdjacentHTML('afterbegin', newCommentHtml);
-                        
-                        // Update comment count on article card
-                        if (commentCount) {
-                            let cnt = parseInt(commentCount.innerText) || 0;
-                            commentCount.innerText = cnt + 1;
+                        if (commentCountSpan) {
+                            let cnt = parseInt(commentCountSpan.innerText) || 0;
+                            commentCountSpan.innerText = cnt + 1;
                         }
                         
-                        // Clear form
+                        // Refresh comments
+                        const newSnapshot = await get(commentsRef);
+                        let updatedHtml = '';
+                        if (newSnapshot.exists()) {
+                            const updatedComments = newSnapshot.val();
+                            Object.values(updatedComments).sort((a,b) => b.timestamp - a.timestamp).forEach(cmt => {
+                                updatedHtml += `
+                                    <div class="comment-item">
+                                        <div class="comment-author"><i class="fas fa-user-circle"></i> ${cmt.userName || 'Anonymous'}</div>
+                                        <div class="comment-text">${cmt.text}</div>
+                                        <div class="comment-meta">Just now</div>
+                                    </div>
+                                `;
+                            });
+                        }
+                        commentList.innerHTML = updatedHtml;
+                        
                         nameInput.value = '';
                         textInput.value = '';
                         
+                        showNotification('💬 Comment posted successfully!', 'success');
                     } catch (error) {
                         console.error('Comment submission failed:', error);
-                        alert('Unable to post comment. Please try again.');
+                        showNotification('Unable to post comment. Please try again.', 'error');
                     }
                 };
-                
             } catch (error) {
                 console.error('Failed to load comments:', error);
                 commentList.innerHTML = '<p style="color: var(--gray); text-align: center; padding: 2rem;">Unable to load comments.</p>';
+                showNotification('Failed to load comments.', 'error');
             }
             
             modal.classList.add('active');
@@ -620,7 +882,7 @@
         };
 
         // ------------------------------------------------------------
-        // BOOK DETAIL MODAL (unchanged)
+        // BOOK DETAIL MODAL
         // ------------------------------------------------------------
         window.openBookModal = function(bookId) {
             const book = books[bookId];
@@ -680,20 +942,7 @@
         };
 
         // ------------------------------------------------------------
-        // WAITLIST MODAL (unchanged)
-        // ------------------------------------------------------------
-        window.openWaitlistModal = function(publicationId, type) {
-            const modal = document.getElementById('waitlistModal');
-            document.getElementById('waitlistPubId').value = publicationId || '';
-            document.getElementById('waitlistPubType').value = type || '';
-            document.getElementById('waitlistForm').style.display = 'block';
-            document.getElementById('waitlistSuccess').style.display = 'none';
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        };
-
-        // ------------------------------------------------------------
-        // RENDER FOOTER — Elegant, minimal
+        // RENDER FOOTER
         // ------------------------------------------------------------
         function renderFooter() {
             const footer = document.getElementById('footer');
@@ -724,42 +973,16 @@
         }
 
         // ------------------------------------------------------------
-        // WAITLIST FORM SUBMISSION
-        // ------------------------------------------------------------
-        function initWaitlistForm() {
-            const form = document.getElementById('waitlistForm');
-            if (!form) return;
-            
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const formData = new FormData(form);
-                
-                form.style.display = 'none';
-                document.getElementById('waitlistSuccess').style.display = 'block';
-                
-                setTimeout(() => {
-                    closeModal('waitlistModal');
-                    form.reset();
-                    form.style.display = 'block';
-                    document.getElementById('waitlistSuccess').style.display = 'none';
-                }, 2000);
-            });
-        }
-
-        // ------------------------------------------------------------
-        // CLOSE MODAL GLOBAL
-        // ------------------------------------------------------------
-        window.closeModal = function(modalId) {
-            document.getElementById(modalId)?.classList.remove('active');
-            document.body.style.overflow = 'auto';
-        };
-
-        // ------------------------------------------------------------
         // INITIALIZE
         // ------------------------------------------------------------
         window.addEventListener('DOMContentLoaded', () => {
             loadFirebaseData();
-            initWaitlistForm();
+            
+            // Initialize waitlist form submission
+            const waitlistForm = document.getElementById('waitlistFormElement');
+            if (waitlistForm) {
+                waitlistForm.addEventListener('submit', handleWaitlistSubmit);
+            }
             
             // Close modals when clicking overlay
             document.querySelectorAll('.modal-overlay').forEach(modal => {
@@ -768,11 +991,17 @@
                 });
             });
         });
+
+        // Expose closeModal globally
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId)?.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        };
     </script>
 
     <style>
         /* ------------------------------------------------------------
-           PREMIUM, REFINED AUTHOR STYLING — TIMELESS ELEGANCE
+           PREMIUM, REFINED AUTHOR STYLING — WITH PERFECT NOTIFICATIONS
         ------------------------------------------------------------ */
         
         :root {
@@ -793,6 +1022,20 @@
             --radius-md: 12px;
             --radius-lg: 20px;
             --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Notification colors */
+            --success-bg: #f0f9eb;
+            --success-border: #e1f3d8;
+            --success-text: #2e7d32;
+            --success-icon: #4caf50;
+            --error-bg: #fef2f2;
+            --error-border: #fee9e7;
+            --error-text: #b71c1c;
+            --error-icon: #ef5350;
+            --info-bg: #e8f0fe;
+            --info-border: #d4e4fc;
+            --info-text: #0b3b5c;
+            --info-icon: #2196f3;
         }
 
         * {
@@ -817,8 +1060,135 @@
         }
 
         /* ------------------------------------------------------------
-           LOADING SCREEN
+           PERFECT NOTIFICATION SYSTEM
         ------------------------------------------------------------ */
+        #notification-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 380px;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .notification {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.025);
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-left: 4px solid;
+            animation: slideIn 0.3s ease forwards;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            pointer-events: auto;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .notification-success {
+            background: var(--success-bg);
+            border-left-color: var(--success-icon);
+            border-top: 1px solid var(--success-border);
+            border-right: 1px solid var(--success-border);
+            border-bottom: 1px solid var(--success-border);
+        }
+
+        .notification-error {
+            background: var(--error-bg);
+            border-left-color: var(--error-icon);
+            border-top: 1px solid var(--error-border);
+            border-right: 1px solid var(--error-border);
+            border-bottom: 1px solid var(--error-border);
+        }
+
+        .notification-info {
+            background: var(--info-bg);
+            border-left-color: var(--info-icon);
+            border-top: 1px solid var(--info-border);
+            border-right: 1px solid var(--info-border);
+            border-bottom: 1px solid var(--info-border);
+        }
+
+        .notification-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .notification-success .notification-icon {
+            color: var(--success-icon);
+        }
+
+        .notification-error .notification-icon {
+            color: var(--error-icon);
+        }
+
+        .notification-info .notification-icon {
+            color: var(--info-icon);
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-content p {
+            color: var(--charcoal);
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .notification-close {
+            background: transparent;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .notification-close:hover {
+            background: rgba(0,0,0,0.05);
+            color: var(--charcoal);
+        }
+
         #loading {
             position: fixed;
             top: 0;
@@ -846,9 +1216,7 @@
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* ------------------------------------------------------------
-           HEADER — PERFECTLY PADDED, REFINED NAVIGATION
-        ------------------------------------------------------------ */
+        /* Header */
         header {
             position: sticky;
             top: 0;
@@ -860,1004 +1228,141 @@
             display: none;
         }
 
-        .header-container {
-            max-width: 1280px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
+        .header-container { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .logo { display: flex; align-items: center; gap: 0.75rem; padding: 0.25rem 0; }
+        .logo-image-wrapper { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center; background: white; flex-shrink: 0; }
+        .logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .logo-name { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 600; letter-spacing: -0.01em; color: var(--charcoal); line-height: 1; }
+        nav { display: flex; gap: 2.8rem; align-items: center; }
+        nav a { text-decoration: none; color: var(--charcoal); font-size: 0.95rem; font-weight: 500; letter-spacing: 0.3px; transition: var(--transition); display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; border-bottom: 2px solid transparent; }
+        nav a i { color: var(--gold); font-size: 0.9rem; transition: var(--transition); }
+        nav a:hover { color: var(--gold-dark); border-bottom-color: var(--gold); }
+        nav a:hover i { color: var(--gold-dark); }
+
+        /* Hero */
+        #hero { display: none; position: relative; background: var(--charcoal); color: white; overflow: hidden; }
+        .hero-backdrop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0.3; }
+        .hero-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(145deg, rgba(44,44,44,0.95) 0%, rgba(44,44,44,0.85) 100%); }
+        .hero-container { position: relative; z-index: 2; max-width: 1280px; margin: 0 auto; padding: 5rem 2rem; display: grid; grid-template-columns: 1fr 0.8fr; gap: 4rem; align-items: center; }
+        .hero-tagline { display: inline-block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 3px; color: var(--gold); background: rgba(194, 164, 119, 0.12); padding: 0.4rem 1.2rem; border-radius: 30px; margin-bottom: 1.5rem; border: 1px solid rgba(194, 164, 119, 0.2); }
+        .hero-title { font-family: 'Cormorant Garamond', serif; font-size: 4rem; font-weight: 600; line-height: 1.1; margin-bottom: 1.2rem; letter-spacing: -0.01em; }
+        .hero-bio { font-size: 1.15rem; font-weight: 300; color: rgba(255, 255, 255, 0.9); border-left: 4px solid var(--gold); padding-left: 1.5rem; margin: 1.8rem 0; line-height: 1.7; }
+        .hero-meta { display: flex; gap: 2rem; margin: 1.5rem 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.8); }
+        .hero-meta i { margin-right: 0.5rem; color: var(--gold); }
+        .hero-social { display: flex; gap: 1.2rem; margin-top: 2rem; }
+        .hero-social a { display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 50%; background: rgba(255, 255, 255, 0.08); color: white; font-size: 1.1rem; transition: var(--transition); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .hero-social a:hover { background: var(--gold); color: var(--charcoal); border-color: var(--gold); transform: translateY(-3px); }
+        .hero-portrait img { width: 100%; max-width: 320px; height: auto; border-radius: 50%; border: 4px solid var(--gold); box-shadow: 0 25px 40px -15px rgba(0,0,0,0.3); }
+
+        /* Sections */
+        section { padding: 5rem 0; border-bottom: 1px solid var(--border); display: none; }
+        .section-header { margin-bottom: 3.5rem; text-align: center; }
+        .section-title { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 500; color: var(--charcoal); margin-bottom: 0.5rem; letter-spacing: -0.01em; }
+        .section-title span { color: var(--gold-dark); font-weight: 600; }
+        .section-subtitle { font-size: 1rem; color: var(--gray); font-weight: 300; letter-spacing: 0.3px; }
+
+        /* Carousel */
+        .carousel-container { position: relative; display: flex; align-items: center; }
+        .carousel-track-wrapper { overflow-x: auto; scroll-behavior: smooth; width: 100%; padding: 0.5rem 0; scrollbar-width: thin; scrollbar-color: var(--gold) var(--sand); }
+        .carousel-track-wrapper::-webkit-scrollbar { height: 6px; }
+        .carousel-track-wrapper::-webkit-scrollbar-track { background: var(--sand); border-radius: 10px; }
+        .carousel-track-wrapper::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+        .carousel-track { display: flex; gap: 1.8rem; width: max-content; }
+        .carousel-slide { flex: 0 0 320px; background: white; padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: var(--transition); display: flex; flex-direction: column; }
+        .carousel-slide:hover { border-color: var(--gold); box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+        .carousel-arrow { background: white; border: 1px solid var(--border); border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); box-shadow: var(--shadow-sm); margin: 0 0.5rem; flex-shrink: 0; }
+        .carousel-arrow:hover { background: var(--gold); color: white; border-color: var(--gold); }
+        
+        .card-category { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.35rem 1rem; border-radius: 30px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1.5rem; align-self: flex-start; }
+        .carousel-slide h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; line-height: 1.3; }
+        .card-subtitle { font-size: 0.9rem; color: var(--gold-dark); font-style: italic; margin-bottom: 1rem; }
+        .card-description { color: var(--gray-dark); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; flex: 1; }
+        .card-price { font-size: 1.2rem; font-weight: 600; color: var(--gold-dark); margin-bottom: 1.2rem; }
+        .reaction-strip { display: flex; gap: 1.2rem; margin: 1.2rem 0; color: var(--gray); font-size: 0.85rem; border-top: 1px solid var(--border); padding-top: 1.2rem; }
+
+        /* Books */
+        .books-grid { display: flex; flex-direction: column; gap: 2.5rem; }
+        .book-card { display: grid; grid-template-columns: 200px 1fr; gap: 2.5rem; background: white; padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: var(--transition); }
+        .book-card:hover { border-color: var(--gold); box-shadow: var(--shadow-md); }
+        .book-cover img { width: 100%; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); }
+        .book-details h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 600; margin-bottom: 0.25rem; }
+        .book-subtitle { font-size: 0.95rem; color: var(--gold-dark); font-style: italic; margin-bottom: 1rem; }
+        .book-meta { display: flex; gap: 1.5rem; margin: 1rem 0; color: var(--gray); font-size: 0.9rem; }
+        .book-meta i { color: var(--gold); margin-right: 0.4rem; }
+        .book-description { color: var(--gray-dark); margin: 1.2rem 0; line-height: 1.7; }
+        .book-formats { margin: 1.2rem 0; }
+        .format-badge { display: inline-block; background: var(--gray-light); padding: 0.4rem 1rem; border-radius: 30px; font-size: 0.75rem; margin-right: 0.6rem; margin-bottom: 0.6rem; color: var(--charcoal); border: 1px solid var(--border); }
+        
+        .order-form-container { margin-top: 1.5rem; border-top: 1px dashed var(--gold); padding-top: 1.2rem; }
+        .order-input { width: 100%; padding: 0.6rem 1rem; margin-bottom: 0.6rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; font-family: 'Inter', sans-serif; }
+        .order-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(194, 164, 119, 0.1); }
+
+        .forthcoming-section { margin-top: 4rem; background: var(--cream); border-radius: var(--radius-lg); padding: 2.5rem; }
+        .forthcoming-title { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--gold-dark); margin-bottom: 1.5rem; }
+        .forthcoming-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+        .forthcoming-card { background: white; padding: 1.5rem; border-radius: var(--radius-md); border: 1px solid var(--border); }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.7rem 1.6rem; border-radius: 30px; font-weight: 500; font-size: 0.85rem; text-decoration: none; transition: var(--transition); border: none; cursor: pointer; border: 1px solid transparent; }
+        .btn-primary { background: var(--gold); color: white; }
+        .btn-primary:hover { background: var(--gold-dark); transform: translateY(-2px); box-shadow: 0 8px 16px rgba(194, 164, 119, 0.2); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-secondary { background: transparent; border: 1px solid var(--gold); color: var(--gold-dark); }
+        .btn-secondary:hover { background: var(--gold); color: white; }
+        .btn-waitlist { background: #8b5cf6; color: white; }
+        .btn-waitlist:hover { background: #7c3aed; transform: translateY(-2px); }
+        .waitlist-count { background: rgba(255, 255, 255, 0.2); padding: 0.2rem 0.6rem; border-radius: 30px; margin-left: 0.5rem; font-size: 0.7rem; }
+
+        /* Articles & Research */
+        .articles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2rem; }
+        .article-card { background: white; padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border); transition: var(--transition); display: flex; flex-direction: column; }
+        .article-card:hover { border-color: var(--gold); box-shadow: var(--shadow-md); }
+        .article-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; }
+        .article-category { background: var(--sand); color: var(--gold-dark); padding: 0.25rem 1rem; border-radius: 30px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .reading-time { color: var(--gray); font-size: 0.8rem; }
+        .article-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; margin-bottom: 0.8rem; line-height: 1.4; }
+        .article-excerpt { color: var(--gray-dark); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; flex: 1; }
+        .reaction-buttons { display: flex; gap: 1.2rem; margin-bottom: 1rem; }
+        .reaction-btn { background: none; border: none; color: var(--gray); font-size: 0.85rem; cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 0.4rem; padding: 0.2rem 0.4rem; border-radius: 20px; }
+        .reaction-btn:hover { color: var(--gold); background: rgba(194, 164, 119, 0.08); }
+
+        .research-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
+        .research-card { background: var(--cream); padding: 2rem; border-radius: var(--radius-lg); border-left: 4px solid var(--gold); transition: var(--transition); }
+        .research-card:hover { background: white; box-shadow: var(--shadow-md); }
+
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 2000; opacity: 0; visibility: hidden; transition: var(--transition); }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-content { background: white; border-radius: var(--radius-lg); max-width: 900px; width: 90%; max-height: 85vh; overflow-y: auto; padding: 2.5rem; position: relative; box-shadow: var(--shadow-lg); }
+        .modal-close { position: absolute; top: 1.2rem; right: 1.5rem; font-size: 1.8rem; background: none; border: none; color: var(--gray); cursor: pointer; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: var(--transition); }
+        .modal-close:hover { background: var(--sand); color: var(--gold-dark); }
+
+        .comment-list { max-height: 400px; overflow-y: auto; margin: 1.5rem 0; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--cream); }
+        .comment-item { padding: 1.2rem; border-bottom: 1px solid var(--border); }
+        .comment-author { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; color: var(--charcoal); }
+        .comment-author i { color: var(--gold); margin-right: 0.4rem; }
+
+        /* Footer */
+        footer { background: var(--charcoal); color: white; padding: 4rem 2rem 2rem; display: none; }
+        .footer-container { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 3rem; }
+        .footer-brand h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.8rem; color: white; }
+        .footer-brand p { color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; line-height: 1.6; }
+        .footer-links h4, .footer-contact h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); margin-bottom: 1.2rem; }
+        .footer-links a { display: block; color: rgba(255, 255, 255, 0.6); text-decoration: none; margin-bottom: 0.6rem; font-size: 0.9rem; transition: var(--transition); }
+        .footer-links a:hover { color: var(--gold); transform: translateX(4px); }
+        .copyright { max-width: 1280px; margin: 3rem auto 0; padding-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.1); text-align: center; color: rgba(255, 255, 255, 0.4); font-size: 0.8rem; letter-spacing: 0.5px; }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.25rem 0;
-        }
-
-        .logo-image-wrapper {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 2px solid var(--gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            flex-shrink: 0;
-        }
-
-        .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .logo-name {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.35rem;
-            font-weight: 600;
-            letter-spacing: -0.01em;
-            color: var(--charcoal);
-            line-height: 1;
-        }
-
-        nav {
-            display: flex;
-            gap: 2.8rem;
-            align-items: center;
-        }
-
-        nav a {
-            text-decoration: none;
-            color: var(--charcoal);
-            font-size: 0.95rem;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 0;
-            border-bottom: 2px solid transparent;
-        }
-
-        nav a i {
-            color: var(--gold);
-            font-size: 0.9rem;
-            transition: var(--transition);
-        }
-
-        nav a:hover {
-            color: var(--gold-dark);
-            border-bottom-color: var(--gold);
-        }
-
-        nav a:hover i {
-            color: var(--gold-dark);
-        }
-
-        /* ------------------------------------------------------------
-           HERO — Timeless, editorial
-        ------------------------------------------------------------ */
-        #hero {
-            display: none;
-            position: relative;
-            background: var(--charcoal);
-            color: white;
-            overflow: hidden;
-        }
-
-        .hero-backdrop {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            opacity: 0.3;
-        }
-
-        .hero-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(145deg, rgba(44,44,44,0.95) 0%, rgba(44,44,44,0.85) 100%);
-        }
-
-        .hero-container {
-            position: relative;
-            z-index: 2;
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 5rem 2rem;
-            display: grid;
-            grid-template-columns: 1fr 0.8fr;
-            gap: 4rem;
-            align-items: center;
-        }
-
-        .hero-tagline {
-            display: inline-block;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            color: var(--gold);
-            background: rgba(194, 164, 119, 0.12);
-            padding: 0.4rem 1.2rem;
-            border-radius: 30px;
-            margin-bottom: 1.5rem;
-            border: 1px solid rgba(194, 164, 119, 0.2);
-        }
-
-        .hero-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 4rem;
-            font-weight: 600;
-            line-height: 1.1;
-            margin-bottom: 1.2rem;
-            letter-spacing: -0.01em;
-        }
-
-        .hero-bio {
-            font-size: 1.15rem;
-            font-weight: 300;
-            color: rgba(255, 255, 255, 0.9);
-            border-left: 4px solid var(--gold);
-            padding-left: 1.5rem;
-            margin: 1.8rem 0;
-            line-height: 1.7;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .hero-meta {
-            display: flex;
-            gap: 2rem;
-            margin: 1.5rem 0;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .hero-meta i {
-            margin-right: 0.5rem;
-            color: var(--gold);
-        }
-
-        .hero-social {
-            display: flex;
-            gap: 1.2rem;
-            margin-top: 2rem;
-        }
-
-        .hero-social a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
-            font-size: 1.1rem;
-            transition: var(--transition);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .hero-social a:hover {
-            background: var(--gold);
-            color: var(--charcoal);
-            border-color: var(--gold);
-            transform: translateY(-3px);
-        }
-
-        .hero-portrait img {
-            width: 100%;
-            max-width: 320px;
-            height: auto;
-            border-radius: 50%;
-            border: 4px solid var(--gold);
-            box-shadow: 0 25px 40px -15px rgba(0,0,0,0.3);
-        }
-
-        /* ------------------------------------------------------------
-           SECTIONS — Clean, spacious
-        ------------------------------------------------------------ */
-        section {
-            padding: 5rem 0;
-            border-bottom: 1px solid var(--border);
-            display: none;
-        }
-
-        .section-header {
-            margin-bottom: 3.5rem;
-            text-align: center;
-        }
-
-        .section-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 2.5rem;
-            font-weight: 500;
-            color: var(--charcoal);
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.01em;
-        }
-
-        .section-title span {
-            color: var(--gold-dark);
-            font-weight: 600;
-        }
-
-        .section-subtitle {
-            font-size: 1rem;
-            color: var(--gray);
-            font-weight: 300;
-            letter-spacing: 0.3px;
-        }
-
-        /* ------------------------------------------------------------
-           FEATURE CARDS — Elegant, refined
-        ------------------------------------------------------------ */
-        .featured-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 2rem;
-        }
-
-        .feature-card {
-            background: white;
-            padding: 2rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            transition: var(--transition);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .feature-card:hover {
-            border-color: var(--gold);
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-4px);
-        }
-
-        .card-category {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.35rem 1rem;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 1.5rem;
-            align-self: flex-start;
-        }
-
-        .feature-card h3 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            line-height: 1.3;
-        }
-
-        .card-subtitle {
-            font-size: 0.9rem;
-            color: var(--gold-dark);
-            font-style: italic;
-            margin-bottom: 1rem;
-        }
-
-        .card-description {
-            color: var(--gray-dark);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-            flex: 1;
-        }
-
-        .card-price {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--gold-dark);
-            margin-bottom: 1.2rem;
-        }
-
-        .reaction-strip {
-            display: flex;
-            gap: 1.2rem;
-            margin: 1.2rem 0;
-            color: var(--gray);
-            font-size: 0.85rem;
-            border-top: 1px solid var(--border);
-            padding-top: 1.2rem;
-        }
-
-        /* ------------------------------------------------------------
-           BOOKS — Editorial layout
-        ------------------------------------------------------------ */
-        .books-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 2.5rem;
-        }
-
-        .book-card {
-            display: grid;
-            grid-template-columns: 200px 1fr;
-            gap: 2.5rem;
-            background: white;
-            padding: 2rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            transition: var(--transition);
-        }
-
-        .book-card:hover {
-            border-color: var(--gold);
-            box-shadow: var(--shadow-md);
-        }
-
-        .book-cover img {
-            width: 100%;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .book-details h3 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .book-subtitle {
-            font-size: 0.95rem;
-            color: var(--gold-dark);
-            font-style: italic;
-            margin-bottom: 1rem;
-        }
-
-        .book-meta {
-            display: flex;
-            gap: 1.5rem;
-            margin: 1rem 0;
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .book-meta i {
-            color: var(--gold);
-            margin-right: 0.4rem;
-        }
-
-        .book-description {
-            color: var(--gray-dark);
-            margin: 1.2rem 0;
-            line-height: 1.7;
-        }
-
-        .book-formats {
-            margin: 1.2rem 0;
-        }
-
-        .format-badge {
-            display: inline-block;
-            background: var(--gray-light);
-            padding: 0.4rem 1rem;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            margin-right: 0.6rem;
-            margin-bottom: 0.6rem;
-            color: var(--charcoal);
-            border: 1px solid var(--border);
-        }
-
-        /* ------------------------------------------------------------
-           FORTHCOMING — Subtle, refined
-        ------------------------------------------------------------ */
-        .forthcoming-section {
-            margin-top: 4rem;
-            background: var(--cream);
-            border-radius: var(--radius-lg);
-            padding: 2.5rem;
-        }
-
-        .forthcoming-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--gold-dark);
-            margin-bottom: 1.5rem;
-        }
-
-        .forthcoming-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .forthcoming-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border);
-        }
-
-        .forthcoming-card h4 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.4rem;
-        }
-
-        .forthcoming-date {
-            font-size: 0.8rem;
-            color: var(--gray);
-            margin: 0.8rem 0;
-        }
-
-        /* ------------------------------------------------------------
-           ARTICLES — Clean, readable
-        ------------------------------------------------------------ */
-        .articles-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 2rem;
-        }
-
-        .article-card {
-            background: white;
-            padding: 2rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            transition: var(--transition);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .article-card:hover {
-            border-color: var(--gold);
-            box-shadow: var(--shadow-md);
-        }
-
-        .article-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.2rem;
-        }
-
-        .article-category {
-            background: var(--sand);
-            color: var(--gold-dark);
-            padding: 0.25rem 1rem;
-            border-radius: 30px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .reading-time {
-            color: var(--gray);
-            font-size: 0.8rem;
-        }
-
-        .article-card h3 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin-bottom: 0.8rem;
-            line-height: 1.4;
-        }
-
-        .article-excerpt {
-            color: var(--gray-dark);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-            flex: 1;
-        }
-
-        .article-footer {
-            margin-top: auto;
-        }
-
-        .reaction-buttons {
-            display: flex;
-            gap: 1.2rem;
-            margin-bottom: 1rem;
-        }
-
-        .reaction-btn {
-            background: none;
-            border: none;
-            color: var(--gray);
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.2rem 0.4rem;
-            border-radius: 20px;
-        }
-
-        .reaction-btn:hover {
-            color: var(--gold);
-            background: rgba(194, 164, 119, 0.08);
-        }
-
-        .read-link {
-            color: var(--gold-dark);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            transition: var(--transition);
-            border-top: 1px solid var(--border);
-            padding-top: 1rem;
-            width: 100%;
-        }
-
-        .read-link:hover {
-            gap: 0.6rem;
-            color: var(--gold);
-        }
-
-        /* ------------------------------------------------------------
-           RESEARCH — Academic, refined
-        ------------------------------------------------------------ */
-        .research-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .research-card {
-            background: var(--cream);
-            padding: 2rem;
-            border-radius: var(--radius-lg);
-            border-left: 4px solid var(--gold);
-            transition: var(--transition);
-        }
-
-        .research-card:hover {
-            background: white;
-            box-shadow: var(--shadow-md);
-        }
-
-        .research-badge {
-            display: inline-block;
-            background: rgba(194, 164, 119, 0.1);
-            color: var(--gold-dark);
-            padding: 0.3rem 1rem;
-            border-radius: 30px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 1rem;
-        }
-
-        .research-card h3 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .research-authors {
-            color: var(--gray);
-            font-size: 0.8rem;
-            margin-bottom: 0.3rem;
-        }
-
-        .research-journal {
-            font-style: italic;
-            color: var(--gray);
-            font-size: 0.8rem;
-            margin-bottom: 1rem;
-        }
-
-        .research-abstract {
-            color: var(--gray-dark);
-            font-size: 0.9rem;
-            line-height: 1.6;
-            margin: 1rem 0;
-        }
-
-        .research-actions {
-            display: flex;
-            gap: 0.8rem;
-            margin-top: 1.2rem;
-        }
-
-        .forthcoming-research {
-            background: white;
-            border-radius: var(--radius-lg);
-            padding: 2rem;
-            border: 1px dashed var(--gold);
-        }
-
-        .forthcoming-research-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.2rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .forthcoming-research-item:last-child {
-            border-bottom: none;
-        }
-
-        /* ------------------------------------------------------------
-           BUTTONS — Elegant, refined
-        ------------------------------------------------------------ */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.6rem;
-            padding: 0.7rem 1.6rem;
-            border-radius: 30px;
-            font-weight: 500;
-            font-size: 0.85rem;
-            text-decoration: none;
-            transition: var(--transition);
-            border: none;
-            cursor: pointer;
-            border: 1px solid transparent;
-        }
-
-        .btn-primary {
-            background: var(--gold);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--gold-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(194, 164, 119, 0.2);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid var(--gold);
-            color: var(--gold-dark);
-        }
-
-        .btn-secondary:hover {
-            background: var(--gold);
-            color: white;
-        }
-
-        .btn-waitlist {
-            background: #8b5cf6;
-            color: white;
-        }
-
-        .btn-waitlist:hover {
-            background: #7c3aed;
-            transform: translateY(-2px);
-        }
-
-        .btn-sm {
-            padding: 0.4rem 1.2rem;
-            font-size: 0.75rem;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--gold);
-            color: var(--gold-dark);
-        }
-
-        .btn-outline:hover {
-            background: var(--gold);
-            color: white;
-        }
-
-        .waitlist-count {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 0.2rem 0.6rem;
-            border-radius: 30px;
-            margin-left: 0.5rem;
-            font-size: 0.7rem;
-        }
-
-        /* ------------------------------------------------------------
-           MODALS — Elegant, refined
-        ------------------------------------------------------------ */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: var(--radius-lg);
-            max-width: 900px;
-            width: 90%;
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 2.5rem;
-            position: relative;
-            box-shadow: var(--shadow-lg);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 1.2rem;
-            right: 1.5rem;
-            font-size: 1.8rem;
-            background: none;
-            border: none;
-            color: var(--gray);
-            cursor: pointer;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-
-        .modal-close:hover {
-            background: var(--sand);
-            color: var(--gold-dark);
-        }
-
-        /* Comment modal specific */
-        .comment-list {
-            max-height: 400px;
-            overflow-y: auto;
-            margin: 1.5rem 0;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            background: var(--cream);
-        }
-
-        .comment-item {
-            padding: 1.2rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .comment-item:last-child {
-            border-bottom: none;
-        }
-
-        .comment-author {
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-bottom: 0.4rem;
-            color: var(--charcoal);
-        }
-
-        .comment-author i {
-            color: var(--gold);
-            margin-right: 0.4rem;
-        }
-
-        .comment-text {
-            color: var(--gray-dark);
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin-bottom: 0.4rem;
-        }
-
-        .comment-meta {
-            color: var(--gray);
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* ------------------------------------------------------------
-           FOOTER — Minimal, refined
-        ------------------------------------------------------------ */
-        footer {
-            background: var(--charcoal);
-            color: white;
-            padding: 4rem 2rem 2rem;
-            display: none;
-        }
-
-        .footer-container {
-            max-width: 1280px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 3rem;
-        }
-
-        .footer-brand h4 {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.8rem;
-            color: white;
-        }
-
-        .footer-brand p {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        .footer-links h4,
-        .footer-contact h4 {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--gold);
-            margin-bottom: 1.2rem;
-        }
-
-        .footer-links a {
-            display: block;
-            color: rgba(255, 255, 255, 0.6);
-            text-decoration: none;
-            margin-bottom: 0.6rem;
-            font-size: 0.9rem;
-            transition: var(--transition);
-        }
-
-        .footer-links a:hover {
-            color: var(--gold);
-            transform: translateX(4px);
-        }
-
-        .footer-contact p {
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 0.4rem;
-            font-size: 0.9rem;
-        }
-
-        .copyright {
-            max-width: 1280px;
-            margin: 3rem auto 0;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.8rem;
-            letter-spacing: 0.5px;
-        }
-
-        /* ------------------------------------------------------------
-           RESPONSIVE — Elegant at all sizes
-        ------------------------------------------------------------ */
         @media (max-width: 900px) {
-            .hero-container {
-                grid-template-columns: 1fr;
-                text-align: center;
-                gap: 2rem;
-            }
-            
-            .hero-bio {
-                border-left: none;
-                border-top: 4px solid var(--gold);
-                padding-left: 0;
-                padding-top: 1.5rem;
-            }
-            
-            .hero-meta {
-                justify-content: center;
-            }
-            
-            .hero-social {
-                justify-content: center;
-            }
-            
-            .hero-portrait {
-                grid-row: 1;
-            }
-            
-            .hero-portrait img {
-                max-width: 240px;
-                margin: 0 auto;
-            }
-            
-            .book-card {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-            
-            .book-cover {
-                max-width: 240px;
-                margin: 0 auto;
-            }
-            
-            .book-meta {
-                justify-content: center;
-            }
-            
-            .forthcoming-research-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-            
-            .modal-content [style*="grid-template-columns"] {
-                grid-template-columns: 1fr !important;
-            }
-
-            nav {
-                gap: 1.5rem;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 0 1.5rem;
-            }
-            
-            .hero-title {
-                font-size: 2.8rem;
-            }
-            
-            .featured-grid,
-            .articles-grid,
-            .research-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            nav {
-                gap: 1.2rem;
-            }
-            
-            nav a span {
-                display: none;
-            }
-            
-            nav a i {
-                font-size: 1.1rem;
-            }
-            
-            .header-container {
-                padding: 0 0.5rem;
-            }
-
-            .logo-image-wrapper {
-                width: 40px;
-                height: 40px;
-            }
-
-            .logo-name {
-                font-size: 1.1rem;
-            }
+            .hero-container { grid-template-columns: 1fr; text-align: center; gap: 2rem; }
+            .hero-bio { border-left: none; border-top: 4px solid var(--gold); padding-left: 0; padding-top: 1.5rem; }
+            .book-card { grid-template-columns: 1fr; text-align: center; }
+            .book-cover { max-width: 240px; margin: 0 auto; }
         }
     </style>
 </head>
 <body>
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
     <!-- Loading Screen -->
     <div id="loading">
         <div class="loading-spinner"></div>
@@ -1871,10 +1376,10 @@
         <!-- Hero Section -->
         <div id="hero"></div>
         
-        <!-- Featured Carousel -->
+        <!-- Featured Carousel (auto-play, infinite) -->
         <section id="featured"></section>
         
-        <!-- Books Section -->
+        <!-- Books Section with Order Forms & Waitlist -->
         <section id="books"></section>
         
         <!-- Articles Section -->
@@ -1895,22 +1400,26 @@
         </div>
     </div>
 
-    <!-- Waitlist Modal -->
+    <!-- 🔥 WAITLIST MODAL — FULLY FUNCTIONAL, CONNECTED TO FIREBASE -->
     <div id="waitlistModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 480px;">
             <button class="modal-close" onclick="closeModal('waitlistModal')">&times;</button>
             <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 600; color: var(--charcoal); margin-bottom: 0.5rem;">Join waitlist</h3>
             <p style="color: var(--gray); margin-bottom: 2rem; font-size: 0.95rem;">Be the first to know when this becomes available.</p>
             
-            <form id="waitlistForm">
-                <input type="hidden" id="waitlistPubId">
-                <input type="hidden" id="waitlistPubType">
+            <form id="waitlistFormElement">
+                <input type="hidden" id="waitlistPubId" name="publicationId">
+                <input type="hidden" id="waitlistPubType" name="publicationType">
                 
-                <input type="text" placeholder="Full name" required 
-                    style="width: 100%; padding: 0.9rem 1.2rem; margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.95rem; background: var(--gray-light);">
+                <input type="text" name="fullName" placeholder="Full name" 
+                    style="width: 100%; padding: 0.9rem 1.2rem; margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.95rem; background: var(--gray-light); transition: var(--transition);"
+                    onfocus="this.style.borderColor='#c2a477'; this.style.boxShadow='0 0 0 3px rgba(194,164,119,0.1)';"
+                    onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
                 
-                <input type="email" placeholder="Email address" required 
-                    style="width: 100%; padding: 0.9rem 1.2rem; margin-bottom: 1.5rem; border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.95rem; background: var(--gray-light);">
+                <input type="email" name="email" placeholder="Email address" required 
+                    style="width: 100%; padding: 0.9rem 1.2rem; margin-bottom: 1.5rem; border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.95rem; background: var(--gray-light); transition: var(--transition);"
+                    onfocus="this.style.borderColor='#c2a477'; this.style.boxShadow='0 0 0 3px rgba(194,164,119,0.1)';"
+                    onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
                 
                 <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.9rem;">
                     <i class="fas fa-bell"></i> Notify me
@@ -1925,16 +1434,14 @@
         </div>
     </div>
 
-    <!-- COMMENT MODAL — Fully integrated with Firebase -->
+    <!-- Comment Modal -->
     <div id="commentModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 650px;">
             <button class="modal-close" onclick="closeModal('commentModal')">&times;</button>
             <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 600; color: var(--charcoal); margin-bottom: 0.5rem;">Discussion</h3>
             <p style="color: var(--gray); margin-bottom: 1.5rem; font-size: 0.95rem;">Share your thoughts with the author and readers.</p>
             
-            <div id="commentList" class="comment-list">
-                <!-- Comments dynamically injected -->
-            </div>
+            <div id="commentList" class="comment-list"></div>
             
             <form id="commentForm">
                 <input type="text" id="commentName" placeholder="Your name (optional)" 
@@ -1949,7 +1456,7 @@
     </div>
 
     <script>
-        // Expose closeModal globally
+        // Ensure closeModal is globally defined
         window.closeModal = function(modalId) {
             document.getElementById(modalId)?.classList.remove('active');
             document.body.style.overflow = 'auto';
