@@ -2,18 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
-    <title>Mugera W. – Official Author Site</title>
-    <!-- Firebase Config - Your New Project -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Mugera W. — Author, Speaker, Thinker</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Premium Typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cinzel:wght@500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,500&display=swap" rel="stylesheet">
-    <!-- Modular Firebase SDK -->
+    
+    <!-- Google Fonts: Elegant, refined typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK Modular -->
     <script type="module">
         // ------------------------------------------------------------
-        // FIREBASE INITIALIZATION - YOUR EXACT CONFIG
+        // FIREBASE INITIALIZATION — YOUR EXACT CONFIG
         // ------------------------------------------------------------
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
@@ -33,194 +35,226 @@
         const dbRef = ref(db);
 
         // ------------------------------------------------------------
-        // NO FALLBACK – EMPTY STATE UNTIL FIREBASE RESPONDS
+        // STATE — PURE FIREBASE, NO FALLBACKS
         // ------------------------------------------------------------
-        let authorProfile = {};
-        let featuredCarousel = { latestPublications: [] };
-        let books = {};
-        let articles = {};
-        let researchPapers = {};
-        let siteConfig = {};
+        let authorProfile = null;
+        let featuredCarousel = null;
+        let books = null;
+        let articles = null;
+        let researchPapers = null;
+        let siteConfig = null;
 
         // ------------------------------------------------------------
-        // LOAD FIREBASE DATA – STRICT: NO SAMPLE, NO FALLBACK
+        // LOAD FIREBASE DATA — STRICT: ONLY RENDER IF DATA EXISTS
         // ------------------------------------------------------------
         async function loadFirebaseData() {
             try {
                 const snapshot = await get(child(dbRef, '/'));
+                
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     
-                    // Assign only if data exists – otherwise keep empty objects
-                    if (data.authorProfile) authorProfile = data.authorProfile;
-                    if (data.featuredCarousel) featuredCarousel = data.featuredCarousel;
-                    if (data.books) books = data.books;
-                    if (data.articles) articles = data.articles;
-                    if (data.researchPapers) researchPapers = data.researchPapers;
-                    if (data.siteConfig) siteConfig = data.siteConfig;
+                    authorProfile = data.authorProfile || null;
+                    featuredCarousel = data.featuredCarousel || null;
+                    books = data.books || null;
+                    articles = data.articles || null;
+                    researchPapers = data.researchPapers || null;
+                    siteConfig = data.siteConfig || null;
 
-                    // Render everything – if data is missing, sections stay hidden
-                    renderHero();
-                    renderFeaturedCarousel();
-                    renderBooks();
-                    renderArticles();
-                    renderResearchPapers();
+                    // Hide loading with fade
+                    document.getElementById('loading').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('loading').style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }, 800);
+
+                    // Render each section only if data exists
+                    if (authorProfile) renderHero();
+                    if (featuredCarousel?.latestPublications?.length) renderFeatured();
+                    if (books && Object.keys(books).length > 0) renderBooks();
+                    if (articles && Object.keys(articles).length > 0) renderArticles();
+                    if (researchPapers && Object.keys(researchPapers).length > 0) renderResearch();
+                    
+                    // Always render header and footer with available data
+                    renderHeader();
                     renderFooter();
+                    
                 } else {
-                    // No data in Firebase – show empty state, no samples
-                    showEmptyState();
+                    showEmptyState('No author data found');
                 }
             } catch (error) {
-                console.error("Firebase error:", error);
-                showEmptyState();
+                console.error('Firebase error:', error);
+                showEmptyState('Unable to load content');
             }
         }
 
         // ------------------------------------------------------------
-        // EMPTY STATE – NO SAMPLE CONTENT, JUST A CLEAN MESSAGE
+        // ELEGANT EMPTY STATE
         // ------------------------------------------------------------
-        function showEmptyState() {
+        function showEmptyState(message) {
             document.getElementById('loading').style.display = 'none';
-            document.getElementById('main-content').innerHTML = `
-                <div style="text-align: center; padding: 6rem 2rem; max-width: 600px; margin: 0 auto;">
-                    <i class="fas fa-database" style="font-size: 3rem; color: #ca8a04; opacity: 0.5;"></i>
-                    <h2 style="font-family: 'Cinzel'; margin-top: 1.5rem;">Author library loading</h2>
-                    <p style="color: #6b7280; margin-top: 0.5rem;">Please check back soon.</p>
+            document.body.innerHTML = `
+                <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #faf9f7; font-family: 'Inter', sans-serif;">
+                    <div style="font-size: 3.5rem; color: #c2a477; margin-bottom: 1.5rem; opacity: 0.6;">📚</div>
+                    <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 400; color: #2c2c2c; margin-bottom: 0.75rem; letter-spacing: -0.01em;">Author library</h2>
+                    <p style="font-size: 1rem; color: #6a6a6a; max-width: 400px; text-align: center; line-height: 1.6;">${message}. Please check back soon.</p>
                 </div>
             `;
         }
 
         // ------------------------------------------------------------
-        // RENDER HERO – PULLS EXCLUSIVELY FROM authorProfile
+        // RENDER HEADER — Minimal, sophisticated
+        // ------------------------------------------------------------
+        function renderHeader() {
+            const header = document.getElementById('header');
+            header.style.display = 'flex';
+            
+            header.innerHTML = `
+                <div class="header-container">
+                    <div class="logo">
+                        <img src="${authorProfile?.avatarUrl || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png'}" alt="${authorProfile?.name || 'Mugera W.'}">
+                        <span class="logo-name">${authorProfile?.name || 'Mugera W.'}</span>
+                    </div>
+                    <nav>
+                        ${books && Object.keys(books).length > 0 ? '<a href="#books"><i class="fas fa-book"></i> Books</a>' : ''}
+                        ${articles && Object.keys(articles).length > 0 ? '<a href="#articles"><i class="fas fa-pen-fancy"></i> Articles</a>' : ''}
+                        ${researchPapers && Object.keys(researchPapers).length > 0 ? '<a href="#research"><i class="fas fa-flask"></i> Research</a>' : ''}
+                    </nav>
+                </div>
+            `;
+        }
+
+        // ------------------------------------------------------------
+        // RENDER HERO — Refined, timeless
         // ------------------------------------------------------------
         function renderHero() {
-            if (!authorProfile.name) return; // No data, don't render
-            
             const hero = document.getElementById('hero');
-            hero.style.backgroundImage = `url('${authorProfile.heroImage || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop'}')`;
+            hero.style.display = 'block';
             
             hero.innerHTML = `
+                <div class="hero-backdrop" style="background-image: url('${authorProfile.heroImage || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop'}')"></div>
                 <div class="hero-overlay"></div>
                 <div class="hero-container">
-                    <div class="hero-text">
+                    <div class="hero-content">
                         <span class="hero-tagline">${authorProfile.tagline || 'Author • Speaker • Thinker'}</span>
-                        <h1 class="cinzel">${authorProfile.name || 'Mugera W.'}</h1>
+                        <h1 class="hero-title">${authorProfile.name || 'Mugera W.'}</h1>
                         <p class="hero-bio">${authorProfile.bio || ''}</p>
                         <div class="hero-meta">
-                            <span><i class="fas fa-map-marker-alt"></i> ${authorProfile.location || ''}</span>
-                            <span><i class="fas fa-envelope"></i> ${authorProfile.email || ''}</span>
+                            ${authorProfile.location ? `<span><i class="fas fa-map-marker-alt"></i> ${authorProfile.location}</span>` : ''}
+                            ${authorProfile.email ? `<span><i class="fas fa-envelope"></i> ${authorProfile.email}</span>` : ''}
                         </div>
                         <div class="hero-social">
-                            ${authorProfile.social?.twitter ? `<a href="${authorProfile.social.twitter}" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>` : ''}
-                            ${authorProfile.social?.linkedin ? `<a href="${authorProfile.social.linkedin}" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i></a>` : ''}
-                            ${authorProfile.social?.instagram ? `<a href="${authorProfile.social.instagram}" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>` : ''}
+                            ${authorProfile.social?.twitter ? `<a href="${authorProfile.social.twitter}" target="_blank" rel="noopener" aria-label="Twitter"><i class="fab fa-twitter"></i></a>` : ''}
+                            ${authorProfile.social?.linkedin ? `<a href="${authorProfile.social.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>` : ''}
+                            ${authorProfile.social?.instagram ? `<a href="${authorProfile.social.instagram}" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>` : ''}
                         </div>
                     </div>
-                    <div class="hero-avatar">
-                        <img src="${authorProfile.avatarUrl || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png'}" alt="${authorProfile.name}">
+                    <div class="hero-portrait">
+                        <img src="${authorProfile.avatarUrl || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png'}" alt="${authorProfile.name || 'Mugera W.'}">
                     </div>
                 </div>
             `;
-            hero.style.display = 'block';
         }
 
         // ------------------------------------------------------------
-        // FEATURED CAROUSEL – LATEST PUBLICATIONS
+        // RENDER FEATURED — Latest publications in elegant cards
         // ------------------------------------------------------------
-        function renderFeaturedCarousel() {
-            const container = document.getElementById('featured-carousel');
-            if (!featuredCarousel.latestPublications || featuredCarousel.latestPublications.length === 0) {
-                container.style.display = 'none';
-                return;
-            }
-
-            let html = `
-                <div class="section-header">
-                    <h2 class="section-title cinzel"><span class="highlight">Latest</span> publications</h2>
-                    <p class="section-subtitle">Recent works from Mugera W.</p>
-                </div>
-                <div class="carousel-grid">
-            `;
-
+        function renderFeatured() {
+            const section = document.getElementById('featured');
+            section.style.display = 'block';
+            
+            let itemsHtml = '';
             featuredCarousel.latestPublications.forEach(item => {
                 if (item.type === 'book') {
-                    html += `
-                        <div class="feature-card book-card">
-                            <div class="card-badge"><i class="fas fa-book"></i> Book</div>
+                    itemsHtml += `
+                        <div class="feature-card">
+                            <div class="card-category" style="background: #eae2d1; color: #7a5c3a;">
+                                <i class="fas fa-book"></i> Book
+                            </div>
                             <h3>${item.title || ''}</h3>
                             <p class="card-subtitle">${item.subtitle || ''}</p>
-                            <p class="card-description">${item.description || ''}</p>
+                            <p class="card-description">${item.description || item.excerpt || ''}</p>
                             <div class="card-price">${item.price || ''}</div>
-                            <a href="${item.orderUrl || '#'}" class="btn btn-gold" target="_blank" rel="noopener">
-                                <i class="fas fa-shopping-cart"></i> ${item.orderButtonText || 'Order Now'}
+                            <a href="${item.orderUrl || '#'}" class="btn btn-primary" target="_blank" rel="noopener">
+                                <i class="fas fa-shopping-cart"></i> ${item.orderButtonText || 'Order'}
                             </a>
                         </div>
                     `;
                 } else if (item.type === 'article') {
-                    const rc = item.reactionCounts || { likes: 0, comments: 0, shares: 0 };
-                    html += `
-                        <div class="feature-card article-card">
-                            <div class="card-badge"><i class="fas fa-newspaper"></i> Article</div>
+                    const rc = item.reactionCounts || {};
+                    itemsHtml += `
+                        <div class="feature-card">
+                            <div class="card-category" style="background: #e2e6f0; color: #2c3e5c;">
+                                <i class="fas fa-newspaper"></i> Article
+                            </div>
                             <h3>${item.title || ''}</h3>
                             <p class="card-subtitle">${item.subtitle || ''}</p>
                             <p class="card-description">${item.excerpt || ''}</p>
                             <div class="reaction-strip">
-                                <span><i class="fas fa-heart"></i> ${rc.likes}</span>
-                                <span><i class="fas fa-comment"></i> ${rc.comments}</span>
-                                <span><i class="fas fa-share"></i> ${rc.shares}</span>
+                                <span><i class="fas fa-heart"></i> ${rc.likes || 0}</span>
+                                <span><i class="fas fa-comment"></i> ${rc.comments || 0}</span>
+                                <span><i class="fas fa-share"></i> ${rc.shares || 0}</span>
                             </div>
-                            <a href="${item.readUrl || '#'}" class="btn btn-outline" target="_blank" rel="noopener">
-                                <i class="fas fa-book-open"></i> ${item.readButtonText || 'Read Free'}
+                            <a href="${item.readUrl || '#'}" class="btn btn-secondary" target="_blank" rel="noopener">
+                                <i class="fas fa-book-open"></i> ${item.readButtonText || 'Read'}
                             </a>
                         </div>
                     `;
                 } else if (item.type === 'research') {
-                    const rc = item.reactionCounts || { likes: 0, comments: 0, shares: 0 };
-                    html += `
-                        <div class="feature-card research-card">
-                            <div class="card-badge"><i class="fas fa-flask"></i> Research</div>
+                    const rc = item.reactionCounts || {};
+                    itemsHtml += `
+                        <div class="feature-card">
+                            <div class="card-category" style="background: #e0e8d9; color: #3a5a40;">
+                                <i class="fas fa-flask"></i> Research
+                            </div>
                             <h3>${item.title || ''}</h3>
                             <p class="card-subtitle">${item.subtitle || ''}</p>
                             <p class="card-authors">${item.authors || ''} • ${item.year || ''}</p>
                             <div class="reaction-strip">
-                                <span><i class="fas fa-heart"></i> ${rc.likes}</span>
-                                <span><i class="fas fa-comment"></i> ${rc.comments}</span>
-                                <span><i class="fas fa-share"></i> ${rc.shares}</span>
+                                <span><i class="fas fa-heart"></i> ${rc.likes || 0}</span>
+                                <span><i class="fas fa-comment"></i> ${rc.comments || 0}</span>
+                                <span><i class="fas fa-share"></i> ${rc.shares || 0}</span>
                             </div>
-                            <a href="${item.readUrl || '#'}" class="btn btn-outline" target="_blank" rel="noopener">
-                                <i class="fas fa-file-alt"></i> ${item.readButtonText || 'Access Paper'}
+                            <a href="${item.readUrl || '#'}" class="btn btn-secondary" target="_blank" rel="noopener">
+                                <i class="fas fa-file-alt"></i> ${item.readButtonText || 'Access'}
                             </a>
                         </div>
                     `;
                 }
             });
-
-            html += `</div>`;
-            container.innerHTML = html;
-            container.style.display = 'block';
+            
+            section.innerHTML = `
+                <div class="container">
+                    <div class="section-header">
+                        <h2 class="section-title">Latest <span>publications</span></h2>
+                        <p class="section-subtitle">Recent work from the author</p>
+                    </div>
+                    <div class="featured-grid">
+                        ${itemsHtml}
+                    </div>
+                </div>
+            `;
         }
 
         // ------------------------------------------------------------
-        // BOOKS SECTION – PURCHASE, DETAILS, WAITLIST
+        // RENDER BOOKS — With purchase and waitlist
         // ------------------------------------------------------------
         function renderBooks() {
-            const container = document.getElementById('books');
-            const availableBooks = Object.values(books).filter(b => b.status !== 'coming-soon');
-            const comingBooks = Object.values(books).filter(b => b.status === 'coming-soon');
-
-            if (availableBooks.length === 0 && comingBooks.length === 0) {
-                container.style.display = 'none';
-                return;
-            }
-
+            const section = document.getElementById('books');
+            section.style.display = 'block';
+            
+            const bookValues = Object.values(books);
+            const availableBooks = bookValues.filter(b => b.status !== 'coming-soon');
+            const comingBooks = bookValues.filter(b => b.status === 'coming-soon');
+            
             let html = `
-                <div class="section-header">
-                    <h2 class="section-title cinzel"><span class="highlight">Books</span> for purchase</h2>
-                    <p class="section-subtitle">Order directly — signed copies available</p>
-                </div>
+                <div class="container">
+                    <div class="section-header">
+                        <h2 class="section-title">Books <span>for purchase</span></h2>
+                        <p class="section-subtitle">Order directly — signed copies available</p>
+                    </div>
             `;
-
-            // Available books
+            
             if (availableBooks.length > 0) {
                 html += `<div class="books-grid">`;
                 availableBooks.forEach(book => {
@@ -233,17 +267,16 @@
                                 <h3>${book.title}</h3>
                                 <p class="book-subtitle">${book.subtitle || ''}</p>
                                 <div class="book-meta">
-                                    <span><i class="fas fa-user"></i> ${book.authorName || 'Mugera W.'}</span>
                                     <span><i class="fas fa-calendar"></i> ${book.year || ''}</span>
-                                    <span><i class="fas fa-star"></i> ${book.rating || '—'} (${book.reviewCount || 0})</span>
+                                    <span><i class="fas fa-star"></i> ${book.rating || '—'} <span style="color: #8a8a8a;">(${book.reviewCount || 0})</span></span>
                                 </div>
-                                <p class="book-description">${(book.description || '').substring(0, 200)}${book.description?.length > 200 ? '...' : ''}</p>
+                                <p class="book-description">${(book.description || '').substring(0, 180)}${book.description?.length > 180 ? '...' : ''}</p>
                                 <div class="book-formats">
                                     ${book.formats ? book.formats.map(f => 
-                                        `<span class="format-badge">${f.type} • ${f.price}</span>`
+                                        `<span class="format-badge">${f.type} · ${f.price}</span>`
                                     ).join('') : ''}
                                 </div>
-                                <button class="btn btn-gold view-book" data-book-id="${book.id}">
+                                <button class="btn btn-primary view-book" data-book-id="${book.id}">
                                     <i class="fas fa-info-circle"></i> View details & order
                                 </button>
                             </div>
@@ -252,11 +285,10 @@
                 });
                 html += `</div>`;
             }
-
-            // Forthcoming books with waitlist
+            
             if (comingBooks.length > 0) {
                 html += `<div class="forthcoming-section">`;
-                html += `<h3 class="forthcoming-title"><i class="fas fa-clock"></i> Forthcoming books</h3>`;
+                html += `<h3 class="forthcoming-title"><i class="fas fa-clock" style="margin-right: 0.75rem;"></i> Forthcoming</h3>`;
                 html += `<div class="forthcoming-grid">`;
                 comingBooks.forEach(book => {
                     html += `
@@ -266,26 +298,26 @@
                             <p class="forthcoming-date">Expected: ${book.expectedPublication || 'TBA'}</p>
                             <button class="btn btn-waitlist" data-waitlist-id="${book.id}" data-type="book">
                                 <i class="fas fa-bell"></i> Join waitlist
-                                ${book.waitlistCount ? `<span class="waitlist-count">${book.waitlistCount}+</span>` : ''}
+                                ${book.waitlistCount ? `<span class="waitlist-count">${book.waitlistCount}</span>` : ''}
                             </button>
                         </div>
                     `;
                 });
                 html += `</div></div>`;
             }
-
-            container.innerHTML = html;
-            container.style.display = 'block';
-
-            // Attach event listeners
-            document.querySelectorAll('.view-book').forEach(btn => {
+            
+            html += `</div>`;
+            section.innerHTML = html;
+            
+            // Event listeners
+            section.querySelectorAll('.view-book').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const bookId = e.currentTarget.dataset.bookId;
                     openBookModal(bookId);
                 });
             });
-
-            document.querySelectorAll('.btn-waitlist').forEach(btn => {
+            
+            section.querySelectorAll('.btn-waitlist').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const pubId = e.currentTarget.dataset.waitlistId;
                     const type = e.currentTarget.dataset.type;
@@ -295,25 +327,24 @@
         }
 
         // ------------------------------------------------------------
-        // ARTICLES SECTION – WITH REACTIONS
+        // RENDER ARTICLES — With reactions
         // ------------------------------------------------------------
         function renderArticles() {
-            const container = document.getElementById('articles');
-            const articleList = Object.values(articles).filter(a => a.status === 'published');
+            const section = document.getElementById('articles');
+            section.style.display = 'block';
             
-            if (articleList.length === 0) {
-                container.style.display = 'none';
-                return;
-            }
-
+            const articleList = Object.values(articles).filter(a => a.status === 'published');
+            if (articleList.length === 0) return;
+            
             let html = `
-                <div class="section-header">
-                    <h2 class="section-title cinzel"><span class="highlight">Latest</span> articles</h2>
-                    <p class="section-subtitle">Read, react, share – free for everyone</p>
-                </div>
-                <div class="articles-grid">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 class="section-title">Essays & <span>articles</span></h2>
+                        <p class="section-subtitle">Read, reflect, share — free for all</p>
+                    </div>
+                    <div class="articles-grid">
             `;
-
+            
             articleList.sort((a, b) => new Date(b.publishedDate) - new Date(a.publishedDate))
                 .slice(0, 3).forEach(article => {
                     const reactions = article.reactions || { likes: 0, comments: 0, shares: 0 };
@@ -330,47 +361,44 @@
                                     <button class="reaction-btn like-btn">
                                         <i class="fas fa-heart"></i> <span class="like-count">${reactions.likes || 0}</span>
                                     </button>
-                                    <button class="reaction-btn comment-btn" onclick="alert('Comments view coming soon')">
+                                    <button class="reaction-btn comment-btn" onclick="alert('Comments coming soon')">
                                         <i class="fas fa-comment"></i> ${reactions.comments || 0}
                                     </button>
                                     <button class="reaction-btn share-btn">
                                         <i class="fas fa-share"></i> <span class="share-count">${reactions.shares || 0}</span>
                                     </button>
                                 </div>
-                                <a href="${article.readUrl || '#'}" class="btn btn-text" target="_blank" rel="noopener">
-                                    Read full <i class="fas fa-arrow-right"></i>
+                                <a href="${article.readUrl || '#'}" class="read-link" target="_blank" rel="noopener">
+                                    Read <i class="fas fa-arrow-right"></i>
                                 </a>
                             </div>
                         </div>
                     `;
                 });
-
-            html += `</div>`;
-            container.innerHTML = html;
-            container.style.display = 'block';
+            
+            html += `</div></div>`;
+            section.innerHTML = html;
             attachReactionHandlers();
         }
 
         // ------------------------------------------------------------
-        // RESEARCH PAPERS SECTION
+        // RENDER RESEARCH PAPERS
         // ------------------------------------------------------------
-        function renderResearchPapers() {
-            const container = document.getElementById('research');
+        function renderResearch() {
+            const section = document.getElementById('research');
+            section.style.display = 'block';
+            
             const publishedPapers = Object.values(researchPapers).filter(p => p.status !== 'in-progress');
             const forthcomingPapers = Object.values(researchPapers).filter(p => p.status === 'in-progress');
-
-            if (publishedPapers.length === 0 && forthcomingPapers.length === 0) {
-                container.style.display = 'none';
-                return;
-            }
-
+            
             let html = `
-                <div class="section-header">
-                    <h2 class="section-title cinzel"><span class="highlight">Research</span> papers</h2>
-                    <p class="section-subtitle">Peer-reviewed studies and working papers</p>
-                </div>
+                <div class="container">
+                    <div class="section-header">
+                        <h2 class="section-title">Research <span>papers</span></h2>
+                        <p class="section-subtitle">Peer-reviewed scholarship</p>
+                    </div>
             `;
-
+            
             if (publishedPapers.length > 0) {
                 html += `<div class="research-grid">`;
                 publishedPapers.sort((a, b) => b.year - a.year).slice(0, 3).forEach(paper => {
@@ -382,7 +410,7 @@
                             </div>
                             <h3>${paper.title}</h3>
                             <p class="research-authors">${paper.authors ? paper.authors.map(a => a.name).join(', ') : ''}</p>
-                            <p class="research-journal">${paper.publishedIn || ''} • ${paper.year || ''}</p>
+                            <p class="research-journal">${paper.publishedIn || ''} · ${paper.year || ''}</p>
                             <p class="research-abstract">${(paper.abstract || '').substring(0, 120)}...</p>
                             <div class="reaction-buttons" data-id="${paper.id}" data-type="research">
                                 <button class="reaction-btn like-btn">
@@ -393,15 +421,15 @@
                                 </button>
                             </div>
                             <div class="research-actions">
-                                ${paper.pdfUrl ? `<a href="${paper.pdfUrl}" class="btn btn-sm" target="_blank" rel="noopener"><i class="fas fa-file-pdf"></i> PDF</a>` : ''}
-                                ${paper.url ? `<a href="${paper.url}" class="btn btn-sm btn-outline" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> Publisher</a>` : ''}
+                                ${paper.pdfUrl ? `<a href="${paper.pdfUrl}" class="btn btn-sm btn-outline" target="_blank"><i class="fas fa-file-pdf"></i> PDF</a>` : ''}
+                                ${paper.url ? `<a href="${paper.url}" class="btn btn-sm btn-outline" target="_blank"><i class="fas fa-external-link-alt"></i> Publisher</a>` : ''}
                             </div>
                         </div>
                     `;
                 });
                 html += `</div>`;
             }
-
+            
             if (forthcomingPapers.length > 0) {
                 html += `<div class="forthcoming-research">`;
                 html += `<h3><i class="fas fa-flask"></i> Forthcoming research</h3>`;
@@ -410,23 +438,23 @@
                         <div class="forthcoming-research-item">
                             <div>
                                 <strong>${paper.title}</strong>
-                                <p>${paper.abstract?.substring(0, 100) || ''}...</p>
+                                <p>${(paper.abstract || '').substring(0, 100)}...</p>
                                 <small>Expected: ${paper.expectedCompletion || 'TBA'}</small>
                             </div>
                             <button class="btn btn-waitlist" data-waitlist-id="${paper.id}" data-type="research">
-                                <i class="fas fa-bell"></i> Notify me
+                                <i class="fas fa-bell"></i> Notify
                             </button>
                         </div>
                     `;
                 });
                 html += `</div>`;
             }
-
-            container.innerHTML = html;
-            container.style.display = 'block';
+            
+            html += `</div>`;
+            section.innerHTML = html;
             attachReactionHandlers();
             
-            document.querySelectorAll('.btn-waitlist').forEach(btn => {
+            section.querySelectorAll('.btn-waitlist').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const pubId = e.currentTarget.dataset.waitlistId;
                     const type = e.currentTarget.dataset.type;
@@ -436,107 +464,7 @@
         }
 
         // ------------------------------------------------------------
-        // FOOTER – FROM FIRBEASE siteConfig + authorProfile
-        // ------------------------------------------------------------
-        function renderFooter() {
-            const footer = document.getElementById('footer');
-            footer.innerHTML = `
-                <div class="footer-container">
-                    <div class="footer-brand">
-                        <h4>${siteConfig.siteTitle || 'Mugera W.'}</h4>
-                        <p>${siteConfig.tagline || 'Write the script. Build the legacy.'}</p>
-                    </div>
-                    <div class="footer-links">
-                        <h4>Explore</h4>
-                        <a href="#books">Books</a>
-                        <a href="#articles">Articles</a>
-                        <a href="#research">Research</a>
-                    </div>
-                    <div class="footer-contact">
-                        <h4>Connect</h4>
-                        <p>${authorProfile.email || ''}</p>
-                        <p>${authorProfile.location || ''}</p>
-                    </div>
-                </div>
-                <div class="copyright">
-                    © ${new Date().getFullYear()} ${authorProfile.name || 'Mugera W.'}. All rights reserved.
-                </div>
-            `;
-        }
-
-        // ------------------------------------------------------------
-        // BOOK DETAIL MODAL
-        // ------------------------------------------------------------
-        window.openBookModal = function(bookId) {
-            const book = books[bookId];
-            if (!book) return;
-            
-            const modal = document.getElementById('bookModal');
-            const content = document.getElementById('bookModalContent');
-            
-            let formatsHtml = '';
-            if (book.formats) {
-                formatsHtml = '<div class="format-list">';
-                book.formats.forEach(f => {
-                    formatsHtml += `
-                        <div class="format-row">
-                            <span><strong>${f.type}</strong></span>
-                            <span>${f.price}</span>
-                            <a href="${book.orderUrls?.[f.type.toLowerCase()] || '#'}" class="btn btn-sm btn-gold" target="_blank" rel="noopener">Order</a>
-                        </div>
-                    `;
-                });
-                formatsHtml += '</div>';
-            }
-
-            content.innerHTML = `
-                <div class="book-modal-grid">
-                    <div class="modal-cover">
-                        <img src="${book.coverImage || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1887&auto=format&fit=crop'}" alt="${book.title}">
-                    </div>
-                    <div class="modal-info">
-                        <h2 class="cinzel">${book.title}</h2>
-                        <p class="modal-subtitle">${book.subtitle || ''}</p>
-                        
-                        <div class="modal-author">
-                            <img src="${book.authorPhoto || authorProfile.avatarUrl}" alt="${book.authorName}" class="author-thumb">
-                            <div>
-                                <strong>${book.authorName || 'Mugera W.'}</strong>
-                                <p>${book.authorBio || ''}</p>
-                            </div>
-                        </div>
-                        
-                        <p class="modal-description">${book.description || ''}</p>
-                        
-                        <div class="modal-meta">
-                            <p><i class="fas fa-book"></i> ISBN: ${book.isbn || '—'}</p>
-                            <p><i class="fas fa-file-alt"></i> ${book.pages || '—'} pages</p>
-                            <p><i class="fas fa-calendar"></i> ${book.year || '—'}</p>
-                        </div>
-                        
-                        <h4>Formats & ordering</h4>
-                        ${formatsHtml}
-                    </div>
-                </div>
-            `;
-            
-            modal.classList.add('active');
-        };
-
-        // ------------------------------------------------------------
-        // WAITLIST MODAL
-        // ------------------------------------------------------------
-        window.openWaitlistModal = function(publicationId, type) {
-            const modal = document.getElementById('waitlistModal');
-            document.getElementById('waitlistPubId').value = publicationId || '';
-            document.getElementById('waitlistPubType').value = type || '';
-            document.getElementById('waitlistForm').style.display = 'block';
-            document.getElementById('waitlistSuccess').style.display = 'none';
-            modal.classList.add('active');
-        };
-
-        // ------------------------------------------------------------
-        // REACTION HANDLERS – WRITE TO FIREBASE (SIMULATED)
+        // REACTION HANDLERS
         // ------------------------------------------------------------
         function attachReactionHandlers() {
             document.querySelectorAll('.like-btn').forEach(btn => {
@@ -552,34 +480,132 @@
         async function handleLike(e) {
             e.preventDefault();
             const container = e.currentTarget.closest('.reaction-buttons');
-            const pubId = container?.dataset.id;
-            const type = container?.dataset.type;
             const likeSpan = e.currentTarget.querySelector('.like-count');
             let count = parseInt(likeSpan.innerText) || 0;
             likeSpan.innerText = count + 1;
-            // Firebase write would go here
-            console.log(`Liked ${type}: ${pubId}`);
+            e.currentTarget.style.color = '#c2a477';
         }
 
         async function handleShare(e) {
             e.preventDefault();
             const container = e.currentTarget.closest('.reaction-buttons');
-            const pubId = container?.dataset.id;
             const shareSpan = e.currentTarget.querySelector('.share-count');
             let count = parseInt(shareSpan.innerText) || 0;
             shareSpan.innerText = count + 1;
-            console.log(`Shared ${pubId}`);
+            e.currentTarget.style.color = '#c2a477';
         }
 
         // ------------------------------------------------------------
-        // MODAL UTILITIES
+        // BOOK DETAIL MODAL
         // ------------------------------------------------------------
-        window.closeModal = function(modalId) {
-            document.getElementById(modalId)?.classList.remove('active');
+        window.openBookModal = function(bookId) {
+            const book = books[bookId];
+            if (!book) return;
+            
+            const modal = document.getElementById('bookModal');
+            const content = document.getElementById('bookModalContent');
+            
+            let formatsHtml = '';
+            if (book.formats) {
+                formatsHtml = '<div style="margin-top: 1.5rem;">';
+                book.formats.forEach(f => {
+                    formatsHtml += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #f0f0f0;">
+                            <span style="font-weight: 600;">${f.type}</span>
+                            <span style="color: #7a5c3a; font-weight: 600;">${f.price}</span>
+                            <a href="${book.orderUrls?.[f.type.toLowerCase()] || '#'}" class="btn btn-primary" style="padding: 0.4rem 1.2rem; font-size: 0.8rem;" target="_blank">Order</a>
+                        </div>
+                    `;
+                });
+                formatsHtml += '</div>';
+            }
+
+            content.innerHTML = `
+                <div style="display: grid; grid-template-columns: 280px 1fr; gap: 2.5rem;">
+                    <div>
+                        <img src="${book.coverImage || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1887&auto=format&fit=crop'}" alt="${book.title}" style="width: 100%; border-radius: 16px; box-shadow: 0 20px 30px -10px rgba(0,0,0,0.15);">
+                    </div>
+                    <div>
+                        <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; color: #2c2c2c;">${book.title}</h2>
+                        <p style="font-size: 1.1rem; font-style: italic; color: #7a5c3a; margin-bottom: 1.5rem;">${book.subtitle || ''}</p>
+                        
+                        <div style="display: flex; gap: 1rem; align-items: center; background: #faf9f7; padding: 1.2rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                            <img src="${book.authorPhoto || authorProfile?.avatarUrl}" alt="${book.authorName}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #c2a477;">
+                            <div>
+                                <strong style="font-size: 1rem;">${book.authorName || 'Mugera W.'}</strong>
+                                <p style="font-size: 0.85rem; color: #6a6a6a; margin-top: 0.2rem;">${book.authorBio || ''}</p>
+                            </div>
+                        </div>
+                        
+                        <p style="line-height: 1.7; color: #3a3a3a; margin-bottom: 1.5rem;">${book.description || ''}</p>
+                        
+                        <div style="display: flex; gap: 1.5rem; margin-bottom: 1.5rem; font-size: 0.9rem; color: #5a5a5a;">
+                            ${book.isbn ? `<span><i class="fas fa-book" style="color: #c2a477; margin-right: 0.4rem;"></i> ISBN: ${book.isbn}</span>` : ''}
+                            ${book.pages ? `<span><i class="fas fa-file-alt" style="color: #c2a477; margin-right: 0.4rem;"></i> ${book.pages} pages</span>` : ''}
+                            ${book.year ? `<span><i class="fas fa-calendar" style="color: #c2a477; margin-right: 0.4rem;"></i> ${book.year}</span>` : ''}
+                        </div>
+                        
+                        <h4 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: #2c2c2c;">Formats & ordering</h4>
+                        ${formatsHtml}
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
         };
 
         // ------------------------------------------------------------
-        // WAITLIST FORM SUBMISSION – WRITES TO FIREBASE
+        // WAITLIST MODAL
+        // ------------------------------------------------------------
+        window.openWaitlistModal = function(publicationId, type) {
+            const modal = document.getElementById('waitlistModal');
+            document.getElementById('waitlistPubId').value = publicationId || '';
+            document.getElementById('waitlistPubType').value = type || '';
+            document.getElementById('waitlistForm').style.display = 'block';
+            document.getElementById('waitlistSuccess').style.display = 'none';
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId)?.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        };
+
+        // ------------------------------------------------------------
+        // RENDER FOOTER — Elegant, minimal
+        // ------------------------------------------------------------
+        function renderFooter() {
+            const footer = document.getElementById('footer');
+            footer.style.display = 'block';
+            
+            footer.innerHTML = `
+                <div class="footer-container">
+                    <div class="footer-brand">
+                        <h4>${siteConfig?.siteTitle || authorProfile?.name || 'Mugera W.'}</h4>
+                        <p>${siteConfig?.tagline || authorProfile?.tagline || 'Write the script. Build the legacy.'}</p>
+                    </div>
+                    <div class="footer-links">
+                        <h4>Explore</h4>
+                        ${books && Object.keys(books).length > 0 ? '<a href="#books">Books</a>' : ''}
+                        ${articles && Object.keys(articles).length > 0 ? '<a href="#articles">Articles</a>' : ''}
+                        ${researchPapers && Object.keys(researchPapers).length > 0 ? '<a href="#research">Research</a>' : ''}
+                    </div>
+                    <div class="footer-contact">
+                        <h4>Connect</h4>
+                        ${authorProfile?.email ? `<p>${authorProfile.email}</p>` : ''}
+                        ${authorProfile?.location ? `<p>${authorProfile.location}</p>` : ''}
+                    </div>
+                </div>
+                <div class="copyright">
+                    © ${new Date().getFullYear()} ${authorProfile?.name || 'Mugera W.'}. All rights reserved.
+                </div>
+            `;
+        }
+
+        // ------------------------------------------------------------
+        // WAITLIST FORM SUBMISSION
         // ------------------------------------------------------------
         function initWaitlistForm() {
             const form = document.getElementById('waitlistForm');
@@ -587,13 +613,7 @@
             
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const pubId = document.getElementById('waitlistPubId').value;
-                const pubType = document.getElementById('waitlistPubType').value;
-                const name = form.querySelector('input[type="text"]').value;
-                const email = form.querySelector('input[type="email"]').value;
-                
-                // Here you would write to Firebase /waitlists
-                console.log('Waitlist entry:', { pubId, pubType, name, email });
+                const formData = new FormData(form);
                 
                 form.style.display = 'none';
                 document.getElementById('waitlistSuccess').style.display = 'block';
@@ -608,13 +628,13 @@
         }
 
         // ------------------------------------------------------------
-        // INITIALIZATION – PURE FIREBASE, NO SAMPLES
+        // INITIALIZE
         // ------------------------------------------------------------
         window.addEventListener('DOMContentLoaded', () => {
             loadFirebaseData();
             initWaitlistForm();
             
-            // Close modals on overlay click
+            // Close modals when clicking overlay
             document.querySelectorAll('.modal-overlay').forEach(modal => {
                 modal.addEventListener('click', (e) => {
                     if (e.target === modal) closeModal(modal.id);
@@ -625,27 +645,27 @@
 
     <style>
         /* ------------------------------------------------------------
-           PREMIUM AUTHOR STYLING – PURE, ELEGANT, PROFESSIONAL
+           PREMIUM, REFINED AUTHOR STYLING — TIMELESS ELEGANCE
         ------------------------------------------------------------ */
+        
         :root {
-            --gold: #ca8a04;
-            --gold-dark: #a16207;
-            --gold-light: #fef3c7;
-            --black: #0a0a0a;
-            --charcoal: #1f2937;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-600: #4b5563;
-            --gray-800: #1f2a44;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-            --shadow-lg: 0 10px 25px rgba(0,0,0,0.05);
-            --shadow-xl: 0 20px 30px rgba(0,0,0,0.1);
+            --cream: #faf9f7;
+            --paper: #fcfaf7;
+            --charcoal: #2c2c2c;
+            --gold: #c2a477;
+            --gold-dark: #7a5c3a;
+            --sand: #eae2d1;
+            --gray-light: #f5f5f5;
+            --gray: #8a8a8a;
+            --gray-dark: #5a5a5a;
+            --border: #f0f0f0;
+            --shadow-sm: 0 4px 12px rgba(0,0,0,0.02);
+            --shadow-md: 0 8px 24px rgba(0,0,0,0.04);
+            --shadow-lg: 0 20px 32px -8px rgba(0,0,0,0.05);
+            --radius-sm: 6px;
             --radius-md: 12px;
             --radius-lg: 20px;
-            --radius-xl: 28px;
-            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -659,13 +679,8 @@
             background-color: white;
             color: var(--charcoal);
             line-height: 1.6;
+            overflow-x: hidden;
             scroll-behavior: smooth;
-        }
-
-        .cinzel {
-            font-family: 'Cinzel', serif;
-            font-weight: 700;
-            letter-spacing: -0.01em;
         }
 
         .container {
@@ -674,30 +689,78 @@
             padding: 0 2rem;
         }
 
-        /* ----- HEADER ----- */
+        /* ------------------------------------------------------------
+           LOADING SCREEN
+        ------------------------------------------------------------ */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 2px solid var(--sand);
+            border-top: 2px solid var(--gold);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* ------------------------------------------------------------
+           HEADER — Minimal, sophisticated
+        ------------------------------------------------------------ */
         header {
             position: sticky;
             top: 0;
-            background: rgba(255, 255, 255, 0.98);
+            background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(12px);
-            border-bottom: 3px solid transparent;
-            background-image: linear-gradient(white, white), 
-                repeating-linear-gradient(45deg, var(--gold) 0, var(--gold) 6px, var(--gold-dark) 6px, var(--gold-dark) 12px, transparent 12px, transparent 18px);
-            background-clip: padding-box, border-box;
-            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            padding: 0.8rem 2rem;
+            z-index: 100;
+            display: none;
+        }
+
+        .header-container {
+            max-width: 1280px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 100;
         }
 
         .logo {
-            height: 52px;
-            width: auto;
-            border-radius: 8px;
-            background: white;
-            padding: 4px;
-            border: 1px solid rgba(202, 138, 4, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--gold);
+        }
+
+        .logo-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            color: var(--charcoal);
         }
 
         nav {
@@ -707,35 +770,54 @@
 
         nav a {
             text-decoration: none;
-            color: var(--charcoal);
-            font-weight: 600;
-            font-size: 0.95rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: var(--gray-dark);
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
             transition: var(--transition);
-            border-bottom: 2px solid transparent;
-            padding-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        nav a i {
+            color: var(--gold);
+            font-size: 0.85rem;
         }
 
         nav a:hover {
-            color: var(--gold);
-            border-bottom-color: var(--gold);
+            color: var(--gold-dark);
         }
 
-        /* ----- HERO ----- */
-        .hero {
+        /* ------------------------------------------------------------
+           HERO — Timeless, editorial
+        ------------------------------------------------------------ */
+        #hero {
+            display: none;
             position: relative;
+            background: var(--charcoal);
+            color: white;
+            overflow: hidden;
+        }
+
+        .hero-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-size: cover;
             background-position: center;
-            min-height: 600px;
-            display: none;
-            color: white;
+            opacity: 0.3;
         }
 
         .hero-overlay {
             position: absolute;
-            inset: 0;
-            background: linear-gradient(145deg, rgba(0,0,0,0.9) 0%, rgba(20,20,20,0.8) 100%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, rgba(44,44,44,0.95) 0%, rgba(44,44,44,0.85) 100%);
         }
 
         .hero-container {
@@ -743,54 +825,51 @@
             z-index: 2;
             max-width: 1280px;
             margin: 0 auto;
-            padding: 4rem 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            padding: 5rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr 0.8fr;
             gap: 4rem;
-        }
-
-        .hero-text {
-            flex: 1;
-            max-width: 700px;
+            align-items: center;
         }
 
         .hero-tagline {
             display: inline-block;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 3px;
             color: var(--gold);
-            background: rgba(202, 138, 4, 0.15);
+            background: rgba(194, 164, 119, 0.12);
             padding: 0.4rem 1.2rem;
-            border-radius: 100px;
+            border-radius: 30px;
             margin-bottom: 1.5rem;
-            backdrop-filter: blur(4px);
-            border: 1px solid rgba(202, 138, 4, 0.3);
+            border: 1px solid rgba(194, 164, 119, 0.2);
         }
 
-        .hero-text h1 {
-            font-size: 3.8rem;
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 4rem;
+            font-weight: 600;
             line-height: 1.1;
             margin-bottom: 1.2rem;
-            color: white;
+            letter-spacing: -0.01em;
         }
 
         .hero-bio {
-            font-size: 1.25rem;
-            border-left: 5px solid var(--gold);
-            padding-left: 1.8rem;
+            font-size: 1.15rem;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.9);
+            border-left: 4px solid var(--gold);
+            padding-left: 1.5rem;
             margin: 1.8rem 0;
-            color: rgba(255, 255, 255, 0.95);
-            font-family: 'Lora', serif;
-            font-style: italic;
+            line-height: 1.7;
+            font-family: 'Inter', sans-serif;
         }
 
         .hero-meta {
             display: flex;
             gap: 2rem;
             margin: 1.5rem 0;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: rgba(255, 255, 255, 0.8);
         }
 
@@ -802,83 +881,78 @@
         .hero-social {
             display: flex;
             gap: 1.2rem;
-            margin-top: 1.8rem;
+            margin-top: 2rem;
         }
 
         .hero-social a {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
             color: white;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             transition: var(--transition);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .hero-social a:hover {
             background: var(--gold);
-            color: black;
-            transform: translateY(-3px);
+            color: var(--charcoal);
             border-color: var(--gold);
+            transform: translateY(-3px);
         }
 
-        .hero-avatar img {
-            width: 240px;
-            height: 240px;
+        .hero-portrait img {
+            width: 100%;
+            max-width: 320px;
+            height: auto;
             border-radius: 50%;
-            object-fit: cover;
             border: 4px solid var(--gold);
-            box-shadow: 0 25px 40px -15px rgba(0,0,0,0.4);
+            box-shadow: 0 25px 40px -15px rgba(0,0,0,0.3);
         }
 
-        /* ----- SECTIONS ----- */
+        /* ------------------------------------------------------------
+           SECTIONS — Clean, spacious
+        ------------------------------------------------------------ */
         section {
-            padding: 5rem 2rem;
-            max-width: 1280px;
-            margin: 0 auto;
+            padding: 5rem 0;
+            border-bottom: 1px solid var(--border);
+            display: none;
         }
 
         .section-header {
-            margin-bottom: 3rem;
+            margin-bottom: 3.5rem;
+            text-align: center;
         }
 
         .section-title {
+            font-family: 'Cormorant Garamond', serif;
             font-size: 2.5rem;
+            font-weight: 500;
+            color: var(--charcoal);
             margin-bottom: 0.5rem;
-            color: var(--black);
+            letter-spacing: -0.01em;
         }
 
-        .highlight {
-            position: relative;
-            display: inline-block;
+        .section-title span {
             color: var(--gold-dark);
-        }
-
-        .highlight::after {
-            content: '';
-            position: absolute;
-            bottom: 5px;
-            left: 0;
-            width: 100%;
-            height: 8px;
-            background: var(--gold);
-            opacity: 0.15;
-            z-index: -1;
-            border-radius: 4px;
+            font-weight: 600;
         }
 
         .section-subtitle {
-            font-size: 1.1rem;
-            color: var(--gray-600);
-            font-family: 'Lora', serif;
+            font-size: 1rem;
+            color: var(--gray);
+            font-weight: 300;
+            letter-spacing: 0.3px;
         }
 
-        /* ----- CAROUSEL GRID ----- */
-        .carousel-grid {
+        /* ------------------------------------------------------------
+           FEATURE CARDS — Elegant, refined
+        ------------------------------------------------------------ */
+        .featured-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 2rem;
@@ -886,71 +960,77 @@
 
         .feature-card {
             background: white;
-            border-radius: var(--radius-xl);
             padding: 2rem;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
             transition: var(--transition);
             display: flex;
             flex-direction: column;
-            border-top: 6px solid transparent;
-            border-image: repeating-linear-gradient(45deg, var(--gold), var(--gold-dark) 6px, transparent 6px, transparent 12px) 1;
         }
 
         .feature-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-xl);
             border-color: var(--gold);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
         }
 
-        .card-badge {
+        .card-category {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            align-self: flex-start;
-            padding: 0.4rem 1.2rem;
-            background: var(--gold-light);
-            border-radius: 100px;
-            font-size: 0.75rem;
-            font-weight: 700;
+            padding: 0.35rem 1rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
             text-transform: uppercase;
-            color: var(--gold-dark);
-            margin-bottom: 1.2rem;
-            border: 1px solid rgba(202, 138, 4, 0.2);
+            letter-spacing: 0.5px;
+            margin-bottom: 1.5rem;
+            align-self: flex-start;
         }
 
         .feature-card h3 {
+            font-family: 'Cormorant Garamond', serif;
             font-size: 1.5rem;
-            font-family: 'Cinzel', serif;
+            font-weight: 600;
             margin-bottom: 0.5rem;
             line-height: 1.3;
         }
 
         .card-subtitle {
+            font-size: 0.9rem;
             color: var(--gold-dark);
             font-style: italic;
-            margin-bottom: 0.8rem;
-            font-size: 0.95rem;
+            margin-bottom: 1rem;
         }
 
         .card-description {
-            color: var(--gray-600);
-            margin-bottom: 1.2rem;
-            flex: 1;
+            color: var(--gray-dark);
             font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            flex: 1;
+        }
+
+        .card-price {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--gold-dark);
+            margin-bottom: 1.2rem;
         }
 
         .reaction-strip {
             display: flex;
             gap: 1.2rem;
             margin: 1.2rem 0;
-            color: var(--gray-600);
-            font-size: 0.9rem;
-            border-top: 1px solid var(--gray-200);
+            color: var(--gray);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
             padding-top: 1.2rem;
         }
 
-        /* ----- BOOKS GRID ----- */
+        /* ------------------------------------------------------------
+           BOOKS — Editorial layout
+        ------------------------------------------------------------ */
         .books-grid {
             display: flex;
             flex-direction: column;
@@ -958,49 +1038,36 @@
         }
 
         .book-card {
-            display: flex;
+            display: grid;
+            grid-template-columns: 200px 1fr;
             gap: 2.5rem;
             background: white;
-            border-radius: var(--radius-xl);
-            padding: 2.2rem;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--gray-200);
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
             transition: var(--transition);
         }
 
         .book-card:hover {
-            box-shadow: var(--shadow-lg);
             border-color: var(--gold);
-        }
-
-        .book-cover {
-            flex: 0 0 200px;
+            box-shadow: var(--shadow-md);
         }
 
         .book-cover img {
             width: 100%;
-            height: auto;
             border-radius: var(--radius-md);
             box-shadow: var(--shadow-lg);
-            transition: var(--transition);
-        }
-
-        .book-card:hover .book-cover img {
-            transform: scale(1.02);
-        }
-
-        .book-details {
-            flex: 1;
         }
 
         .book-details h3 {
+            font-family: 'Cormorant Garamond', serif;
             font-size: 1.8rem;
-            font-family: 'Cinzel', serif;
+            font-weight: 600;
             margin-bottom: 0.25rem;
         }
 
         .book-subtitle {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: var(--gold-dark);
             font-style: italic;
             margin-bottom: 1rem;
@@ -1010,7 +1077,7 @@
             display: flex;
             gap: 1.5rem;
             margin: 1rem 0;
-            color: var(--gray-600);
+            color: var(--gray);
             font-size: 0.9rem;
         }
 
@@ -1020,7 +1087,7 @@
         }
 
         .book-description {
-            color: var(--charcoal);
+            color: var(--gray-dark);
             margin: 1.2rem 0;
             line-height: 1.7;
         }
@@ -1031,78 +1098,78 @@
 
         .format-badge {
             display: inline-block;
-            background: var(--gray-100);
+            background: var(--gray-light);
             padding: 0.4rem 1rem;
-            border-radius: 100px;
-            font-size: 0.8rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
             margin-right: 0.6rem;
             margin-bottom: 0.6rem;
-            border: 1px solid var(--gray-200);
-            font-weight: 500;
+            color: var(--charcoal);
+            border: 1px solid var(--border);
         }
 
-        /* ----- FORTHCOMING / WAITLIST ----- */
+        /* ------------------------------------------------------------
+           FORTHCOMING — Subtle, refined
+        ------------------------------------------------------------ */
         .forthcoming-section {
             margin-top: 4rem;
-            background: linear-gradient(145deg, #fef9e7, #fff);
-            border-radius: var(--radius-xl);
+            background: var(--cream);
+            border-radius: var(--radius-lg);
             padding: 2.5rem;
-            border: 1px solid rgba(202, 138, 4, 0.2);
         }
 
         .forthcoming-title {
-            font-family: 'Cinzel', serif;
+            font-family: 'Cormorant Garamond', serif;
             font-size: 1.5rem;
+            font-weight: 600;
             color: var(--gold-dark);
-            margin-bottom: 1.8rem;
+            margin-bottom: 1.5rem;
         }
 
         .forthcoming-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 1.5rem;
         }
 
         .forthcoming-card {
             background: white;
-            padding: 1.8rem;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--gray-200);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
         }
 
         .forthcoming-card h4 {
-            font-size: 1.2rem;
-            font-weight: 700;
+            font-size: 1.1rem;
+            font-weight: 600;
             margin-bottom: 0.4rem;
         }
 
         .forthcoming-date {
-            font-size: 0.85rem;
-            color: var(--gray-600);
+            font-size: 0.8rem;
+            color: var(--gray);
             margin: 0.8rem 0;
         }
 
-        /* ----- ARTICLES GRID ----- */
+        /* ------------------------------------------------------------
+           ARTICLES — Clean, readable
+        ------------------------------------------------------------ */
         .articles-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 2rem;
         }
 
         .article-card {
             background: white;
-            border-radius: var(--radius-lg);
             padding: 2rem;
-            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
             transition: var(--transition);
-            display: flex;
-            flex-direction: column;
         }
 
         .article-card:hover {
             border-color: var(--gold);
-            box-shadow: var(--shadow-md);
         }
 
         .article-header {
@@ -1113,51 +1180,46 @@
         }
 
         .article-category {
-            background: #e6f0ff;
-            color: #1e3a8a;
+            background: var(--sand);
+            color: var(--gold-dark);
             padding: 0.25rem 1rem;
-            border-radius: 100px;
-            font-size: 0.7rem;
-            font-weight: 700;
+            border-radius: 30px;
+            font-size: 0.65rem;
+            font-weight: 600;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .reading-time {
-            color: var(--gray-600);
+            color: var(--gray);
             font-size: 0.8rem;
         }
 
         .article-card h3 {
+            font-family: 'Cormorant Garamond', serif;
             font-size: 1.3rem;
-            font-weight: 700;
+            font-weight: 600;
             margin-bottom: 0.8rem;
             line-height: 1.4;
         }
 
         .article-excerpt {
-            color: var(--gray-600);
+            color: var(--gray-dark);
             font-size: 0.95rem;
-            flex: 1;
+            line-height: 1.6;
             margin-bottom: 1.5rem;
-        }
-
-        .article-footer {
-            margin-top: auto;
         }
 
         .reaction-buttons {
             display: flex;
             gap: 1.2rem;
-            margin-bottom: 1.2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--gray-200);
         }
 
         .reaction-btn {
             background: none;
             border: none;
-            color: var(--gray-600);
-            font-size: 0.9rem;
+            color: var(--gray);
+            font-size: 0.85rem;
             cursor: pointer;
             transition: var(--transition);
             display: flex;
@@ -1169,32 +1231,37 @@
             color: var(--gold);
         }
 
-        .btn-text {
+        .read-link {
             color: var(--gold-dark);
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 500;
+            font-size: 0.9rem;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
+            transition: var(--transition);
         }
 
-        .btn-text:hover {
-            gap: 0.8rem;
+        .read-link:hover {
+            gap: 0.6rem;
+            color: var(--gold);
         }
 
-        /* ----- RESEARCH GRID ----- */
+        /* ------------------------------------------------------------
+           RESEARCH — Academic, refined
+        ------------------------------------------------------------ */
         .research-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
             margin-bottom: 3rem;
         }
 
         .research-card {
-            background: var(--gray-50);
-            border-radius: var(--radius-lg);
+            background: var(--cream);
             padding: 2rem;
-            border-left: 6px solid var(--gold);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--gold);
             transition: var(--transition);
         }
 
@@ -1205,39 +1272,41 @@
 
         .research-badge {
             display: inline-block;
-            background: rgba(202, 138, 4, 0.1);
+            background: rgba(194, 164, 119, 0.1);
             color: var(--gold-dark);
             padding: 0.3rem 1rem;
-            border-radius: 100px;
-            font-size: 0.7rem;
-            font-weight: 700;
+            border-radius: 30px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
             margin-bottom: 1rem;
         }
 
         .research-card h3 {
+            font-family: 'Cormorant Garamond', serif;
             font-size: 1.2rem;
-            font-weight: 700;
+            font-weight: 600;
             margin-bottom: 0.5rem;
         }
 
         .research-authors {
-            color: var(--gray-600);
-            font-size: 0.85rem;
+            color: var(--gray);
+            font-size: 0.8rem;
             margin-bottom: 0.3rem;
         }
 
         .research-journal {
             font-style: italic;
-            color: var(--gray-600);
+            color: var(--gray);
             font-size: 0.8rem;
             margin-bottom: 1rem;
         }
 
         .research-abstract {
-            color: var(--charcoal);
-            font-size: 0.95rem;
-            margin: 1rem 0;
+            color: var(--gray-dark);
+            font-size: 0.9rem;
             line-height: 1.6;
+            margin: 1rem 0;
         }
 
         .research-actions {
@@ -1251,7 +1320,6 @@
             border-radius: var(--radius-lg);
             padding: 2rem;
             border: 1px dashed var(--gold);
-            margin-top: 2rem;
         }
 
         .forthcoming-research-item {
@@ -1259,43 +1327,72 @@
             justify-content: space-between;
             align-items: center;
             padding: 1.2rem;
-            border-bottom: 1px solid var(--gray-200);
+            border-bottom: 1px solid var(--border);
         }
 
         .forthcoming-research-item:last-child {
             border-bottom: none;
         }
 
-        /* ----- BUTTONS ----- */
+        /* ------------------------------------------------------------
+           BUTTONS — Elegant, refined
+        ------------------------------------------------------------ */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.6rem;
-            padding: 0.7rem 1.5rem;
-            border-radius: 100px;
-            font-weight: 600;
-            font-size: 0.9rem;
+            padding: 0.7rem 1.6rem;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.85rem;
             text-decoration: none;
             transition: var(--transition);
-            border: 2px solid transparent;
+            border: none;
             cursor: pointer;
+            border: 1px solid transparent;
         }
 
-        .btn-gold {
+        .btn-primary {
             background: var(--gold);
             color: white;
         }
 
-        .btn-gold:hover {
+        .btn-primary:hover {
             background: var(--gold-dark);
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(202, 138, 4, 0.3);
+            box-shadow: 0 8px 16px rgba(194, 164, 119, 0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold-dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gold);
+            color: white;
+        }
+
+        .btn-waitlist {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .btn-waitlist:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 0.4rem 1.2rem;
+            font-size: 0.75rem;
         }
 
         .btn-outline {
             background: transparent;
-            border: 2px solid var(--gold);
+            border: 1px solid var(--gold);
             color: var(--gold-dark);
         }
 
@@ -1304,40 +1401,25 @@
             color: white;
         }
 
-        .btn-waitlist {
-            background: #8b5cf6;
-            color: white;
-            border: none;
-        }
-
-        .btn-waitlist:hover {
-            background: #7c3aed;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
-        }
-
-        .btn-sm {
-            padding: 0.4rem 1rem;
-            font-size: 0.8rem;
-        }
-
         .waitlist-count {
             background: rgba(255, 255, 255, 0.2);
             padding: 0.2rem 0.6rem;
-            border-radius: 100px;
+            border-radius: 30px;
             margin-left: 0.5rem;
             font-size: 0.7rem;
         }
 
-        /* ----- MODALS ----- */
+        /* ------------------------------------------------------------
+           MODALS — Elegant, refined
+        ------------------------------------------------------------ */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1354,30 +1436,27 @@
 
         .modal-content {
             background: white;
-            border-radius: var(--radius-xl);
+            border-radius: var(--radius-lg);
             max-width: 900px;
             width: 90%;
             max-height: 85vh;
             overflow-y: auto;
             padding: 2.5rem;
             position: relative;
-            border: 3px solid transparent;
-            background-image: linear-gradient(white, white), 
-                repeating-linear-gradient(45deg, var(--gold) 0, var(--gold) 8px, var(--gold-dark) 8px, var(--gold-dark) 16px);
-            background-clip: padding-box, border-box;
+            box-shadow: var(--shadow-lg);
         }
 
         .modal-close {
             position: absolute;
             top: 1.2rem;
             right: 1.5rem;
-            font-size: 2rem;
+            font-size: 1.8rem;
             background: none;
             border: none;
-            color: var(--gray-600);
+            color: var(--gray);
             cursor: pointer;
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1386,105 +1465,69 @@
         }
 
         .modal-close:hover {
-            background: rgba(202, 138, 4, 0.1);
-            color: var(--gold);
-            transform: rotate(90deg);
+            background: var(--sand);
+            color: var(--gold-dark);
         }
 
-        .book-modal-grid {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 2rem;
-        }
-
-        .modal-cover img {
-            width: 100%;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .author-thumb {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--gold);
-        }
-
-        .modal-author {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            background: var(--gray-50);
-            padding: 1rem;
-            border-radius: var(--radius-md);
-            margin: 1.5rem 0;
-        }
-
-        .format-list {
-            margin-top: 1rem;
-        }
-
-        .format-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.8rem 0;
-            border-bottom: 1px solid var(--gray-200);
-        }
-
-        /* ----- FOOTER ----- */
+        /* ------------------------------------------------------------
+           FOOTER — Minimal, refined
+        ------------------------------------------------------------ */
         footer {
-            background: #0a0a0a;
+            background: var(--charcoal);
             color: white;
             padding: 4rem 2rem 2rem;
-            margin-top: 3rem;
+            display: none;
         }
 
         .footer-container {
             max-width: 1280px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 3rem;
         }
 
         .footer-brand h4 {
-            font-family: 'Cinzel', serif;
-            color: white;
-            margin-bottom: 0.8rem;
+            font-family: 'Cormorant Garamond', serif;
             font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: white;
         }
 
         .footer-brand p {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            line-height: 1.6;
         }
 
-        .footer-links h4, .footer-contact h4 {
-            color: white;
-            margin-bottom: 1rem;
-            font-size: 1rem;
+        .footer-links h4,
+        .footer-contact h4 {
+            font-size: 0.8rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            color: var(--gold);
+            margin-bottom: 1.2rem;
         }
 
         .footer-links a {
             display: block;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.6);
             text-decoration: none;
             margin-bottom: 0.6rem;
+            font-size: 0.9rem;
             transition: var(--transition);
         }
 
         .footer-links a:hover {
             color: var(--gold);
-            transform: translateX(5px);
+            transform: translateX(4px);
         }
 
         .footer-contact p {
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.6);
             margin-bottom: 0.4rem;
+            font-size: 0.9rem;
         }
 
         .copyright {
@@ -1493,95 +1536,134 @@
             padding-top: 2rem;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
         }
 
-        /* ----- UTILITY ----- */
-        #loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 60vh;
-        }
-
+        /* ------------------------------------------------------------
+           RESPONSIVE — Elegant at all sizes
+        ------------------------------------------------------------ */
         @media (max-width: 900px) {
             .hero-container {
-                flex-direction: column;
+                grid-template-columns: 1fr;
                 text-align: center;
+                gap: 2rem;
             }
-            .hero-text h1 {
-                font-size: 2.8rem;
-            }
-            .hero-meta {
-                justify-content: center;
-            }
-            .hero-social {
-                justify-content: center;
-            }
+            
             .hero-bio {
                 border-left: none;
                 border-top: 4px solid var(--gold);
                 padding-left: 0;
                 padding-top: 1.5rem;
             }
+            
+            .hero-meta {
+                justify-content: center;
+            }
+            
+            .hero-social {
+                justify-content: center;
+            }
+            
+            .hero-portrait {
+                grid-row: 1;
+            }
+            
+            .hero-portrait img {
+                max-width: 240px;
+                margin: 0 auto;
+            }
+            
             .book-card {
-                flex-direction: column;
-                align-items: center;
+                grid-template-columns: 1fr;
                 text-align: center;
             }
+            
             .book-cover {
-                flex: 0 0 240px;
                 max-width: 240px;
+                margin: 0 auto;
             }
+            
             .book-meta {
                 justify-content: center;
             }
+            
             .forthcoming-research-item {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 1rem;
             }
-            .book-modal-grid {
+            
+            .modal-content {
+                padding: 1.8rem;
+            }
+            
+            .modal-content [style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 0 1.5rem;
+            }
+            
+            .hero-title {
+                font-size: 2.8rem;
+            }
+            
+            .featured-grid,
+            .articles-grid,
+            .research-grid {
                 grid-template-columns: 1fr;
             }
-            .modal-cover {
-                max-width: 240px;
-                margin: 0 auto;
+            
+            nav {
+                gap: 1.2rem;
+            }
+            
+            nav a span {
+                display: none;
+            }
+            
+            .header-container {
+                padding: 0 0.5rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Loading indicator while Firebase loads -->
-    <div id="loading" style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: white;">
-        <div style="text-align: center;">
-            <i class="fas fa-circle-notch fa-spin" style="font-size: 2.5rem; color: var(--gold);"></i>
-            <p style="margin-top: 1rem; color: #4b5563; font-family: 'Inter';">Loading author library...</p>
-        </div>
+    <!-- Loading Screen -->
+    <div id="loading">
+        <div class="loading-spinner"></div>
+        <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: #7a5c3a; letter-spacing: 1px;">MUGERA W.</p>
     </div>
 
-    <header style="display: none;" id="mainHeader">
-        <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="Mugera W." class="logo">
-        <nav>
-            <a href="#books">Books</a>
-            <a href="#articles">Articles</a>
-            <a href="#research">Research</a>
-        </nav>
-    </header>
+    <!-- Header -->
+    <header id="header"></header>
 
-    <main id="main-content">
-        <!-- All sections are dynamically populated from Firebase ONLY -->
-        <div id="hero" class="hero" style="display: none;"></div>
-        <section id="featured-carousel" class="container" style="display: none;"></section>
-        <section id="books" class="container" style="display: none;"></section>
-        <section id="articles" class="container" style="display: none;"></section>
-        <section id="research" class="container" style="display: none;"></section>
+    <main>
+        <!-- Hero Section -->
+        <div id="hero"></div>
+        
+        <!-- Featured Carousel -->
+        <section id="featured"></section>
+        
+        <!-- Books Section -->
+        <section id="books"></section>
+        
+        <!-- Articles Section -->
+        <section id="articles"></section>
+        
+        <!-- Research Section -->
+        <section id="research"></section>
     </main>
 
-    <footer id="footer" style="display: none;"></footer>
+    <!-- Footer -->
+    <footer id="footer"></footer>
 
-    <!-- BOOK DETAIL MODAL -->
+    <!-- Book Modal -->
     <div id="bookModal" class="modal-overlay">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal('bookModal')">&times;</button>
@@ -1589,47 +1671,42 @@
         </div>
     </div>
 
-    <!-- WAITLIST MODAL -->
+    <!-- Waitlist Modal -->
     <div id="waitlistModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 480px;">
             <button class="modal-close" onclick="closeModal('waitlistModal')">&times;</button>
-            <h3 style="font-family: 'Cinzel'; margin-bottom: 1.5rem; color: var(--gold-dark);">
-                <i class="fas fa-bell"></i> Join waitlist
-            </h3>
+            <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 600; color: var(--charcoal); margin-bottom: 0.5rem;">Join waitlist</h3>
+            <p style="color: var(--gray); margin-bottom: 2rem; font-size: 0.95rem;">Be the first to know when this becomes available.</p>
+            
             <form id="waitlistForm">
                 <input type="hidden" id="waitlistPubId">
                 <input type="hidden" id="waitlistPubType">
+                
                 <input type="text" placeholder="Full name" required 
-                    style="width: 100%; padding: 0.8rem 1.2rem; margin-bottom: 1rem; border: 2px solid var(--gray-200); border-radius: 12px; font-family: 'Inter';">
+                    style="width: 100%; padding: 0.9rem 1.2rem; margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.95rem; background: var(--gray-light);">
+                
                 <input type="email" placeholder="Email address" required 
-                    style="width: 100%; padding: 0.8rem 1.2rem; margin-bottom: 1.5rem; border: 2px solid var(--gray-200); border-radius: 12px; font-family: 'Inter';">
-                <button type="submit" class="btn btn-gold" style="width: 100%; padding: 0.9rem;">
+                    style="width: 100%; padding: 0.9rem 1.2rem; margin-bottom: 1.5rem; border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.95rem; background: var(--gray-light);">
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.9rem;">
                     <i class="fas fa-bell"></i> Notify me
                 </button>
             </form>
+            
             <div id="waitlistSuccess" style="display: none; text-align: center; padding: 1.5rem;">
-                <i class="fas fa-check-circle" style="font-size: 3rem; color: #10b981;"></i>
-                <p style="margin-top: 1rem; font-weight: 600;">You're on the list!</p>
-                <p style="color: var(--gray-600); font-size: 0.9rem;">We'll notify you when it's available.</p>
+                <div style="font-size: 3rem; color: #10b981; margin-bottom: 1rem;">✓</div>
+                <h4 style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--charcoal); margin-bottom: 0.5rem;">You're on the list</h4>
+                <p style="color: var(--gray);">We'll notify you when it's available.</p>
             </div>
         </div>
     </div>
 
     <script>
-        // Expose closeModal globally for inline onclick
+        // Expose closeModal globally
         window.closeModal = function(modalId) {
             document.getElementById(modalId)?.classList.remove('active');
+            document.body.style.overflow = 'auto';
         };
-
-        // Hide loading when Firebase data is processed
-        window.addEventListener('load', function() {
-            // The loading will be hidden by the Firebase render functions
-            // This is a fallback
-            setTimeout(() => {
-                document.getElementById('loading').style.display = 'none';
-                document.querySelector('header').style.display = 'flex';
-            }, 3000);
-        });
     </script>
 </body>
 </html>
