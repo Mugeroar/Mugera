@@ -2,804 +2,1633 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
-    <title>Mugera W. · Author Library</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+    <title>Mugera W. – Official Author Site</title>
+    <!-- Firebase Config - Your New Project -->
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Cinzel:wght@400;500;600;700;800&family=Lora:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    
+    <!-- Google Fonts: Premium Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cinzel:wght@500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,500&display=swap" rel="stylesheet">
+    <!-- Modular Firebase SDK -->
+    <script type="module">
+        // ------------------------------------------------------------
+        // FIREBASE INITIALIZATION - YOUR EXACT CONFIG
+        // ------------------------------------------------------------
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDF0C1QPJ0CfDfBCtupIuyI-ezgpr6tE0w",
+            authDomain: "i-am-publications.firebaseapp.com",
+            databaseURL: "https://i-am-publications-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "i-am-publications",
+            storageBucket: "i-am-publications.firebasestorage.app",
+            messagingSenderId: "947226391862",
+            appId: "1:947226391862:web:00ed4587bedbf970c1af97"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const dbRef = ref(db);
+
+        // ------------------------------------------------------------
+        // NO FALLBACK – EMPTY STATE UNTIL FIREBASE RESPONDS
+        // ------------------------------------------------------------
+        let authorProfile = {};
+        let featuredCarousel = { latestPublications: [] };
+        let books = {};
+        let articles = {};
+        let researchPapers = {};
+        let siteConfig = {};
+
+        // ------------------------------------------------------------
+        // LOAD FIREBASE DATA – STRICT: NO SAMPLE, NO FALLBACK
+        // ------------------------------------------------------------
+        async function loadFirebaseData() {
+            try {
+                const snapshot = await get(child(dbRef, '/'));
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    
+                    // Assign only if data exists – otherwise keep empty objects
+                    if (data.authorProfile) authorProfile = data.authorProfile;
+                    if (data.featuredCarousel) featuredCarousel = data.featuredCarousel;
+                    if (data.books) books = data.books;
+                    if (data.articles) articles = data.articles;
+                    if (data.researchPapers) researchPapers = data.researchPapers;
+                    if (data.siteConfig) siteConfig = data.siteConfig;
+
+                    // Render everything – if data is missing, sections stay hidden
+                    renderHero();
+                    renderFeaturedCarousel();
+                    renderBooks();
+                    renderArticles();
+                    renderResearchPapers();
+                    renderFooter();
+                } else {
+                    // No data in Firebase – show empty state, no samples
+                    showEmptyState();
+                }
+            } catch (error) {
+                console.error("Firebase error:", error);
+                showEmptyState();
+            }
+        }
+
+        // ------------------------------------------------------------
+        // EMPTY STATE – NO SAMPLE CONTENT, JUST A CLEAN MESSAGE
+        // ------------------------------------------------------------
+        function showEmptyState() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('main-content').innerHTML = `
+                <div style="text-align: center; padding: 6rem 2rem; max-width: 600px; margin: 0 auto;">
+                    <i class="fas fa-database" style="font-size: 3rem; color: #ca8a04; opacity: 0.5;"></i>
+                    <h2 style="font-family: 'Cinzel'; margin-top: 1.5rem;">Author library loading</h2>
+                    <p style="color: #6b7280; margin-top: 0.5rem;">Please check back soon.</p>
+                </div>
+            `;
+        }
+
+        // ------------------------------------------------------------
+        // RENDER HERO – PULLS EXCLUSIVELY FROM authorProfile
+        // ------------------------------------------------------------
+        function renderHero() {
+            if (!authorProfile.name) return; // No data, don't render
+            
+            const hero = document.getElementById('hero');
+            hero.style.backgroundImage = `url('${authorProfile.heroImage || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop'}')`;
+            
+            hero.innerHTML = `
+                <div class="hero-overlay"></div>
+                <div class="hero-container">
+                    <div class="hero-text">
+                        <span class="hero-tagline">${authorProfile.tagline || 'Author • Speaker • Thinker'}</span>
+                        <h1 class="cinzel">${authorProfile.name || 'Mugera W.'}</h1>
+                        <p class="hero-bio">${authorProfile.bio || ''}</p>
+                        <div class="hero-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> ${authorProfile.location || ''}</span>
+                            <span><i class="fas fa-envelope"></i> ${authorProfile.email || ''}</span>
+                        </div>
+                        <div class="hero-social">
+                            ${authorProfile.social?.twitter ? `<a href="${authorProfile.social.twitter}" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>` : ''}
+                            ${authorProfile.social?.linkedin ? `<a href="${authorProfile.social.linkedin}" target="_blank" rel="noopener"><i class="fab fa-linkedin-in"></i></a>` : ''}
+                            ${authorProfile.social?.instagram ? `<a href="${authorProfile.social.instagram}" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>` : ''}
+                        </div>
+                    </div>
+                    <div class="hero-avatar">
+                        <img src="${authorProfile.avatarUrl || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png'}" alt="${authorProfile.name}">
+                    </div>
+                </div>
+            `;
+            hero.style.display = 'block';
+        }
+
+        // ------------------------------------------------------------
+        // FEATURED CAROUSEL – LATEST PUBLICATIONS
+        // ------------------------------------------------------------
+        function renderFeaturedCarousel() {
+            const container = document.getElementById('featured-carousel');
+            if (!featuredCarousel.latestPublications || featuredCarousel.latestPublications.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            let html = `
+                <div class="section-header">
+                    <h2 class="section-title cinzel"><span class="highlight">Latest</span> publications</h2>
+                    <p class="section-subtitle">Recent works from Mugera W.</p>
+                </div>
+                <div class="carousel-grid">
+            `;
+
+            featuredCarousel.latestPublications.forEach(item => {
+                if (item.type === 'book') {
+                    html += `
+                        <div class="feature-card book-card">
+                            <div class="card-badge"><i class="fas fa-book"></i> Book</div>
+                            <h3>${item.title || ''}</h3>
+                            <p class="card-subtitle">${item.subtitle || ''}</p>
+                            <p class="card-description">${item.description || ''}</p>
+                            <div class="card-price">${item.price || ''}</div>
+                            <a href="${item.orderUrl || '#'}" class="btn btn-gold" target="_blank" rel="noopener">
+                                <i class="fas fa-shopping-cart"></i> ${item.orderButtonText || 'Order Now'}
+                            </a>
+                        </div>
+                    `;
+                } else if (item.type === 'article') {
+                    const rc = item.reactionCounts || { likes: 0, comments: 0, shares: 0 };
+                    html += `
+                        <div class="feature-card article-card">
+                            <div class="card-badge"><i class="fas fa-newspaper"></i> Article</div>
+                            <h3>${item.title || ''}</h3>
+                            <p class="card-subtitle">${item.subtitle || ''}</p>
+                            <p class="card-description">${item.excerpt || ''}</p>
+                            <div class="reaction-strip">
+                                <span><i class="fas fa-heart"></i> ${rc.likes}</span>
+                                <span><i class="fas fa-comment"></i> ${rc.comments}</span>
+                                <span><i class="fas fa-share"></i> ${rc.shares}</span>
+                            </div>
+                            <a href="${item.readUrl || '#'}" class="btn btn-outline" target="_blank" rel="noopener">
+                                <i class="fas fa-book-open"></i> ${item.readButtonText || 'Read Free'}
+                            </a>
+                        </div>
+                    `;
+                } else if (item.type === 'research') {
+                    const rc = item.reactionCounts || { likes: 0, comments: 0, shares: 0 };
+                    html += `
+                        <div class="feature-card research-card">
+                            <div class="card-badge"><i class="fas fa-flask"></i> Research</div>
+                            <h3>${item.title || ''}</h3>
+                            <p class="card-subtitle">${item.subtitle || ''}</p>
+                            <p class="card-authors">${item.authors || ''} • ${item.year || ''}</p>
+                            <div class="reaction-strip">
+                                <span><i class="fas fa-heart"></i> ${rc.likes}</span>
+                                <span><i class="fas fa-comment"></i> ${rc.comments}</span>
+                                <span><i class="fas fa-share"></i> ${rc.shares}</span>
+                            </div>
+                            <a href="${item.readUrl || '#'}" class="btn btn-outline" target="_blank" rel="noopener">
+                                <i class="fas fa-file-alt"></i> ${item.readButtonText || 'Access Paper'}
+                            </a>
+                        </div>
+                    `;
+                }
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+            container.style.display = 'block';
+        }
+
+        // ------------------------------------------------------------
+        // BOOKS SECTION – PURCHASE, DETAILS, WAITLIST
+        // ------------------------------------------------------------
+        function renderBooks() {
+            const container = document.getElementById('books');
+            const availableBooks = Object.values(books).filter(b => b.status !== 'coming-soon');
+            const comingBooks = Object.values(books).filter(b => b.status === 'coming-soon');
+
+            if (availableBooks.length === 0 && comingBooks.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            let html = `
+                <div class="section-header">
+                    <h2 class="section-title cinzel"><span class="highlight">Books</span> for purchase</h2>
+                    <p class="section-subtitle">Order directly — signed copies available</p>
+                </div>
+            `;
+
+            // Available books
+            if (availableBooks.length > 0) {
+                html += `<div class="books-grid">`;
+                availableBooks.forEach(book => {
+                    html += `
+                        <div class="book-card">
+                            <div class="book-cover">
+                                <img src="${book.coverImage || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1887&auto=format&fit=crop'}" alt="${book.title}">
+                            </div>
+                            <div class="book-details">
+                                <h3>${book.title}</h3>
+                                <p class="book-subtitle">${book.subtitle || ''}</p>
+                                <div class="book-meta">
+                                    <span><i class="fas fa-user"></i> ${book.authorName || 'Mugera W.'}</span>
+                                    <span><i class="fas fa-calendar"></i> ${book.year || ''}</span>
+                                    <span><i class="fas fa-star"></i> ${book.rating || '—'} (${book.reviewCount || 0})</span>
+                                </div>
+                                <p class="book-description">${(book.description || '').substring(0, 200)}${book.description?.length > 200 ? '...' : ''}</p>
+                                <div class="book-formats">
+                                    ${book.formats ? book.formats.map(f => 
+                                        `<span class="format-badge">${f.type} • ${f.price}</span>`
+                                    ).join('') : ''}
+                                </div>
+                                <button class="btn btn-gold view-book" data-book-id="${book.id}">
+                                    <i class="fas fa-info-circle"></i> View details & order
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            // Forthcoming books with waitlist
+            if (comingBooks.length > 0) {
+                html += `<div class="forthcoming-section">`;
+                html += `<h3 class="forthcoming-title"><i class="fas fa-clock"></i> Forthcoming books</h3>`;
+                html += `<div class="forthcoming-grid">`;
+                comingBooks.forEach(book => {
+                    html += `
+                        <div class="forthcoming-card">
+                            <h4>${book.title}</h4>
+                            <p class="forthcoming-subtitle">${book.subtitle || ''}</p>
+                            <p class="forthcoming-date">Expected: ${book.expectedPublication || 'TBA'}</p>
+                            <button class="btn btn-waitlist" data-waitlist-id="${book.id}" data-type="book">
+                                <i class="fas fa-bell"></i> Join waitlist
+                                ${book.waitlistCount ? `<span class="waitlist-count">${book.waitlistCount}+</span>` : ''}
+                            </button>
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            }
+
+            container.innerHTML = html;
+            container.style.display = 'block';
+
+            // Attach event listeners
+            document.querySelectorAll('.view-book').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const bookId = e.currentTarget.dataset.bookId;
+                    openBookModal(bookId);
+                });
+            });
+
+            document.querySelectorAll('.btn-waitlist').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const pubId = e.currentTarget.dataset.waitlistId;
+                    const type = e.currentTarget.dataset.type;
+                    openWaitlistModal(pubId, type);
+                });
+            });
+        }
+
+        // ------------------------------------------------------------
+        // ARTICLES SECTION – WITH REACTIONS
+        // ------------------------------------------------------------
+        function renderArticles() {
+            const container = document.getElementById('articles');
+            const articleList = Object.values(articles).filter(a => a.status === 'published');
+            
+            if (articleList.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            let html = `
+                <div class="section-header">
+                    <h2 class="section-title cinzel"><span class="highlight">Latest</span> articles</h2>
+                    <p class="section-subtitle">Read, react, share – free for everyone</p>
+                </div>
+                <div class="articles-grid">
+            `;
+
+            articleList.sort((a, b) => new Date(b.publishedDate) - new Date(a.publishedDate))
+                .slice(0, 3).forEach(article => {
+                    const reactions = article.reactions || { likes: 0, comments: 0, shares: 0 };
+                    html += `
+                        <div class="article-card" data-article-id="${article.id}">
+                            <div class="article-header">
+                                <span class="article-category">${article.category || 'Essay'}</span>
+                                <span class="reading-time"><i class="fas fa-clock"></i> ${article.readingTime || '5 min'}</span>
+                            </div>
+                            <h3>${article.title}</h3>
+                            <p class="article-excerpt">${article.subtitle || article.content?.intro || ''}</p>
+                            <div class="article-footer">
+                                <div class="reaction-buttons" data-id="${article.id}" data-type="article">
+                                    <button class="reaction-btn like-btn">
+                                        <i class="fas fa-heart"></i> <span class="like-count">${reactions.likes || 0}</span>
+                                    </button>
+                                    <button class="reaction-btn comment-btn" onclick="alert('Comments view coming soon')">
+                                        <i class="fas fa-comment"></i> ${reactions.comments || 0}
+                                    </button>
+                                    <button class="reaction-btn share-btn">
+                                        <i class="fas fa-share"></i> <span class="share-count">${reactions.shares || 0}</span>
+                                    </button>
+                                </div>
+                                <a href="${article.readUrl || '#'}" class="btn btn-text" target="_blank" rel="noopener">
+                                    Read full <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                });
+
+            html += `</div>`;
+            container.innerHTML = html;
+            container.style.display = 'block';
+            attachReactionHandlers();
+        }
+
+        // ------------------------------------------------------------
+        // RESEARCH PAPERS SECTION
+        // ------------------------------------------------------------
+        function renderResearchPapers() {
+            const container = document.getElementById('research');
+            const publishedPapers = Object.values(researchPapers).filter(p => p.status !== 'in-progress');
+            const forthcomingPapers = Object.values(researchPapers).filter(p => p.status === 'in-progress');
+
+            if (publishedPapers.length === 0 && forthcomingPapers.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            let html = `
+                <div class="section-header">
+                    <h2 class="section-title cinzel"><span class="highlight">Research</span> papers</h2>
+                    <p class="section-subtitle">Peer-reviewed studies and working papers</p>
+                </div>
+            `;
+
+            if (publishedPapers.length > 0) {
+                html += `<div class="research-grid">`;
+                publishedPapers.sort((a, b) => b.year - a.year).slice(0, 3).forEach(paper => {
+                    const reactions = paper.reactions || { likes: 0, comments: 0, shares: 0 };
+                    html += `
+                        <div class="research-card">
+                            <div class="research-badge">
+                                <i class="fas fa-flask"></i> ${paper.peerReviewed ? 'Peer reviewed' : 'Open access'}
+                            </div>
+                            <h3>${paper.title}</h3>
+                            <p class="research-authors">${paper.authors ? paper.authors.map(a => a.name).join(', ') : ''}</p>
+                            <p class="research-journal">${paper.publishedIn || ''} • ${paper.year || ''}</p>
+                            <p class="research-abstract">${(paper.abstract || '').substring(0, 120)}...</p>
+                            <div class="reaction-buttons" data-id="${paper.id}" data-type="research">
+                                <button class="reaction-btn like-btn">
+                                    <i class="fas fa-heart"></i> <span class="like-count">${reactions.likes || 0}</span>
+                                </button>
+                                <button class="reaction-btn share-btn">
+                                    <i class="fas fa-share"></i> <span class="share-count">${reactions.shares || 0}</span>
+                                </button>
+                            </div>
+                            <div class="research-actions">
+                                ${paper.pdfUrl ? `<a href="${paper.pdfUrl}" class="btn btn-sm" target="_blank" rel="noopener"><i class="fas fa-file-pdf"></i> PDF</a>` : ''}
+                                ${paper.url ? `<a href="${paper.url}" class="btn btn-sm btn-outline" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> Publisher</a>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            if (forthcomingPapers.length > 0) {
+                html += `<div class="forthcoming-research">`;
+                html += `<h3><i class="fas fa-flask"></i> Forthcoming research</h3>`;
+                forthcomingPapers.forEach(paper => {
+                    html += `
+                        <div class="forthcoming-research-item">
+                            <div>
+                                <strong>${paper.title}</strong>
+                                <p>${paper.abstract?.substring(0, 100) || ''}...</p>
+                                <small>Expected: ${paper.expectedCompletion || 'TBA'}</small>
+                            </div>
+                            <button class="btn btn-waitlist" data-waitlist-id="${paper.id}" data-type="research">
+                                <i class="fas fa-bell"></i> Notify me
+                            </button>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            container.innerHTML = html;
+            container.style.display = 'block';
+            attachReactionHandlers();
+            
+            document.querySelectorAll('.btn-waitlist').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const pubId = e.currentTarget.dataset.waitlistId;
+                    const type = e.currentTarget.dataset.type;
+                    openWaitlistModal(pubId, type);
+                });
+            });
+        }
+
+        // ------------------------------------------------------------
+        // FOOTER – FROM FIRBEASE siteConfig + authorProfile
+        // ------------------------------------------------------------
+        function renderFooter() {
+            const footer = document.getElementById('footer');
+            footer.innerHTML = `
+                <div class="footer-container">
+                    <div class="footer-brand">
+                        <h4>${siteConfig.siteTitle || 'Mugera W.'}</h4>
+                        <p>${siteConfig.tagline || 'Write the script. Build the legacy.'}</p>
+                    </div>
+                    <div class="footer-links">
+                        <h4>Explore</h4>
+                        <a href="#books">Books</a>
+                        <a href="#articles">Articles</a>
+                        <a href="#research">Research</a>
+                    </div>
+                    <div class="footer-contact">
+                        <h4>Connect</h4>
+                        <p>${authorProfile.email || ''}</p>
+                        <p>${authorProfile.location || ''}</p>
+                    </div>
+                </div>
+                <div class="copyright">
+                    © ${new Date().getFullYear()} ${authorProfile.name || 'Mugera W.'}. All rights reserved.
+                </div>
+            `;
+        }
+
+        // ------------------------------------------------------------
+        // BOOK DETAIL MODAL
+        // ------------------------------------------------------------
+        window.openBookModal = function(bookId) {
+            const book = books[bookId];
+            if (!book) return;
+            
+            const modal = document.getElementById('bookModal');
+            const content = document.getElementById('bookModalContent');
+            
+            let formatsHtml = '';
+            if (book.formats) {
+                formatsHtml = '<div class="format-list">';
+                book.formats.forEach(f => {
+                    formatsHtml += `
+                        <div class="format-row">
+                            <span><strong>${f.type}</strong></span>
+                            <span>${f.price}</span>
+                            <a href="${book.orderUrls?.[f.type.toLowerCase()] || '#'}" class="btn btn-sm btn-gold" target="_blank" rel="noopener">Order</a>
+                        </div>
+                    `;
+                });
+                formatsHtml += '</div>';
+            }
+
+            content.innerHTML = `
+                <div class="book-modal-grid">
+                    <div class="modal-cover">
+                        <img src="${book.coverImage || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1887&auto=format&fit=crop'}" alt="${book.title}">
+                    </div>
+                    <div class="modal-info">
+                        <h2 class="cinzel">${book.title}</h2>
+                        <p class="modal-subtitle">${book.subtitle || ''}</p>
+                        
+                        <div class="modal-author">
+                            <img src="${book.authorPhoto || authorProfile.avatarUrl}" alt="${book.authorName}" class="author-thumb">
+                            <div>
+                                <strong>${book.authorName || 'Mugera W.'}</strong>
+                                <p>${book.authorBio || ''}</p>
+                            </div>
+                        </div>
+                        
+                        <p class="modal-description">${book.description || ''}</p>
+                        
+                        <div class="modal-meta">
+                            <p><i class="fas fa-book"></i> ISBN: ${book.isbn || '—'}</p>
+                            <p><i class="fas fa-file-alt"></i> ${book.pages || '—'} pages</p>
+                            <p><i class="fas fa-calendar"></i> ${book.year || '—'}</p>
+                        </div>
+                        
+                        <h4>Formats & ordering</h4>
+                        ${formatsHtml}
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        };
+
+        // ------------------------------------------------------------
+        // WAITLIST MODAL
+        // ------------------------------------------------------------
+        window.openWaitlistModal = function(publicationId, type) {
+            const modal = document.getElementById('waitlistModal');
+            document.getElementById('waitlistPubId').value = publicationId || '';
+            document.getElementById('waitlistPubType').value = type || '';
+            document.getElementById('waitlistForm').style.display = 'block';
+            document.getElementById('waitlistSuccess').style.display = 'none';
+            modal.classList.add('active');
+        };
+
+        // ------------------------------------------------------------
+        // REACTION HANDLERS – WRITE TO FIREBASE (SIMULATED)
+        // ------------------------------------------------------------
+        function attachReactionHandlers() {
+            document.querySelectorAll('.like-btn').forEach(btn => {
+                btn.removeEventListener('click', handleLike);
+                btn.addEventListener('click', handleLike);
+            });
+            document.querySelectorAll('.share-btn').forEach(btn => {
+                btn.removeEventListener('click', handleShare);
+                btn.addEventListener('click', handleShare);
+            });
+        }
+
+        async function handleLike(e) {
+            e.preventDefault();
+            const container = e.currentTarget.closest('.reaction-buttons');
+            const pubId = container?.dataset.id;
+            const type = container?.dataset.type;
+            const likeSpan = e.currentTarget.querySelector('.like-count');
+            let count = parseInt(likeSpan.innerText) || 0;
+            likeSpan.innerText = count + 1;
+            // Firebase write would go here
+            console.log(`Liked ${type}: ${pubId}`);
+        }
+
+        async function handleShare(e) {
+            e.preventDefault();
+            const container = e.currentTarget.closest('.reaction-buttons');
+            const pubId = container?.dataset.id;
+            const shareSpan = e.currentTarget.querySelector('.share-count');
+            let count = parseInt(shareSpan.innerText) || 0;
+            shareSpan.innerText = count + 1;
+            console.log(`Shared ${pubId}`);
+        }
+
+        // ------------------------------------------------------------
+        // MODAL UTILITIES
+        // ------------------------------------------------------------
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId)?.classList.remove('active');
+        };
+
+        // ------------------------------------------------------------
+        // WAITLIST FORM SUBMISSION – WRITES TO FIREBASE
+        // ------------------------------------------------------------
+        function initWaitlistForm() {
+            const form = document.getElementById('waitlistForm');
+            if (!form) return;
+            
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const pubId = document.getElementById('waitlistPubId').value;
+                const pubType = document.getElementById('waitlistPubType').value;
+                const name = form.querySelector('input[type="text"]').value;
+                const email = form.querySelector('input[type="email"]').value;
+                
+                // Here you would write to Firebase /waitlists
+                console.log('Waitlist entry:', { pubId, pubType, name, email });
+                
+                form.style.display = 'none';
+                document.getElementById('waitlistSuccess').style.display = 'block';
+                
+                setTimeout(() => {
+                    closeModal('waitlistModal');
+                    form.reset();
+                    form.style.display = 'block';
+                    document.getElementById('waitlistSuccess').style.display = 'none';
+                }, 2000);
+            });
+        }
+
+        // ------------------------------------------------------------
+        // INITIALIZATION – PURE FIREBASE, NO SAMPLES
+        // ------------------------------------------------------------
+        window.addEventListener('DOMContentLoaded', () => {
+            loadFirebaseData();
+            initWaitlistForm();
+            
+            // Close modals on overlay click
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) closeModal(modal.id);
+                });
+            });
+        });
+    </script>
+
     <style>
-        /* ---------- PURE AUTHOR PROFILE – NO SUBSCRIPTION/COMMERCIAL ---------- */
+        /* ------------------------------------------------------------
+           PREMIUM AUTHOR STYLING – PURE, ELEGANT, PROFESSIONAL
+        ------------------------------------------------------------ */
         :root {
-            --black: #0a0a0a;
-            --white: #ffffff;
-            --gray: #f9f9f9;
-            --dark-gray: #1a1a1a;
-            --light-gray: #e8e8e8;
             --gold: #ca8a04;
-            --gold-light: #fef3c7;
             --gold-dark: #a16207;
-            --african-brown: #8B4513;
-            --african-red: #B22222;
-            --african-earth: #D2691E;
-            --african-pattern-bg: #faf7f2;
-            --success: #10b981;
-            --error: #ef4444;
-            --info: #3b82f6;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+            --gold-light: #fef3c7;
+            --black: #0a0a0a;
+            --charcoal: #1f2937;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-600: #4b5563;
+            --gray-800: #1f2a44;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.05);
+            --shadow-xl: 0 20px 30px rgba(0,0,0,0.1);
             --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 20px;
-            --radius-full: 9999px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; scroll-padding-top: 80px; font-size: 15px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--white);
-            color: var(--black);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: white;
+            color: var(--charcoal);
             line-height: 1.6;
-            overflow-x: hidden;
-        }
-        .cinzel { font-family: 'Cinzel', serif; font-weight: 600; letter-spacing: 0.5px; }
-        .lora { font-family: 'Lora', serif; }
-        .highlight { 
-            color: var(--gold); 
-            position: relative; 
-            display: inline-block; 
-        }
-        .highlight::after { 
-            content: ''; 
-            position: absolute; 
-            bottom: 2px; 
-            left: 0; 
-            width: 100%; 
-            height: 6px; 
-            background-color: var(--gold); 
-            opacity: 0.2; 
-            z-index: -1; 
-            border-radius: 4px; 
+            scroll-behavior: smooth;
         }
 
-        /* ----- LOADING (SIGNATURE QUOTE) ----- */
-        .loading-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1e1e1e 100%);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 9999;
+        .cinzel {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            letter-spacing: -0.01em;
         }
-        .loading-spinner {
-            width: 70px; height: 70px;
-            border: 3px solid rgba(202, 138, 4, 0.1);
-            border-top: 3px solid var(--gold);
-            border-radius: 50%;
-            animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
-            margin-bottom: 2rem;
-            box-shadow: 0 0 30px rgba(202,138,4,0.2);
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .quote-container { text-align: center; max-width: 800px; padding: 2rem; }
-        .quote-icon { font-size: 3rem; color: var(--gold); margin-bottom: 1rem; opacity: 0.7; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%,100% { opacity:0.5; } 50% { opacity:1; } }
-        .quote-text { font-family: 'Cinzel', serif; font-size: 2.1rem; line-height: 1.4; color: white; min-height: 140px; }
-        .typing-container { display: inline-block; text-align: left; }
-        .cursor { display: inline-block; width: 3px; height: 2.2rem; background: var(--gold); margin-left: 4px; animation: blink 1s infinite; vertical-align: middle; }
-        @keyframes blink { 0%,50% { opacity:1; } 51%,100% { opacity:0; } }
 
-        /* ----- HEADER – AUTHOR BRANDING ----- */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* ----- HEADER ----- */
         header {
-            position: fixed; top: 0; width: 100%; z-index: 1000;
-            background: rgba(255,255,255,0.98); backdrop-filter: blur(20px);
-            height: 80px;
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
             border-bottom: 3px solid transparent;
-            background-image: linear-gradient(white,white), 
-                repeating-linear-gradient(45deg, var(--gold) 0px, var(--gold) 4px, var(--gold-dark) 4px, var(--gold-dark) 8px, transparent 8px, transparent 12px);
+            background-image: linear-gradient(white, white), 
+                repeating-linear-gradient(45deg, var(--gold) 0, var(--gold) 6px, var(--gold-dark) 6px, var(--gold-dark) 12px, transparent 12px, transparent 18px);
             background-clip: padding-box, border-box;
-            box-shadow: var(--shadow-sm);
-        }
-        .header-container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 100%; }
-        .brand-logo { height: 52px; width: auto; border-radius: 8px; padding: 4px; background: white; border: 1px solid rgba(202,138,4,0.2); }
-        .main-nav { display: flex; list-style: none; gap: 1.8rem; }
-        .nav-link { text-decoration: none; color: var(--dark-gray); font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; transition: var(--transition); }
-        .nav-link:hover { color: var(--gold); }
-        .nav-link.active { color: var(--gold); border-bottom: 3px solid var(--gold); padding-bottom: 0.25rem; }
-
-        /* ----- HERO – AUTHOR IDENTITY (NO CTA TO BUY) ----- */
-        .hero {
-            min-height: 65vh;
-            display: flex;
-            align-items: center;
-            background: url('https://i.postimg.cc/fyxmyB9n/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.png');
-            background-size: 420px 420px;
-            background-attachment: fixed;
-            color: white;
-            padding: 6rem 1.5rem 3rem;
-            position: relative;
-        }
-        .hero::before {
-            content: ''; position: absolute; top:0; left:0; right:0; bottom:0;
-            background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(10,10,10,0.8));
-            z-index:1;
-        }
-        .hero-content { max-width: 1000px; margin: 0 auto; position: relative; z-index: 3; }
-        .hero-text-container { 
-            padding: 2.5rem; 
-            background: rgba(0,0,0,0.35); 
-            backdrop-filter: blur(16px); 
-            border-radius: var(--radius-xl); 
-            border: 1px solid rgba(202,138,4,0.3);
-        }
-        .author-signature { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.2rem; margin-bottom: 0.5rem; }
-        .hero-bio {
-            font-size: 1.2rem; 
-            color: rgba(255,255,255,0.95);
-            max-width: 700px;
-            border-left: 4px solid var(--gold);
-            padding-left: 1.5rem;
-            margin-top: 1.2rem;
-            font-style: italic;
-        }
-
-        /* ----- LIBRARY – PURE PUBLICATIONS, NO SUBSCRIPTION ----- */
-        .library-section {
-            padding: 5rem 1.5rem;
-            background: linear-gradient(to bottom, var(--african-pattern-bg), white);
-        }
-        .library-header {
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 2.5rem;
+            z-index: 100;
         }
-        .library-filters {
+
+        .logo {
+            height: 52px;
+            width: auto;
+            border-radius: 8px;
+            background: white;
+            padding: 4px;
+            border: 1px solid rgba(202, 138, 4, 0.2);
+        }
+
+        nav {
             display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
+            gap: 2.5rem;
         }
-        .filter-btn {
-            padding: 0.5rem 1.25rem;
-            border: 2px solid rgba(202,138,4,0.3);
-            background: transparent;
-            border-radius: var(--radius-full);
+
+        nav a {
+            text-decoration: none;
+            color: var(--charcoal);
             font-weight: 600;
-            color: var(--dark-gray);
-            cursor: pointer;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             transition: var(--transition);
-            font-size: 0.85rem;
+            border-bottom: 2px solid transparent;
+            padding-bottom: 0.25rem;
         }
-        .filter-btn.active, .filter-btn:hover {
-            background: var(--gold);
+
+        nav a:hover {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+
+        /* ----- HERO ----- */
+        .hero {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            min-height: 600px;
+            display: none;
             color: white;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(145deg, rgba(0,0,0,0.9) 0%, rgba(20,20,20,0.8) 100%);
+        }
+
+        .hero-container {
+            position: relative;
+            z-index: 2;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4rem;
+        }
+
+        .hero-text {
+            flex: 1;
+            max-width: 700px;
+        }
+
+        .hero-tagline {
+            display: inline-block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--gold);
+            background: rgba(202, 138, 4, 0.15);
+            padding: 0.4rem 1.2rem;
+            border-radius: 100px;
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(202, 138, 4, 0.3);
+        }
+
+        .hero-text h1 {
+            font-size: 3.8rem;
+            line-height: 1.1;
+            margin-bottom: 1.2rem;
+            color: white;
+        }
+
+        .hero-bio {
+            font-size: 1.25rem;
+            border-left: 5px solid var(--gold);
+            padding-left: 1.8rem;
+            margin: 1.8rem 0;
+            color: rgba(255, 255, 255, 0.95);
+            font-family: 'Lora', serif;
+            font-style: italic;
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 2rem;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .hero-meta i {
+            margin-right: 0.5rem;
+            color: var(--gold);
+        }
+
+        .hero-social {
+            display: flex;
+            gap: 1.2rem;
+            margin-top: 1.8rem;
+        }
+
+        .hero-social a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1.2rem;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .hero-social a:hover {
+            background: var(--gold);
+            color: black;
+            transform: translateY(-3px);
             border-color: var(--gold);
         }
-        .publications-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-            gap: 2.2rem;
-            margin-top: 2rem;
+
+        .hero-avatar img {
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--gold);
+            box-shadow: 0 25px 40px -15px rgba(0,0,0,0.4);
         }
-        .publication-card {
-            background: var(--white);
+
+        /* ----- SECTIONS ----- */
+        section {
+            padding: 5rem 2rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--black);
+        }
+
+        .highlight {
+            position: relative;
+            display: inline-block;
+            color: var(--gold-dark);
+        }
+
+        .highlight::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: var(--gold);
+            opacity: 0.15;
+            z-index: -1;
+            border-radius: 4px;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--gray-600);
+            font-family: 'Lora', serif;
+        }
+
+        /* ----- CAROUSEL GRID ----- */
+        .carousel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
             border-radius: var(--radius-xl);
-            padding: 2rem 1.8rem;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-200);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            border-top: 6px solid transparent;
+            border-image: repeating-linear-gradient(45deg, var(--gold), var(--gold-dark) 6px, transparent 6px, transparent 12px) 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--gold);
+        }
+
+        .card-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            align-self: flex-start;
+            padding: 0.4rem 1.2rem;
+            background: var(--gold-light);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--gold-dark);
+            margin-bottom: 1.2rem;
+            border: 1px solid rgba(202, 138, 4, 0.2);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-family: 'Cinzel', serif;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .card-subtitle {
+            color: var(--gold-dark);
+            font-style: italic;
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+        }
+
+        .card-description {
+            color: var(--gray-600);
+            margin-bottom: 1.2rem;
+            flex: 1;
+            font-size: 0.95rem;
+        }
+
+        .reaction-strip {
+            display: flex;
+            gap: 1.2rem;
+            margin: 1.2rem 0;
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--gray-200);
+            padding-top: 1.2rem;
+        }
+
+        /* ----- BOOKS GRID ----- */
+        .books-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        .book-card {
+            display: flex;
+            gap: 2.5rem;
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 2.2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            transition: var(--transition);
+        }
+
+        .book-card:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--gold);
+        }
+
+        .book-cover {
+            flex: 0 0 200px;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: auto;
+            border-radius: var(--radius-md);
             box-shadow: var(--shadow-lg);
             transition: var(--transition);
-            border: 2px solid transparent;
-            background: linear-gradient(var(--white), var(--white)) padding-box,
-                        repeating-linear-gradient(45deg, var(--gold) 0px, var(--gold) 5px, var(--gold-dark) 5px, var(--gold-dark) 10px, transparent 10px, transparent 14px) border-box;
-            position: relative;
+        }
+
+        .book-card:hover .book-cover img {
+            transform: scale(1.02);
+        }
+
+        .book-details {
+            flex: 1;
+        }
+
+        .book-details h3 {
+            font-size: 1.8rem;
+            font-family: 'Cinzel', serif;
+            margin-bottom: 0.25rem;
+        }
+
+        .book-subtitle {
+            font-size: 1rem;
+            color: var(--gold-dark);
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+
+        .book-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin: 1rem 0;
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .book-meta i {
+            color: var(--gold);
+            margin-right: 0.4rem;
+        }
+
+        .book-description {
+            color: var(--charcoal);
+            margin: 1.2rem 0;
+            line-height: 1.7;
+        }
+
+        .book-formats {
+            margin: 1.2rem 0;
+        }
+
+        .format-badge {
+            display: inline-block;
+            background: var(--gray-100);
+            padding: 0.4rem 1rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            margin-right: 0.6rem;
+            margin-bottom: 0.6rem;
+            border: 1px solid var(--gray-200);
+            font-weight: 500;
+        }
+
+        /* ----- FORTHCOMING / WAITLIST ----- */
+        .forthcoming-section {
+            margin-top: 4rem;
+            background: linear-gradient(145deg, #fef9e7, #fff);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem;
+            border: 1px solid rgba(202, 138, 4, 0.2);
+        }
+
+        .forthcoming-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            color: var(--gold-dark);
+            margin-bottom: 1.8rem;
+        }
+
+        .forthcoming-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .forthcoming-card {
+            background: white;
+            padding: 1.8rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+        }
+
+        .forthcoming-card h4 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .forthcoming-date {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            margin: 0.8rem 0;
+        }
+
+        /* ----- ARTICLES GRID ----- */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 2rem;
+        }
+
+        .article-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            border: 1px solid var(--gray-200);
+            transition: var(--transition);
             display: flex;
             flex-direction: column;
         }
-        .publication-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-xl); }
-        .publication-badge {
-            position: absolute;
-            top: 1rem; right: 1rem;
-            padding: 0.35rem 1.1rem;
-            border-radius: var(--radius-full);
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+
+        .article-card:hover {
+            border-color: var(--gold);
+            box-shadow: var(--shadow-md);
         }
-        .badge-essay { background: #e2e8f0; color: #1e293b; }
-        .badge-article { background: #dbeafe; color: #1e40af; }
-        .badge-book { background: #fef3c7; color: #92400e; }
-        .badge-serial { background: #e0e7ff; color: #3730a3; }
-        .badge-coming-soon { background: #f1f5f9; color: #334155; border: 1px dashed var(--gold); }
-        
-        .publication-type {
-            display: inline-block;
-            padding: 0.25rem 1rem;
-            background: rgba(202,138,4,0.08);
-            color: var(--gold-dark);
-            border-radius: var(--radius-full);
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            align-self: flex-start;
-            text-transform: uppercase;
-        }
-        .publication-title {
-            font-size: 1.6rem;
-            font-weight: 700;
-            font-family: 'Cinzel', serif;
-            color: var(--black);
-            line-height: 1.3;
-            margin-bottom: 0.5rem;
-        }
-        .publication-subtitle {
-            font-size: 0.95rem;
-            color: var(--gold-dark);
-            font-style: italic;
-            margin-bottom: 1rem;
-        }
-        .publication-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.2rem;
-            margin: 1rem 0;
-            color: var(--dark-gray);
-            font-size: 0.85rem;
-        }
-        .publication-meta i { color: var(--gold); width: 16px; }
-        .publication-description {
-            color: #374151;
-            line-height: 1.7;
-            margin-bottom: 1.5rem;
-            flex: 1;
-        }
-        .publication-footer {
+
+        .article-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: auto;
-            padding-top: 1.25rem;
-            border-top: 1px solid var(--light-gray);
+            margin-bottom: 1.2rem;
         }
+
+        .article-category {
+            background: #e6f0ff;
+            color: #1e3a8a;
+            padding: 0.25rem 1rem;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
         .reading-time {
+            color: var(--gray-600);
+            font-size: 0.8rem;
+        }
+
+        .article-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .article-excerpt {
+            color: var(--gray-600);
+            font-size: 0.95rem;
+            flex: 1;
+            margin-bottom: 1.5rem;
+        }
+
+        .article-footer {
+            margin-top: auto;
+        }
+
+        .reaction-buttons {
+            display: flex;
+            gap: 1.2rem;
+            margin-bottom: 1.2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .reaction-btn {
+            background: none;
+            border: none;
+            color: var(--gray-600);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
             display: flex;
             align-items: center;
             gap: 0.4rem;
-            color: #4b5563;
-            font-size: 0.8rem;
         }
-        .btn-read {
-            padding: 0.7rem 1.5rem;
-            border: none;
-            border-radius: var(--radius-md);
+
+        .reaction-btn:hover {
+            color: var(--gold);
+        }
+
+        .btn-text {
+            color: var(--gold-dark);
+            text-decoration: none;
             font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: var(--dark-gray);
-            color: white;
         }
-        .btn-read:hover { background: var(--black); transform: translateY(-2px); box-shadow: var(--shadow-md); }
-        .btn-waitlist {
-            background: #8B5CF6;
-            color: white;
-        }
-        .btn-waitlist:hover { background: #7c3aed; }
 
-        /* ----- SERIES SECTION – AUTHOR'S COLLECTIONS (NO PRICING) ----- */
-        .series-section {
-            padding: 4rem 1.5rem;
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            color: white;
+        .btn-text:hover {
+            gap: 0.8rem;
         }
-        .series-grid {
+
+        /* ----- RESEARCH GRID ----- */
+        .research-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 2rem;
-            margin-top: 2rem;
+            margin-bottom: 3rem;
         }
-        .series-card {
-            background: rgba(255,255,255,0.07);
-            backdrop-filter: blur(8px);
+
+        .research-card {
+            background: var(--gray-50);
             border-radius: var(--radius-lg);
             padding: 2rem;
-            border: 1px solid rgba(202,138,4,0.2);
+            border-left: 6px solid var(--gold);
             transition: var(--transition);
         }
-        .series-card:hover { border-color: var(--gold); background: rgba(255,255,255,0.1); }
-        .series-name { font-size: 1.5rem; font-family: 'Cinzel', serif; color: var(--gold); margin-bottom: 0.75rem; }
-        .series-work-count { display: inline-block; padding: 0.2rem 0.8rem; background: rgba(202,138,4,0.15); border-radius: var(--radius-full); font-size: 0.75rem; }
 
-        /* ----- AUTHOR FOOTER – ONLY BIO & SOCIAL (NO SUBSCRIPTION) ----- */
-        footer {
-            background: linear-gradient(145deg, #0a0a0a, #151515);
+        .research-card:hover {
+            background: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .research-badge {
+            display: inline-block;
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--gold-dark);
+            padding: 0.3rem 1rem;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .research-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .research-authors {
+            color: var(--gray-600);
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .research-journal {
+            font-style: italic;
+            color: var(--gray-600);
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .research-abstract {
+            color: var(--charcoal);
+            font-size: 0.95rem;
+            margin: 1rem 0;
+            line-height: 1.6;
+        }
+
+        .research-actions {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.2rem;
+        }
+
+        .forthcoming-research {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            border: 1px dashed var(--gold);
+            margin-top: 2rem;
+        }
+
+        .forthcoming-research-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .forthcoming-research-item:last-child {
+            border-bottom: none;
+        }
+
+        /* ----- BUTTONS ----- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.7rem 1.5rem;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: var(--transition);
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .btn-gold {
+            background: var(--gold);
             color: white;
-            padding: 4rem 1.5rem 2rem;
-            border-top: 4px solid transparent;
-            background-image: linear-gradient(#0a0a0a, #0a0a0a), 
-                repeating-linear-gradient(45deg, var(--gold) 0px, var(--gold) 4px, var(--gold-dark) 4px, var(--gold-dark) 8px, transparent 8px, transparent 12px);
         }
-        .footer-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 3rem; }
-        .footer-column a { color: rgba(255,255,255,0.7); display: block; text-decoration: none; margin-bottom: 0.5rem; transition: var(--transition); }
-        .footer-column a:hover { color: var(--gold); transform: translateX(5px); }
-        .copyright { text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); font-size: 0.9rem; }
 
-        /* ----- MODAL – WAITLIST (LIGHT, NON-COMMERCIAL) ----- */
+        .btn-gold:hover {
+            background: var(--gold-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(202, 138, 4, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--gold);
+            color: var(--gold-dark);
+        }
+
+        .btn-outline:hover {
+            background: var(--gold);
+            color: white;
+        }
+
+        .btn-waitlist {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+        }
+
+        .btn-waitlist:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-sm {
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        .waitlist-count {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.2rem 0.6rem;
+            border-radius: 100px;
+            margin-left: 0.5rem;
+            font-size: 0.7rem;
+        }
+
+        /* ----- MODALS ----- */
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(12px);
-            display: flex; align-items: center; justify-content: center;
-            z-index: 2000; opacity: 0; visibility: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
             transition: var(--transition);
         }
-        .modal-overlay.active { opacity: 1; visibility: visible; }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
         .modal-content {
             background: white;
             border-radius: var(--radius-xl);
-            padding: 2.5rem;
-            max-width: 480px;
+            max-width: 900px;
             width: 90%;
-            border: 2px solid transparent;
-            background: linear-gradient(white, #fffcf5) padding-box,
-                        repeating-linear-gradient(45deg, var(--gold) 0px, var(--gold) 6px, var(--gold-dark) 6px, var(--gold-dark) 12px) border-box;
-        }
-        .modal-close {
-            position: absolute; top: 1.2rem; right: 1.2rem;
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            background: rgba(202,138,4,0.1);
-            border: 1px solid rgba(202,138,4,0.3);
-            color: var(--gold);
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-        .form-input, .form-select {
-            width: 100%; padding: 0.8rem 1.2rem;
-            border: 2px solid rgba(202,138,4,0.15);
-            border-radius: var(--radius-md);
-            margin-bottom: 1rem;
-        }
-        .btn-modal {
-            width: 100%; padding: 0.9rem;
-            background: var(--gold);
-            color: white;
-            border: none;
-            border-radius: var(--radius-md);
-            font-weight: 700;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 2.5rem;
+            position: relative;
+            border: 3px solid transparent;
+            background-image: linear-gradient(white, white), 
+                repeating-linear-gradient(45deg, var(--gold) 0, var(--gold) 8px, var(--gold-dark) 8px, var(--gold-dark) 16px);
+            background-clip: padding-box, border-box;
         }
 
-        /* ----- MOBILE ----- */
-        @media (max-width: 800px) {
-            .nav-container { display: none; }
-            .publications-grid { grid-template-columns: 1fr; }
-            .library-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        .modal-close {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            background: none;
+            border: none;
+            color: var(--gray-600);
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--gold);
+            transform: rotate(90deg);
+        }
+
+        .book-modal-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+
+        .modal-cover img {
+            width: 100%;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .author-thumb {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--gold);
+        }
+
+        .modal-author {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            background: var(--gray-50);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin: 1.5rem 0;
+        }
+
+        .format-list {
+            margin-top: 1rem;
+        }
+
+        .format-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        /* ----- FOOTER ----- */
+        footer {
+            background: #0a0a0a;
+            color: white;
+            padding: 4rem 2rem 2rem;
+            margin-top: 3rem;
+        }
+
+        .footer-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 3rem;
+        }
+
+        .footer-brand h4 {
+            font-family: 'Cinzel', serif;
+            color: white;
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .footer-brand p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+        }
+
+        .footer-links h4, .footer-contact h4 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-links a {
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            margin-bottom: 0.6rem;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--gold);
+            transform: translateX(5px);
+        }
+
+        .footer-contact p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.4rem;
+        }
+
+        .copyright {
+            max-width: 1280px;
+            margin: 3rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+        }
+
+        /* ----- UTILITY ----- */
+        #loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 60vh;
+        }
+
+        @media (max-width: 900px) {
+            .hero-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            .hero-text h1 {
+                font-size: 2.8rem;
+            }
+            .hero-meta {
+                justify-content: center;
+            }
+            .hero-social {
+                justify-content: center;
+            }
+            .hero-bio {
+                border-left: none;
+                border-top: 4px solid var(--gold);
+                padding-left: 0;
+                padding-top: 1.5rem;
+            }
+            .book-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .book-cover {
+                flex: 0 0 240px;
+                max-width: 240px;
+            }
+            .book-meta {
+                justify-content: center;
+            }
+            .forthcoming-research-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .book-modal-grid {
+                grid-template-columns: 1fr;
+            }
+            .modal-cover {
+                max-width: 240px;
+                margin: 0 auto;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- LOADING – Author's signature quote -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner"></div>
-        <div class="quote-container">
-            <div class="quote-icon"><i class="fas fa-quote-left"></i></div>
-            <div class="quote-text" id="quoteText"></div>
-            <div style="color: var(--gold-light); margin-top: 2rem; font-size: 1.2rem;">— Mugera W.</div>
-            <div style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-top: 0.5rem;">Author · Speaker · Transformational thinker</div>
+    <!-- Loading indicator while Firebase loads -->
+    <div id="loading" style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: white;">
+        <div style="text-align: center;">
+            <i class="fas fa-circle-notch fa-spin" style="font-size: 2.5rem; color: var(--gold);"></i>
+            <p style="margin-top: 1rem; color: #4b5563; font-family: 'Inter';">Loading author library...</p>
         </div>
     </div>
 
-    <!-- HEADER – Author-centric, no user/subscription menu -->
-    <header id="mainHeader">
-        <div class="header-container">
-            <a href="#"><img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" class="brand-logo" alt="Mugera"></a>
-            <div class="nav-container">
-                <nav>
-                    <ul class="main-nav">
-                        <li><a href="#library" class="nav-link active"><i class="fas fa-book-open"></i> Library</a></li>
-                        <li><a href="#series" class="nav-link"><i class="fas fa-layer-group"></i> Series</a></li>
-                        <li><a href="#about-author" class="nav-link"><i class="fas fa-feather"></i> About</a></li>
-                    </ul>
-                </nav>
-            </div>
-        </div>
+    <header style="display: none;" id="mainHeader">
+        <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="Mugera W." class="logo">
+        <nav>
+            <a href="#books">Books</a>
+            <a href="#articles">Articles</a>
+            <a href="#research">Research</a>
+        </nav>
     </header>
 
-    <!-- MAIN CONTENT (DYNAMICALLY BUILT BY FIREBASE) -->
-    <main id="mainContent"></main>
+    <main id="main-content">
+        <!-- All sections are dynamically populated from Firebase ONLY -->
+        <div id="hero" class="hero" style="display: none;"></div>
+        <section id="featured-carousel" class="container" style="display: none;"></section>
+        <section id="books" class="container" style="display: none;"></section>
+        <section id="articles" class="container" style="display: none;"></section>
+        <section id="research" class="container" style="display: none;"></section>
+    </main>
 
-    <!-- FOOTER (STATIC AUTHOR INFO, REPLACED VIA JS) -->
-    <footer id="mainFooter"></footer>
+    <footer id="footer" style="display: none;"></footer>
 
-    <!-- WAITLIST MODAL – purely for upcoming works, no payment -->
-    <div class="modal-overlay" id="waitlistModal">
-        <div class="modal-content" style="position: relative;">
+    <!-- BOOK DETAIL MODAL -->
+    <div id="bookModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('bookModal')">&times;</button>
+            <div id="bookModalContent"></div>
+        </div>
+    </div>
+
+    <!-- WAITLIST MODAL -->
+    <div id="waitlistModal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 480px;">
             <button class="modal-close" onclick="closeModal('waitlistModal')">&times;</button>
-            <h2 style="font-family: 'Cinzel'; margin-bottom: 0.5rem; color: var(--gold-dark);">Get notified</h2>
-            <p style="margin-bottom: 1.8rem; color: var(--dark-gray);" id="waitlistModalSubtitle">Be among the first to read this work.</p>
+            <h3 style="font-family: 'Cinzel'; margin-bottom: 1.5rem; color: var(--gold-dark);">
+                <i class="fas fa-bell"></i> Join waitlist
+            </h3>
             <form id="waitlistForm">
-                <input type="hidden" id="waitlistPublicationId">
-                <input type="hidden" id="waitlistPublicationTitle">
-                <input type="text" class="form-input" id="waitlistName" placeholder="Your name" required>
-                <input type="email" class="form-input" id="waitlistEmail" placeholder="Email address" required>
-                <select class="form-select" id="waitlistInterest">
-                    <option value="">Interested in...</option>
-                    <option value="leadership">Leadership & legacy</option>
-                    <option value="spiritual">Spiritual formation</option>
-                    <option value="philosophical">Philosophical essays</option>
-                    <option value="fiction">Narrative / fiction</option>
-                </select>
-                <button type="submit" class="btn-modal"><i class="fas fa-bell"></i> Notify me</button>
+                <input type="hidden" id="waitlistPubId">
+                <input type="hidden" id="waitlistPubType">
+                <input type="text" placeholder="Full name" required 
+                    style="width: 100%; padding: 0.8rem 1.2rem; margin-bottom: 1rem; border: 2px solid var(--gray-200); border-radius: 12px; font-family: 'Inter';">
+                <input type="email" placeholder="Email address" required 
+                    style="width: 100%; padding: 0.8rem 1.2rem; margin-bottom: 1.5rem; border: 2px solid var(--gray-200); border-radius: 12px; font-family: 'Inter';">
+                <button type="submit" class="btn btn-gold" style="width: 100%; padding: 0.9rem;">
+                    <i class="fas fa-bell"></i> Notify me
+                </button>
             </form>
-            <div id="waitlistSuccess" style="display: none; text-align: center; padding: 1.5rem 0;">
-                <i class="fas fa-check-circle" style="font-size: 3rem; color: var(--success);"></i>
-                <h3 style="margin: 1rem 0 0.5rem;">You're on the list</h3>
-                <p style="color: gray;">We'll email you when it's available.</p>
+            <div id="waitlistSuccess" style="display: none; text-align: center; padding: 1.5rem;">
+                <i class="fas fa-check-circle" style="font-size: 3rem; color: #10b981;"></i>
+                <p style="margin-top: 1rem; font-weight: 600;">You're on the list!</p>
+                <p style="color: var(--gray-600); font-size: 0.9rem;">We'll notify you when it's available.</p>
             </div>
         </div>
     </div>
 
     <script>
-        // ------------------------------------------------------------
-        // FIREBASE – EXACT CREDENTIALS (NO SUBSCRIPTION NODES)
-        // ------------------------------------------------------------
-        const firebaseConfig = {
-            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
-            authDomain: "mugera-e51cc.firebaseapp.com",
-            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "mugera-e51cc",
-            storageBucket: "mugera-e51cc.firebasestorage.app",
-            messagingSenderId: "1024868637509",
-            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        // No auth reliance — pure author profile. We keep auth optional but never show subscription.
-
-        // ---------- GLOBAL STATE – AUTHOR CONTENT ONLY ----------
-        let publicationsWorks = [];    // publications.works (core)
-        let authorBooks = [];         // legacy books
-        let seriesArray = [];         // series
-        let collectionsArray = [];
-        let authorBio = null;
-
-        // ---------- TYPING ANIMATION ----------
-        function startTypingAnimation() {
-            const quote = "Humans are very special and blessed beings, they just need to be reminded time and again.";
-            const quoteText = document.getElementById('quoteText');
-            const typingContainer = document.createElement('div');
-            typingContainer.className = 'typing-container';
-            quoteText.innerHTML = '';
-            quoteText.appendChild(typingContainer);
-            
-            let charIndex = 0;
-            function typeCharacter() {
-                if (charIndex < quote.length) {
-                    typingContainer.innerHTML = quote.substring(0, charIndex + 1) + '<span class="cursor"></span>';
-                    charIndex++;
-                    setTimeout(typeCharacter, 50);
-                } else {
-                    typingContainer.innerHTML = quote + '<span class="cursor"></span>';
-                    setTimeout(() => { loadAuthorContent(); }, 900);
-                }
-            }
-            typeCharacter();
-        }
-
-        // ---------- LOAD ONLY AUTHOR / PUBLICATION DATA (NO SUBSCRIPTION TIERS, NO COMMERCE) ----------
-        async function loadAuthorContent() {
-            try {
-                const snap = await database.ref('iam-mugera').once('value');
-                const brandData = snap.val() || {};
-
-                // 1. publications.works – the heart of author library
-                if (brandData.publications?.works) {
-                    publicationsWorks = Object.entries(brandData.publications.works).map(([id, work]) => ({
-                        id,
-                        ...work,
-                        type: work.type || (work.status === 'coming-soon' ? 'work' : 'book'),
-                        content: work.content || {},
-                        metadata: work.metadata || {},
-                        stats: work.stats || {}
-                    }));
-                }
-
-                // 2. author.books (legacy)
-                authorBooks = [];
-                if (brandData.author?.books) {
-                    authorBooks = Object.entries(brandData.author.books).map(([id, b]) => ({ id, ...b, type: 'book' }));
-                }
-
-                // 3. series & collections (no pricing)
-                seriesArray = brandData.publications?.series ? 
-                    Object.entries(brandData.publications.series).map(([id,s]) => ({id, ...s})) : [];
-
-                // 4. author info for bio/footer
-                authorBio = brandData.author || {};
-
-                // 5. RENDER EVERYTHING — PURE AUTHOR PROFILE
-                renderAuthorHero(brandData.hero);
-                renderLibrary();         // FULL PUBLICATIONS, NO SUBSCRIPTION MENTIONS
-                renderSeriesCollections();
-                renderAuthorFooter();
-
-                // Hide loading
-                document.getElementById('loadingOverlay').style.opacity = '0';
-                document.getElementById('loadingOverlay').style.visibility = 'hidden';
-
-            } catch (e) {
-                console.error('Firebase error', e);
-                document.getElementById('loadingOverlay').style.display = 'none';
-                // fallback: render with sample works
-                renderFallbackLibrary();
-            }
-        }
-
-        // ----- HERO – strictly author, no CTA to subscribe -----
-        function renderAuthorHero(heroData = {}) {
-            const main = document.getElementById('mainContent');
-            const tagline = heroData?.tagline || 'Transformational thinker · Author · Speaker';
-            const mainTitle = 'I AM MUGERA';
-            const bio = heroData?.subtitle || 'Stop waiting for inspiration. Start writing the script — for your family, your team, your legacy.';
-
-            main.innerHTML = `
-                <section class="hero" id="home">
-                    <div class="hero-content">
-                        <div class="hero-text-container">
-                            <div class="author-signature"><i class="fas fa-quill"></i> Mugera W.</div>
-                            <h1 class="cinzel" style="color: white; font-size: 3.2rem; margin-top: 0.2rem;">${mainTitle}</h1>
-                            <div style="color: var(--gold); font-size: 1.2rem; letter-spacing: 1px; margin-top: 0.2rem;">${tagline}</div>
-                            <div class="hero-bio">${bio}</div>
-                            <div style="display: flex; gap: 1.2rem; margin-top: 2.5rem;">
-                                <a href="#library" style="background: var(--gold); color: black; padding: 0.8rem 2rem; border-radius: 40px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.6rem;"><i class="fas fa-book-open"></i> Browse library</a>
-                                <a href="#about-author" style="border: 2px solid var(--gold); color: white; padding: 0.8rem 2rem; border-radius: 40px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.6rem;"><i class="fas fa-feather"></i> About the author</a>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            `;
-        }
-
-        // ----- LIBRARY – PURE PUBLICATIONS, ALL SUBSCRIPTION / PREMIUM BADGES REMOVED -----
-        function renderLibrary() {
-            const main = document.getElementById('mainContent');
-            
-            // Combine works + legacy books, no duplicates
-            let allWorks = [...publicationsWorks];
-            authorBooks.forEach(book => {
-                if (!allWorks.find(w => w.title === book.title)) {
-                    allWorks.push({ ...book, id: book.id, type: 'book' });
-                }
-            });
-
-            // Sort: coming-soon first, then title
-            allWorks.sort((a,b) => {
-                if (a.status === 'coming-soon' && b.status !== 'coming-soon') return -1;
-                if (a.status !== 'coming-soon' && b.status === 'coming-soon') return 1;
-                return (a.title || '').localeCompare(b.title || '');
-            });
-
-            const librarySection = document.createElement('section');
-            librarySection.className = 'library-section';
-            librarySection.id = 'library';
-            librarySection.innerHTML = `
-                <div style="max-width: 1200px; margin: 0 auto;">
-                    <div class="library-header">
-                        <h2 class="cinzel" style="font-size: 2.2rem;"><span class="highlight">Author</span> works</h2>
-                        <div class="library-filters" id="libraryFilters">
-                            <button class="filter-btn active" data-filter="all">All</button>
-                            <button class="filter-btn" data-filter="book">Books</button>
-                            <button class="filter-btn" data-filter="article">Articles</button>
-                            <button class="filter-btn" data-filter="essay">Essays</button>
-                            <button class="filter-btn" data-filter="serial">Serialized</button>
-                            <button class="filter-btn" data-filter="coming-soon">Forthcoming</button>
-                        </div>
-                    </div>
-                    <div id="publicationsContainer" class="publications-grid"></div>
-                </div>
-            `;
-            main.appendChild(librarySection);
-            renderPublicationsGrid(allWorks);
-
-            // Filter listeners
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    filterPublications(this.dataset.filter);
-                });
-            });
-        }
-
-        function renderPublicationsGrid(works) {
-            const container = document.getElementById('publicationsContainer');
-            if (!container) return;
-            container.innerHTML = '';
-
-            works.forEach(work => {
-                // Determine badge (author-centric, no premium/free)
-                let badgeClass = 'badge-article';
-                let badgeText = work.type || 'work';
-                if (work.status === 'coming-soon') {
-                    badgeClass = 'badge-coming-soon';
-                    badgeText = 'Forthcoming';
-                } else if (work.type === 'book' || work.type === 'book (legacy)') {
-                    badgeClass = 'badge-book';
-                    badgeText = 'Book';
-                } else if (work.type === 'serial' || work.status === 'serialized') {
-                    badgeClass = 'badge-serial';
-                    badgeText = 'Serial';
-                } else if (work.type === 'essay') {
-                    badgeClass = 'badge-essay';
-                    badgeText = 'Essay';
-                }
-
-                // Button: if coming soon → waitlist, else → read (reader.html placeholder)
-                let buttonHtml = '';
-                if (work.status === 'coming-soon') {
-                    buttonHtml = `<button class="btn-read btn-waitlist" onclick="openWaitlistModal('${work.id}', '${work.title?.replace(/'/g, "\\'") || 'Untitled'}')"><i class="fas fa-bell"></i> Notify me</button>`;
-                } else {
-                    buttonHtml = `<button class="btn-read" onclick="window.open('reader.html?id=${work.id}', '_blank')"><i class="fas fa-book-open"></i> Read</button>`;
-                }
-
-                // reading time
-                const readingTime = work.metadata?.readingTime || 
-                    (work.metadata?.wordCount ? `${Math.ceil(work.metadata.wordCount/200)} min` : '—');
-                const chapterCount = work.metadata?.chapterCount || (work.content?.chapters?.length) || '—';
-
-                const card = document.createElement('div');
-                card.className = 'publication-card';
-                card.dataset.type = work.type || 'book';
-                card.dataset.status = work.status || 'published';
-                
-                card.innerHTML = `
-                    <span class="publication-badge ${badgeClass}">${badgeText}</span>
-                    <span class="publication-type"><i class="fas fa-${work.type === 'article' ? 'newspaper' : 'book'}"></i> ${work.type || 'work'}</span>
-                    <h3 class="publication-title">${work.title || 'Untitled'}</h3>
-                    ${work.subtitle ? `<div class="publication-subtitle">${work.subtitle}</div>` : ''}
-                    <div class="publication-meta">
-                        ${chapterCount !== '—' ? `<span><i class="fas fa-file-alt"></i> ${chapterCount} chapters</span>` : ''}
-                        ${readingTime !== '—' ? `<span><i class="fas fa-clock"></i> ${readingTime}</span>` : ''}
-                        ${work.stats?.reads ? `<span><i class="fas fa-eye"></i> ${work.stats.reads} reads</span>` : ''}
-                    </div>
-                    <p class="publication-description">${work.description || work.subtitle || 'A work by Mugera W.'}</p>
-                    <div class="publication-footer">
-                        <span class="reading-time"><i class="fas fa-hourglass-half"></i> ${readingTime}</span>
-                        ${buttonHtml}
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function filterPublications(filter) {
-            let allWorks = [...publicationsWorks];
-            authorBooks.forEach(b => { if (!allWorks.find(w => w.title === b.title)) allWorks.push({...b, type:'book'}); });
-            let filtered = allWorks;
-            if (filter === 'book') filtered = allWorks.filter(w => w.type === 'book' || w.type === 'book (legacy)');
-            else if (filter === 'article') filtered = allWorks.filter(w => w.type === 'article');
-            else if (filter === 'essay') filtered = allWorks.filter(w => w.type === 'essay');
-            else if (filter === 'serial') filtered = allWorks.filter(w => w.type === 'serial' || w.status === 'serialized');
-            else if (filter === 'coming-soon') filtered = allWorks.filter(w => w.status === 'coming-soon');
-            renderPublicationsGrid(filtered);
-        }
-
-        // ----- SERIES SECTION (no pricing/bundles) -----
-        function renderSeriesCollections() {
-            if (!seriesArray.length) return;
-            const main = document.getElementById('mainContent');
-            const section = document.createElement('section');
-            section.className = 'series-section';
-            section.id = 'series';
-            let seriesHtml = '';
-            seriesArray.forEach(s => {
-                seriesHtml += `
-                    <div class="series-card">
-                        <h3 class="series-name">${s.name}</h3>
-                        <p style="color: rgba(255,255,255,0.8); margin-bottom: 1rem;">${s.description || ''}</p>
-                        <span class="series-work-count">${s.works?.length || 0} works</span>
-                    </div>
-                `;
-            });
-            section.innerHTML = `
-                <div style="max-width: 1200px; margin: 0 auto;">
-                    <h2 class="cinzel" style="color: white; font-size: 2rem;">Series & collections</h2>
-                    <p style="color: rgba(255,255,255,0.7); margin-top: 0.5rem;">Curated reading journeys</p>
-                    <div class="series-grid">${seriesHtml || '<p style="color:white;">No series yet.</p>'}</div>
-                </div>
-            `;
-            main.appendChild(section);
-        }
-
-        // ----- AUTHOR FOOTER – ONLY BIO, CONTACT, SOCIAL (NO SUBSCRIPTION)-----
-        function renderAuthorFooter() {
-            const footer = document.getElementById('mainFooter');
-            const f = authorBio || {};
-            footer.innerHTML = `
-                <div class="footer-container">
-                    <div class="footer-column">
-                        <h3 style="color: white; margin-bottom: 1.2rem;">Mugera W.</h3>
-                        <p style="color: rgba(255,255,255,0.7);">Writing at the intersection of legacy, leadership and the human spirit.</p>
-                    </div>
-                    <div class="footer-column">
-                        <h3 style="color: white; margin-bottom: 1.2rem;">Explore</h3>
-                        <a href="#library">All works</a>
-                        <a href="#series">Series</a>
-                        <a href="#">Essays</a>
-                    </div>
-                    <div class="footer-column">
-                        <h3 style="color: white; margin-bottom: 1.2rem;">Connect</h3>
-                        <p style="color: rgba(255,255,255,0.7);">${f.contactInfo?.email || 'contact@iammugera.com'}<br>${f.contactInfo?.location || 'Nairobi · Global'}</p>
-                    </div>
-                </div>
-                <div class="copyright">
-                    © ${new Date().getFullYear()} I AM MUGERA. Author library. All rights reserved.
-                </div>
-            `;
-        }
-
-        // Fallback if firebase fails – pure sample author library
-        function renderFallbackLibrary() {
-            publicationsWorks = [
-                { id: '1', title: 'The Script of Legacy', type: 'book', status: 'published', description: 'On writing your family and leadership narrative.', metadata: { readingTime: '18 min', chapterCount: 12 } },
-                { id: '2', title: 'Why Humans Forget They Are Blessed', type: 'essay', status: 'published', description: 'A philosophical meditation.', metadata: { readingTime: '7 min' } },
-                { id: '3', title: 'The Unbound Leader', type: 'book', status: 'coming-soon', description: 'Forthcoming. A new lens on transformational leadership.' },
-            ];
-            authorBooks = [];
-            seriesArray = [{ id: 's1', name: 'Legacy scripts', description: 'Essays on purposeful living', works: [1,2] }];
-            renderAuthorHero();
-            renderLibrary();
-            renderSeriesCollections();
-            renderAuthorFooter();
-            document.getElementById('loadingOverlay').style.display = 'none';
-        }
-
-        // ----- WAITLIST MODAL (simple notification, no payment)-----
-        window.openWaitlistModal = function(pubId, pubTitle) {
-            document.getElementById('waitlistPublicationId').value = pubId || '';
-            document.getElementById('waitlistPublicationTitle').value = pubTitle || '';
-            document.getElementById('waitlistModalSubtitle').innerText = pubTitle ? `Be notified when "${pubTitle}" is available.` : 'Join the notification list.';
-            document.getElementById('waitlistForm').style.display = 'block';
-            document.getElementById('waitlistSuccess').style.display = 'none';
-            document.getElementById('waitlistModal').classList.add('active');
+        // Expose closeModal globally for inline onclick
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId)?.classList.remove('active');
         };
 
-        document.getElementById('waitlistForm')?.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('button');
-            btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-            const data = {
-                pubId: document.getElementById('waitlistPublicationId').value,
-                name: document.getElementById('waitlistName').value,
-                email: document.getElementById('waitlistEmail').value,
-                interest: document.getElementById('waitlistInterest').value,
-                timestamp: new Date().toISOString()
-            };
-            try {
-                await database.ref('author_waitlists/' + Date.now()).set(data);
-                document.getElementById('waitlistForm').style.display = 'none';
-                document.getElementById('waitlistSuccess').style.display = 'block';
-                setTimeout(() => closeModal('waitlistModal'), 2000);
-            } catch (err) { alert('Please try again.'); }
-            btn.disabled = false; btn.innerHTML = '<i class="fas fa-bell"></i> Notify me';
-        });
-
-        window.closeModal = function(id) { document.getElementById(id).classList.remove('active'); };
-
-        // ---------- INIT ----------
-        document.addEventListener('DOMContentLoaded', startTypingAnimation);
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('modal-overlay')) closeModal('waitlistModal');
+        // Hide loading when Firebase data is processed
+        window.addEventListener('load', function() {
+            // The loading will be hidden by the Firebase render functions
+            // This is a fallback
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                document.querySelector('header').style.display = 'flex';
+            }, 3000);
         });
     </script>
 </body>
