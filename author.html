@@ -9,13 +9,13 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts: Elevated typography palette -->
+    <!-- Google Fonts: Elevated, expressive -->
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     
     <!-- Firebase SDK Modular -->
     <script type="module">
         // ------------------------------------------------------------
-        // FIREBASE INITIALIZATION — YOUR EXACT CONFIG
+        // FIREBASE INITIALIZATION
         // ------------------------------------------------------------
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getDatabase, ref, get, child, push, set, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
@@ -45,42 +45,34 @@
         let siteConfig = null;
 
         // ------------------------------------------------------------
-        // ELEVATED NOTIFICATION SYSTEM — artisanal toast design
+        // NOTIFICATION SYSTEM — refined, subtle
         // ------------------------------------------------------------
         function showNotification(message, type = 'success') {
             const container = document.getElementById('notification-container');
-            const id = 'notif-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6);
+            const id = 'notif-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
             
             const notification = document.createElement('div');
             notification.id = id;
             notification.className = `notification notification-${type}`;
             
-            // Icon selection
             let icon = 'fa-check-circle';
             if (type === 'error') icon = 'fa-exclamation-circle';
-            if (type === 'info') icon = 'fa-info-circle';
             if (type === 'waitlist') icon = 'fa-bell';
+            if (type === 'info') icon = 'fa-info-circle';
             
             notification.innerHTML = `
-                <div class="notification-icon">
-                    <i class="fas ${icon}"></i>
-                </div>
-                <div class="notification-content">
-                    <p>${message}</p>
-                </div>
-                <button class="notification-close" onclick="this.parentElement.remove()">
-                    <i class="fas fa-times"></i>
-                </button>
+                <div class="notification-icon"><i class="fas ${icon}"></i></div>
+                <div class="notification-content"><p>${message}</p></div>
+                <button class="notification-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
             `;
             
             container.appendChild(notification);
             
-            // Auto-remove after 5 seconds
             setTimeout(() => {
                 const el = document.getElementById(id);
                 if (el) {
-                    el.style.animation = 'slideOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards';
-                    setTimeout(() => el.remove(), 400);
+                    el.style.animation = 'slideOut 0.3s ease forwards';
+                    setTimeout(() => el.remove(), 300);
                 }
             }, 5000);
         }
@@ -102,27 +94,23 @@
                     researchPapers = data.researchPapers || null;
                     siteConfig = data.siteConfig || null;
 
-                    // Hide loading with graceful fade
                     const loadingEl = document.getElementById('loading');
                     loadingEl.style.opacity = '0';
                     loadingEl.style.visibility = 'hidden';
                     setTimeout(() => {
                         loadingEl.style.display = 'none';
                         document.body.style.overflow = 'auto';
-                    }, 800);
+                    }, 600);
 
-                    // Render all sections
                     renderHeader();
                     renderFooter();
                     if (authorProfile) renderHero();
-                    if (featuredCarousel?.latestPublications?.length) renderFeaturedCarousel();
+                    if (featuredCarousel?.latestPublications?.length) renderCarousel();
                     if (books && Object.keys(books).length > 0) renderBooks();
                     if (articles && Object.keys(articles).length > 0) renderArticles();
                     if (researchPapers && Object.keys(researchPapers).length > 0) renderResearch();
                     
-                    // Initialize all animations
-                    initScrollAnimations();
-                    
+                    initScrollReveal();
                 } else {
                     showEmptyState('No author data found');
                 }
@@ -136,39 +124,38 @@
         function showEmptyState(message) {
             document.getElementById('loading').style.display = 'none';
             document.body.innerHTML = `
-                <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fcf9f6; font-family: 'Inter', sans-serif;">
-                    <div style="font-size: 4rem; color: #b49a6a; margin-bottom: 1.5rem; opacity: 0.5;">📚</div>
-                    <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 400; color: #2e2e2e; margin-bottom: 0.75rem; letter-spacing: -0.01em;">The library awaits</h2>
-                    <p style="font-size: 1rem; color: #6b6b6b; max-width: 420px; text-align: center; line-height: 1.7;">${message}. Please return shortly.</p>
+                <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fdfaf7; font-family: 'Inter', sans-serif;">
+                    <div style="font-size: 5rem; color: #c2a477; opacity: 0.3; margin-bottom: 1.5rem;">📖</div>
+                    <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 400; color: #2c2c2c; margin-bottom: 1rem;">The library is quiet</h2>
+                    <p style="font-size: 1rem; color: #6b6b6b; max-width: 400px; text-align: center;">${message}. Please return soon.</p>
                 </div>
             `;
         }
 
         // ------------------------------------------------------------
-        // SCROLL ANIMATIONS — subtle reveal
+        // SCROLL REVEAL — subtle, elegant
         // ------------------------------------------------------------
-        function initScrollAnimations() {
+        function initScrollReveal() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('revealed');
                     }
                 });
-            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+            }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
             
-            document.querySelectorAll('section, .book-card, .article-card, .research-card, .carousel-slide').forEach(el => {
+            document.querySelectorAll('.book-card, .article-card, .research-card, .carousel-slide, .forthcoming-card').forEach(el => {
                 el.classList.add('reveal-on-scroll');
                 observer.observe(el);
             });
         }
 
         // ------------------------------------------------------------
-        // RENDER HEADER — minimalist, refined
+        // HEADER
         // ------------------------------------------------------------
         function renderHeader() {
             const header = document.getElementById('header');
             header.style.display = 'flex';
-            
             header.innerHTML = `
                 <div class="header-container">
                     <div class="logo">
@@ -185,12 +172,11 @@
         }
 
         // ------------------------------------------------------------
-        // RENDER HERO — editorial, timeless, gallery-grade
+        // HERO
         // ------------------------------------------------------------
         function renderHero() {
             const hero = document.getElementById('hero');
             hero.style.display = 'block';
-            
             hero.innerHTML = `
                 <div class="hero-backdrop" style="background-image: url('${authorProfile.heroImage || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop'}')"></div>
                 <div class="hero-overlay"></div>
@@ -204,9 +190,9 @@
                             ${authorProfile.email ? `<span><i class="fas fa-envelope"></i> ${authorProfile.email}</span>` : ''}
                         </div>
                         <div class="hero-social">
-                            ${authorProfile.social?.twitter ? `<a href="${authorProfile.social.twitter}" target="_blank" rel="noopener" aria-label="Twitter"><i class="fab fa-twitter"></i></a>` : ''}
-                            ${authorProfile.social?.linkedin ? `<a href="${authorProfile.social.linkedin}" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>` : ''}
-                            ${authorProfile.social?.instagram ? `<a href="${authorProfile.social.instagram}" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>` : ''}
+                            ${authorProfile.social?.twitter ? `<a href="${authorProfile.social.twitter}" target="_blank"><i class="fab fa-twitter"></i></a>` : ''}
+                            ${authorProfile.social?.linkedin ? `<a href="${authorProfile.social.linkedin}" target="_blank"><i class="fab fa-linkedin-in"></i></a>` : ''}
+                            ${authorProfile.social?.instagram ? `<a href="${authorProfile.social.instagram}" target="_blank"><i class="fab fa-instagram"></i></a>` : ''}
                         </div>
                     </div>
                     <div class="hero-portrait">
@@ -219,9 +205,9 @@
         }
 
         // ------------------------------------------------------------
-        // CAROUSEL — infinite, auto-play, museum-grade cards
+        // 🎠 TRUE AUTO-PLAYING CAROUSEL — infinite, smooth, responsive
         // ------------------------------------------------------------
-        function renderFeaturedCarousel() {
+        function renderCarousel() {
             const section = document.getElementById('featured');
             section.style.display = 'block';
             
@@ -229,7 +215,7 @@
             featuredCarousel.latestPublications.forEach((item, index) => {
                 if (item.type === 'book') {
                     slidesHtml += `
-                        <div class="carousel-slide" data-index="${index}">
+                        <div class="carousel-slide">
                             <div class="card-category" style="background: #ece6dc; color: #6a4e3a;">
                                 <i class="fas fa-book"></i> Book
                             </div>
@@ -237,7 +223,7 @@
                             <p class="card-subtitle">${item.subtitle || ''}</p>
                             <p class="card-description">${item.description || item.excerpt || ''}</p>
                             <div class="card-price">${item.price || ''}</div>
-                            <a href="${item.orderUrl || '#'}" class="btn btn-primary" target="_blank" rel="noopener">
+                            <a href="${item.orderUrl || '#'}" class="btn btn-primary" target="_blank">
                                 <i class="fas fa-shopping-cart"></i> ${item.orderButtonText || 'Order'}
                             </a>
                         </div>
@@ -245,7 +231,7 @@
                 } else if (item.type === 'article') {
                     const rc = item.reactionCounts || {};
                     slidesHtml += `
-                        <div class="carousel-slide" data-index="${index}">
+                        <div class="carousel-slide">
                             <div class="card-category" style="background: #dfe5ec; color: #2c4c5c;">
                                 <i class="fas fa-newspaper"></i> Article
                             </div>
@@ -257,7 +243,7 @@
                                 <span><i class="fas fa-comment"></i> ${rc.comments || 0}</span>
                                 <span><i class="fas fa-share"></i> ${rc.shares || 0}</span>
                             </div>
-                            <a href="${item.readUrl || '#'}" class="btn btn-secondary" target="_blank" rel="noopener">
+                            <a href="${item.readUrl || '#'}" class="btn btn-secondary" target="_blank">
                                 <i class="fas fa-book-open"></i> ${item.readButtonText || 'Read'}
                             </a>
                         </div>
@@ -265,7 +251,7 @@
                 } else if (item.type === 'research') {
                     const rc = item.reactionCounts || {};
                     slidesHtml += `
-                        <div class="carousel-slide" data-index="${index}">
+                        <div class="carousel-slide">
                             <div class="card-category" style="background: #dfe6da; color: #3a6040;">
                                 <i class="fas fa-flask"></i> Research
                             </div>
@@ -277,7 +263,7 @@
                                 <span><i class="fas fa-comment"></i> ${rc.comments || 0}</span>
                                 <span><i class="fas fa-share"></i> ${rc.shares || 0}</span>
                             </div>
-                            <a href="${item.readUrl || '#'}" class="btn btn-secondary" target="_blank" rel="noopener">
+                            <a href="${item.readUrl || '#'}" class="btn btn-secondary" target="_blank">
                                 <i class="fas fa-file-alt"></i> ${item.readButtonText || 'Access'}
                             </a>
                         </div>
@@ -288,91 +274,165 @@
             section.innerHTML = `
                 <div class="container">
                     <div class="section-header">
-                        <h2 class="section-title">New & <span>notable</span></h2>
-                        <p class="section-subtitle">Recent publications from the author</p>
+                        <h2 class="section-title">Featured <span>publications</span></h2>
+                        <p class="section-subtitle">Recent works from the author</p>
                     </div>
-                    <div class="carousel-wrapper">
-                        <button class="carousel-arrow carousel-prev" aria-label="Previous">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
+                    <div class="carousel-container">
                         <div class="carousel-track-container">
                             <div class="carousel-track">
                                 ${slidesHtml}
-                                ${slidesHtml.split('</div>').slice(0, 2).join('</div>')}
+                                ${slidesHtml} <!-- Duplicate for seamless infinite loop -->
                             </div>
                         </div>
-                        <button class="carousel-arrow carousel-next" aria-label="Next">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
+                        <div class="carousel-controls">
+                            <button class="carousel-btn carousel-prev" aria-label="Previous">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="carousel-btn carousel-next" aria-label="Next">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div class="carousel-progress">
+                            <div class="carousel-progress-bar"></div>
+                        </div>
                     </div>
-                    <div class="carousel-dots"></div>
                 </div>
             `;
 
-            initCarousel();
+            initAutoPlayCarousel();
         }
 
         // ------------------------------------------------------------
-        // CAROUSEL ENGINE — smooth, infinite, auto-play
+        // 🎠 AUTO-PLAY CAROUSEL ENGINE — perfect, infinite, responsive
         // ------------------------------------------------------------
-        function initCarousel() {
+        function initAutoPlayCarousel() {
             const track = document.querySelector('.carousel-track');
             if (!track) return;
             
             const slides = Array.from(track.children);
-            const slideWidth = 340; // px
-            const gap = 28; // 1.8rem ≈ 28px
-            const scrollAmount = slideWidth + gap;
+            const slideWidth = 320; // base width
+            const gap = 32; // 2rem = 32px
             
+            let currentPosition = 0;
             let autoPlayInterval;
+            let isPaused = false;
             
-            const startAutoPlay = () => {
-                autoPlayInterval = setInterval(() => {
-                    const currentScroll = track.scrollLeft;
-                    const maxScroll = track.scrollWidth - track.clientWidth;
-                    
-                    if (currentScroll >= maxScroll - 50) {
-                        track.scrollTo({ left: 0, behavior: 'smooth' });
-                    } else {
-                        track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                    }
-                }, 4200);
-            };
+            // Calculate number of original slides (half of total due to duplication)
+            const originalSlideCount = slides.length / 2;
             
-            const stopAutoPlay = () => clearInterval(autoPlayInterval);
-            
-            // Event listeners
-            track.addEventListener('mouseenter', stopAutoPlay);
-            track.addEventListener('mouseleave', startAutoPlay);
-            
-            const prevBtn = document.querySelector('.carousel-prev');
-            const nextBtn = document.querySelector('.carousel-next');
-            
-            if (prevBtn && nextBtn) {
-                prevBtn.addEventListener('click', () => {
-                    stopAutoPlay();
-                    track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-                    setTimeout(startAutoPlay, 5000);
-                });
-                
-                nextBtn.addEventListener('click', () => {
-                    stopAutoPlay();
-                    track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                    setTimeout(startAutoPlay, 5000);
+            function scrollToPosition(position, smooth = true) {
+                track.scrollTo({
+                    left: position * (slideWidth + gap),
+                    behavior: smooth ? 'smooth' : 'auto'
                 });
             }
             
-            startAutoPlay();
+            function nextSlide() {
+                currentPosition++;
+                
+                // Seamless loop reset
+                if (currentPosition >= originalSlideCount) {
+                    scrollToPosition(0, false);
+                    currentPosition = 0;
+                } else {
+                    scrollToPosition(currentPosition);
+                }
+            }
             
-            // Pause when tab hidden
+            function prevSlide() {
+                currentPosition--;
+                
+                if (currentPosition < 0) {
+                    scrollToPosition(originalSlideCount - 1, false);
+                    currentPosition = originalSlideCount - 1;
+                } else {
+                    scrollToPosition(currentPosition);
+                }
+            }
+            
+            function startAutoPlay() {
+                if (autoPlayInterval) clearInterval(autoPlayInterval);
+                autoPlayInterval = setInterval(() => {
+                    if (!isPaused) {
+                        nextSlide();
+                        updateProgressBar();
+                    }
+                }, 4200); // 4.2 seconds — calm, deliberate
+            }
+            
+            function stopAutoPlay() {
+                clearInterval(autoPlayInterval);
+            }
+            
+            function updateProgressBar() {
+                const progressBar = document.querySelector('.carousel-progress-bar');
+                if (progressBar) {
+                    progressBar.style.width = `${((currentPosition % originalSlideCount) + 1) / originalSlideCount * 100}%`;
+                }
+            }
+            
+            // Event listeners
+            const prevBtn = document.querySelector('.carousel-prev');
+            const nextBtn = document.querySelector('.carousel-next');
+            const container = document.querySelector('.carousel-container');
+            
+            prevBtn?.addEventListener('click', () => {
+                stopAutoPlay();
+                prevSlide();
+                updateProgressBar();
+                setTimeout(startAutoPlay, 5000);
+            });
+            
+            nextBtn?.addEventListener('click', () => {
+                stopAutoPlay();
+                nextSlide();
+                updateProgressBar();
+                setTimeout(startAutoPlay, 5000);
+            });
+            
+            // Pause on hover
+            track?.addEventListener('mouseenter', () => { isPaused = true; });
+            track?.addEventListener('mouseleave', () => { isPaused = false; });
+            
+            container?.addEventListener('mouseenter', () => { isPaused = true; });
+            container?.addEventListener('mouseleave', () => { isPaused = false; });
+            
+            // Touch support — pause during touch interaction
+            track?.addEventListener('touchstart', () => { isPaused = true; });
+            track?.addEventListener('touchend', () => { 
+                isPaused = false;
+                // Update current position based on scroll
+                const scrollLeft = track.scrollLeft;
+                currentPosition = Math.round(scrollLeft / (slideWidth + gap));
+            });
+            
+            // Initialize
+            setTimeout(() => {
+                scrollToPosition(0, false);
+                currentPosition = 0;
+                startAutoPlay();
+                updateProgressBar();
+            }, 100);
+            
+            // Handle visibility change
             document.addEventListener('visibilitychange', () => {
-                if (document.hidden) stopAutoPlay();
-                else startAutoPlay();
+                if (document.hidden) {
+                    stopAutoPlay();
+                } else {
+                    startAutoPlay();
+                }
+            });
+            
+            // Responsive: recalc on resize
+            window.addEventListener('resize', () => {
+                const newSlideWidth = track.children[0]?.offsetWidth || 320;
+                // Adjust position based on new width
+                track.scrollLeft = currentPosition * (newSlideWidth + gap);
             });
         }
 
         // ------------------------------------------------------------
-        // RENDER BOOKS — with order + waitlist, masterful typography
+        // BOOKS SECTION — perfectly responsive cards, order forms
         // ------------------------------------------------------------
         function renderBooks() {
             const section = document.getElementById('books');
@@ -386,7 +446,7 @@
                 <div class="container">
                     <div class="section-header">
                         <h2 class="section-title">Collected <span>works</span></h2>
-                        <p class="section-subtitle">Order signed editions • worldwide shipping</p>
+                        <p class="section-subtitle">Signed editions • worldwide shipping</p>
                     </div>
             `;
             
@@ -395,35 +455,37 @@
                 availableBooks.forEach(book => {
                     html += `
                         <div class="book-card">
-                            <div class="book-cover">
-                                <div class="cover-shadow">
+                            <div class="book-cover-wrapper">
+                                <div class="book-cover">
                                     <img src="${book.coverImage || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=1887&auto=format&fit=crop'}" alt="${book.title}">
                                 </div>
                             </div>
-                            <div class="book-details">
-                                <h3>${book.title}</h3>
-                                <p class="book-subtitle">${book.subtitle || ''}</p>
-                                <div class="book-meta">
-                                    <span><i class="fas fa-calendar-alt"></i> ${book.year || ''}</span>
-                                    <span><i class="fas fa-star"></i> ${book.rating || '—'} <span style="color: #8a8a8a;">(${book.reviewCount || 0})</span></span>
+                            <div class="book-info">
+                                <div class="book-header">
+                                    <h3>${book.title}</h3>
+                                    <p class="book-subtitle">${book.subtitle || ''}</p>
                                 </div>
-                                <p class="book-description">${(book.description || '').substring(0, 200)}${book.description?.length > 200 ? '…' : ''}</p>
+                                <div class="book-meta">
+                                    <span class="book-year"><i class="fas fa-calendar-alt"></i> ${book.year || ''}</span>
+                                    <span class="book-rating"><i class="fas fa-star"></i> ${book.rating || '—'} <span>(${book.reviewCount || 0})</span></span>
+                                </div>
+                                <p class="book-description">${(book.description || '').substring(0, 180)}${book.description?.length > 180 ? '…' : ''}</p>
                                 <div class="book-formats">
                                     ${book.formats ? book.formats.map(f => 
                                         `<span class="format-badge">${f.type} · ${f.price}</span>`
                                     ).join('') : ''}
                                 </div>
                                 
-                                <!-- Order form — refined, compact -->
-                                <div class="order-form-container">
-                                    <h4 class="order-heading"><i class="fas fa-truck"></i> Place an order</h4>
-                                    <form class="order-form">
+                                <!-- Order form — compact, elegant -->
+                                <div class="order-form">
+                                    <h4 class="order-title"><i class="fas fa-truck"></i> Order now</h4>
+                                    <form class="order-form-fields">
                                         <input type="hidden" name="publicationId" value="${book.id}">
                                         <input type="hidden" name="publicationType" value="book">
                                         
                                         <div class="order-row">
                                             <input type="text" name="customerName" placeholder="Full name" required class="order-input">
-                                            <input type="email" name="customerEmail" placeholder="Email address" required class="order-input">
+                                            <input type="email" name="customerEmail" placeholder="Email" required class="order-input">
                                         </div>
                                         <div class="order-row">
                                             <select name="format" required class="order-input order-select">
@@ -440,7 +502,7 @@
                                     </form>
                                 </div>
                                 
-                                <button class="btn btn-text view-book" data-book-id="${book.id}">
+                                <button class="btn-text view-details" data-book-id="${book.id}">
                                     <i class="fas fa-info-circle"></i> View details
                                 </button>
                             </div>
@@ -451,18 +513,20 @@
             }
             
             if (comingBooks.length > 0) {
-                html += `<div class="forthcoming-section">`;
-                html += `<h3 class="forthcoming-title"><i class="fas fa-hourglass-half"></i> Forthcoming</h3>`;
+                html += `<div class="forthcoming-wrapper">`;
+                html += `<h3 class="forthcoming-heading"><i class="fas fa-hourglass-half"></i> Forthcoming</h3>`;
                 html += `<div class="forthcoming-grid">`;
                 comingBooks.forEach(book => {
                     html += `
                         <div class="forthcoming-card">
                             <h4>${book.title}</h4>
                             <p class="forthcoming-subtitle">${book.subtitle || ''}</p>
-                            <p class="forthcoming-date">Expected ${book.expectedPublication || 'TBA'}</p>
-                            <button class="btn btn-waitlist waitlist-trigger" data-publication-id="${book.id}" data-type="book">
+                            <div class="forthcoming-meta">
+                                <span class="forthcoming-date"><i class="fas fa-clock"></i> ${book.expectedPublication || 'TBA'}</span>
+                                ${book.waitlistCount ? `<span class="waitlist-badge">${book.waitlistCount} waiting</span>` : ''}
+                            </div>
+                            <button class="btn btn-waitlist waitlist-btn" data-publication-id="${book.id}" data-type="book">
                                 <i class="fas fa-bell"></i> Join waitlist
-                                ${book.waitlistCount ? `<span class="waitlist-count">${book.waitlistCount}</span>` : ''}
                             </button>
                         </div>
                     `;
@@ -473,19 +537,19 @@
             html += `</div>`;
             section.innerHTML = html;
             
-            // Attach event handlers
-            section.querySelectorAll('.order-form').forEach(form => {
+            // Attach handlers
+            section.querySelectorAll('.order-form-fields').forEach(form => {
                 form.addEventListener('submit', handleOrderSubmit);
             });
             
-            section.querySelectorAll('.view-book').forEach(btn => {
+            section.querySelectorAll('.view-details').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const bookId = e.currentTarget.dataset.bookId;
                     openBookModal(bookId);
                 });
             });
             
-            section.querySelectorAll('.waitlist-trigger').forEach(btn => {
+            section.querySelectorAll('.waitlist-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const pubId = e.currentTarget.dataset.publicationId;
                     const type = e.currentTarget.dataset.type;
@@ -495,7 +559,7 @@
         }
 
         // ------------------------------------------------------------
-        // ORDER SUBMIT — writes to Firebase
+        // ORDER SUBMIT
         // ------------------------------------------------------------
         async function handleOrderSubmit(e) {
             e.preventDefault();
@@ -529,11 +593,11 @@
             try {
                 const ordersRef = ref(db, 'orders/' + orderData.orderId);
                 await set(ordersRef, orderData);
-                showNotification('Order confirmed! We will contact you within 24 hours.', 'success');
+                showNotification('✅ Order confirmed! We\'ll contact you soon.', 'success');
                 form.reset();
             } catch (error) {
-                console.error('Order submission failed:', error);
-                showNotification('Unable to place order. Please try again.', 'error');
+                console.error('Order failed:', error);
+                showNotification('❌ Order failed. Please try again.', 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
@@ -541,7 +605,7 @@
         }
 
         // ------------------------------------------------------------
-        // WAITLIST SUBMIT — fully functional, writes to Firebase
+        // WAITLIST SUBMIT — fully functional
         // ------------------------------------------------------------
         async function handleWaitlistSubmit(e) {
             e.preventDefault();
@@ -579,7 +643,7 @@
                 const countRef = ref(db, `waitlists/${publicationId}_${publicationType}/totalCount`);
                 await runTransaction(countRef, (current) => (current || 0) + 1);
                 
-                showNotification('✨ You\'re on the waitlist! We\'ll notify you.', 'waitlist');
+                showNotification('✨ You\'re on the waitlist!', 'waitlist');
                 
                 setTimeout(() => {
                     closeModal('waitlistModal');
@@ -587,8 +651,8 @@
                 }, 1600);
                 
             } catch (error) {
-                console.error('Waitlist submission failed:', error);
-                showNotification('Could not join waitlist. Please try again.', 'error');
+                console.error('Waitlist failed:', error);
+                showNotification('Could not join waitlist. Try again.', 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
@@ -614,7 +678,7 @@
         };
 
         // ------------------------------------------------------------
-        // RENDER ARTICLES — editorial, elegant
+        // ARTICLES SECTION — responsive cards, reactions
         // ------------------------------------------------------------
         function renderArticles() {
             const section = document.getElementById('articles');
@@ -627,7 +691,7 @@
                 <div class="container">
                     <div class="section-header">
                         <h2 class="section-title">Essays & <span>reflections</span></h2>
-                        <p class="section-subtitle">Ideas on leadership, technology, and legacy</p>
+                        <p class="section-subtitle">Ideas on leadership, legacy, and consciousness</p>
                     </div>
                     <div class="articles-grid">
             `;
@@ -637,14 +701,14 @@
                     const reactions = article.reactions || { likes: 0, comments: 0, shares: 0 };
                     html += `
                         <div class="article-card">
-                            <div class="article-header">
+                            <div class="article-category-wrapper">
                                 <span class="article-category">${article.category || 'Essay'}</span>
                                 <span class="reading-time"><i class="fas fa-clock"></i> ${article.readingTime || '5 min'}</span>
                             </div>
                             <h3>${article.title}</h3>
                             <p class="article-excerpt">${article.subtitle || article.content?.intro || ''}</p>
                             <div class="article-footer">
-                                <div class="reaction-buttons" data-id="${article.id}" data-type="article">
+                                <div class="reaction-group">
                                     <button class="reaction-btn like-btn" data-id="${article.id}" data-type="article">
                                         <i class="fas fa-heart"></i> <span class="like-count">${reactions.likes || 0}</span>
                                     </button>
@@ -655,8 +719,8 @@
                                         <i class="fas fa-share"></i> <span class="share-count">${reactions.shares || 0}</span>
                                     </button>
                                 </div>
-                                <a href="${article.readUrl || '#'}" class="read-link" target="_blank" rel="noopener">
-                                    Read article <i class="fas fa-arrow-right"></i>
+                                <a href="${article.readUrl || '#'}" class="read-more" target="_blank">
+                                    Read <i class="fas fa-arrow-right"></i>
                                 </a>
                             </div>
                         </div>
@@ -669,7 +733,7 @@
         }
 
         // ------------------------------------------------------------
-        // RENDER RESEARCH — scholarly, refined
+        // RESEARCH SECTION
         // ------------------------------------------------------------
         function renderResearch() {
             const section = document.getElementById('research');
@@ -682,7 +746,7 @@
                 <div class="container">
                     <div class="section-header">
                         <h2 class="section-title">Research <span>papers</span></h2>
-                        <p class="section-subtitle">Peer-reviewed scholarship & working papers</p>
+                        <p class="section-subtitle">Peer-reviewed scholarship</p>
                     </div>
             `;
             
@@ -698,8 +762,8 @@
                             <h3>${paper.title}</h3>
                             <p class="research-authors">${paper.authors ? paper.authors.map(a => a.name).join(', ') : ''}</p>
                             <p class="research-journal">${paper.publishedIn || ''} · ${paper.year || ''}</p>
-                            <p class="research-abstract">${(paper.abstract || '').substring(0, 130)}…</p>
-                            <div class="reaction-buttons" data-id="${paper.id}" data-type="research">
+                            <p class="research-abstract">${(paper.abstract || '').substring(0, 120)}…</p>
+                            <div class="research-reactions">
                                 <button class="reaction-btn like-btn" data-id="${paper.id}" data-type="research">
                                     <i class="fas fa-heart"></i> <span class="like-count">${reactions.likes || 0}</span>
                                 </button>
@@ -707,9 +771,9 @@
                                     <i class="fas fa-share"></i> <span class="share-count">${reactions.shares || 0}</span>
                                 </button>
                             </div>
-                            <div class="research-actions">
-                                ${paper.pdfUrl ? `<a href="${paper.pdfUrl}" class="btn btn-outline" target="_blank"><i class="fas fa-file-pdf"></i> PDF</a>` : ''}
-                                ${paper.url ? `<a href="${paper.url}" class="btn btn-outline" target="_blank"><i class="fas fa-external-link-alt"></i> Publisher</a>` : ''}
+                            <div class="research-links">
+                                ${paper.pdfUrl ? `<a href="${paper.pdfUrl}" class="btn-outline btn-sm" target="_blank"><i class="fas fa-file-pdf"></i> PDF</a>` : ''}
+                                ${paper.url ? `<a href="${paper.url}" class="btn-outline btn-sm" target="_blank"><i class="fas fa-external-link-alt"></i> Publisher</a>` : ''}
                             </div>
                         </div>
                     `;
@@ -726,9 +790,9 @@
                             <div class="research-preview">
                                 <strong>${paper.title}</strong>
                                 <p>${(paper.abstract || '').substring(0, 100)}…</p>
-                                <small>Expected: ${paper.expectedCompletion || 'TBA'}</small>
+                                <span class="research-date">Expected: ${paper.expectedCompletion || 'TBA'}</span>
                             </div>
-                            <button class="btn btn-waitlist waitlist-trigger" data-publication-id="${paper.id}" data-type="research">
+                            <button class="btn btn-waitlist waitlist-btn" data-publication-id="${paper.id}" data-type="research">
                                 <i class="fas fa-bell"></i> Notify
                             </button>
                         </div>
@@ -741,7 +805,7 @@
             section.innerHTML = html;
             attachReactionHandlers();
             
-            section.querySelectorAll('.waitlist-trigger').forEach(btn => {
+            section.querySelectorAll('.waitlist-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const pubId = e.currentTarget.dataset.publicationId;
                     const type = e.currentTarget.dataset.type;
@@ -751,7 +815,7 @@
         }
 
         // ------------------------------------------------------------
-        // REACTION HANDLERS (likes, shares, comments)
+        // REACTION HANDLERS
         // ------------------------------------------------------------
         function attachReactionHandlers() {
             document.querySelectorAll('.like-btn, .share-btn').forEach(btn => {
@@ -780,12 +844,11 @@
                 const path = contentType === 'article' ? `articles/${id}/reactions/${type}` : `researchPapers/${id}/reactions/${type}`;
                 const reactionRef = ref(db, path);
                 await runTransaction(reactionRef, (currentVal) => (currentVal || 0) + 1);
-                showNotification(type === 'likes' ? '❤️ Appreciated' : '🔄 Shared', 'success');
+                showNotification(type === 'likes' ? '❤️ Liked' : '🔄 Shared', 'success');
             } catch (error) {
                 console.error('Reaction failed:', error);
                 countSpan.innerText = current;
                 btn.style.color = '';
-                showNotification('Could not register reaction', 'error');
             }
         }
 
@@ -817,16 +880,14 @@
                     commentArray.forEach(cmt => {
                         commentsHtml += `
                             <div class="comment-item">
-                                <div class="comment-author">
-                                    <i class="fas fa-user-circle"></i> ${cmt.userName || 'Anonymous'}
-                                </div>
+                                <div class="comment-author"><i class="fas fa-user-circle"></i> ${cmt.userName || 'Anonymous'}</div>
                                 <div class="comment-text">${cmt.text || ''}</div>
                                 <div class="comment-meta">${new Date(cmt.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
                             </div>
                         `;
                     });
                 } else {
-                    commentsHtml = '<p style="color: #8a8a8a; text-align: center; padding: 2.5rem; font-style: italic;">No comments yet. Begin the conversation.</p>';
+                    commentsHtml = '<p style="color: #8a8a8a; text-align: center; padding: 2.5rem;">No comments yet. Start the conversation.</p>';
                 }
                 
                 commentList.innerHTML = commentsHtml;
@@ -849,7 +910,6 @@
                     };
                     
                     try {
-                        const commentsRef = ref(db, `articles/${articleId}/comments`);
                         await push(commentsRef, newComment);
                         
                         const countRef = ref(db, `articles/${articleId}/reactions/comments`);
@@ -878,7 +938,7 @@
                         nameInput.value = '';
                         textInput.value = '';
                         
-                        showNotification('💬 Your comment was posted', 'success');
+                        showNotification('💬 Comment posted', 'success');
                     } catch (error) {
                         console.error('Comment failed:', error);
                         showNotification('Unable to post comment', 'error');
@@ -911,7 +971,7 @@
                         <div class="modal-format-row">
                             <span class="format-type">${f.type}</span>
                             <span class="format-price">${f.price}</span>
-                            <a href="${book.orderUrls?.[f.type.toLowerCase()] || '#'}" class="btn btn-primary btn-sm" target="_blank">Order</a>
+                            <a href="${book.orderUrls?.[f.type.toLowerCase()] || '#'}" class="btn-primary btn-sm" target="_blank">Order</a>
                         </div>
                     `;
                 });
@@ -927,7 +987,7 @@
                         <h2>${book.title}</h2>
                         <p class="modal-subtitle">${book.subtitle || ''}</p>
                         
-                        <div class="modal-author-spotlight">
+                        <div class="modal-author">
                             <img src="${book.authorPhoto || authorProfile?.avatarUrl}" alt="${book.authorName}">
                             <div>
                                 <strong>${book.authorName || 'Mugera W.'}</strong>
@@ -937,13 +997,13 @@
                         
                         <p class="modal-description">${book.description || ''}</p>
                         
-                        <div class="modal-metadata">
+                        <div class="modal-meta">
                             ${book.isbn ? `<span><i class="fas fa-book"></i> ISBN: ${book.isbn}</span>` : ''}
                             ${book.pages ? `<span><i class="fas fa-file-alt"></i> ${book.pages} pages</span>` : ''}
                             ${book.year ? `<span><i class="fas fa-calendar"></i> ${book.year}</span>` : ''}
                         </div>
                         
-                        <h4 class="modal-format-heading">Formats & ordering</h4>
+                        <h4 class="modal-format-title">Formats & ordering</h4>
                         ${formatsHtml}
                     </div>
                 </div>
@@ -954,12 +1014,11 @@
         };
 
         // ------------------------------------------------------------
-        // RENDER FOOTER — warm, grounded
+        // FOOTER
         // ------------------------------------------------------------
         function renderFooter() {
             const footer = document.getElementById('footer');
             footer.style.display = 'block';
-            
             footer.innerHTML = `
                 <div class="footer-container">
                     <div class="footer-brand">
@@ -967,7 +1026,7 @@
                         <p>${siteConfig?.tagline || authorProfile?.tagline || 'Write the script. Build the legacy.'}</p>
                     </div>
                     <div class="footer-links">
-                        <h4>Browse</h4>
+                        <h4>Explore</h4>
                         ${books && Object.keys(books).length > 0 ? '<a href="#books">Books</a>' : ''}
                         ${articles && Object.keys(articles).length > 0 ? '<a href="#articles">Essays</a>' : ''}
                         ${researchPapers && Object.keys(researchPapers).length > 0 ? '<a href="#research">Research</a>' : ''}
@@ -980,7 +1039,7 @@
                 </div>
                 <div class="copyright">
                     <span>© ${new Date().getFullYear()} ${authorProfile?.name || 'Mugera W.'}</span>
-                    <span class="copyright-divider">•</span>
+                    <span class="divider">•</span>
                     <span>All rights reserved</span>
                 </div>
             `;
@@ -993,9 +1052,7 @@
             loadFirebaseData();
             
             const waitlistForm = document.getElementById('waitlistFormElement');
-            if (waitlistForm) {
-                waitlistForm.addEventListener('submit', handleWaitlistSubmit);
-            }
+            if (waitlistForm) waitlistForm.addEventListener('submit', handleWaitlistSubmit);
             
             document.querySelectorAll('.modal-overlay').forEach(modal => {
                 modal.addEventListener('click', (e) => {
@@ -1012,30 +1069,29 @@
 
     <style>
         /* ------------------------------------------------------------
-           MASTER STYLING — ELEVATED, EDITORIAL, PERFECTLY REFINED
-           Palette: Warm neutrals, deep charcoal, aged gold, soft clay
-           Typography: Cormorant Garamond for titles, Inter for UI
+           MASTER STYLING — FLAWLESS CARDS, RESPONSIVE, AUTO CAROUSEL
+           Palette: Warm neutrals, aged gold, deep charcoal
         ------------------------------------------------------------ */
         
         :root {
-            --color-bg: #fffcf8;
-            --color-paper: #fefcf9;
-            --color-ink: #2a2a28;
-            --color-soft-charcoal: #3c3c3a;
-            --color-warm-gray: #6b6b68;
-            --color-clay: #d8cfc4;
-            --color-sand: #eae3da;
-            --color-gold-pale: #dac5a7;
-            --color-gold: #b49a6a;
-            --color-gold-deep: #8f7652;
-            --color-burgundy: #6a4e3a;
-            --color-border: #eeeae6;
-            --color-shadow: rgba(44, 44, 42, 0.04);
-            --radius-md: 12px;
-            --radius-lg: 20px;
-            --radius-xl: 32px;
-            --transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --bg: #fffcf9;
+            --paper: #fefcf7;
+            --ink: #2a2a28;
+            --ink-soft: #4a4a48;
+            --stone: #6b6b68;
+            --sand: #eae3da;
+            --sand-dark: #d8cfc4;
+            --gold-light: #e5d5c0;
+            --gold: #b49a6a;
+            --gold-deep: #8f7652;
+            --burgundy: #6a4e3a;
+            --border: #efebe7;
+            --shadow: rgba(44, 44, 42, 0.04);
+            --shadow-hover: rgba(180, 154, 106, 0.12);
+            --radius-card: 24px;
+            --radius-btn: 40px;
             --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -1046,16 +1102,15 @@
 
         html {
             scroll-behavior: smooth;
+            font-size: 16px;
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--color-bg);
-            color: var(--color-ink);
+            background-color: var(--bg);
+            color: var(--ink);
             line-height: 1.7;
             overflow-x: hidden;
-            font-size: 16px;
-            font-weight: 400;
         }
 
         .container {
@@ -1065,61 +1120,56 @@
         }
 
         /* ------------------------------------------------------------
-           NOTIFICATION SYSTEM — crafted toasts
+           NOTIFICATIONS
         ------------------------------------------------------------ */
         #notification-container {
             position: fixed;
-            top: 28px;
-            right: 28px;
+            top: 24px;
+            right: 24px;
             z-index: 9999;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            max-width: 380px;
+            max-width: 360px;
             width: 100%;
             pointer-events: none;
         }
 
         .notification {
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 12px 28px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02);
-            padding: 16px 20px;
+            border-radius: 60px;
+            padding: 14px 20px;
             display: flex;
             align-items: center;
-            gap: 14px;
-            animation: slideIn 0.4s cubic-bezier(0.2, 0.9, 0.4, 1);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.5);
+            gap: 12px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02);
+            animation: slideInRight 0.3s ease;
             pointer-events: auto;
+            border-left: 6px solid;
         }
 
-        @keyframes slideIn {
-            from { transform: translateX(100%) scale(0.95); opacity: 0; }
-            to { transform: translateX(0) scale(1); opacity: 1; }
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         @keyframes slideOut {
-            from { transform: translateX(0) scale(1); opacity: 1; }
-            to { transform: translateX(100%) scale(0.95); opacity: 0; }
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
         }
 
-        .notification-success { background: #f4f1eb; border-left: 5px solid #b49a6a; }
-        .notification-error { background: #fcf0f0; border-left: 5px solid #c8384a; }
-        .notification-waitlist { background: #f0eef9; border-left: 5px solid #8b5cf6; }
-        .notification-info { background: #e9f0f5; border-left: 5px solid #3a7ca5; }
+        .notification-success { border-left-color: var(--gold); background: #faf8f5; }
+        .notification-error { border-left-color: #c8384a; background: #fcf0f0; }
+        .notification-waitlist { border-left-color: #8b5cf6; background: #f5f3fe; }
+        .notification-info { border-left-color: #3a7ca5; background: #eef5fa; }
 
-        .notification-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-        .notification-success .notification-icon { color: #b49a6a; }
-        .notification-error .notification-icon { color: #c8384a; }
-        .notification-waitlist .notification-icon { color: #8b5cf6; }
-        .notification-content { flex: 1; }
-        .notification-content p { color: #1e1e1e; font-size: 0.95rem; font-weight: 500; margin: 0; line-height: 1.5; }
-        .notification-close { background: transparent; border: none; color: #8a8a8a; cursor: pointer; padding: 6px; border-radius: 8px; transition: var(--transition); }
-        .notification-close:hover { background: rgba(0,0,0,0.04); color: #1e1e1e; }
+        .notification-icon { width: 24px; color: inherit; }
+        .notification-content p { font-size: 0.9rem; font-weight: 500; color: #1e1e1e; }
+        .notification-close { background: none; border: none; color: #999; cursor: pointer; padding: 4px; border-radius: 50%; }
+        .notification-close:hover { background: rgba(0,0,0,0.04); color: #333; }
 
         /* ------------------------------------------------------------
-           LOADING — minimal, poetic
+           LOADING
         ------------------------------------------------------------ */
         #loading {
             position: fixed;
@@ -1127,34 +1177,34 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--color-bg);
+            background: var(--bg);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 10000;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
         }
 
         .loading-spinner {
             width: 56px;
             height: 56px;
-            border: 1px solid var(--color-sand);
-            border-top: 1px solid var(--color-gold);
+            border: 1px solid var(--sand-dark);
+            border-top: 1px solid var(--gold);
             border-radius: 50%;
-            animation: spin 1s ease infinite;
+            animation: spin 0.8s linear infinite;
             margin-bottom: 2rem;
         }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         /* ------------------------------------------------------------
-           HEADER — weightless, refined
+           HEADER — light, airy
         ------------------------------------------------------------ */
         header {
             position: sticky;
             top: 0;
-            background: rgba(255, 252, 248, 0.85);
+            background: rgba(255, 252, 249, 0.85);
             backdrop-filter: blur(16px);
             border-bottom: 1px solid rgba(218, 197, 170, 0.2);
             padding: 0.9rem 2rem;
@@ -1173,49 +1223,47 @@
         .logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.8rem;
         }
 
         .logo-mark {
             width: 36px;
             height: 36px;
-            background: linear-gradient(145deg, var(--color-gold-pale), var(--color-gold));
+            background: linear-gradient(145deg, var(--gold-light), var(--gold));
             border-radius: 50%;
-            position: relative;
         }
 
         .logo-name {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 1.45rem;
+            font-size: 1.5rem;
             font-weight: 600;
             letter-spacing: -0.02em;
-            color: var(--color-ink);
+            color: var(--ink);
         }
 
-        nav { display: flex; gap: 2.5rem; }
+        nav { display: flex; gap: 2.2rem; }
         nav a {
             text-decoration: none;
-            color: var(--color-soft-charcoal);
+            color: var(--ink-soft);
             font-size: 0.9rem;
             font-weight: 500;
-            letter-spacing: 0.5px;
-            transition: var(--transition);
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            border-bottom: 1.5px solid transparent;
+            border-bottom: 2px solid transparent;
             padding-bottom: 4px;
+            transition: var(--transition);
         }
-        nav a i { color: var(--color-gold); font-size: 0.85rem; }
-        nav a:hover { color: var(--color-gold-deep); border-bottom-color: var(--color-gold); }
+        nav a i { color: var(--gold); }
+        nav a:hover { color: var(--gold-deep); border-bottom-color: var(--gold); }
 
         /* ------------------------------------------------------------
-           HERO — gallery-grade, timeless
+           HERO — timeless, gallery-grade
         ------------------------------------------------------------ */
         #hero {
             display: none;
             position: relative;
-            background: var(--color-ink);
+            background: var(--ink);
             color: white;
             overflow: hidden;
         }
@@ -1228,8 +1276,8 @@
             height: 100%;
             background-size: cover;
             background-position: center;
-            opacity: 0.25;
-            filter: saturate(1.1);
+            opacity: 0.2;
+            filter: saturate(1.2);
         }
 
         .hero-overlay {
@@ -1238,7 +1286,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(42,42,40,0.98) 0%, rgba(42,42,40,0.85) 100%);
+            background: linear-gradient(145deg, rgba(42,42,40,0.98), rgba(42,42,40,0.85));
         }
 
         .hero-container {
@@ -1258,12 +1306,12 @@
             font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 4px;
-            color: var(--color-gold-pale);
-            background: rgba(218, 197, 170, 0.08);
+            color: var(--gold-light);
+            background: rgba(218, 197, 170, 0.1);
             padding: 0.4rem 1.2rem;
             border-radius: 40px;
+            border: 1px solid rgba(218, 197, 170, 0.2);
             margin-bottom: 1.8rem;
-            border: 1px solid rgba(218, 197, 170, 0.15);
         }
 
         .hero-title {
@@ -1272,26 +1320,24 @@
             font-weight: 600;
             line-height: 1.1;
             margin-bottom: 1.5rem;
-            letter-spacing: -0.01em;
             color: white;
         }
 
         .hero-bio {
             font-size: 1.2rem;
             font-weight: 300;
-            color: rgba(255, 255, 255, 0.9);
-            border-left: 4px solid var(--color-gold);
+            color: rgba(255,255,255,0.9);
+            border-left: 4px solid var(--gold);
             padding-left: 1.8rem;
             margin: 2rem 0;
-            line-height: 1.7;
             font-family: 'Source Serif Pro', serif;
             font-style: italic;
         }
 
         .hero-meta { display: flex; gap: 2rem; margin: 1.8rem 0; font-size: 0.9rem; color: rgba(255,255,255,0.8); }
-        .hero-meta i { margin-right: 0.6rem; color: var(--color-gold-pale); }
+        .hero-meta i { margin-right: 0.6rem; color: var(--gold-light); }
 
-        .hero-social { display: flex; gap: 1.2rem; margin-top: 2.2rem; }
+        .hero-social { display: flex; gap: 1.2rem; }
         .hero-social a {
             display: flex;
             align-items: center;
@@ -1301,67 +1347,64 @@
             border-radius: 50%;
             background: rgba(255,255,255,0.06);
             color: white;
-            font-size: 1.1rem;
-            transition: var(--transition-slow);
-            border: 1px solid rgba(255,255,255,0.08);
+            transition: var(--transition);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         .hero-social a:hover {
-            background: var(--color-gold);
-            color: var(--color-ink);
-            transform: translateY(-5px);
-            border-color: var(--color-gold);
+            background: var(--gold);
+            color: var(--ink);
+            transform: translateY(-4px);
         }
 
         .portrait-frame {
             width: 100%;
-            max-width: 340px;
+            max-width: 320px;
             border-radius: 50%;
             border: 4px solid rgba(218, 197, 170, 0.3);
-            box-shadow: 0 30px 50px -20px rgba(0,0,0,0.5);
             overflow: hidden;
+            box-shadow: 0 30px 50px -20px rgba(0,0,0,0.5);
         }
         .portrait-frame img { width: 100%; height: auto; display: block; }
 
         /* ------------------------------------------------------------
-           SECTIONS — spacious, airy
+           SECTIONS
         ------------------------------------------------------------ */
         section {
             padding: 6rem 0;
-            border-bottom: 1px solid var(--color-border);
+            border-bottom: 1px solid var(--border);
             display: none;
         }
 
         .section-header {
-            margin-bottom: 4rem;
             text-align: center;
+            margin-bottom: 4rem;
         }
 
         .section-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 2.8rem;
+            font-size: 3rem;
             font-weight: 500;
-            color: var(--color-ink);
+            color: var(--ink);
             margin-bottom: 0.75rem;
             letter-spacing: -0.01em;
         }
 
         .section-title span {
-            color: var(--color-gold-deep);
-            font-weight: 600;
-            border-bottom: 2px solid var(--color-gold-pale);
+            color: var(--gold-deep);
+            border-bottom: 2px solid var(--gold-light);
             padding-bottom: 4px;
         }
 
         .section-subtitle {
-            font-size: 1rem;
-            color: var(--color-warm-gray);
-            font-weight: 300;
+            font-size: 0.9rem;
+            color: var(--stone);
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
+            font-weight: 300;
         }
 
         /* ------------------------------------------------------------
-           REVEAL ON SCROLL — subtle animation
+           REVEAL ON SCROLL
         ------------------------------------------------------------ */
         .reveal-on-scroll {
             opacity: 0;
@@ -1375,71 +1418,54 @@
         }
 
         /* ------------------------------------------------------------
-           CAROUSEL — museum-quality cards
+           🎠 AUTO CAROUSEL — PERFECT, RESPONSIVE
         ------------------------------------------------------------ */
-        .carousel-wrapper {
+        .carousel-container {
             position: relative;
-            display: flex;
-            align-items: center;
+            width: 100%;
         }
 
         .carousel-track-container {
-            overflow-x: auto;
-            scroll-behavior: smooth;
+            overflow: hidden;
             width: 100%;
-            padding: 0.8rem 0;
-            scrollbar-width: thin;
-            scrollbar-color: var(--color-gold) var(--color-sand);
+            padding: 1rem 0 1.5rem;
         }
-        .carousel-track-container::-webkit-scrollbar { height: 6px; }
-        .carousel-track-container::-webkit-scrollbar-track { background: var(--color-sand); border-radius: 10px; }
-        .carousel-track-container::-webkit-scrollbar-thumb { background: var(--color-gold); border-radius: 10px; }
 
         .carousel-track {
             display: flex;
-            gap: 1.8rem;
-            width: max-content;
+            gap: 2rem;
+            transition: transform 0.3s ease;
+            will-change: transform;
         }
 
         .carousel-slide {
-            flex: 0 0 320px;
+            flex: 0 0 300px;
             background: white;
-            padding: 2.2rem;
-            border-radius: var(--radius-xl);
-            border: 1px solid var(--color-border);
+            padding: 2rem;
+            border-radius: var(--radius-card);
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 20px var(--shadow);
             transition: var(--transition-slow);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 8px 20px var(--color-shadow);
+        }
+
+        @media (min-width: 768px) {
+            .carousel-slide {
+                flex: 0 0 320px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .carousel-slide {
+                flex: 0 0 340px;
+            }
         }
 
         .carousel-slide:hover {
-            border-color: var(--color-gold-pale);
-            box-shadow: 0 25px 35px -12px rgba(180, 154, 106, 0.12);
+            border-color: var(--gold-light);
+            box-shadow: 0 25px 35px -12px var(--shadow-hover);
             transform: translateY(-6px);
-        }
-
-        .carousel-arrow {
-            background: white;
-            border: 1px solid var(--color-border);
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 6px 14px rgba(0,0,0,0.02);
-            margin: 0 0.5rem;
-            flex-shrink: 0;
-            color: var(--color-soft-charcoal);
-        }
-        .carousel-arrow:hover {
-            background: var(--color-gold);
-            color: white;
-            border-color: var(--color-gold);
-            transform: scale(1.05);
         }
 
         .card-category {
@@ -1452,7 +1478,7 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 1.6rem;
+            margin-bottom: 1.5rem;
             align-self: flex-start;
         }
 
@@ -1460,19 +1486,19 @@
             font-family: 'Cormorant Garamond', serif;
             font-size: 1.6rem;
             font-weight: 600;
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.5rem;
             line-height: 1.3;
         }
 
         .card-subtitle {
             font-size: 0.85rem;
-            color: var(--color-gold-deep);
+            color: var(--gold-deep);
             font-style: italic;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1rem;
         }
 
         .card-description {
-            color: var(--color-warm-gray);
+            color: var(--stone);
             font-size: 0.9rem;
             line-height: 1.7;
             margin-bottom: 1.5rem;
@@ -1482,23 +1508,67 @@
         .card-price {
             font-size: 1.3rem;
             font-weight: 600;
-            color: var(--color-gold-deep);
-            margin-bottom: 1.2rem;
+            color: var(--gold-deep);
             font-family: 'Cormorant Garamond', serif;
+            margin-bottom: 1.2rem;
         }
 
         .reaction-strip {
             display: flex;
             gap: 1.2rem;
             margin: 1rem 0 1.2rem;
-            color: var(--color-warm-gray);
+            color: var(--stone);
             font-size: 0.8rem;
-            border-top: 1px solid var(--color-border);
+            border-top: 1px solid var(--border);
             padding-top: 1rem;
         }
 
+        .carousel-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .carousel-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--ink-soft);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-btn:hover {
+            background: var(--gold);
+            color: white;
+            border-color: var(--gold);
+            transform: scale(1.05);
+        }
+
+        .carousel-progress {
+            width: 100%;
+            height: 3px;
+            background: var(--sand);
+            border-radius: 3px;
+            margin-top: 2rem;
+            overflow: hidden;
+        }
+
+        .carousel-progress-bar {
+            height: 100%;
+            background: var(--gold);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
         /* ------------------------------------------------------------
-           BOOKS — editorial, substantial
+           BOOK CARDS — PERFECTLY RESPONSIVE, ELEGANT
         ------------------------------------------------------------ */
         .books-grid {
             display: flex;
@@ -1508,57 +1578,74 @@
 
         .book-card {
             display: grid;
-            grid-template-columns: 220px 1fr;
-            gap: 2.8rem;
+            grid-template-columns: 240px 1fr;
+            gap: 2.5rem;
             background: white;
             padding: 2.5rem;
-            border-radius: var(--radius-xl);
-            border: 1px solid var(--color-border);
+            border-radius: 32px;
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 24px var(--shadow);
             transition: var(--transition-slow);
-            box-shadow: 0 8px 22px var(--color-shadow);
+        }
+
+        @media (max-width: 900px) {
+            .book-card {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            .book-cover-wrapper {
+                max-width: 240px;
+                margin: 0 auto;
+            }
         }
 
         .book-card:hover {
-            border-color: var(--color-gold-pale);
-            box-shadow: 0 30px 40px -16px rgba(180, 154, 106, 0.12);
+            border-color: var(--gold-light);
+            box-shadow: 0 30px 40px -16px var(--shadow-hover);
         }
 
+        .book-cover {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 16px 24px -8px rgba(0,0,0,0.08);
+        }
         .book-cover img {
             width: 100%;
-            border-radius: var(--radius-md);
-            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.1);
+            height: auto;
+            display: block;
             transition: var(--transition-slow);
         }
         .book-card:hover .book-cover img { transform: scale(1.02); }
 
-        .book-details h3 {
+        .book-info { display: flex; flex-direction: column; }
+
+        .book-header h3 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 600;
-            margin-bottom: 0.4rem;
-            color: var(--color-ink);
+            margin-bottom: 0.25rem;
+            color: var(--ink);
         }
 
         .book-subtitle {
-            font-size: 0.95rem;
-            color: var(--color-gold-deep);
+            font-size: 1rem;
+            color: var(--gold-deep);
             font-style: italic;
-            margin-bottom: 1.2rem;
-            font-weight: 400;
+            margin-bottom: 1rem;
         }
 
         .book-meta {
             display: flex;
             gap: 1.8rem;
-            margin: 1rem 0;
-            color: var(--color-warm-gray);
+            margin: 0.8rem 0;
+            color: var(--stone);
             font-size: 0.9rem;
         }
-        .book-meta i { color: var(--color-gold); margin-right: 0.4rem; }
+        .book-meta i { color: var(--gold); margin-right: 0.4rem; }
 
         .book-description {
-            color: var(--color-soft-charcoal);
-            margin: 1.4rem 0;
+            color: var(--ink-soft);
+            margin: 1rem 0;
             line-height: 1.8;
             font-size: 0.98rem;
         }
@@ -1571,21 +1658,20 @@
             font-size: 0.75rem;
             margin-right: 0.6rem;
             margin-bottom: 0.6rem;
-            color: var(--color-soft-charcoal);
+            color: var(--ink-soft);
             border: 1px solid #e8e0d8;
-            font-weight: 500;
         }
 
-        .order-form-container {
-            margin-top: 1.8rem;
-            border-top: 1px dashed var(--color-gold-pale);
+        .order-form {
+            margin-top: 1.5rem;
+            border-top: 1px dashed var(--gold-light);
             padding-top: 1.5rem;
         }
 
-        .order-heading {
-            font-size: 1rem;
+        .order-title {
+            font-size: 0.95rem;
             font-weight: 600;
-            color: var(--color-gold-deep);
+            color: var(--gold-deep);
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
@@ -1598,24 +1684,35 @@
             margin-bottom: 0.8rem;
         }
 
+        @media (max-width: 600px) {
+            .order-row {
+                flex-direction: column;
+            }
+        }
+
         .order-input {
             flex: 1;
             padding: 0.7rem 1.2rem;
-            border: 1px solid var(--color-border);
+            border: 1px solid var(--border);
             border-radius: 50px;
             font-size: 0.85rem;
             background: white;
             transition: var(--transition);
-            font-family: 'Inter', sans-serif;
         }
-
         .order-input:focus {
             outline: none;
-            border-color: var(--color-gold);
+            border-color: var(--gold);
             box-shadow: 0 0 0 3px rgba(180, 154, 106, 0.08);
         }
 
-        .order-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b6b68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1.2rem center; background-size: 14px; }
+        .order-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b6b68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1.2rem center;
+            background-size: 14px;
+        }
+
         .order-qty { max-width: 100px; }
 
         .btn {
@@ -1632,26 +1729,25 @@
             border: none;
             cursor: pointer;
             border: 1px solid transparent;
-            letter-spacing: 0.3px;
         }
 
         .btn-primary {
-            background: var(--color-gold);
+            background: var(--gold);
             color: white;
         }
         .btn-primary:hover {
-            background: var(--color-gold-deep);
+            background: var(--gold-deep);
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px -8px rgba(180, 154, 106, 0.4);
+            box-shadow: 0 8px 16px rgba(180, 154, 106, 0.2);
         }
 
         .btn-secondary {
             background: transparent;
-            border: 1px solid var(--color-gold);
-            color: var(--color-gold-deep);
+            border: 1px solid var(--gold);
+            color: var(--gold-deep);
         }
         .btn-secondary:hover {
-            background: var(--color-gold);
+            background: var(--gold);
             color: white;
         }
 
@@ -1662,71 +1758,133 @@
         .btn-waitlist:hover {
             background: #7c3aed;
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px -8px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 8px 16px rgba(139, 92, 246, 0.2);
         }
 
         .btn-text {
             background: transparent;
-            color: var(--color-gold-deep);
+            color: var(--gold-deep);
             padding: 0.5rem 1rem;
             border: none;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            align-self: flex-start;
+            margin-top: 0.5rem;
         }
         .btn-text:hover {
-            background: rgba(180, 154, 106, 0.06);
-            color: var(--color-gold-deep);
+            color: var(--gold);
         }
 
         .btn-sm { padding: 0.4rem 1.2rem; font-size: 0.75rem; }
 
-        .forthcoming-section {
+        /* ------------------------------------------------------------
+           FORTHCOMING CARDS
+        ------------------------------------------------------------ */
+        .forthcoming-wrapper {
             margin-top: 4rem;
             background: #faf8f5;
-            border-radius: var(--radius-xl);
+            border-radius: 32px;
             padding: 3rem;
+        }
+
+        .forthcoming-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--gold-deep);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
         }
 
         .forthcoming-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 1.8rem;
         }
 
         .forthcoming-card {
             background: white;
-            padding: 1.8rem;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--color-border);
+            padding: 2rem;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
         }
-
-        /* ------------------------------------------------------------
-           ARTICLES & RESEARCH — refined consistency
-        ------------------------------------------------------------ */
-        .articles-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-            gap: 2rem;
-        }
-
-        .article-card, .research-card {
-            background: white;
-            padding: 2.2rem;
-            border-radius: var(--radius-xl);
-            border: 1px solid var(--color-border);
-            transition: var(--transition-slow);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 6px 16px var(--color-shadow);
-        }
-
-        .article-card:hover, .research-card:hover {
-            border-color: var(--color-gold-pale);
-            box-shadow: 0 24px 32px -12px rgba(180, 154, 106, 0.1);
+        .forthcoming-card:hover {
+            border-color: var(--gold-light);
+            box-shadow: 0 16px 24px var(--shadow-hover);
             transform: translateY(-4px);
         }
 
+        .forthcoming-card h4 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        .forthcoming-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0 1.2rem;
+        }
+
+        .forthcoming-date {
+            font-size: 0.8rem;
+            color: var(--stone);
+        }
+        .forthcoming-date i { margin-right: 0.4rem; color: var(--gold); }
+
+        .waitlist-badge {
+            background: #8b5cf6;
+            color: white;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* ------------------------------------------------------------
+           ARTICLE CARDS — responsive, clean
+        ------------------------------------------------------------ */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .article-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 28px;
+            border: 1px solid var(--border);
+            box-shadow: 0 6px 16px var(--shadow);
+            transition: var(--transition-slow);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .article-card:hover {
+            border-color: var(--gold-light);
+            box-shadow: 0 20px 30px -12px var(--shadow-hover);
+            transform: translateY(-4px);
+        }
+
+        .article-category-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
         .article-category {
-            background: var(--color-sand);
-            color: var(--color-burgundy);
+            background: var(--sand);
+            color: var(--burgundy);
             padding: 0.3rem 1.2rem;
             border-radius: 40px;
             font-size: 0.6rem;
@@ -1735,50 +1893,100 @@
             letter-spacing: 1px;
         }
 
+        .reading-time {
+            color: var(--stone);
+            font-size: 0.8rem;
+        }
+
+        .article-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .article-excerpt {
+            color: var(--ink-soft);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            flex: 1;
+        }
+
+        .article-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border);
+            padding-top: 1.2rem;
+            margin-top: auto;
+        }
+
+        .reaction-group {
+            display: flex;
+            gap: 1rem;
+        }
+
         .reaction-btn {
             background: none;
             border: none;
-            color: var(--color-warm-gray);
+            color: var(--stone);
             font-size: 0.8rem;
             cursor: pointer;
-            transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.3rem;
             padding: 0.3rem 0.6rem;
             border-radius: 30px;
+            transition: var(--transition);
         }
         .reaction-btn:hover {
-            color: var(--color-gold-deep);
+            color: var(--gold-deep);
             background: rgba(180, 154, 106, 0.06);
         }
 
-        .read-link {
-            color: var(--color-gold-deep);
+        .read-more {
+            color: var(--gold-deep);
             text-decoration: none;
             font-weight: 600;
             font-size: 0.85rem;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 0.5rem;
             transition: var(--transition);
-            border-top: 1px solid var(--color-border);
-            padding-top: 1.2rem;
-            margin-top: 0.8rem;
         }
-        .read-link:hover { gap: 0.8rem; color: var(--color-gold); }
+        .read-more:hover { gap: 0.8rem; color: var(--gold); }
 
-        .research-card { border-left: 5px solid var(--color-gold); background: #fdfcfa; }
+        /* ------------------------------------------------------------
+           RESEARCH CARDS
+        ------------------------------------------------------------ */
+        .research-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
 
-        .forthcoming-research {
-            background: #faf8f5;
-            border-radius: var(--radius-xl);
-            padding: 2.5rem;
-            margin-top: 2.5rem;
+        .research-card {
+            background: #fdfcfa;
+            padding: 2rem;
+            border-radius: 24px;
+            border-left: 5px solid var(--gold);
+            border-top: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition-slow);
+        }
+
+        .research-card:hover {
+            background: white;
+            box-shadow: 0 20px 28px -12px var(--shadow-hover);
+            transform: translateY(-4px);
         }
 
         /* ------------------------------------------------------------
-           MODALS — serene, focused
+           MODALS — serene
         ------------------------------------------------------------ */
         .modal-overlay {
             position: fixed;
@@ -1804,14 +2012,14 @@
 
         .modal-content {
             background: white;
-            border-radius: var(--radius-xl);
+            border-radius: 36px;
             max-width: 960px;
             width: 90%;
             max-height: 85vh;
             overflow-y: auto;
             padding: 2.8rem;
             position: relative;
-            box-shadow: 0 40px 60px -16px rgba(0,0,0,0.2);
+            box-shadow: 0 40px 60px -20px rgba(0,0,0,0.3);
         }
 
         .modal-close {
@@ -1821,7 +2029,7 @@
             font-size: 1.8rem;
             background: none;
             border: none;
-            color: var(--color-warm-gray);
+            color: var(--stone);
             cursor: pointer;
             width: 40px;
             height: 40px;
@@ -1833,40 +2041,46 @@
         }
         .modal-close:hover {
             background: #f0ece8;
-            color: var(--color-ink);
+            color: var(--ink);
         }
 
         .modal-book-layout {
             display: grid;
             grid-template-columns: 260px 1fr;
-            gap: 2.8rem;
+            gap: 2.5rem;
+        }
+
+        @media (max-width: 700px) {
+            .modal-book-layout {
+                grid-template-columns: 1fr;
+            }
         }
 
         .modal-cover img {
             width: 100%;
-            border-radius: var(--radius-lg);
+            border-radius: 20px;
             box-shadow: 0 20px 28px -10px rgba(0,0,0,0.15);
         }
 
-        .modal-author-spotlight {
+        .modal-author {
             display: flex;
-            gap: 1.2rem;
+            gap: 1rem;
             align-items: center;
             background: #f9f7f5;
             padding: 1.2rem;
-            border-radius: var(--radius-lg);
+            border-radius: 20px;
             margin: 1.5rem 0;
         }
-        .modal-author-spotlight img {
+        .modal-author img {
             width: 56px;
             height: 56px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid var(--color-gold);
+            border: 2px solid var(--gold);
         }
 
         /* ------------------------------------------------------------
-           FOOTER — warm, grounded
+           FOOTER — grounded
         ------------------------------------------------------------ */
         footer {
             background: #1f1f1d;
@@ -1879,7 +2093,7 @@
             max-width: 1280px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 3rem;
         }
 
@@ -1890,15 +2104,17 @@
             margin-bottom: 0.8rem;
             color: white;
         }
+
         .footer-brand p { color: rgba(255,255,255,0.6); font-size: 0.9rem; line-height: 1.7; }
 
         .footer-links h4, .footer-contact h4 {
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 3px;
-            color: var(--color-gold-pale);
-            margin-bottom: 1.4rem;
+            color: var(--gold-light);
+            margin-bottom: 1.2rem;
         }
+
         .footer-links a {
             display: block;
             color: rgba(255,255,255,0.6);
@@ -1907,8 +2123,14 @@
             font-size: 0.9rem;
             transition: var(--transition);
         }
-        .footer-links a:hover { color: var(--color-gold); transform: translateX(5px); }
-        .footer-contact p { color: rgba(255,255,255,0.6); margin-bottom: 0.4rem; font-size: 0.9rem; }
+        .footer-links a:hover { color: var(--gold); transform: translateX(5px); }
+
+        .footer-contact p {
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+        }
+        .footer-contact p i { margin-right: 0.5rem; color: var(--gold-light); }
 
         .copyright {
             max-width: 1280px;
@@ -1924,35 +2146,32 @@
         }
 
         /* ------------------------------------------------------------
-           RESPONSIVE — impeccable at every size
+           RESPONSIVE UTILITIES
         ------------------------------------------------------------ */
-        @media (max-width: 900px) {
-            .hero-container { grid-template-columns: 1fr; text-align: center; gap: 2rem; }
-            .hero-bio { border-left: none; border-top: 4px solid var(--color-gold); padding-left: 0; padding-top: 1.5rem; }
+        @media (max-width: 768px) {
+            .container { padding: 0 1.5rem; }
+            .hero-container { grid-template-columns: 1fr; text-align: center; }
+            .hero-bio { border-left: none; border-top: 4px solid var(--gold); padding-left: 0; padding-top: 1.5rem; }
             .hero-portrait { grid-row: 1; }
             .portrait-frame { margin: 0 auto; }
-            .book-card { grid-template-columns: 1fr; text-align: center; }
-            .book-cover { max-width: 240px; margin: 0 auto; }
-            .order-row { flex-direction: column; }
-            .modal-book-layout { grid-template-columns: 1fr; }
+            .section-title { font-size: 2.5rem; }
             nav { gap: 1.5rem; }
-        }
-
-        @media (max-width: 600px) {
-            .container { padding: 0 1.5rem; }
-            .hero-title { font-size: 3rem; }
-            section { padding: 4rem 0; }
-            .carousel-slide { flex: 0 0 280px; }
             nav a span { display: none; }
             nav a i { font-size: 1.1rem; }
+        }
+
+        @media (max-width: 480px) {
+            .carousel-slide { flex: 0 0 260px; padding: 1.8rem; }
+            .book-card { padding: 1.8rem; }
+            .forthcoming-wrapper { padding: 2rem; }
         }
     </style>
 </head>
 <body>
-    <!-- Notification Container — artisanal toasts -->
+    <!-- Notification Container -->
     <div id="notification-container"></div>
 
-    <!-- Loading Screen — poetic entrance -->
+    <!-- Loading Screen -->
     <div id="loading">
         <div class="loading-spinner"></div>
         <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: #b49a6a; letter-spacing: 2px;">MUGERA W.</p>
@@ -1962,19 +2181,19 @@
     <header id="header"></header>
 
     <main>
-        <!-- Hero Section -->
+        <!-- Hero -->
         <div id="hero"></div>
         
-        <!-- Featured Carousel — auto-play, infinite -->
+        <!-- 🎠 AUTO-PLAYING CAROUSEL -->
         <section id="featured"></section>
         
-        <!-- Books Section — order forms, waitlist -->
+        <!-- Books -->
         <section id="books"></section>
         
-        <!-- Articles Section — reactions, comments -->
+        <!-- Articles -->
         <section id="articles"></section>
         
-        <!-- Research Section — papers, forthcoming -->
+        <!-- Research -->
         <section id="research"></section>
     </main>
 
@@ -1989,7 +2208,7 @@
         </div>
     </div>
 
-    <!-- 🔥 WAITLIST MODAL — fully functional, elegant -->
+    <!-- Waitlist Modal -->
     <div id="waitlistModal" class="modal-overlay">
         <div class="modal-content" style="max-width: 480px;">
             <button class="modal-close" onclick="closeModal('waitlistModal')">&times;</button>
@@ -2001,14 +2220,10 @@
                 <input type="hidden" id="waitlistPubType" name="publicationType">
                 
                 <input type="text" name="fullName" placeholder="Full name" 
-                    style="width: 100%; padding: 0.9rem 1.2rem; margin-bottom: 1rem; border: 1px solid #eeeae6; border-radius: 50px; font-family: 'Inter', sans-serif; font-size: 0.95rem; background: #fcfaf8; transition: all 0.2s;"
-                    onfocus="this.style.borderColor='#b49a6a'; this.style.boxShadow='0 0 0 3px rgba(180,154,106,0.08)';"
-                    onblur="this.style.borderColor='#eeeae6'; this.style.boxShadow='none';">
+                    style="width: 100%; padding: 0.9rem 1.2rem; margin-bottom: 1rem; border: 1px solid #efebe7; border-radius: 50px; font-size: 0.95rem; background: #fcfaf8; transition: all 0.2s;">
                 
                 <input type="email" name="email" placeholder="Email address" required 
-                    style="width: 100%; padding: 0.9rem 1.2rem; margin-bottom: 1.5rem; border: 1px solid #eeeae6; border-radius: 50px; font-family: 'Inter', sans-serif; font-size: 0.95rem; background: #fcfaf8; transition: all 0.2s;"
-                    onfocus="this.style.borderColor='#b49a6a'; this.style.boxShadow='0 0 0 3px rgba(180,154,106,0.08)';"
-                    onblur="this.style.borderColor='#eeeae6'; this.style.boxShadow='none';">
+                    style="width: 100%; padding: 0.9rem 1.2rem; margin-bottom: 1.5rem; border: 1px solid #efebe7; border-radius: 50px; font-size: 0.95rem; background: #fcfaf8; transition: all 0.2s;">
                 
                 <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.9rem; background: #8b5cf6; border-radius: 50px;">
                     <i class="fas fa-bell"></i> Notify me
@@ -2028,15 +2243,15 @@
         <div class="modal-content" style="max-width: 650px;">
             <button class="modal-close" onclick="closeModal('commentModal')">&times;</button>
             <h3 style="font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 600; color: #2a2a28; margin-bottom: 0.5rem;">Discussion</h3>
-            <p style="color: #6b6b68; margin-bottom: 1.5rem; font-size: 0.95rem;">Share your thoughts with the author and readers.</p>
+            <p style="color: #6b6b68; margin-bottom: 1.5rem;">Share your thoughts with the author and readers.</p>
             
-            <div id="commentList" class="comment-list" style="background: #f9f7f5; border-radius: 16px; padding: 0.5rem;"></div>
+            <div id="commentList" style="background: #f9f7f5; border-radius: 20px; padding: 0.5rem; max-height: 400px; overflow-y: auto;"></div>
             
             <form id="commentForm" style="margin-top: 1.8rem;">
                 <input type="text" id="commentName" placeholder="Your name (optional)" 
-                    style="width: 100%; padding: 0.8rem 1.2rem; margin-bottom: 0.8rem; border: 1px solid #eeeae6; border-radius: 50px; font-family: 'Inter', sans-serif; font-size: 0.9rem;">
+                    style="width: 100%; padding: 0.8rem 1.2rem; margin-bottom: 0.8rem; border: 1px solid #efebe7; border-radius: 50px; font-size: 0.9rem;">
                 <textarea id="commentText" placeholder="Add a comment..." required rows="3"
-                    style="width: 100%; padding: 0.8rem 1.2rem; margin-bottom: 1rem; border: 1px solid #eeeae6; border-radius: 20px; font-family: 'Inter', sans-serif; font-size: 0.9rem; resize: vertical;"></textarea>
+                    style="width: 100%; padding: 0.8rem 1.2rem; margin-bottom: 1rem; border: 1px solid #efebe7; border-radius: 20px; font-size: 0.9rem; resize: vertical;"></textarea>
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-paper-plane"></i> Post comment
                 </button>
