@@ -3,17 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#ca8a04" id="themeColor">
+    <meta name="background-color" content="#0a0a0a">
+    <meta name="color-scheme" content="dark light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="I AM MUGERA">
+    <meta name="application-name" content="I AM MUGERA">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-TileColor" content="#ca8a04">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    
+    <!-- Version Information -->
+    <meta name="version" content="2.0.0">
+    <meta name="build-date" content="2024-02-19">
+    <meta name="release-notes" content="Added PWA features, improved performance, enhanced offline support">
+    
+    <!-- Existing Meta Tags -->
     <title id="pageTitle">I AM MUGERA | Public Speaking, Life Coaching & Author</title>
     <link rel="icon" type="image/x-icon" id="pageFavicon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" id="manifestLink">
+    
+    <!-- Existing CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Umsaga:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('New service worker installing...');
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    showUpdateNotification();
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+                
+                // Listen for controller change (new service worker activated)
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    console.log('New service worker activated');
+                    window.location.reload();
+                });
+            });
+        }
+    </script>
+    
+    <!-- Version Check Script -->
+    <script>
+        window.appVersion = '2.0.0';
+        window.buildDate = '2024-02-19';
+        
+        // Check for version updates from Firebase
+        async function checkForUpdates() {
+            if (!firebase.apps.length) return;
+            
+            try {
+                const snapshot = await firebase.database().ref('iam-mugera/version').once('value');
+                const serverVersion = snapshot.val();
+                
+                if (serverVersion && serverVersion.number !== window.appVersion) {
+                    showVersionNotification(serverVersion);
+                }
+            } catch (error) {
+                console.error('Error checking for updates:', error);
+            }
+        }
+        
+        function showVersionNotification(versionInfo) {
+            const notification = document.createElement('div');
+            notification.className = 'version-notification';
+            notification.innerHTML = `
+                <div class="version-notification-content">
+                    <i class="fas fa-sync-alt"></i>
+                    <div>
+                        <strong>New Version Available</strong>
+                        <p>Version ${versionInfo.number} - ${versionInfo.releaseNotes || 'New features and improvements'}</p>
+                    </div>
+                    <button onclick="updateToNewVersion()" class="version-update-btn">
+                        <span>Update Now</span>
+                    </button>
+                    <button onclick="this.parentElement.parentElement.remove()" class="version-close">&times;</button>
+                </div>
+            `;
+            document.body.appendChild(notification);
+        }
+        
+        function updateToNewVersion() {
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+            } else {
+                window.location.reload();
+            }
+        }
+    </script>
     <style>
         /* Add these new styles at the top of your existing CSS */
         
