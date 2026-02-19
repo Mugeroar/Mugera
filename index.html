@@ -3,19 +3,351 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#ca8a04" id="themeColor">
+    <meta name="background-color" content="#0a0a0a">
+    <meta name="color-scheme" content="dark light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="I AM MUGERA">
+    <meta name="application-name" content="I AM MUGERA">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-TileColor" content="#ca8a04">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    
+    <!-- Version Information -->
+    <meta name="version" content="2.0.0">
+    <meta name="build-date" content="2024-02-19">
+    <meta name="release-notes" content="Added PWA features, improved performance, enhanced offline support">
+    
     <title id="pageTitle">I AM MUGERA | Public Speaking, Life Coaching & Author</title>
     <link rel="icon" type="image/x-icon" id="pageFavicon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" id="manifestLink">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Umsaga:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                        
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('New service worker installing...');
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    showUpdateNotification();
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+                
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    console.log('New service worker activated');
+                    window.location.reload();
+                });
+            });
+        }
+    </script>
+    
+    <!-- Version Check Script -->
+    <script>
+        window.appVersion = '2.0.0';
+        window.buildDate = '2024-02-19';
+        
+        async function checkForUpdates() {
+            if (!firebase.apps.length) return;
+            
+            try {
+                const snapshot = await firebase.database().ref('iam-mugera/version').once('value');
+                const serverVersion = snapshot.val();
+                
+                if (serverVersion && serverVersion.number !== window.appVersion) {
+                    showVersionNotification(serverVersion);
+                }
+            } catch (error) {
+                console.error('Error checking for updates:', error);
+            }
+        }
+        
+        function showVersionNotification(versionInfo) {
+            const notification = document.createElement('div');
+            notification.className = 'version-notification';
+            notification.innerHTML = `
+                <div class="version-notification-content">
+                    <i class="fas fa-sync-alt"></i>
+                    <div>
+                        <strong>New Version Available</strong>
+                        <p>Version ${versionInfo.number} - ${versionInfo.releaseNotes || 'New features and improvements'}</p>
+                    </div>
+                    <button onclick="updateToNewVersion()" class="version-update-btn">
+                        <span>Update Now</span>
+                    </button>
+                    <button onclick="this.parentElement.parentElement.remove()" class="version-close">&times;</button>
+                </div>
+            `;
+            document.body.appendChild(notification);
+        }
+        
+        function updateToNewVersion() {
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+            } else {
+                window.location.reload();
+            }
+        }
+    </script>
+    
     <style>
         /* Add these new styles at the top of your existing CSS */
+        
+        /* Version Notification */
+        .version-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: white;
+            padding: 1rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            max-width: 350px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .version-notification-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            padding-right: 30px;
+        }
+        
+        .version-notification-content i {
+            font-size: 1.5rem;
+            animation: spin 2s linear infinite;
+        }
+        
+        .version-notification-content strong {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .version-notification-content p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .version-update-btn {
+            background: white;
+            color: var(--gold-dark);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        
+        .version-update-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .version-close {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .version-close:hover {
+            background: rgba(0, 0, 0, 0.5);
+            transform: scale(1.1);
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Offline Indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #dc2626;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: var(--radius-full);
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            animation: slideDown 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .offline-indicator i {
+            font-size: 1rem;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translate(-50%, -100%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+        
+        /* Online Indicator */
+        .online-indicator {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #10b981;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: var(--radius-full);
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            animation: slideDown 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Cache Status */
+        .cache-status {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(202, 138, 4, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .cache-status i {
+            color: var(--gold);
+        }
+        
+        /* Network Status */
+        .network-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .network-status.online {
+            color: #10b981;
+        }
+        
+        .network-status.offline {
+            color: #dc2626;
+        }
+        
+        /* Loading States for Offline */
+        .offline-loading {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(202, 138, 4, 0.1);
+            border-radius: var(--radius-lg);
+            margin: 2rem auto;
+            max-width: 500px;
+        }
+        
+        .offline-loading i {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        
+        .offline-loading h3 {
+            color: var(--black);
+            margin-bottom: 0.5rem;
+        }
+        
+        .offline-loading p {
+            color: var(--dark-gray);
+            margin-bottom: 1.5rem;
+        }
         
         /* Enhanced Loading Animation */
         .loading-overlay {
@@ -475,7 +807,6 @@
             display: flex;
             align-items: center;
             background: 
-                /* Professional pattern from the image */
                 url('https://i.postimg.cc/fyxmyB9n/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.png');
             background-size: 400px 400px;
             background-position: center;
@@ -487,7 +818,6 @@
             overflow: hidden;
         }
 
-        /* Dark overlay for better text readability */
         .hero::before {
             content: '';
             position: absolute;
@@ -504,7 +834,6 @@
             z-index: 1;
         }
 
-        /* Subtle pattern overlay on top of dark background */
         .hero::after {
             content: '';
             position: absolute;
@@ -2604,6 +2933,18 @@
     </style>
 </head>
 <body>
+    <!-- Network Status Indicator -->
+    <div class="network-status" id="networkStatus" style="position: fixed; top: 90px; right: 20px; z-index: 9999; background: rgba(255,255,255,0.95); padding: 0.5rem 1rem; border-radius: var(--radius-full); box-shadow: var(--shadow-md); border: 1px solid rgba(202,138,4,0.3);">
+        <i class="fas fa-wifi" id="networkIcon" style="color: #10b981;"></i>
+        <span id="networkText">Online</span>
+    </div>
+    
+    <!-- Cache Status Indicator -->
+    <div class="cache-status" id="cacheStatus" style="display: none;">
+        <i class="fas fa-database"></i>
+        <span id="cacheInfo">Cached content</span>
+    </div>
+
     <!-- Enhanced Loading Overlay with Quote Typing Animation -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
@@ -2902,6 +3243,8 @@
             database = firebase.database();
             analytics = firebase.analytics();
             console.log("Firebase initialized successfully");
+            
+            checkForUpdates();
         } catch (error) {
             console.error("Firebase initialization error:", error);
             showError("Failed to connect to database. Please refresh the page.");
@@ -2910,11 +3253,278 @@
         // Global state
         let currentProduct = null;
         let slideshowInterval;
+        
+        // PWA Features
+        let isOnline = navigator.onLine;
+        let cacheSize = 0;
+        
+        // Network status monitoring
+        function updateNetworkStatus() {
+            const networkStatus = document.getElementById('networkStatus');
+            const networkIcon = document.getElementById('networkIcon');
+            const networkText = document.getElementById('networkText');
+            
+            if (navigator.onLine) {
+                networkIcon.style.color = '#10b981';
+                networkIcon.className = 'fas fa-wifi';
+                networkText.textContent = 'Online';
+                networkStatus.style.borderColor = '#10b981';
+                
+                if (!isOnline) {
+                    syncOfflineData();
+                    showOnlineNotification();
+                }
+            } else {
+                networkIcon.style.color = '#dc2626';
+                networkIcon.className = 'fas fa-exclamation-triangle';
+                networkText.textContent = 'Offline';
+                networkStatus.style.borderColor = '#dc2626';
+                
+                showOfflineIndicator();
+            }
+            
+            isOnline = navigator.onLine;
+        }
+        
+        function showOfflineIndicator() {
+            const indicator = document.createElement('div');
+            indicator.className = 'offline-indicator';
+            indicator.id = 'offlineIndicator';
+            indicator.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>You're offline - showing cached content</span>
+            `;
+            
+            if (!document.getElementById('offlineIndicator')) {
+                document.body.appendChild(indicator);
+                
+                setTimeout(() => {
+                    const el = document.getElementById('offlineIndicator');
+                    if (el) el.remove();
+                }, 5000);
+            }
+        }
+        
+        function showOnlineNotification() {
+            const indicator = document.createElement('div');
+            indicator.className = 'online-indicator';
+            indicator.id = 'onlineIndicator';
+            indicator.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>Back online - syncing data</span>
+            `;
+            
+            if (!document.getElementById('onlineIndicator')) {
+                document.body.appendChild(indicator);
+                
+                setTimeout(() => {
+                    const el = document.getElementById('onlineIndicator');
+                    if (el) el.remove();
+                }, 3000);
+            }
+        }
+        
+        async function syncOfflineData() {
+            console.log('Syncing offline data...');
+            
+            const offlineRegistrations = localStorage.getItem('offlineRegistrations');
+            if (offlineRegistrations) {
+                const registrations = JSON.parse(offlineRegistrations);
+                
+                for (const reg of registrations) {
+                    try {
+                        await database.ref('registrations/' + reg.id).set(reg.data);
+                        console.log('Synced offline registration:', reg.id);
+                    } catch (error) {
+                        console.error('Failed to sync registration:', error);
+                    }
+                }
+                
+                localStorage.removeItem('offlineRegistrations');
+            }
+            
+            const offlineOrders = localStorage.getItem('offlineOrders');
+            if (offlineOrders) {
+                const orders = JSON.parse(offlineOrders);
+                
+                for (const order of orders) {
+                    try {
+                        await database.ref('orders/' + order.id).set(order.data);
+                        console.log('Synced offline order:', order.id);
+                    } catch (error) {
+                        console.error('Failed to sync order:', error);
+                    }
+                }
+                
+                localStorage.removeItem('offlineOrders');
+            }
+            
+            loadAllContent();
+        }
+        
+        function updateThemeColor(color) {
+            document.getElementById('themeColor').setAttribute('content', color);
+            updateManifest({ theme_color: color });
+        }
+        
+        function updateManifest(updates) {
+            const manifestLink = document.getElementById('manifestLink');
+            if (!manifestLink) return;
+            
+            const manifest = {
+                name: "I AM MUGERA",
+                short_name: "MUGERA",
+                description: "Public Speaking, Life Coaching & Author",
+                start_url: "/",
+                display: "standalone",
+                background_color: "#0a0a0a",
+                theme_color: updates.theme_color || "#ca8a04",
+                orientation: "portrait-primary",
+                icons: [
+                    {
+                        src: "https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png",
+                        sizes: "192x192",
+                        type: "image/png",
+                        purpose: "any maskable"
+                    },
+                    {
+                        src: "https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png",
+                        sizes: "512x512",
+                        type: "image/png",
+                        purpose: "any maskable"
+                    }
+                ],
+                categories: ["education", "business", "lifestyle"],
+                lang: "en",
+                dir: "ltr"
+            };
+            
+            const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+            const manifestUrl = URL.createObjectURL(manifestBlob);
+            manifestLink.href = manifestUrl;
+        }
+        
+        async function getCacheSize() {
+            if ('caches' in window) {
+                try {
+                    const cache = await caches.open('iam-mugera-v2');
+                    const keys = await cache.keys();
+                    let totalSize = 0;
+                    
+                    for (const request of keys) {
+                        const response = await cache.match(request);
+                        const blob = await response.blob();
+                        totalSize += blob.size;
+                    }
+                    
+                    cacheSize = totalSize;
+                    
+                    if (totalSize > 1024 * 1024) {
+                        const cacheStatus = document.getElementById('cacheStatus');
+                        const cacheInfo = document.getElementById('cacheInfo');
+                        cacheInfo.textContent = `Cached ${(totalSize / (1024 * 1024)).toFixed(1)} MB`;
+                        cacheStatus.style.display = 'flex';
+                    }
+                } catch (error) {
+                    console.error('Error getting cache size:', error);
+                }
+            }
+        }
+        
+        function prefetchCriticalContent() {
+            const criticalImages = [
+                'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png',
+                'https://i.postimg.cc/fyxmyB9n/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.png'
+            ];
+            
+            criticalImages.forEach(url => {
+                const img = new Image();
+                img.src = url;
+            });
+        }
+        
+        function enhanceFormForOffline(formId, storageKey) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+            
+            const originalSubmit = form.onsubmit;
+            
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+                
+                if (navigator.onLine) {
+                    if (originalSubmit) {
+                        await originalSubmit(e);
+                    }
+                } else {
+                    const formData = {};
+                    const inputs = form.querySelectorAll('input, select, textarea');
+                    inputs.forEach(input => {
+                        if (input.type !== 'submit' && !input.readOnly) {
+                            formData[input.id] = input.value;
+                        }
+                    });
+                    
+                    const offlineData = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                    offlineData.push({
+                        id: 'offline_' + Date.now(),
+                        data: formData,
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    localStorage.setItem(storageKey, JSON.stringify(offlineData));
+                    
+                    form.style.display = 'none';
+                    document.getElementById('formSuccess').style.display = 'block';
+                    
+                    alert('Your submission has been saved offline and will be synced when you\'re back online.');
+                }
+            };
+        }
+        
+        setInterval(() => {
+            if (navigator.onLine) {
+                checkForUpdates();
+            }
+        }, 30 * 60 * 1000);
 
         // Initialize everything when DOM loads
         document.addEventListener('DOMContentLoaded', function() {
             startTypingAnimation();
             trackVisitor();
+            
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
+            updateNetworkStatus();
+            
+            getCacheSize();
+            prefetchCriticalContent();
+            
+            enhanceFormForOffline('registrationForm', 'offlineRegistrations');
+            enhanceFormForOffline('productOrderForm', 'offlineOrders');
+            enhanceFormForOffline('waitlistForm', 'offlineWaitlists');
+        });
+        
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && analytics) {
+                analytics.logEvent('page_visible', {
+                    page_location: window.location.href,
+                    time_on_page: performance.now()
+                });
+            }
+        });
+        
+        window.addEventListener('load', () => {
+            if (window.performance && analytics) {
+                const perfData = performance.timing;
+                const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
+                
+                analytics.logEvent('performance_metrics', {
+                    page_load_time: pageLoadTime,
+                    dom_interactive: perfData.domInteractive - perfData.navigationStart,
+                    dom_complete: perfData.domComplete - perfData.navigationStart
+                });
+            }
         });
 
         // Professional Typing Animation for the Quote
@@ -2928,19 +3538,17 @@
             quoteText.appendChild(typingContainer);
             
             let charIndex = 0;
-            const typingSpeed = 50; // milliseconds per character
-            const pauseAfterTyping = 1000; // pause after typing is complete
+            const typingSpeed = 50;
+            const pauseAfterTyping = 1000;
             
             function typeCharacter() {
                 if (charIndex < quote.length) {
-                    // Add current character with typing effect
                     const span = document.createElement('span');
                     span.className = 'typing-line';
                     span.textContent = quote.substring(0, charIndex + 1);
                     typingContainer.innerHTML = '';
                     typingContainer.appendChild(span);
                     
-                    // Add cursor
                     const cursor = document.createElement('span');
                     cursor.className = 'cursor';
                     typingContainer.appendChild(cursor);
@@ -2948,12 +3556,10 @@
                     charIndex++;
                     setTimeout(typeCharacter, typingSpeed);
                 } else {
-                    // Add final cursor blink
                     const cursor = document.createElement('span');
                     cursor.className = 'cursor';
                     typingContainer.appendChild(cursor);
                     
-                    // Pause, then load content
                     setTimeout(() => {
                         loadAllContent();
                     }, pauseAfterTyping);
@@ -2981,7 +3587,6 @@
                     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
                 };
                 
-                // Track page view with analytics
                 if (analytics) {
                     analytics.logEvent('page_view', {
                         page_location: window.location.href,
@@ -2989,10 +3594,8 @@
                     });
                 }
                 
-                // Store visitor data in Firebase
                 await database.ref('visitors/' + visitorId).set(visitorData);
                 
-                // Update visitor count
                 const visitorCountRef = database.ref('visitorCount');
                 const snapshot = await visitorCountRef.once('value');
                 let currentCount = snapshot.val() || 0;
@@ -3008,7 +3611,6 @@
         // Load all content from Firebase
         async function loadAllContent() {
             try {
-                // Load all brand data at once
                 const snapshot = await database.ref('iam-mugera').once('value');
                 if (!snapshot.exists()) {
                     throw new Error('No data found in Firebase');
@@ -3016,10 +3618,8 @@
                 
                 brandData = snapshot.val();
                 
-                // Update page metadata
                 updatePageMetadata();
                 
-                // Load all sections in the correct order
                 await Promise.all([
                     loadHeader(),
                     loadHero(),
@@ -3036,10 +3636,8 @@
                     loadFooter()
                 ]);
                 
-                // Initialize smooth scrolling after content is loaded
                 initSmoothScrolling();
                 
-                // Hide loading overlay with smooth transition
                 setTimeout(() => {
                     document.getElementById('loadingOverlay').style.opacity = '0';
                     document.getElementById('loadingOverlay').style.visibility = 'hidden';
@@ -3074,7 +3672,6 @@
                 document.title = brandData.settings.siteTitle || 'I AM MUGERA | Public Speaking, Life Coaching & Author';
                 document.getElementById('pageFavicon').href = brandData.settings.favicon || '';
                 
-                // Update meta description
                 let metaDesc = document.querySelector('meta[name="description"]');
                 if (!metaDesc) {
                     metaDesc = document.createElement('meta');
@@ -3091,11 +3688,9 @@
             const header = document.getElementById('mainHeader');
             const mobileMenu = document.getElementById('mobileMenu');
             
-            // Header logo
             const logoUrl = brandData.header.logo?.desktop || 'https://i.postimg.cc/8cr13sL7/MUGERA-1-removebg-preview.png';
             const mobileLogoUrl = brandData.header.logo?.mobile || 'https://i.postimg.cc/66rJN5PW/signature(1).png';
             
-            // Desktop header
             header.innerHTML = `
                 <div class="header-container">
                     <div class="brand-container">
@@ -3118,7 +3713,6 @@
                 </div>
             `;
             
-            // Mobile menu
             mobileMenu.innerHTML = `
                 <div class="mobile-menu-header">
                     <img src="${mobileLogoUrl}" alt="I AM MUGERA" class="brand-logo" style="height: 45px;">
@@ -3128,7 +3722,6 @@
                 </ul>
             `;
             
-            // Re-attach mobile menu toggle
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
             
@@ -3141,7 +3734,6 @@
         function generateNavItems(navItems, isMobile = false) {
             if (!navItems) return '';
             
-            // Convert to array and sort by order
             const itemsArray = Object.values(navItems)
                 .filter(item => item.visible !== false)
                 .sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -3153,7 +3745,7 @@
                 
                 return `
                     <li class="${isMobile ? 'mobile-nav-item' : 'nav-item'}">
-                        <a href="${href}" ${target} class="${isMobile ? 'mobile-nav-link' : 'nav-link'}" ${onclick}>
+                        <a href="${href}" ${target} class="${isMobile ? 'mobile-nav-link' : 'nav-link'}" ${onClick}>
                             <i class="${item.icon || 'fas fa-circle'}"></i>
                             <span>${item.title}</span>
                         </a>
@@ -3205,12 +3797,10 @@
         function loadSlideshow() {
             const main = document.getElementById('mainContent');
             
-            // Create slideshow section immediately after hero
             const slideshowSection = document.createElement('section');
             slideshowSection.className = 'slideshow-section';
             slideshowSection.id = 'latest';
             
-            // Get latest items from brandData
             const latestProduct = getLatestProduct();
             const latestArticle = getLatestArticle();
             const latestEvent = getLatestEvent();
@@ -3362,7 +3952,6 @@
                 </div>
             `;
             
-            // Insert slideshow section after hero
             const heroSection = document.querySelector('.hero');
             if (heroSection && heroSection.parentNode) {
                 heroSection.parentNode.insertBefore(slideshowSection, heroSection.nextSibling);
@@ -3370,7 +3959,6 @@
                 main.appendChild(slideshowSection);
             }
             
-            // Initialize slideshow
             initSlideshow();
         }
 
@@ -3387,14 +3975,11 @@
                 };
             }
             
-            // Get all products and find the one with "New" badge
             const products = Object.values(brandData.store.products)
                 .filter(product => product.visible !== false);
             
-            // First, look for products with "New" badge
             let latestProduct = products.find(product => product.badge && product.badge.toLowerCase() === 'new');
             
-            // If no "New" badge found, get the first product sorted by order
             if (!latestProduct) {
                 latestProduct = products.sort((a, b) => (a.order || 0) - (b.order || 0))[0];
             }
@@ -3405,8 +3990,8 @@
                 image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
                 price: "From $99",
                 category: "Lifestyle",
-                    badge: "New",
-                    status: "available"
+                badge: "New",
+                status: "available"
             };
         }
 
@@ -3460,7 +4045,6 @@
             if (!slides.length) return;
             
             function updateSlideshow() {
-                // Update slides
                 slides.forEach((slide, index) => {
                     if (index === currentSlide) {
                         slide.classList.add('active');
@@ -3469,7 +4053,6 @@
                     }
                 });
                 
-                // Update dots
                 dots.forEach((dot, index) => {
                     if (index === currentSlide) {
                         dot.classList.add('active');
@@ -3478,25 +4061,21 @@
                     }
                 });
                 
-                // Update indicator
                 if (indicator) {
                     indicator.textContent = `${currentSlide + 1} / ${slides.length}`;
                 }
                 
-                // Update transform for smooth sliding
                 if (slidesContainer) {
                     slidesContainer.style.transform = `translateX(-${currentSlide * (100 / slides.length)}%)`;
                 }
             }
             
-            // Auto-rotate slides
             clearInterval(slideshowInterval);
             slideshowInterval = setInterval(() => {
                 currentSlide = (currentSlide + 1) % slides.length;
                 updateSlideshow();
-            }, 5000); // Change slide every 5 seconds
+            }, 5000);
             
-            // Expose controls to global scope
             window.prevSlide = () => {
                 currentSlide = (currentSlide - 1 + slides.length) % slides.length;
                 updateSlideshow();
@@ -3523,11 +4102,10 @@
                 }, 5000);
             }
             
-            // Initialize
             updateSlideshow();
         }
 
-        // Load Featured Products (replaces store section)
+        // Load Featured Products
         function loadFeaturedProducts() {
             if (!brandData.store) return;
             
@@ -3538,7 +4116,6 @@
             featuredSection.className = 'featured-products-section';
             featuredSection.id = 'featured-products';
             
-            // Get featured products
             const featuredProducts = getFeaturedProducts();
             
             featuredSection.innerHTML = `
@@ -3574,7 +4151,6 @@
             main.appendChild(featuredSection);
         }
 
-        // Get featured products (most bought and latest)
         function getFeaturedProducts() {
             if (!brandData.store?.products) {
                 return {
@@ -3609,37 +4185,31 @@
                 return getDefaultFeaturedProducts();
             }
             
-            // Find most bought product (look for products with salesCount or bestseller badge)
             let mostBought = products.find(product => 
                 product.badge && product.badge.toLowerCase().includes('bestseller') || 
                 product.badge && product.badge.toLowerCase().includes('popular') ||
                 product.salesCount
             );
             
-            // If no bestseller found, take the first product
             if (!mostBought) {
                 mostBought = products[0];
             }
             
-            // Find latest product (look for "New" badge or most recent by order)
             let latest = products.find(product => 
                 product.badge && product.badge.toLowerCase().includes('new') ||
                 product.isNew
             );
             
-            // If no new product found, take the second product or a different one than most bought
             if (!latest) {
                 latest = products.find(product => product !== mostBought) || 
                         products[1] || 
                         getDefaultFeaturedProducts().latest;
             }
             
-            // Ensure we have two different products
             if (mostBought === latest && products.length > 1) {
                 latest = products[1];
             }
             
-            // Add sales count to most bought if not present
             if (mostBought && !mostBought.salesCount) {
                 mostBought.salesCount = "500+ sold";
             }
@@ -3676,7 +4246,6 @@
             };
         }
 
-        // Generate featured product card
         function generateFeaturedProductCard(product, type) {
             if (!product) return '';
             
@@ -4027,7 +4596,6 @@
         function generateEvents(events) {
             if (!events) return '<p style="text-align: center; color: var(--dark-gray);">No upcoming events at the moment.</p>';
             
-            // Convert to array and sort by order
             const eventsArray = Object.values(events)
                 .filter(event => event.visible !== false)
                 .sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -4093,7 +4661,6 @@
         function generateCommunities(communities) {
             if (!communities) return '<p style="text-align: center; color: rgba(255, 255, 255, 0.8);">No communities available.</p>';
             
-            // Convert to array and sort by order
             const communitiesArray = Object.values(communities)
                 .filter(community => community.visible !== false)
                 .sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -4193,7 +4760,6 @@
         function generateContactMethods(methods) {
             if (!methods) return '<p style="text-align: center; color: var(--dark-gray);">Contact information coming soon.</p>';
             
-            // Convert to array and sort by order
             const methodsArray = Object.values(methods)
                 .filter(method => method.visible !== false)
                 .sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -4339,27 +4905,6 @@
             document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
         }
 
-        function initMobileMenu() {
-            document.addEventListener('click', (e) => {
-                if (e.target.classList.contains('mobile-nav-link')) {
-                    toggleMobileMenu();
-                }
-            });
-        }
-
-        function initHeaderScroll() {
-            const header = document.getElementById('mainHeader');
-            if (!header) return;
-            
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 50) {
-                    header.classList.add('header-scrolled');
-                } else {
-                    header.classList.remove('header-scrolled');
-                }
-            });
-        }
-
         function initSmoothScrolling() {
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
@@ -4435,7 +4980,6 @@
             currentProduct = null;
         }
 
-        // Enhanced Waitlist Modal Functions
         function openWaitlistModal() {
             const modal = document.getElementById('waitlistModal');
             document.getElementById('waitlistForm').style.display = 'flex';
@@ -4531,7 +5075,6 @@
             return isValid;
         }
 
-        // Enhanced Waitlist Form Validation
         function validateWaitlistForm() {
             let isValid = true;
             
@@ -4561,7 +5104,6 @@
             return isValid;
         }
 
-        // Enhanced Waitlist Form Submission
         async function submitWaitlist(event) {
             if (event) event.preventDefault();
             
@@ -4591,7 +5133,6 @@
                     const waitlistId = 'waitlist_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
                     await database.ref('waitlists/' + waitlistId).set(waitlistData);
                     
-                    // Update waitlist count
                     const waitlistCountRef = database.ref('waitlistCount');
                     const snapshot = await waitlistCountRef.once('value');
                     let currentCount = snapshot.val() || 0;
@@ -4605,7 +5146,6 @@
                 
                 console.log('Waitlist submission successful');
                 
-                // Track waitlist signup with analytics
                 if (analytics) {
                     analytics.logEvent('waitlist_signup', {
                         publication_type: 'featured_article',
@@ -4622,7 +5162,6 @@
             }
         }
 
-        // Form Submission
         async function submitRegistration() {
             if (!validateRegistrationForm()) return;
             
@@ -4715,15 +5254,12 @@
             }
         }
 
-        // Initialize waitlist form submission
         document.getElementById('waitlistForm')?.addEventListener('submit', submitWaitlist);
 
-        // Clean up slideshow interval when leaving page
         window.addEventListener('beforeunload', () => {
             clearInterval(slideshowInterval);
         });
 
-        // Close modals on escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeRegistrationModal();
@@ -4732,7 +5268,6 @@
             }
         });
 
-        // Close modals when clicking outside
         document.getElementById('registrationModal')?.addEventListener('click', (e) => {
             if (e.target === document.getElementById('registrationModal')) {
                 closeRegistrationModal();
@@ -4751,5 +5286,94 @@
             }
         });
     </script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swUrl = 'data:application/javascript;base64,' + btoa(`
+                    const CACHE_NAME = 'iam-mugera-v2';
+                    const urlsToCache = [
+                        '/',
+                        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+                        'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
+                        'https://fonts.googleapis.com/css2?family=Umsaga:wght@400;700&display=swap',
+                        'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap',
+                        'https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js',
+                        'https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js',
+                        'https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js',
+                        'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png',
+                        'https://i.postimg.cc/fyxmyB9n/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.png'
+                    ];
+
+                    self.addEventListener('install', event => {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then(cache => {
+                                    console.log('Opened cache');
+                                    return cache.addAll(urlsToCache);
+                                })
+                                .then(() => self.skipWaiting())
+                        );
+                    });
+
+                    self.addEventListener('activate', event => {
+                        event.waitUntil(
+                            caches.keys().then(cacheNames => {
+                                return Promise.all(
+                                    cacheNames.map(cacheName => {
+                                        if (cacheName !== CACHE_NAME) {
+                                            return caches.delete(cacheName);
+                                        }
+                                    })
+                                );
+                            }).then(() => self.clients.claim())
+                        );
+                    });
+
+                    self.addEventListener('fetch', event => {
+                        if (!event.request.url.startsWith(self.location.origin) && 
+                            !event.request.url.includes('postimg.cc') &&
+                            !event.request.url.includes('fonts.googleapis.com') &&
+                            !event.request.url.includes('cdnjs.cloudflare.com') &&
+                            !event.request.url.includes('gstatic.com')) {
+                            return;
+                        }
+
+                        event.respondWith(
+                            caches.match(event.request)
+                                .then(cachedResponse => {
+                                    const fetchPromise = fetch(event.request)
+                                        .then(networkResponse => {
+                                            if (networkResponse && networkResponse.status === 200) {
+                                                const responseToCache = networkResponse.clone();
+                                                caches.open(CACHE_NAME)
+                                                    .then(cache => {
+                                                        cache.put(event.request, responseToCache);
+                                                    });
+                                            }
+                                            return networkResponse;
+                                        })
+                                        .catch(() => {
+                                            return cachedResponse;
+                                        });
+
+                                    return cachedResponse || fetchPromise;
+                                })
+                        );
+                    });
+
+                    self.addEventListener('message', event => {
+                        if (event.data.type === 'SKIP_WAITING') {
+                            self.skipWaiting();
+                        }
+                    });
+                `);
+                
+                navigator.serviceWorker.register(swUrl).catch(console.error);
+            });
+        }
+    </script>
+    
 </body>
 </html>
