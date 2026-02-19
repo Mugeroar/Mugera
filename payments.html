@@ -20,8 +20,8 @@
     <meta name="version" content="1.0.0">
     <meta name="build-date" content="2024-02-19">
     
-    <title>Partner with I AM MUGERA | Investment & Support</title>
-    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <title id="pageTitle">Partner with I AM MUGERA | Investment & Support</title>
+    <link rel="icon" type="image/x-icon" id="pageFavicon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
     
     <!-- PWA Icons -->
     <link rel="apple-touch-icon" sizes="57x57" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
@@ -75,54 +75,6 @@
                     window.location.reload();
                 });
             });
-        }
-    </script>
-    
-    <!-- Version Check Script -->
-    <script>
-        window.appVersion = '1.0.0';
-        window.buildDate = '2024-02-19';
-        
-        async function checkForUpdates() {
-            if (!firebase.apps.length) return;
-            
-            try {
-                const snapshot = await firebase.database().ref('partnership-version').once('value');
-                const serverVersion = snapshot.val();
-                
-                if (serverVersion && serverVersion.number !== window.appVersion) {
-                    showVersionNotification(serverVersion);
-                }
-            } catch (error) {
-                console.error('Error checking for updates:', error);
-            }
-        }
-        
-        function showVersionNotification(versionInfo) {
-            const notification = document.createElement('div');
-            notification.className = 'version-notification';
-            notification.innerHTML = `
-                <div class="version-notification-content">
-                    <i class="fas fa-sync-alt"></i>
-                    <div>
-                        <strong>New Version Available</strong>
-                        <p>Version ${versionInfo.number} - ${versionInfo.releaseNotes || 'New features and improvements'}</p>
-                    </div>
-                    <button onclick="updateToNewVersion()" class="version-update-btn">
-                        <span>Update Now</span>
-                    </button>
-                    <button onclick="this.parentElement.parentElement.remove()" class="version-close">&times;</button>
-                </div>
-            `;
-            document.body.appendChild(notification);
-        }
-        
-        function updateToNewVersion() {
-            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-                navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
-            } else {
-                window.location.reload();
-            }
         }
     </script>
     
@@ -225,6 +177,148 @@
             100% { transform: rotate(360deg); }
         }
         
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .loading-spinner {
+            width: 70px;
+            height: 70px;
+            border: 3px solid rgba(202, 138, 4, 0.1);
+            border-top: 3px solid var(--gold);
+            border-radius: 50%;
+            animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 30px rgba(202, 138, 4, 0.3);
+        }
+
+        .quote-container {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .quote-icon {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            opacity: 0.7;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .quote-text {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            line-height: 1.4;
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            min-height: 140px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .typing-container {
+            display: inline-block;
+            text-align: left;
+            position: relative;
+        }
+
+        .typing-line {
+            display: inline;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 2.2rem;
+            background-color: var(--gold);
+            margin-left: 4px;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .quote-author {
+            font-family: 'Umsaga', serif;
+            font-size: 1.2rem;
+            color: var(--gold-light);
+            margin-top: 2rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+            animation-delay: 7s;
+        }
+
+        .quote-author span {
+            display: block;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 0.5rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            margin-top: 3rem;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards;
+            animation-delay: 8s;
+            text-align: center;
+            max-width: 500px;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .page-content {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .page-content.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
         /* Cache Status */
         .cache-status {
             position: fixed;
@@ -306,7 +400,6 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* African-inspired fonts */
         .umsaga-font {
             font-family: 'Umsaga', serif;
             font-weight: 700;
@@ -418,7 +511,6 @@
             height: 100%;
         }
 
-        /* LOGO - Updated to use consistent logo */
         .brand-logo {
             height: 55px;
             width: auto;
@@ -437,7 +529,6 @@
             border-color: rgba(202, 138, 4, 0.3);
         }
 
-        /* NAVIGATION */
         .nav-container {
             display: flex;
             justify-content: center;
@@ -768,7 +859,7 @@
             margin-bottom: 0.5rem;
         }
 
-        /* SIMPLIFIED PAYMENT METHODS */
+        /* PAYMENT METHODS */
         .payment-methods {
             background: var(--white);
             border-radius: var(--radius-xl);
@@ -885,7 +976,7 @@
             background: rgba(202, 138, 4, 0.2);
         }
 
-        /* SIMPLIFIED INSTRUCTIONS */
+        /* INSTRUCTIONS */
         .instructions {
             background: var(--white);
             border-radius: var(--radius-xl);
@@ -1029,6 +1120,18 @@
             display: flex;
             flex-direction: column;
             box-shadow: var(--shadow-xl);
+            border-left: 4px solid transparent;
+            background-image: 
+                linear-gradient(white, white),
+                repeating-linear-gradient(
+                    45deg,
+                    var(--gold) 0px,
+                    var(--gold) 5px,
+                    var(--gold-dark) 5px,
+                    var(--gold-dark) 10px
+                );
+            background-clip: padding-box, border-box;
+            background-origin: border-box;
         }
 
         .mobile-menu.active {
@@ -1312,7 +1415,6 @@
                 padding-top: 90px;
             }
 
-            /* Adjust header border for mobile */
             header {
                 border-bottom: 3px solid transparent;
                 background-image: 
@@ -1385,55 +1487,44 @@
     </style>
 </head>
 <body>
+    <!-- Loading Overlay with Typing Animation -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        
+        <div class="quote-container">
+            <div class="quote-icon">
+                <i class="fas fa-quote-left"></i>
+            </div>
+            
+            <div class="quote-text" id="quoteText">
+                <!-- Quote will be typed here -->
+            </div>
+            
+            <div class="quote-author" id="quoteAuthor">
+                - Mugera W.
+                <span>Building Transformative Partnerships</span>
+            </div>
+            
+            <div class="loading-subtitle">
+                Preparing partnership opportunities for you...
+            </div>
+        </div>
+    </div>
+
     <!-- Cache Status Indicator -->
     <div class="cache-status" id="cacheStatus" style="display: none;">
         <i class="fas fa-database"></i>
         <span id="cacheInfo">Cached content</span>
     </div>
 
-    <!-- Header with African Pattern Border -->
-    <header id="mainHeader">
-        <div class="header-container">
-            <div class="brand-container">
-                <a href="index.html">
-                    <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA" class="brand-logo">
-                </a>
-            </div>
-
-            <div class="nav-container">
-                <nav>
-                    <ul class="main-nav">
-                        <li class="nav-item"><a href="index.html" class="nav-link"><i class="fas fa-home"></i> Home</a></li>
-                        <li class="nav-item"><a href="index.html#author" class="nav-link"><i class="fas fa-book"></i> Author</a></li>
-                        <li class="nav-item"><a href="index.html#events" class="nav-link"><i class="fas fa-calendar-alt"></i> Events</a></li>
-                        <li class="nav-item"><a href="index.html#about" class="nav-link"><i class="fas fa-user"></i> About</a></li>
-                        <li class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-handshake"></i> Partner</a></li>
-                    </ul>
-                </nav>
-            </div>
-
-            <button class="mobile-menu-toggle" id="mobileMenuToggle">
-                <span></span>
-            </button>
-        </div>
-    </header>
+    <!-- Header (dynamically loaded) -->
+    <header id="mainHeader"></header>
 
     <!-- Mobile Menu Overlay -->
     <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
 
-    <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobileMenu">
-        <div class="mobile-menu-header">
-            <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA" class="brand-logo" style="height: 45px;">
-        </div>
-        <ul class="mobile-nav">
-            <li class="mobile-nav-item"><a href="index.html" class="mobile-nav-link"><i class="fas fa-home"></i> Home</a></li>
-            <li class="mobile-nav-item"><a href="index.html#author" class="mobile-nav-link"><i class="fas fa-book"></i> Author</a></li>
-            <li class="mobile-nav-item"><a href="index.html#events" class="mobile-nav-link"><i class="fas fa-calendar-alt"></i> Events</a></li>
-            <li class="mobile-nav-item"><a href="index.html#about" class="mobile-nav-link"><i class="fas fa-user"></i> About</a></li>
-            <li class="mobile-nav-item"><a href="#" class="mobile-nav-link active"><i class="fas fa-handshake"></i> Partner</a></li>
-        </ul>
-    </div>
+    <!-- Mobile Menu (dynamically loaded) -->
+    <div class="mobile-menu" id="mobileMenu"></div>
 
     <!-- Confirmation Modal -->
     <div class="modal-overlay" id="confirmationModal">
@@ -1445,214 +1536,11 @@
         </div>
     </div>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="container">
-            <!-- Simplified Hero -->
-            <section class="partnership-hero animate-fade-in">
-                <h1 class="cinzel-font">Partner with <span class="highlight">I AM MUGERA</span></h1>
-                <p class="hero-tagline">
-                    Invest in transformative content, community programs, and impactful initiatives. Your partnership fuels growth and enables meaningful change.
-                </p>
-            </section>
+    <!-- Main Content (dynamically loaded) -->
+    <main id="mainContent" class="main-content page-content"></main>
 
-            <!-- Partnership Form -->
-            <section class="partnership-container">
-                <div class="form-header">
-                    <h2 class="umsaga-font">Become a <span class="highlight">Partner</span></h2>
-                    <p>Complete the form below to initiate your partnership</p>
-                </div>
-
-                <form class="partnership-form" id="partnershipForm" onsubmit="submitPartnership(event)">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label"><i class="fas fa-user"></i> Full Name *</label>
-                            <input type="text" class="form-input" id="fullName" required placeholder="Enter your full name">
-                            <div class="form-error" id="nameError">Please enter your full name</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label"><i class="fas fa-envelope"></i> Email Address *</label>
-                            <input type="email" class="form-input" id="email" required placeholder="your.email@example.com">
-                            <div class="form-error" id="emailError">Please enter a valid email address</div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label"><i class="fas fa-phone"></i> Phone Number *</label>
-                        <input type="tel" class="form-input" id="phone" required placeholder="+254 XXX XXX XXX">
-                        <div class="form-error" id="phoneError">Please enter a valid phone number</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label"><i class="fas fa-bullseye"></i> Partnership Reason *</label>
-                        <select class="form-select" id="partnershipReason" required>
-                            <option value="">Select your partnership reason</option>
-                            <option value="content-creation">Content Creation Investment</option>
-                            <option value="community-programs">Community Programs Support</option>
-                            <option value="speaking-events">Speaking Events Sponsorship</option>
-                            <option value="brand-growth">Brand Growth Partnership</option>
-                            <option value="program-fees">Inspired.Me Program Payment</option>
-                            <option value="event-registration">Event Registration Fee</option>
-                            <option value="coaching-session">One-on-One Coaching Session</option>
-                            <option value="general-partnership">General Partnership</option>
-                        </select>
-                        <div class="form-error" id="reasonError">Please select a partnership reason</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label"><i class="fas fa-money-bill-wave"></i> Partnership Amount (KES) *</label>
-                        <div class="amount-input-group">
-                            <span class="amount-prefix">KES</span>
-                            <input type="number" class="form-input amount-input" id="amount" min="100" step="100" required placeholder="Enter amount in Kenyan Shillings">
-                        </div>
-                        <div class="form-error" id="amountError">Please enter a valid amount (minimum KES 100)</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label"><i class="fas fa-money-check-alt"></i> Payment Method *</label>
-                        <select class="form-select" id="paymentMethod" required>
-                            <option value="">Select payment method</option>
-                            <option value="safaricom-send-money">Safaricom Send Money</option>
-                            <option value="lipa-na-mpesa">Lipa na M-PESA</option>
-                        </select>
-                        <div class="form-error" id="methodError">Please select a payment method</div>
-                    </div>
-
-                    <button type="submit" class="form-submit" id="submitBtn">
-                        <i class="fas fa-handshake"></i>
-                        <span>Proceed to Payment Instructions</span>
-                    </button>
-                </form>
-
-                <div class="form-success" id="formSuccess">
-                    <i class="fas fa-check-circle"></i>
-                    <h3>Partnership Details Submitted!</h3>
-                    <p>Thank you for partnering with us. Please follow the payment instructions provided.</p>
-                </div>
-            </section>
-
-            <!-- Payment Methods -->
-            <section class="payment-methods">
-                <h2 class="umsaga-font">Payment <span class="highlight">Options</span></h2>
-                <div class="payment-options">
-                    <!-- Safaricom Send Money -->
-                    <div class="payment-option">
-                        <div class="payment-icon">
-                            <i class="fas fa-mobile-alt"></i>
-                        </div>
-                        <h3>Safaricom Send Money</h3>
-                        <div class="payment-details">
-                            <p>
-                                <i class="fas fa-phone"></i>
-                                <strong>Phone:</strong> 0727 211 191
-                                <button class="copy-btn" onclick="copyToClipboard('0727211191')">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </p>
-                            <p><i class="fas fa-user"></i> <strong>Name:</strong> MOSES MUGERA</p>
-                        </div>
-                    </div>
-
-                    <!-- Lipa na M-PESA -->
-                    <div class="payment-option">
-                        <div class="payment-icon">
-                            <i class="fas fa-store"></i>
-                        </div>
-                        <h3>Lipa na M-PESA</h3>
-                        <div class="payment-details">
-                            <p>
-                                <i class="fas fa-hashtag"></i>
-                                <strong>Till:</strong> 9442155
-                                <button class="copy-btn" onclick="copyToClipboard('9442155')">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                            </p>
-                            <p><i class="fas fa-building"></i> <strong>Business:</strong> MOSES MUGERA</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="padding: 1.5rem; background: rgba(5, 150, 105, 0.1); border-radius: var(--radius-md); border-left: 3px solid var(--success);">
-                    <h4 style="color: var(--success); margin-bottom: 0.5rem;"><i class="fas fa-lightbulb"></i> Important Note</h4>
-                    <p style="margin-bottom: 0; font-size: 0.95rem; color: var(--secondary);">
-                        After making your payment, please complete the form above to notify us. This helps us track your partnership and send you a confirmation.
-                    </p>
-                </div>
-            </section>
-
-            <!-- Simple Instructions -->
-            <section class="instructions">
-                <h2 class="umsaga-font">Simple <span class="highlight">Process</span></h2>
-                <div class="steps">
-                    <div class="step">
-                        <div class="step-number">1</div>
-                        <div class="step-content">
-                            <h3>Complete Form</h3>
-                            <p>Fill in your partnership details and select payment method</p>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">2</div>
-                        <div class="step-content">
-                            <h3>Make Payment</h3>
-                            <p>Use M-PESA to send money to the provided number or till</p>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">3</div>
-                        <div class="step-content">
-                            <h3>Get Confirmation</h3>
-                            <p>Receive confirmation and partnership details via email</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer>
-        <div class="footer-container">
-            <div class="footer-column">
-                <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA" class="footer-logo">
-                <div class="footer-tagline">Transformative Partnerships • Impactful Growth</div>
-                <p>Your partnership enables transformative content, impactful communities, and life-changing programs.</p>
-                <div class="social-links">
-                    <a href="#" class="social-link" title="LinkedIn">
-                        <i class="fab fa-linkedin-in"></i>
-                    </a>
-                    <a href="#" class="social-link" title="Twitter">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="social-link" title="Instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="https://wa.me/254727211191?text=Hi%20Mugera,%20I%20have%20a%20question%20about%20partnering%20with%20you" class="social-link" title="WhatsApp" target="_blank">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
-                </div>
-            </div>
-            <div class="footer-column">
-                <h3>Quick Links</h3>
-                <a href="index.html">Home</a>
-                <a href="index.html#author">Author</a>
-                <a href="index.html#events">Events</a>
-                <a href="index.html#about">About</a>
-                <a href="#" class="active">Partner</a>
-            </div>
-            <div class="footer-column">
-                <h3>Payment Details</h3>
-                <p><i class="fas fa-mobile-alt"></i> Send Money: 0727 211 191</p>
-                <p><i class="fas fa-store"></i> Lipa na M-PESA: 9442155</p>
-                <p><i class="fas fa-envelope"></i> info.iammugera@gmail.com</p>
-            </div>
-        </div>
-        <div class="copyright">
-            <p>&copy; <script>document.write(new Date().getFullYear());</script> I AM MUGERA. All rights reserved. | Building Transformative Partnerships</p>
-            <p style="margin-top: 0.5rem; font-size: 0.7rem;">Version 1.0.0 | Last updated 2024</p>
-        </div>
-    </footer>
+    <!-- Footer (dynamically loaded) -->
+    <footer id="mainFooter"></footer>
 
     <script>
         // Firebase Configuration
@@ -1668,25 +1556,471 @@
 
         // Initialize Firebase
         let database;
+        let brandData = {};
+        
         try {
             firebase.initializeApp(firebaseConfig);
             database = firebase.database();
             console.log("Firebase initialized successfully");
-            checkForUpdates();
         } catch (error) {
             console.error("Firebase initialization error:", error);
         }
 
-        // PWA Features
+        // Global state
         let isOnline = navigator.onLine;
         
+        // Start typing animation
+        document.addEventListener('DOMContentLoaded', function() {
+            startTypingAnimation();
+        });
+
+        // Professional Typing Animation
+        function startTypingAnimation() {
+            const quote = "Together we can build something extraordinary. Your partnership makes transformation possible.";
+            const quoteText = document.getElementById('quoteText');
+            const typingContainer = document.createElement('div');
+            typingContainer.className = 'typing-container';
+            quoteText.innerHTML = '';
+            quoteText.appendChild(typingContainer);
+            
+            let charIndex = 0;
+            const typingSpeed = 50;
+            const pauseAfterTyping = 1000;
+            
+            function typeCharacter() {
+                if (charIndex < quote.length) {
+                    const span = document.createElement('span');
+                    span.className = 'typing-line';
+                    span.textContent = quote.substring(0, charIndex + 1);
+                    typingContainer.innerHTML = '';
+                    typingContainer.appendChild(span);
+                    
+                    const cursor = document.createElement('span');
+                    cursor.className = 'cursor';
+                    typingContainer.appendChild(cursor);
+                    
+                    charIndex++;
+                    setTimeout(typeCharacter, typingSpeed);
+                } else {
+                    const cursor = document.createElement('span');
+                    cursor.className = 'cursor';
+                    typingContainer.appendChild(cursor);
+                    
+                    setTimeout(() => {
+                        loadAllContent();
+                    }, pauseAfterTyping);
+                }
+            }
+            
+            typeCharacter();
+        }
+
+        // Load all content from Firebase
+        async function loadAllContent() {
+            try {
+                const snapshot = await database.ref('iam-mugera').once('value');
+                if (!snapshot.exists()) {
+                    throw new Error('No data found in Firebase');
+                }
+                
+                brandData = snapshot.val();
+                
+                // Load header and footer first
+                await Promise.all([
+                    loadHeader(),
+                    loadFooter()
+                ]);
+                
+                // Then load the main partnership content
+                loadPartnershipContent();
+                
+                // Initialize mobile menu
+                initMobileMenu();
+                
+                // Hide loading overlay
+                setTimeout(() => {
+                    document.getElementById('loadingOverlay').style.opacity = '0';
+                    document.getElementById('loadingOverlay').style.visibility = 'hidden';
+                    document.querySelector('.page-content').classList.add('loaded');
+                }, 500);
+                
+                // Check for updates
+                checkForUpdates();
+                
+                // Initialize PWA features
+                initPWAFeatures();
+                
+            } catch (error) {
+                console.error('Error loading content:', error);
+                showError('Failed to load content. Please check your connection and refresh.');
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        function showError(message) {
+            const main = document.getElementById('mainContent');
+            main.innerHTML = `
+                <div style="text-align: center; padding: 4rem 1.5rem;">
+                    <h2 style="color: var(--gold); margin-bottom: 1rem;">Error Loading Content</h2>
+                    <p style="color: var(--dark-gray); margin-bottom: 2rem;">${message}</p>
+                    <button class="cta-button" onclick="location.reload()">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh Page</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        // Load Header from Firebase
+        function loadHeader() {
+            if (!brandData.header) return;
+            
+            const header = document.getElementById('mainHeader');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            const logoUrl = brandData.header.logo?.desktop || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png';
+            const mobileLogoUrl = brandData.header.logo?.mobile || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png';
+            
+            header.innerHTML = `
+                <div class="header-container">
+                    <div class="brand-container">
+                        <a href="index.html">
+                            <img src="${logoUrl}" alt="I AM MUGERA" class="brand-logo">
+                        </a>
+                    </div>
+
+                    <div class="nav-container">
+                        <nav>
+                            <ul class="main-nav" id="desktopNav">
+                                ${generateNavItems(brandData.header.navItems)}
+                            </ul>
+                        </nav>
+                    </div>
+
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                        <span></span>
+                    </button>
+                </div>
+            `;
+            
+            mobileMenu.innerHTML = `
+                <div class="mobile-menu-header">
+                    <img src="${mobileLogoUrl}" alt="I AM MUGERA" class="brand-logo" style="height: 45px;">
+                </div>
+                <ul class="mobile-nav" id="mobileNav">
+                    ${generateNavItems(brandData.header.navItems, true)}
+                </ul>
+            `;
+            
+            // Re-attach mobile menu toggle
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+            
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+                mobileMenuOverlay.addEventListener('click', toggleMobileMenu);
+            }
+        }
+
+        function generateNavItems(navItems, isMobile = false) {
+            if (!navItems) return '';
+            
+            const itemsArray = Object.values(navItems)
+                .filter(item => item.visible !== false)
+                .sort((a, b) => (a.order || 0) - (b.order || 0));
+            
+            return itemsArray.map(item => {
+                const isActive = item.title?.toLowerCase() === 'partner' ? 'active' : '';
+                const onClick = item.onclick ? `onclick="${item.onclick}; ${isMobile ? 'toggleMobileMenu()' : ''}"` : '';
+                const href = item.onclick ? '#' : (item.url === '/partner' ? '#' : item.url || '#');
+                const target = item.url && item.url.startsWith('http') ? 'target="_blank"' : '';
+                
+                return `
+                    <li class="${isMobile ? 'mobile-nav-item' : 'nav-item'}">
+                        <a href="${href}" ${target} class="${isMobile ? 'mobile-nav-link' : 'nav-link'} ${isActive}" ${onClick}>
+                            <i class="${item.icon || 'fas fa-circle'}"></i>
+                            <span>${item.title}</span>
+                        </a>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        // Load Footer from Firebase
+        function loadFooter() {
+            if (!brandData.footer) return;
+            
+            const footer = document.getElementById('mainFooter');
+            const footerData = brandData.footer;
+            
+            footer.innerHTML = `
+                <div class="footer-container">
+                    <div class="footer-column">
+                        <img src="${footerData.signatureUrl || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png'}" alt="I AM MUGERA" class="footer-logo">
+                        <div class="footer-tagline">Transformative Partnerships • Impactful Growth</div>
+                        <p>${footerData.description || 'Your partnership enables transformative content, impactful communities, and life-changing programs.'}</p>
+                        
+                        ${footerData.socialLinks ? `
+                            <div class="social-links">
+                                ${generateSocialLinks(footerData.socialLinks)}
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    ${footerData.quickLinks ? `
+                        <div class="footer-column">
+                            <h3>Quick Links</h3>
+                            ${generateFooterLinks(footerData.quickLinks)}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="footer-column">
+                        <h3>Payment Details</h3>
+                        <p><i class="fas fa-mobile-alt"></i> Send Money: 0727 211 191</p>
+                        <p><i class="fas fa-store"></i> Lipa na M-PESA: 9442155</p>
+                        <p><i class="fas fa-envelope"></i> info.iammugera@gmail.com</p>
+                    </div>
+                </div>
+                <div class="copyright">
+                    <p>&copy; ${new Date().getFullYear()} I AM MUGERA. All rights reserved. | Building Transformative Partnerships</p>
+                    <p style="margin-top: 0.5rem; font-size: 0.7rem;">Version 1.0.0 | Last updated 2024</p>
+                </div>
+            `;
+        }
+
+        function generateFooterLinks(links) {
+            if (!links) return '';
+            
+            return Object.values(links).map(link => {
+                const isActive = link.title?.toLowerCase() === 'partner' ? 'active' : '';
+                return `
+                    <a href="${link.url || '#'}" class="${isActive}">${link.title}</a>
+                `;
+            }).join('');
+        }
+
+        function generateSocialLinks(socialLinks) {
+            if (!socialLinks) return '';
+            
+            return Object.values(socialLinks)
+                .filter(link => link.visible !== false)
+                .map(link => `
+                    <a href="${link.url || '#'}" class="social-link" title="${link.title || 'Social Media'}" ${link.url?.startsWith('http') ? 'target="_blank"' : ''}>
+                        <i class="${link.icon || 'fab fa-link'}"></i>
+                    </a>
+                `).join('');
+        }
+
+        // Load Partnership Content
+        function loadPartnershipContent() {
+            const main = document.getElementById('mainContent');
+            
+            main.innerHTML = `
+                <div class="container">
+                    <!-- Simplified Hero -->
+                    <section class="partnership-hero animate-fade-in">
+                        <h1 class="cinzel-font">Partner with <span class="highlight">I AM MUGERA</span></h1>
+                        <p class="hero-tagline">
+                            Invest in transformative content, community programs, and impactful initiatives. Your partnership fuels growth and enables meaningful change.
+                        </p>
+                    </section>
+
+                    <!-- Partnership Form -->
+                    <section class="partnership-container">
+                        <div class="form-header">
+                            <h2 class="umsaga-font">Become a <span class="highlight">Partner</span></h2>
+                            <p>Complete the form below to initiate your partnership</p>
+                        </div>
+
+                        <form class="partnership-form" id="partnershipForm" onsubmit="submitPartnership(event)">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label"><i class="fas fa-user"></i> Full Name *</label>
+                                    <input type="text" class="form-input" id="fullName" required placeholder="Enter your full name">
+                                    <div class="form-error" id="nameError">Please enter your full name</div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label"><i class="fas fa-envelope"></i> Email Address *</label>
+                                    <input type="email" class="form-input" id="email" required placeholder="your.email@example.com">
+                                    <div class="form-error" id="emailError">Please enter a valid email address</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-phone"></i> Phone Number *</label>
+                                <input type="tel" class="form-input" id="phone" required placeholder="+254 XXX XXX XXX">
+                                <div class="form-error" id="phoneError">Please enter a valid phone number</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-bullseye"></i> Partnership Reason *</label>
+                                <select class="form-select" id="partnershipReason" required>
+                                    <option value="">Select your partnership reason</option>
+                                    <option value="content-creation">Content Creation Investment</option>
+                                    <option value="community-programs">Community Programs Support</option>
+                                    <option value="speaking-events">Speaking Events Sponsorship</option>
+                                    <option value="brand-growth">Brand Growth Partnership</option>
+                                    <option value="program-fees">Inspired.Me Program Payment</option>
+                                    <option value="event-registration">Event Registration Fee</option>
+                                    <option value="coaching-session">One-on-One Coaching Session</option>
+                                    <option value="general-partnership">General Partnership</option>
+                                </select>
+                                <div class="form-error" id="reasonError">Please select a partnership reason</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-money-bill-wave"></i> Partnership Amount (KES) *</label>
+                                <div class="amount-input-group">
+                                    <span class="amount-prefix">KES</span>
+                                    <input type="number" class="form-input amount-input" id="amount" min="100" step="100" required placeholder="Enter amount in Kenyan Shillings">
+                                </div>
+                                <div class="form-error" id="amountError">Please enter a valid amount (minimum KES 100)</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label"><i class="fas fa-money-check-alt"></i> Payment Method *</label>
+                                <select class="form-select" id="paymentMethod" required>
+                                    <option value="">Select payment method</option>
+                                    <option value="safaricom-send-money">Safaricom Send Money</option>
+                                    <option value="lipa-na-mpesa">Lipa na M-PESA</option>
+                                </select>
+                                <div class="form-error" id="methodError">Please select a payment method</div>
+                            </div>
+
+                            <button type="submit" class="form-submit" id="submitBtn">
+                                <i class="fas fa-handshake"></i>
+                                <span>Proceed to Payment Instructions</span>
+                            </button>
+                        </form>
+
+                        <div class="form-success" id="formSuccess">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>Partnership Details Submitted!</h3>
+                            <p>Thank you for partnering with us. Please follow the payment instructions provided.</p>
+                        </div>
+                    </section>
+
+                    <!-- Payment Methods -->
+                    <section class="payment-methods">
+                        <h2 class="umsaga-font">Payment <span class="highlight">Options</span></h2>
+                        <div class="payment-options">
+                            <!-- Safaricom Send Money -->
+                            <div class="payment-option">
+                                <div class="payment-icon">
+                                    <i class="fas fa-mobile-alt"></i>
+                                </div>
+                                <h3>Safaricom Send Money</h3>
+                                <div class="payment-details">
+                                    <p>
+                                        <i class="fas fa-phone"></i>
+                                        <strong>Phone:</strong> 0727 211 191
+                                        <button class="copy-btn" onclick="copyToClipboard('0727211191')">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </p>
+                                    <p><i class="fas fa-user"></i> <strong>Name:</strong> MOSES MUGERA</p>
+                                </div>
+                            </div>
+
+                            <!-- Lipa na M-PESA -->
+                            <div class="payment-option">
+                                <div class="payment-icon">
+                                    <i class="fas fa-store"></i>
+                                </div>
+                                <h3>Lipa na M-PESA</h3>
+                                <div class="payment-details">
+                                    <p>
+                                        <i class="fas fa-hashtag"></i>
+                                        <strong>Till:</strong> 9442155
+                                        <button class="copy-btn" onclick="copyToClipboard('9442155')">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </p>
+                                    <p><i class="fas fa-building"></i> <strong>Business:</strong> MOSES MUGERA</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding: 1.5rem; background: rgba(5, 150, 105, 0.1); border-radius: var(--radius-md); border-left: 3px solid var(--success);">
+                            <h4 style="color: var(--success); margin-bottom: 0.5rem;"><i class="fas fa-lightbulb"></i> Important Note</h4>
+                            <p style="margin-bottom: 0; font-size: 0.95rem; color: var(--secondary);">
+                                After making your payment, please complete the form above to notify us. This helps us track your partnership and send you a confirmation.
+                            </p>
+                        </div>
+                    </section>
+
+                    <!-- Simple Instructions -->
+                    <section class="instructions">
+                        <h2 class="umsaga-font">Simple <span class="highlight">Process</span></h2>
+                        <div class="steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h3>Complete Form</h3>
+                                    <p>Fill in your partnership details and select payment method</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h3>Make Payment</h3>
+                                    <p>Use M-PESA to send money to the provided number or till</p>
+                                </div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h3>Get Confirmation</h3>
+                                    <p>Receive confirmation and partnership details via email</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            `;
+        }
+
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            if (!mobileMenuToggle || !mobileMenuOverlay || !mobileMenu) return;
+            
+            mobileMenuToggle.classList.toggle('active');
+            mobileMenuOverlay.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+        }
+
+        function initMobileMenu() {
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('mobile-nav-link')) {
+                    toggleMobileMenu();
+                }
+            });
+        }
+
+        // PWA Functions
+        function initPWAFeatures() {
+            window.addEventListener('online', handleNetworkChange);
+            window.addEventListener('offline', handleNetworkChange);
+            
+            getCacheSize();
+            prefetchCriticalContent();
+            
+            enhanceFormForOffline('partnershipForm', 'offlinePartnerships');
+        }
+
         function handleNetworkChange() {
             isOnline = navigator.onLine;
             if (isOnline) {
                 syncOfflineData();
             }
         }
-        
+
         function syncOfflineData() {
             console.log('Syncing offline data...');
             
@@ -1703,11 +2037,7 @@
                 localStorage.removeItem('offlinePartnerships');
             }
         }
-        
-        function updateThemeColor(color) {
-            document.getElementById('themeColor').setAttribute('content', color);
-        }
-        
+
         async function getCacheSize() {
             if ('caches' in window) {
                 try {
@@ -1736,7 +2066,7 @@
                 }
             }
         }
-        
+
         function prefetchCriticalContent() {
             const criticalImages = [
                 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png',
@@ -1748,7 +2078,7 @@
                 img.src = url;
             });
         }
-        
+
         function enhanceFormForOffline(formId, storageKey) {
             const form = document.getElementById(formId);
             if (!form) return;
@@ -1783,84 +2113,57 @@
                     form.style.display = 'none';
                     document.getElementById('formSuccess').style.display = 'block';
                     
-                    const notification = document.createElement('div');
-                    notification.style.cssText = 'position:fixed;bottom:20px;left:20px;background:#ca8a04;color:white;padding:0.5rem 1rem;border-radius:9999px;font-size:0.8rem;z-index:10000;animation:fadeIn 0.3s ease;';
-                    notification.textContent = '✓ Saved offline - will sync when online';
-                    document.body.appendChild(notification);
-                    
-                    setTimeout(() => notification.remove(), 3000);
+                    showToast('✓ Saved offline - will sync when online');
                 }
             };
         }
 
-        // Wait for DOM to load
-        document.addEventListener('DOMContentLoaded', function() {
-            initMobileMenu();
-            initSmoothScrolling();
-            initHeaderScroll();
+        // Version Check
+        window.appVersion = '1.0.0';
+        
+        async function checkForUpdates() {
+            if (!database) return;
             
-            window.addEventListener('online', handleNetworkChange);
-            window.addEventListener('offline', handleNetworkChange);
-            
-            getCacheSize();
-            prefetchCriticalContent();
-            
-            enhanceFormForOffline('partnershipForm', 'offlinePartnerships');
-        });
-
-        function initMobileMenu() {
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
-            const mobileMenu = document.getElementById('mobileMenu');
-
-            if (mobileMenuToggle) {
-                mobileMenuToggle.addEventListener('click', toggleMobileMenu);
-                mobileMenuOverlay.addEventListener('click', toggleMobileMenu);
-            }
-
-            function toggleMobileMenu() {
-                mobileMenuToggle.classList.toggle('active');
-                mobileMenuOverlay.classList.toggle('active');
-                mobileMenu.classList.toggle('active');
-                document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
-            }
-
-            document.addEventListener('click', (e) => {
-                if (e.target.classList.contains('mobile-nav-link')) {
-                    toggleMobileMenu();
+            try {
+                const snapshot = await database.ref('partnership-version').once('value');
+                const serverVersion = snapshot.val();
+                
+                if (serverVersion && serverVersion.number !== window.appVersion) {
+                    showVersionNotification(serverVersion);
                 }
-            });
+            } catch (error) {
+                console.error('Error checking for updates:', error);
+            }
+        }
+        
+        function showVersionNotification(versionInfo) {
+            const notification = document.createElement('div');
+            notification.className = 'version-notification';
+            notification.innerHTML = `
+                <div class="version-notification-content">
+                    <i class="fas fa-sync-alt"></i>
+                    <div>
+                        <strong>New Version Available</strong>
+                        <p>Version ${versionInfo.number} - ${versionInfo.releaseNotes || 'New features and improvements'}</p>
+                    </div>
+                    <button onclick="updateToNewVersion()" class="version-update-btn">
+                        <span>Update Now</span>
+                    </button>
+                    <button onclick="this.parentElement.parentElement.remove()" class="version-close">&times;</button>
+                </div>
+            `;
+            document.body.appendChild(notification);
+        }
+        
+        function updateToNewVersion() {
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+            } else {
+                window.location.reload();
+            }
         }
 
-        function initSmoothScrolling() {
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    if (targetId === '#') return;
-
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        window.scrollTo({
-                            top: targetElement.offsetTop - 80,
-                            behavior: 'smooth'
-                        });
-                    }
-                });
-            });
-        }
-
-        function initHeaderScroll() {
-            const header = document.getElementById('mainHeader');
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 50) {
-                    header.classList.add('header-scrolled');
-                } else {
-                    header.classList.remove('header-scrolled');
-                }
-            });
-        }
-
+        // Utility Functions
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text)
                 .then(() => {
@@ -1899,16 +2202,7 @@
             }, 3000);
         }
 
-        // Add fadeOut animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeOut {
-                from { opacity: 1; transform: translateY(0); }
-                to { opacity: 0; transform: translateY(10px); }
-            }
-        `;
-        document.head.appendChild(style);
-
+        // Form Validation
         function validatePartnershipForm() {
             let isValid = true;
             
@@ -1956,6 +2250,7 @@
             return isValid;
         }
 
+        // Form Submission
         async function submitPartnership(event) {
             event.preventDefault();
             
@@ -1989,16 +2284,13 @@
                     await database.ref('partnerships/' + partnershipId).set(partnershipData);
                 }
                 
-                // Show success and show confirmation modal
                 form.style.display = 'none';
                 successMsg.style.display = 'block';
                 
-                // Show confirmation modal with payment instructions
                 showConfirmationModal(partnershipData);
                 
                 console.log('Partnership details submitted successfully');
                 
-                // Reset button state
                 setTimeout(() => {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fas fa-handshake"></i><span>Proceed to Payment Instructions</span>';
@@ -2076,17 +2368,28 @@
             document.body.style.overflow = '';
         }
 
+        // Event Listeners
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeConfirmationModal();
             }
         });
 
-        document.getElementById('confirmationModal').addEventListener('click', (e) => {
+        document.getElementById('confirmationModal')?.addEventListener('click', (e) => {
             if (e.target === document.getElementById('confirmationModal')) {
                 closeConfirmationModal();
             }
         });
+
+        // Add fadeOut animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from { opacity: 1; transform: translateY(0); }
+                to { opacity: 0; transform: translateY(10px); }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
     
     <!-- Service Worker Registration -->
