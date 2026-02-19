@@ -3,344 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
-    
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#ca8a04" id="themeColor">
-    <meta name="background-color" content="#0a0a0a">
-    <meta name="color-scheme" content="dark light">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Partner with I AM MUGERA">
-    <meta name="application-name" content="I AM MUGERA">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-TileColor" content="#ca8a04">
-    
-    <!-- Version Information -->
-    <meta name="version" content="1.0.0">
-    <meta name="build-date" content="2024-02-19">
-    
-    <title id="pageTitle">Partner with I AM MUGERA | Investment & Support</title>
-    <link rel="icon" type="image/x-icon" id="pageFavicon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
-    
-    <!-- PWA Icons -->
-    <link rel="apple-touch-icon" sizes="57x57" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest-partner.json" id="manifestLink">
-    
+    <title>Partner with I AM MUGERA | Investment & Support</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/66rJN5PW/signature(1).png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Umsaga:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    
-    <!-- Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('Service Worker registered with scope:', registration.scope);
-                        
-                        registration.addEventListener('updatefound', () => {
-                            const newWorker = registration.installing;
-                            console.log('New service worker installing...');
-                            
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    showUpdateNotification();
-                                }
-                            });
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Service Worker registration failed:', error);
-                    });
-                
-                navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    console.log('New service worker activated');
-                    window.location.reload();
-                });
-            });
-        }
-    </script>
-    
     <style>
-        /* Version Notification */
-        .version-notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            color: white;
-            padding: 1rem;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-xl);
-            z-index: 10000;
-            animation: slideIn 0.3s ease;
-            max-width: 350px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .version-notification-content {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            position: relative;
-            padding-right: 30px;
-        }
-        
-        .version-notification-content i {
-            font-size: 1.5rem;
-            animation: spin 2s linear infinite;
-        }
-        
-        .version-notification-content strong {
-            display: block;
-            font-size: 0.9rem;
-            margin-bottom: 0.25rem;
-        }
-        
-        .version-notification-content p {
-            margin: 0;
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.9);
-        }
-        
-        .version-update-btn {
-            background: white;
-            color: var(--gold-dark);
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: var(--transition);
-            white-space: nowrap;
-        }
-        
-        .version-update-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        
-        .version-close {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: rgba(0, 0, 0, 0.3);
-            color: white;
-            border: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-        
-        .version-close:hover {
-            background: rgba(0, 0, 0, 0.5);
-            transform: scale(1.1);
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Loading Overlay */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            overflow: hidden;
-        }
-
-        .loading-spinner {
-            width: 70px;
-            height: 70px;
-            border: 3px solid rgba(202, 138, 4, 0.1);
-            border-top: 3px solid var(--gold);
-            border-radius: 50%;
-            animation: spin 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
-            margin-bottom: 2rem;
-            box-shadow: 0 0 30px rgba(202, 138, 4, 0.3);
-        }
-
-        .quote-container {
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-            position: relative;
-        }
-
-        .quote-icon {
-            font-size: 3rem;
-            color: var(--gold);
-            margin-bottom: 1rem;
-            opacity: 0.7;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.1); }
-        }
-
-        .quote-text {
-            font-family: 'Cinzel', serif;
-            font-size: 2.2rem;
-            line-height: 1.4;
-            color: var(--white);
-            margin-bottom: 1.5rem;
-            min-height: 140px;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .typing-container {
-            display: inline-block;
-            text-align: left;
-            position: relative;
-        }
-
-        .typing-line {
-            display: inline;
-        }
-
-        .cursor {
-            display: inline-block;
-            width: 3px;
-            height: 2.2rem;
-            background-color: var(--gold);
-            margin-left: 4px;
-            animation: blink 1s infinite;
-            vertical-align: middle;
-        }
-
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-
-        .quote-author {
-            font-family: 'Umsaga', serif;
-            font-size: 1.2rem;
-            color: var(--gold-light);
-            margin-top: 2rem;
-            opacity: 0;
-            animation: fadeInUp 1s ease forwards;
-            animation-delay: 7s;
-        }
-
-        .quote-author span {
-            display: block;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 0.5rem;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .loading-subtitle {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1rem;
-            margin-top: 3rem;
-            opacity: 0;
-            animation: fadeIn 1s ease forwards;
-            animation-delay: 8s;
-            text-align: center;
-            max-width: 500px;
-            line-height: 1.6;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .page-content {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
-        }
-
-        .page-content.loaded {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        /* Cache Status */
-        .cache-status {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: var(--radius-full);
-            font-size: 0.75rem;
-            z-index: 9999;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(202, 138, 4, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .cache-status i {
-            color: var(--gold);
-        }
-
         /* MODERN PROFESSIONAL CSS WITH AFRICAN AESTHETIC */
         :root {
             --black: #0a0a0a;
@@ -362,8 +35,6 @@
             --success-light: #d1fae5;
             --info: #0284c7;
             --info-light: #e0f2fe;
-            --danger: #dc2626;
-            --danger-light: #fee2e2;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
@@ -402,6 +73,7 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
+        /* African-inspired fonts */
         .umsaga-font {
             font-family: 'Umsaga', serif;
             font-weight: 700;
@@ -513,6 +185,7 @@
             height: 100%;
         }
 
+        /* LOGO */
         .brand-logo {
             height: 55px;
             width: auto;
@@ -531,6 +204,7 @@
             border-color: rgba(202, 138, 4, 0.3);
         }
 
+        /* NAVIGATION */
         .nav-container {
             display: flex;
             justify-content: center;
@@ -642,14 +316,6 @@
 
         .cta-button.success:hover {
             box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
-        }
-
-        .cta-button.danger {
-            background: linear-gradient(135deg, var(--danger), #b91c1c);
-        }
-
-        .cta-button.danger:hover {
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
         }
 
         /* MAIN CONTENT */
@@ -810,7 +476,7 @@
         }
 
         .amount-input {
-            padding-left: 3rem !important;
+            padding-left: 2.5rem !important;
         }
 
         .form-error {
@@ -869,7 +535,7 @@
             margin-bottom: 0.5rem;
         }
 
-        /* PAYMENT METHODS */
+        /* SIMPLIFIED PAYMENT METHODS */
         .payment-methods {
             background: var(--white);
             border-radius: var(--radius-xl);
@@ -986,113 +652,7 @@
             background: rgba(202, 138, 4, 0.2);
         }
 
-        /* PAYMENT VERIFICATION SECTION */
-        .payment-verification {
-            background: var(--white);
-            border-radius: var(--radius-xl);
-            padding: 2.5rem;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            position: relative;
-            overflow: hidden;
-            max-width: 800px;
-            margin: 0 auto 3rem;
-        }
-
-        .payment-verification::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 8px;
-            background: linear-gradient(180deg, 
-                var(--success) 0%, 
-                var(--success) 50%,
-                var(--gold) 50%,
-                var(--gold-dark) 100%);
-            border-radius: var(--radius-xl) 0 0 var(--radius-xl);
-        }
-
-        .verification-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .mpesa-fields {
-            background: rgba(5, 150, 105, 0.05);
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            border: 1px solid rgba(5, 150, 105, 0.1);
-        }
-
-        .mpesa-fields h4 {
-            color: var(--success);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .mpesa-fields h4 i {
-            font-size: 1.25rem;
-        }
-
-        .verify-btn {
-            background: linear-gradient(135deg, var(--success), #047857);
-            color: var(--white);
-            border: none;
-            border-radius: var(--radius-md);
-            padding: 1rem 2rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            transition: var(--transition);
-            width: 100%;
-        }
-
-        .verify-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(5, 150, 105, 0.3);
-        }
-
-        .verify-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .verification-success {
-            text-align: center;
-            padding: 2rem;
-            background: var(--success-light);
-            border-radius: var(--radius-lg);
-            margin-top: 1.5rem;
-            display: none;
-        }
-
-        .verification-success i {
-            font-size: 3rem;
-            color: var(--success);
-            margin-bottom: 1rem;
-        }
-
-        .verification-success h4 {
-            color: var(--success);
-            margin-bottom: 0.5rem;
-        }
-
-        .verification-success p {
-            color: var(--secondary);
-            margin-bottom: 0;
-        }
-
-        /* INSTRUCTIONS */
+        /* SIMPLIFIED INSTRUCTIONS */
         .instructions {
             background: var(--white);
             border-radius: var(--radius-xl);
@@ -1236,18 +796,6 @@
             display: flex;
             flex-direction: column;
             box-shadow: var(--shadow-xl);
-            border-left: 4px solid transparent;
-            background-image: 
-                linear-gradient(white, white),
-                repeating-linear-gradient(
-                    45deg,
-                    var(--gold) 0px,
-                    var(--gold) 5px,
-                    var(--gold-dark) 5px,
-                    var(--gold-dark) 10px
-                );
-            background-clip: padding-box, border-box;
-            background-origin: border-box;
         }
 
         .mobile-menu.active {
@@ -1379,14 +927,6 @@
             height: 45px;
             width: auto;
             margin-bottom: 1.25rem;
-            filter: brightness(0) invert(1);
-            opacity: 0.9;
-            transition: var(--transition);
-        }
-
-        .footer-logo:hover {
-            opacity: 1;
-            transform: translateY(-2px);
         }
 
         .footer-tagline {
@@ -1531,6 +1071,7 @@
                 padding-top: 90px;
             }
 
+            /* Adjust header border for mobile */
             header {
                 border-bottom: 3px solid transparent;
                 background-image: 
@@ -1550,7 +1091,6 @@
 
             .partnership-container,
             .payment-methods,
-            .payment-verification,
             .instructions {
                 padding: 2rem;
                 margin: 0 1rem 2rem;
@@ -1565,7 +1105,6 @@
         @media (max-width: 768px) {
             .partnership-container,
             .payment-methods,
-            .payment-verification,
             .instructions {
                 padding: 1.5rem;
             }
@@ -1584,7 +1123,6 @@
         @media (max-width: 480px) {
             .partnership-container,
             .payment-methods,
-            .payment-verification,
             .instructions {
                 padding: 1.25rem;
             }
@@ -1606,44 +1144,49 @@
     </style>
 </head>
 <body>
-    <!-- Loading Overlay with Typing Animation -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner"></div>
-        
-        <div class="quote-container">
-            <div class="quote-icon">
-                <i class="fas fa-quote-left"></i>
+    <!-- Header with African Pattern Border -->
+    <header id="mainHeader">
+        <div class="header-container">
+            <div class="brand-container">
+                <a href="index.html">
+                    <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA" class="brand-logo">
+                </a>
             </div>
-            
-            <div class="quote-text" id="quoteText">
-                <!-- Quote will be typed here -->
+
+            <div class="nav-container">
+                <nav>
+                    <ul class="main-nav">
+                        <li class="nav-item"><a href="index.html" class="nav-link"><i class="fas fa-home"></i> Home</a></li>
+                        <li class="nav-item"><a href="index.html#author" class="nav-link"><i class="fas fa-book"></i> Author</a></li>
+                        <li class="nav-item"><a href="index.html#events" class="nav-link"><i class="fas fa-calendar-alt"></i> Events</a></li>
+                        <li class="nav-item"><a href="index.html#about" class="nav-link"><i class="fas fa-user"></i> About</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-handshake"></i> Partner</a></li>
+                    </ul>
+                </nav>
             </div>
-            
-            <div class="quote-author" id="quoteAuthor">
-                - Mugera W.
-                <span>Building Transformative Partnerships</span>
-            </div>
-            
-            <div class="loading-subtitle">
-                Preparing partnership opportunities for you...
-            </div>
+
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <span></span>
+            </button>
         </div>
-    </div>
-
-    <!-- Cache Status Indicator -->
-    <div class="cache-status" id="cacheStatus" style="display: none;">
-        <i class="fas fa-database"></i>
-        <span id="cacheInfo">Cached content</span>
-    </div>
-
-    <!-- Header (dynamically loaded) -->
-    <header id="mainHeader"></header>
+    </header>
 
     <!-- Mobile Menu Overlay -->
     <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
 
-    <!-- Mobile Menu (dynamically loaded) -->
-    <div class="mobile-menu" id="mobileMenu"></div>
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA" class="brand-logo" style="height: 45px;">
+        </div>
+        <ul class="mobile-nav">
+            <li class="mobile-nav-item"><a href="index.html" class="mobile-nav-link"><i class="fas fa-home"></i> Home</a></li>
+            <li class="mobile-nav-item"><a href="index.html#author" class="mobile-nav-link"><i class="fas fa-book"></i> Author</a></li>
+            <li class="mobile-nav-item"><a href="index.html#events" class="mobile-nav-link"><i class="fas fa-calendar-alt"></i> Events</a></li>
+            <li class="mobile-nav-item"><a href="index.html#about" class="mobile-nav-link"><i class="fas fa-user"></i> About</a></li>
+            <li class="mobile-nav-item"><a href="#" class="mobile-nav-link active"><i class="fas fa-handshake"></i> Partner</a></li>
+        </ul>
+    </div>
 
     <!-- Confirmation Modal -->
     <div class="modal-overlay" id="confirmationModal">
@@ -1655,11 +1198,213 @@
         </div>
     </div>
 
-    <!-- Main Content (dynamically loaded) -->
-    <main id="mainContent" class="main-content page-content"></main>
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Simplified Hero -->
+            <section class="partnership-hero animate-fade-in">
+                <h1 class="cinzel-font">Partner with <span class="highlight">I AM MUGERA</span></h1>
+                <p class="hero-tagline">
+                    Invest in transformative content, community programs, and impactful initiatives. Your partnership fuels growth and enables meaningful change.
+                </p>
+            </section>
 
-    <!-- Footer (dynamically loaded) -->
-    <footer id="mainFooter"></footer>
+            <!-- Partnership Form -->
+            <section class="partnership-container">
+                <div class="form-header">
+                    <h2 class="umsaga-font">Become a <span class="highlight">Partner</span></h2>
+                    <p>Complete the form below to initiate your partnership</p>
+                </div>
+
+                <form class="partnership-form" id="partnershipForm" onsubmit="submitPartnership(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-user"></i> Full Name *</label>
+                            <input type="text" class="form-input" id="fullName" required placeholder="Enter your full name">
+                            <div class="form-error" id="nameError">Please enter your full name</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-envelope"></i> Email Address *</label>
+                            <input type="email" class="form-input" id="email" required placeholder="your.email@example.com">
+                            <div class="form-error" id="emailError">Please enter a valid email address</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-phone"></i> Phone Number *</label>
+                        <input type="tel" class="form-input" id="phone" required placeholder="+254 XXX XXX XXX">
+                        <div class="form-error" id="phoneError">Please enter a valid phone number</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-bullseye"></i> Partnership Reason *</label>
+                        <select class="form-select" id="partnershipReason" required>
+                            <option value="">Select your partnership reason</option>
+                            <option value="content-creation">Content Creation Investment</option>
+                            <option value="community-programs">Community Programs Support</option>
+                            <option value="speaking-events">Speaking Events Sponsorship</option>
+                            <option value="brand-growth">Brand Growth Partnership</option>
+                            <option value="program-fees">Inspired.Me Program Payment</option>
+                            <option value="event-registration">Event Registration Fee</option>
+                            <option value="coaching-session">One-on-One Coaching Session</option>
+                            <option value="general-partnership">General Partnership</option>
+                        </select>
+                        <div class="form-error" id="reasonError">Please select a partnership reason</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-money-bill-wave"></i> Partnership Amount (KES) *</label>
+                        <div class="amount-input-group">
+                            <span class="amount-prefix">KES</span>
+                            <input type="number" class="form-input amount-input" id="amount" min="100" step="100" required placeholder="Enter amount in Kenyan Shillings">
+                        </div>
+                        <div class="form-error" id="amountError">Please enter a valid amount (minimum KES 100)</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-money-check-alt"></i> Payment Method *</label>
+                        <select class="form-select" id="paymentMethod" required>
+                            <option value="">Select payment method</option>
+                            <option value="safaricom-send-money">Safaricom Send Money</option>
+                            <option value="lipa-na-mpesa">Lipa na M-PESA</option>
+                        </select>
+                        <div class="form-error" id="methodError">Please select a payment method</div>
+                    </div>
+
+                    <button type="submit" class="form-submit" id="submitBtn">
+                        <i class="fas fa-handshake"></i>
+                        <span>Proceed to Payment Instructions</span>
+                    </button>
+                </form>
+
+                <div class="form-success" id="formSuccess">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Partnership Details Submitted!</h3>
+                    <p>Thank you for partnering with us. Please follow the payment instructions provided.</p>
+                </div>
+            </section>
+
+            <!-- Payment Methods -->
+            <section class="payment-methods">
+                <h2 class="umsaga-font">Payment <span class="highlight">Options</span></h2>
+                <div class="payment-options">
+                    <!-- Safaricom Send Money -->
+                    <div class="payment-option">
+                        <div class="payment-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <h3>Safaricom Send Money</h3>
+                        <div class="payment-details">
+                            <p>
+                                <i class="fas fa-phone"></i>
+                                <strong>Phone:</strong> 0727 211 191
+                                <button class="copy-btn" onclick="copyToClipboard('0727211191')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </p>
+                            <p><i class="fas fa-user"></i> <strong>Name:</strong> MOSES MUGERA</p>
+                        </div>
+                    </div>
+
+                    <!-- Lipa na M-PESA -->
+                    <div class="payment-option">
+                        <div class="payment-icon">
+                            <i class="fas fa-store"></i>
+                        </div>
+                        <h3>Lipa na M-PESA</h3>
+                        <div class="payment-details">
+                            <p>
+                                <i class="fas fa-hashtag"></i>
+                                <strong>Till:</strong> 9442155
+                                <button class="copy-btn" onclick="copyToClipboard('9442155')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </p>
+                            <p><i class="fas fa-building"></i> <strong>Business:</strong>MOSES MUGERA</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="padding: 1.5rem; background: rgba(5, 150, 105, 0.1); border-radius: var(--radius-md); border-left: 3px solid var(--success);">
+                    <h4 style="color: var(--success); margin-bottom: 0.5rem;"><i class="fas fa-lightbulb"></i> Important Note</h4>
+                    <p style="margin-bottom: 0; font-size: 0.95rem; color: var(--secondary);">
+                        After making your payment, please complete the form above to notify us. This helps us track your partnership and send you a confirmation.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Simple Instructions -->
+            <section class="instructions">
+                <h2 class="umsaga-font">Simple <span class="highlight">Process</span></h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Complete Form</h3>
+                            <p>Fill in your partnership details and select payment method</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Make Payment</h3>
+                            <p>Use M-PESA to send money to the provided number or till</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Get Confirmation</h3>
+                            <p>Receive confirmation and partnership details via email</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-column">
+                <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA" class="footer-logo">
+                <div class="footer-tagline">Transformative Partnerships • Impactful Growth</div>
+                <p>Your partnership enables transformative content, impactful communities, and life-changing programs.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link" title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="social-link" title="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://wa.me/254727211191?text=Hi%20Mugera,%20I%20have%20a%20question%20about%20partnering%20with%20you" class="social-link" title="WhatsApp" target="_blank">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <a href="index.html">Home</a>
+                <a href="index.html#author">Author</a>
+                <a href="index.html#events">Events</a>
+                <a href="index.html#about">About</a>
+                <a href="#" class="active">Partner</a>
+            </div>
+            <div class="footer-column">
+                <h3>Payment Details</h3>
+                <p><i class="fas fa-mobile-alt"></i> Send Money: 0727 211 191</p>
+                <p><i class="fas fa-store"></i> Lipa na M-PESA: 9442155</p>
+                <p><i class="fas fa-envelope"></i> info.iammugera@gmail.com</p>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; <script>document.write(new Date().getFullYear());</script> I AM MUGERA. All rights reserved. | Building Transformative Partnerships</p>
+        </div>
+    </footer>
 
     <script>
         // Firebase Configuration
@@ -1675,9 +1420,6 @@
 
         // Initialize Firebase
         let database;
-        let brandData = {};
-        let currentPartnership = null;
-        
         try {
             firebase.initializeApp(firebaseConfig);
             database = firebase.database();
@@ -1686,472 +1428,30 @@
             console.error("Firebase initialization error:", error);
         }
 
-        // Global state
-        let isOnline = navigator.onLine;
-        
-        // Start typing animation
+        // Wait for DOM to load
         document.addEventListener('DOMContentLoaded', function() {
-            startTypingAnimation();
+            initMobileMenu();
+            initSmoothScrolling();
+            initHeaderScroll();
         });
 
-        // Professional Typing Animation
-        function startTypingAnimation() {
-            const quote = "Together we can build something extraordinary. Your partnership makes transformation possible.";
-            const quoteText = document.getElementById('quoteText');
-            const typingContainer = document.createElement('div');
-            typingContainer.className = 'typing-container';
-            quoteText.innerHTML = '';
-            quoteText.appendChild(typingContainer);
-            
-            let charIndex = 0;
-            const typingSpeed = 50;
-            const pauseAfterTyping = 1000;
-            
-            function typeCharacter() {
-                if (charIndex < quote.length) {
-                    const span = document.createElement('span');
-                    span.className = 'typing-line';
-                    span.textContent = quote.substring(0, charIndex + 1);
-                    typingContainer.innerHTML = '';
-                    typingContainer.appendChild(span);
-                    
-                    const cursor = document.createElement('span');
-                    cursor.className = 'cursor';
-                    typingContainer.appendChild(cursor);
-                    
-                    charIndex++;
-                    setTimeout(typeCharacter, typingSpeed);
-                } else {
-                    const cursor = document.createElement('span');
-                    cursor.className = 'cursor';
-                    typingContainer.appendChild(cursor);
-                    
-                    setTimeout(() => {
-                        loadAllContent();
-                    }, pauseAfterTyping);
-                }
-            }
-            
-            typeCharacter();
-        }
-
-        // Load all content from Firebase
-        async function loadAllContent() {
-            try {
-                const snapshot = await database.ref('iam-mugera').once('value');
-                if (!snapshot.exists()) {
-                    throw new Error('No data found in Firebase');
-                }
-                
-                brandData = snapshot.val();
-                
-                // Load header and footer first
-                await Promise.all([
-                    loadHeader(),
-                    loadFooter()
-                ]);
-                
-                // Then load the main partnership content
-                loadPartnershipContent();
-                
-                // Initialize mobile menu
-                initMobileMenu();
-                
-                // Hide loading overlay
-                setTimeout(() => {
-                    document.getElementById('loadingOverlay').style.opacity = '0';
-                    document.getElementById('loadingOverlay').style.visibility = 'hidden';
-                    document.querySelector('.page-content').classList.add('loaded');
-                }, 500);
-                
-                // Check for updates
-                checkForUpdates();
-                
-                // Initialize PWA features
-                initPWAFeatures();
-                
-            } catch (error) {
-                console.error('Error loading content:', error);
-                showError('Failed to load content. Please check your connection and refresh.');
-                document.getElementById('loadingOverlay').style.display = 'none';
-            }
-        }
-
-        function showError(message) {
-            const main = document.getElementById('mainContent');
-            main.innerHTML = `
-                <div style="text-align: center; padding: 4rem 1.5rem;">
-                    <h2 style="color: var(--gold); margin-bottom: 1rem;">Error Loading Content</h2>
-                    <p style="color: var(--dark-gray); margin-bottom: 2rem;">${message}</p>
-                    <button class="cta-button" onclick="location.reload()">
-                        <i class="fas fa-sync-alt"></i>
-                        <span>Refresh Page</span>
-                    </button>
-                </div>
-            `;
-        }
-
-        // Load Header from Firebase
-        function loadHeader() {
-            if (!brandData.header) return;
-            
-            const header = document.getElementById('mainHeader');
-            const mobileMenu = document.getElementById('mobileMenu');
-            
-            const logoUrl = brandData.header.logo?.desktop || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png';
-            const mobileLogoUrl = brandData.header.logo?.mobile || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png';
-            
-            header.innerHTML = `
-                <div class="header-container">
-                    <div class="brand-container">
-                        <a href="index.html">
-                            <img src="${logoUrl}" alt="I AM MUGERA" class="brand-logo">
-                        </a>
-                    </div>
-
-                    <div class="nav-container">
-                        <nav>
-                            <ul class="main-nav" id="desktopNav">
-                                ${generateNavItems(brandData.header.navItems)}
-                            </ul>
-                        </nav>
-                    </div>
-
-                    <button class="mobile-menu-toggle" id="mobileMenuToggle">
-                        <span></span>
-                    </button>
-                </div>
-            `;
-            
-            mobileMenu.innerHTML = `
-                <div class="mobile-menu-header">
-                    <img src="${mobileLogoUrl}" alt="I AM MUGERA" class="brand-logo" style="height: 45px;">
-                </div>
-                <ul class="mobile-nav" id="mobileNav">
-                    ${generateNavItems(brandData.header.navItems, true)}
-                </ul>
-            `;
-            
-            // Re-attach mobile menu toggle
+        function initMobileMenu() {
             const mobileMenuToggle = document.getElementById('mobileMenuToggle');
             const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
-            
+            const mobileMenu = document.getElementById('mobileMenu');
+
             if (mobileMenuToggle) {
                 mobileMenuToggle.addEventListener('click', toggleMobileMenu);
                 mobileMenuOverlay.addEventListener('click', toggleMobileMenu);
             }
-        }
 
-        function generateNavItems(navItems, isMobile = false) {
-            if (!navItems) return '';
-            
-            const itemsArray = Object.values(navItems)
-                .filter(item => item.visible !== false)
-                .sort((a, b) => (a.order || 0) - (b.order || 0));
-            
-            return itemsArray.map(item => {
-                const isActive = item.title?.toLowerCase() === 'partner' ? 'active' : '';
-                const onClick = item.onclick ? `onclick="${item.onclick}; ${isMobile ? 'toggleMobileMenu()' : ''}"` : '';
-                const href = item.onclick ? '#' : (item.url === '/partner' ? '#' : item.url || '#');
-                const target = item.url && item.url.startsWith('http') ? 'target="_blank"' : '';
-                
-                return `
-                    <li class="${isMobile ? 'mobile-nav-item' : 'nav-item'}">
-                        <a href="${href}" ${target} class="${isMobile ? 'mobile-nav-link' : 'nav-link'} ${isActive}" ${onClick}>
-                            <i class="${item.icon || 'fas fa-circle'}"></i>
-                            <span>${item.title}</span>
-                        </a>
-                    </li>
-                `;
-            }).join('');
-        }
+            function toggleMobileMenu() {
+                mobileMenuToggle.classList.toggle('active');
+                mobileMenuOverlay.classList.toggle('active');
+                mobileMenu.classList.toggle('active');
+                document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+            }
 
-        // Load Footer from Firebase
-        function loadFooter() {
-            if (!brandData.footer) return;
-            
-            const footer = document.getElementById('mainFooter');
-            const footerData = brandData.footer;
-            
-            footer.innerHTML = `
-                <div class="footer-container">
-                    <div class="footer-column">
-                        <img src="${footerData.signatureUrl || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png'}" alt="I AM MUGERA" class="footer-logo">
-                        <div class="footer-tagline">Transformative Partnerships • Impactful Growth</div>
-                        <p>${footerData.description || 'Your partnership enables transformative content, impactful communities, and life-changing programs.'}</p>
-                        
-                        ${footerData.socialLinks ? `
-                            <div class="social-links">
-                                ${generateSocialLinks(footerData.socialLinks)}
-                            </div>
-                        ` : ''}
-                    </div>
-                    
-                    ${footerData.quickLinks ? `
-                        <div class="footer-column">
-                            <h3>Quick Links</h3>
-                            ${generateFooterLinks(footerData.quickLinks)}
-                        </div>
-                    ` : ''}
-                    
-                    <div class="footer-column">
-                        <h3>Payment Details</h3>
-                        <p><i class="fas fa-mobile-alt"></i> Send Money: 0727 211 191</p>
-                        <p><i class="fas fa-store"></i> Lipa na M-PESA: 9442155</p>
-                        <p><i class="fas fa-envelope"></i> info.iammugera@gmail.com</p>
-                    </div>
-                </div>
-                <div class="copyright">
-                    <p>&copy; ${new Date().getFullYear()} I AM MUGERA. All rights reserved. | Building Transformative Partnerships</p>
-                    <p style="margin-top: 0.5rem; font-size: 0.7rem;">Version 1.0.0 | Last updated 2024</p>
-                </div>
-            `;
-        }
-
-        function generateFooterLinks(links) {
-            if (!links) return '';
-            
-            return Object.values(links).map(link => {
-                const isActive = link.title?.toLowerCase() === 'partner' ? 'active' : '';
-                return `
-                    <a href="${link.url || '#'}" class="${isActive}">${link.title}</a>
-                `;
-            }).join('');
-        }
-
-        function generateSocialLinks(socialLinks) {
-            if (!socialLinks) return '';
-            
-            return Object.values(socialLinks)
-                .filter(link => link.visible !== false)
-                .map(link => `
-                    <a href="${link.url || '#'}" class="social-link" title="${link.title || 'Social Media'}" ${link.url?.startsWith('http') ? 'target="_blank"' : ''}>
-                        <i class="${link.icon || 'fab fa-link'}"></i>
-                    </a>
-                `).join('');
-        }
-
-        // Load Partnership Content
-        function loadPartnershipContent() {
-            const main = document.getElementById('mainContent');
-            
-            main.innerHTML = `
-                <div class="container">
-                    <!-- Simplified Hero -->
-                    <section class="partnership-hero animate-fade-in">
-                        <h1 class="cinzel-font">Partner with <span class="highlight">I AM MUGERA</span></h1>
-                        <p class="hero-tagline">
-                            Invest in transformative content, community programs, and impactful initiatives. Your partnership fuels growth and enables meaningful change.
-                        </p>
-                    </section>
-
-                    <!-- Partnership Form -->
-                    <section class="partnership-container">
-                        <div class="form-header">
-                            <h2 class="umsaga-font">Become a <span class="highlight">Partner</span></h2>
-                            <p>Complete the form below to initiate your partnership</p>
-                        </div>
-
-                        <form class="partnership-form" id="partnershipForm" onsubmit="event.preventDefault(); submitPartnership()">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-user"></i> Full Name *</label>
-                                    <input type="text" class="form-input" id="fullName" required placeholder="Enter your full name">
-                                    <div class="form-error" id="nameError">Please enter your full name</div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-envelope"></i> Email Address *</label>
-                                    <input type="email" class="form-input" id="email" required placeholder="your.email@example.com">
-                                    <div class="form-error" id="emailError">Please enter a valid email address</div>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label"><i class="fas fa-phone"></i> Phone Number *</label>
-                                <input type="tel" class="form-input" id="phone" required placeholder="+254 XXX XXX XXX">
-                                <div class="form-error" id="phoneError">Please enter a valid phone number</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label"><i class="fas fa-bullseye"></i> Partnership Reason *</label>
-                                <select class="form-select" id="partnershipReason" required>
-                                    <option value="">Select your partnership reason</option>
-                                    <option value="content-creation">Content Creation Investment</option>
-                                    <option value="community-programs">Community Programs Support</option>
-                                    <option value="speaking-events">Speaking Events Sponsorship</option>
-                                    <option value="brand-growth">Brand Growth Partnership</option>
-                                    <option value="program-fees">Inspired.Me Program Payment</option>
-                                    <option value="event-registration">Event Registration Fee</option>
-                                    <option value="coaching-session">One-on-One Coaching Session</option>
-                                    <option value="general-partnership">General Partnership</option>
-                                </select>
-                                <div class="form-error" id="reasonError">Please select a partnership reason</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label"><i class="fas fa-money-bill-wave"></i> Partnership Amount (KES) *</label>
-                                <div class="amount-input-group">
-                                    <span class="amount-prefix">KES</span>
-                                    <input type="number" class="form-input amount-input" id="amount" min="100" step="100" required placeholder="Enter amount in Kenyan Shillings">
-                                </div>
-                                <div class="form-error" id="amountError">Please enter a valid amount (minimum KES 100)</div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label"><i class="fas fa-money-check-alt"></i> Payment Method *</label>
-                                <select class="form-select" id="paymentMethod" required>
-                                    <option value="">Select payment method</option>
-                                    <option value="safaricom-send-money">Safaricom Send Money</option>
-                                    <option value="lipa-na-mpesa">Lipa na M-PESA</option>
-                                </select>
-                                <div class="form-error" id="methodError">Please select a payment method</div>
-                            </div>
-
-                            <button type="submit" class="form-submit" id="submitBtn">
-                                <i class="fas fa-handshake"></i>
-                                <span>Proceed to Payment</span>
-                            </button>
-                        </form>
-
-                        <div class="form-success" id="formSuccess">
-                            <i class="fas fa-check-circle"></i>
-                            <h3>Partnership Details Submitted!</h3>
-                            <p>Thank you for partnering with us. Please complete your payment below.</p>
-                        </div>
-                    </section>
-
-                    <!-- Payment Methods -->
-                    <section class="payment-methods" id="paymentMethods" style="display: none;">
-                        <h2 class="umsaga-font">Complete Your <span class="highlight">Payment</span></h2>
-                        
-                        <div id="paymentDetails"></div>
-                        
-                        <div style="margin-top: 2rem; text-align: center;">
-                            <button class="cta-button success" onclick="showPaymentVerification()" id="paymentDoneBtn">
-                                <i class="fas fa-check-circle"></i>
-                                <span>I've Made the Payment</span>
-                            </button>
-                            <button class="cta-button outline" onclick="resetForm()" style="margin-top: 1rem;">
-                                <i class="fas fa-undo"></i>
-                                <span>Start Over</span>
-                            </button>
-                        </div>
-                    </section>
-
-                    <!-- Payment Verification Section -->
-                    <section class="payment-verification" id="paymentVerification" style="display: none;">
-                        <h2 class="umsaga-font">Verify Your <span class="highlight">Payment</span></h2>
-                        
-                        <form class="verification-form" id="verificationForm" onsubmit="event.preventDefault(); verifyPayment()">
-                            <div class="form-group">
-                                <label class="form-label"><i class="fas fa-user"></i> Full Name (as entered)</label>
-                                <input type="text" class="form-input" id="verifyName" readonly>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label"><i class="fas fa-envelope"></i> Email Address</label>
-                                <input type="email" class="form-input" id="verifyEmail" readonly>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label"><i class="fas fa-money-bill-wave"></i> Amount (KES)</label>
-                                <input type="text" class="form-input" id="verifyAmount" readonly>
-                            </div>
-                            
-                            <div class="mpesa-fields">
-                                <h4><i class="fas fa-mobile-alt"></i> M-PESA Transaction Details</h4>
-                                
-                                <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-hashtag"></i> M-PESA Transaction Code *</label>
-                                    <input type="text" class="form-input" id="mpesaCode" required placeholder="e.g., QW12Y3R4T5">
-                                    <div class="form-error" id="mpesaCodeError">Please enter your M-PESA transaction code</div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-calendar"></i> Transaction Date *</label>
-                                    <input type="date" class="form-input" id="mpesaDate" required>
-                                    <div class="form-error" id="mpesaDateError">Please select the transaction date</div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-clock"></i> Transaction Time</label>
-                                    <input type="time" class="form-input" id="mpesaTime">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label class="form-label"><i class="fas fa-phone"></i> Phone Number Used</label>
-                                    <input type="tel" class="form-input" id="mpesaPhone" placeholder="e.g., 0727XXXXXX">
-                                </div>
-                                
-                                <p style="font-size: 0.85rem; color: var(--secondary); margin-top: 1rem;">
-                                    <i class="fas fa-info-circle"></i> You can find the transaction code in your M-PESA message. It starts with letters followed by numbers.
-                                </p>
-                            </div>
-                            
-                            <button type="submit" class="verify-btn" id="verifyBtn">
-                                <i class="fas fa-check-double"></i>
-                                <span>Verify Payment</span>
-                            </button>
-                        </form>
-                        
-                        <div class="verification-success" id="verificationSuccess">
-                            <i class="fas fa-check-circle"></i>
-                            <h4>Payment Verified!</h4>
-                            <p>Thank you for your partnership. We've sent a confirmation email with your receipt.</p>
-                            <button class="cta-button" onclick="resetForm()" style="margin-top: 1.5rem;">
-                                <i class="fas fa-handshake"></i>
-                                <span>Make Another Partnership</span>
-                            </button>
-                        </div>
-                    </section>
-
-                    <!-- Simple Instructions -->
-                    <section class="instructions">
-                        <h2 class="umsaga-font">Simple <span class="highlight">Process</span></h2>
-                        <div class="steps">
-                            <div class="step">
-                                <div class="step-number">1</div>
-                                <div class="step-content">
-                                    <h3>Complete Form</h3>
-                                    <p>Fill in your partnership details and select payment method</p>
-                                </div>
-                            </div>
-                            <div class="step">
-                                <div class="step-number">2</div>
-                                <div class="step-content">
-                                    <h3>Make Payment</h3>
-                                    <p>Use M-PESA to send money to the provided number or till</p>
-                                </div>
-                            </div>
-                            <div class="step">
-                                <div class="step-number">3</div>
-                                <div class="step-content">
-                                    <h3>Verify Payment</h3>
-                                    <p>Enter your M-PESA transaction code to complete the process</p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            `;
-        }
-
-        // Mobile Menu Functions
-        function toggleMobileMenu() {
-            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-            const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
-            const mobileMenu = document.getElementById('mobileMenu');
-            
-            if (!mobileMenuToggle || !mobileMenuOverlay || !mobileMenu) return;
-            
-            mobileMenuToggle.classList.toggle('active');
-            mobileMenuOverlay.classList.toggle('active');
-            mobileMenu.classList.toggle('active');
-            document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
-        }
-
-        function initMobileMenu() {
             document.addEventListener('click', (e) => {
                 if (e.target.classList.contains('mobile-nav-link')) {
                     toggleMobileMenu();
@@ -2159,126 +1459,35 @@
             });
         }
 
-        // PWA Functions
-        function initPWAFeatures() {
-            window.addEventListener('online', handleNetworkChange);
-            window.addEventListener('offline', handleNetworkChange);
-            
-            getCacheSize();
-            prefetchCriticalContent();
-        }
+        function initSmoothScrolling() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
 
-        function handleNetworkChange() {
-            isOnline = navigator.onLine;
-            if (isOnline) {
-                syncOfflineData();
-            }
-        }
-
-        function syncOfflineData() {
-            console.log('Syncing offline data...');
-            
-            const offlinePartnerships = localStorage.getItem('offlinePartnerships');
-            if (offlinePartnerships) {
-                const partnerships = JSON.parse(offlinePartnerships);
-                
-                for (const partner of partnerships) {
-                    database.ref('partnerships/' + partner.id).set(partner.data)
-                        .then(() => console.log('Synced offline partnership:', partner.id))
-                        .catch(error => console.error('Failed to sync partnership:', error));
-                }
-                
-                localStorage.removeItem('offlinePartnerships');
-            }
-        }
-
-        async function getCacheSize() {
-            if ('caches' in window) {
-                try {
-                    const cache = await caches.open('iam-mugera-partner-v1');
-                    const keys = await cache.keys();
-                    let totalSize = 0;
-                    
-                    for (const request of keys) {
-                        const response = await cache.match(request);
-                        const blob = await response.blob();
-                        totalSize += blob.size;
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
                     }
-                    
-                    if (totalSize > 2 * 1024 * 1024) {
-                        const cacheStatus = document.getElementById('cacheStatus');
-                        const cacheInfo = document.getElementById('cacheInfo');
-                        cacheInfo.textContent = `${(totalSize / (1024 * 1024)).toFixed(1)} MB cached`;
-                        cacheStatus.style.display = 'flex';
-                        
-                        setTimeout(() => {
-                            cacheStatus.style.display = 'none';
-                        }, 5000);
-                    }
-                } catch (error) {
-                    console.error('Error getting cache size:', error);
-                }
-            }
-        }
-
-        function prefetchCriticalContent() {
-            const criticalImages = [
-                'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png',
-                'https://i.postimg.cc/66rJN5PW/signature(1).png'
-            ];
-            
-            criticalImages.forEach(url => {
-                const img = new Image();
-                img.src = url;
+                });
             });
         }
 
-        // Version Check
-        window.appVersion = '1.0.0';
-        
-        async function checkForUpdates() {
-            if (!database) return;
-            
-            try {
-                const snapshot = await database.ref('partnership-version').once('value');
-                const serverVersion = snapshot.val();
-                
-                if (serverVersion && serverVersion.number !== window.appVersion) {
-                    showVersionNotification(serverVersion);
+        function initHeaderScroll() {
+            const header = document.getElementById('mainHeader');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.classList.add('header-scrolled');
+                } else {
+                    header.classList.remove('header-scrolled');
                 }
-            } catch (error) {
-                console.error('Error checking for updates:', error);
-            }
-        }
-        
-        function showVersionNotification(versionInfo) {
-            const notification = document.createElement('div');
-            notification.className = 'version-notification';
-            notification.innerHTML = `
-                <div class="version-notification-content">
-                    <i class="fas fa-sync-alt"></i>
-                    <div>
-                        <strong>New Version Available</strong>
-                        <p>Version ${versionInfo.number} - ${versionInfo.releaseNotes || 'New features and improvements'}</p>
-                    </div>
-                    <button onclick="updateToNewVersion()" class="version-update-btn">
-                        <span>Update Now</span>
-                    </button>
-                    <button onclick="this.parentElement.parentElement.remove()" class="version-close">&times;</button>
-                </div>
-            `;
-            document.body.appendChild(notification);
-        }
-        
-        function updateToNewVersion() {
-            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-                navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
-            } else {
-                window.location.reload();
-            }
+            });
         }
 
-        // Utility Functions
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text)
                 .then(() => {
@@ -2291,6 +1500,7 @@
         }
 
         function showToast(message) {
+            // Create toast element
             const toast = document.createElement('div');
             toast.style.cssText = `
                 position: fixed;
@@ -2309,6 +1519,7 @@
             
             document.body.appendChild(toast);
             
+            // Remove toast after 3 seconds
             setTimeout(() => {
                 toast.style.animation = 'fadeOut 0.3s ease-out';
                 setTimeout(() => {
@@ -2317,7 +1528,16 @@
             }, 3000);
         }
 
-        // Form Validation
+        // Add fadeOut animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeOut {
+                from { opacity: 1; transform: translateY(0); }
+                to { opacity: 0; transform: translateY(10px); }
+            }
+        `;
+        document.head.appendChild(style);
+
         function validatePartnershipForm() {
             let isValid = true;
             
@@ -2365,40 +1585,18 @@
             return isValid;
         }
 
-        function validateVerificationForm() {
-            let isValid = true;
+        async function submitPartnership(event) {
+            event.preventDefault();
             
-            document.querySelectorAll('.form-error').forEach(el => {
-                el.classList.remove('show');
-            });
-            
-            const mpesaCode = document.getElementById('mpesaCode').value.trim();
-            if (!mpesaCode) {
-                document.getElementById('mpesaCodeError').classList.add('show');
-                isValid = false;
-            }
-            
-            const mpesaDate = document.getElementById('mpesaDate').value;
-            if (!mpesaDate) {
-                document.getElementById('mpesaDateError').classList.add('show');
-                isValid = false;
-            }
-            
-            return isValid;
-        }
-
-        // Form Submission
-        async function submitPartnership() {
             if (!validatePartnershipForm()) {
                 return;
             }
             
             const submitBtn = document.getElementById('submitBtn');
             const form = document.getElementById('partnershipForm');
-            const paymentMethods = document.getElementById('paymentMethods');
-            const paymentDetails = document.getElementById('paymentDetails');
+            const successMsg = document.getElementById('formSuccess');
             
-            currentPartnership = {
+            const partnershipData = {
                 fullName: document.getElementById('fullName').value.trim(),
                 email: document.getElementById('email').value.trim(),
                 phone: document.getElementById('phone').value.trim(),
@@ -2416,76 +1614,24 @@
                 
                 const partnershipId = 'partner_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
                 
-                if (database && navigator.onLine) {
-                    await database.ref('partnerships/' + partnershipId).set(currentPartnership);
-                } else {
-                    // Save offline
-                    const offlineData = JSON.parse(localStorage.getItem('offlinePartnerships') || '[]');
-                    offlineData.push({
-                        id: partnershipId,
-                        data: currentPartnership,
-                        timestamp: new Date().toISOString()
-                    });
-                    localStorage.setItem('offlinePartnerships', JSON.stringify(offlineData));
-                    
-                    showToast('Saved offline - will sync when online');
+                if (database) {
+                    await database.ref('partnerships/' + partnershipId).set(partnershipData);
                 }
                 
-                // Show payment methods
+                // Show success and show confirmation modal
                 form.style.display = 'none';
-                document.getElementById('formSuccess').style.display = 'block';
+                successMsg.style.display = 'block';
                 
-                // Display payment details based on selected method
-                const methodDetails = currentPartnership.paymentMethod === 'safaricom-send-money' 
-                    ? `
-                        <div class="payment-option" style="max-width: 400px; margin: 0 auto;">
-                            <div class="payment-icon">
-                                <i class="fas fa-mobile-alt"></i>
-                            </div>
-                            <h3>Safaricom Send Money</h3>
-                            <div class="payment-details">
-                                <p>
-                                    <i class="fas fa-phone"></i>
-                                    <strong>Phone:</strong> 0727 211 191
-                                    <button class="copy-btn" onclick="copyToClipboard('0727211191')">
-                                        <i class="fas fa-copy"></i>
-                                    </button>
-                                </p>
-                                <p><i class="fas fa-user"></i> <strong>Name:</strong> MOSES MUGERA</p>
-                                <p><i class="fas fa-money-bill-wave"></i> <strong>Amount:</strong> KES ${parseInt(currentPartnership.amount).toLocaleString()}</p>
-                            </div>
-                        </div>
-                    `
-                    : `
-                        <div class="payment-option" style="max-width: 400px; margin: 0 auto;">
-                            <div class="payment-icon">
-                                <i class="fas fa-store"></i>
-                            </div>
-                            <h3>Lipa na M-PESA</h3>
-                            <div class="payment-details">
-                                <p>
-                                    <i class="fas fa-hashtag"></i>
-                                    <strong>Till:</strong> 9442155
-                                    <button class="copy-btn" onclick="copyToClipboard('9442155')">
-                                        <i class="fas fa-copy"></i>
-                                    </button>
-                                </p>
-                                <p><i class="fas fa-building"></i> <strong>Business:</strong> MOSES MUGERA</p>
-                                <p><i class="fas fa-money-bill-wave"></i> <strong>Amount:</strong> KES ${parseInt(currentPartnership.amount).toLocaleString()}</p>
-                            </div>
-                        </div>
-                    `;
-                
-                paymentDetails.innerHTML = methodDetails;
-                paymentMethods.style.display = 'block';
+                // Show confirmation modal with payment instructions
+                showConfirmationModal(partnershipData);
                 
                 console.log('Partnership details submitted successfully');
                 
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-handshake"></i><span>Proceed to Payment</span>';
-                
-                // Scroll to payment methods
-                paymentMethods.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Reset button state
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-handshake"></i><span>Proceed to Payment Instructions</span>';
+                }, 2000);
                 
             } catch (error) {
                 console.error('Error submitting partnership details:', error);
@@ -2493,233 +1639,83 @@
                 alert('There was an error submitting your partnership details. Please try again or contact us directly at info.iammugera@gmail.com');
                 
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-handshake"></i><span>Proceed to Payment</span>';
+                submitBtn.innerHTML = '<i class="fas fa-handshake"></i><span>Proceed to Payment Instructions</span>';
             }
         }
 
-        function showPaymentVerification() {
-            if (!currentPartnership) {
-                showToast('Please submit the form first');
-                return;
-            }
+        function showConfirmationModal(partnershipData) {
+            const modal = document.getElementById('confirmationModal');
+            const content = document.getElementById('confirmationContent');
             
-            const paymentMethods = document.getElementById('paymentMethods');
-            const paymentVerification = document.getElementById('paymentVerification');
+            const methodDetails = partnershipData.paymentMethod === 'safaricom-send-money' 
+                ? `
+                    <h3 style="color: var(--gold); margin-bottom: 1rem;"><i class="fas fa-mobile-alt"></i> Safaricom Send Money</h3>
+                    <div style="background: rgba(202, 138, 4, 0.1); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+                        <p style="margin-bottom: 0.5rem;"><strong>Phone Number:</strong> 0727 211 191</p>
+                        <p style="margin-bottom: 0.5rem;"><strong>Account Name:</strong> I AM MUGERA</p>
+                        <p><strong>Amount:</strong> KES ${parseInt(partnershipData.amount).toLocaleString()}</p>
+                    </div>
+                `
+                : `
+                    <h3 style="color: var(--gold); margin-bottom: 1rem;"><i class="fas fa-store"></i> Lipa na M-PESA</h3>
+                    <div style="background: rgba(202, 138, 4, 0.1); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+                        <p style="margin-bottom: 0.5rem;"><strong>Till Number:</strong> 9442155</p>
+                        <p style="margin-bottom: 0.5rem;"><strong>Business Name:</strong> I AM MUGERA</p>
+                        <p><strong>Amount:</strong> KES ${parseInt(partnershipData.amount).toLocaleString()}</p>
+                    </div>
+                `;
             
-            // Populate verification form
-            document.getElementById('verifyName').value = currentPartnership.fullName;
-            document.getElementById('verifyEmail').value = currentPartnership.email;
-            document.getElementById('verifyAmount').value = `KES ${parseInt(currentPartnership.amount).toLocaleString()}`;
+            content.innerHTML = `
+                <h2 class="modal-title" style="color: var(--gold); margin-bottom: 1rem;"><i class="fas fa-handshake"></i> Complete Your Partnership</h2>
+                <div style="background: var(--success-light); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; border-left: 3px solid var(--success);">
+                    <p style="margin-bottom: 0.5rem; color: var(--success);"><i class="fas fa-lightbulb"></i> <strong>Next Steps:</strong></p>
+                    <p style="margin-bottom: 0; color: var(--secondary);">Complete your payment using the details below within the next 24 hours.</p>
+                </div>
+                
+                ${methodDetails}
+                
+                <p style="margin-bottom: 1rem;"><i class="fas fa-info-circle"></i> <strong>Instructions:</strong></p>
+                <ol style="margin-left: 1.5rem; margin-bottom: 1.5rem;">
+                    <li>Go to M-PESA on your phone</li>
+                    <li>${partnershipData.paymentMethod === 'safaricom-send-money' ? 'Select "Send Money"' : 'Select "Lipa na M-PESA" → "Buy Goods"'}</li>
+                    <li>${partnershipData.paymentMethod === 'safaricom-send-money' ? 'Enter phone number: <strong>0727 211 191</strong>' : 'Enter till number: <strong>9442155</strong>'}</li>
+                    <li>Enter amount: <strong>KES ${parseInt(partnershipData.amount).toLocaleString()}</strong></li>
+                    <li>Enter your M-PESA PIN</li>
+                    <li>Complete the transaction</li>
+                </ol>
+                
+                <div style="background: rgba(5, 150, 105, 0.1); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; border-left: 3px solid var(--success);">
+                    <p style="margin-bottom: 0.5rem; color: var(--success);"><i class="fas fa-envelope"></i> <strong>Confirmation:</strong></p>
+                    <p style="margin-bottom: 0; color: var(--secondary);">We'll send a confirmation email to: <strong>${partnershipData.email}</strong></p>
+                </div>
+                
+                <button class="cta-button" onclick="closeConfirmationModal()" style="width: 100%;">
+                    <i class="fas fa-check"></i>
+                    <span>Got It, I'll Complete Payment</span>
+                </button>
+            `;
             
-            // Set default date to today
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('mpesaDate').value = today;
-            
-            paymentMethods.style.display = 'none';
-            paymentVerification.style.display = 'block';
-            
-            paymentVerification.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
 
-        async function verifyPayment() {
-            if (!validateVerificationForm()) {
-                return;
-            }
-            
-            const verifyBtn = document.getElementById('verifyBtn');
-            const verificationForm = document.getElementById('verificationForm');
-            const verificationSuccess = document.getElementById('verificationSuccess');
-            
-            const verificationData = {
-                ...currentPartnership,
-                mpesaCode: document.getElementById('mpesaCode').value.trim(),
-                mpesaDate: document.getElementById('mpesaDate').value,
-                mpesaTime: document.getElementById('mpesaTime').value,
-                mpesaPhone: document.getElementById('mpesaPhone').value.trim(),
-                verificationTimestamp: new Date().toISOString(),
-                status: 'completed'
-            };
-            
-            try {
-                verifyBtn.disabled = true;
-                verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Verifying...</span>';
-                
-                // Save to Firebase with verification
-                const partnershipId = 'verified_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                
-                if (database && navigator.onLine) {
-                    await database.ref('verified-partnerships/' + partnershipId).set(verificationData);
-                }
-                
-                // Show success
-                verificationForm.style.display = 'none';
-                verificationSuccess.style.display = 'block';
-                
-                showToast('Payment verified successfully!');
-                
-                console.log('Payment verified:', verificationData);
-                
-                // Optionally send email notification (would need backend)
-                
-            } catch (error) {
-                console.error('Error verifying payment:', error);
-                alert('There was an error verifying your payment. Please contact us at info.iammugera@gmail.com');
-                
-                verifyBtn.disabled = false;
-                verifyBtn.innerHTML = '<i class="fas fa-check-double"></i><span>Verify Payment</span>';
-            }
+        function closeConfirmationModal() {
+            const modal = document.getElementById('confirmationModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
         }
 
-        function resetForm() {
-            const form = document.getElementById('partnershipForm');
-            const paymentMethods = document.getElementById('paymentMethods');
-            const paymentVerification = document.getElementById('paymentVerification');
-            const verificationForm = document.getElementById('verificationForm');
-            const verificationSuccess = document.getElementById('verificationSuccess');
-            const formSuccess = document.getElementById('formSuccess');
-            
-            // Reset all sections
-            form.style.display = 'block';
-            paymentMethods.style.display = 'none';
-            paymentVerification.style.display = 'none';
-            formSuccess.style.display = 'none';
-            verificationForm.style.display = 'block';
-            verificationSuccess.style.display = 'none';
-            
-            // Clear form
-            document.getElementById('fullName').value = '';
-            document.getElementById('email').value = '';
-            document.getElementById('phone').value = '';
-            document.getElementById('partnershipReason').value = '';
-            document.getElementById('amount').value = '';
-            document.getElementById('paymentMethod').value = '';
-            
-            // Clear verification fields
-            document.getElementById('mpesaCode').value = '';
-            document.getElementById('mpesaTime').value = '';
-            document.getElementById('mpesaPhone').value = '';
-            
-            // Clear errors
-            document.querySelectorAll('.form-error').forEach(el => {
-                el.classList.remove('show');
-            });
-            
-            currentPartnership = null;
-            
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Event Listeners
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeConfirmationModal();
             }
         });
 
-        document.getElementById('confirmationModal')?.addEventListener('click', (e) => {
+        document.getElementById('confirmationModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('confirmationModal')) {
                 closeConfirmationModal();
             }
         });
-
-        // Add fadeOut animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeOut {
-                from { opacity: 1; transform: translateY(0); }
-                to { opacity: 0; transform: translateY(10px); }
-            }
-        `;
-        document.head.appendChild(style);
     </script>
-    
-    <!-- Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                const swUrl = 'data:application/javascript;base64,' + btoa(`
-                    const CACHE_NAME = 'iam-mugera-partner-v1';
-                    const urlsToCache = [
-                        '/',
-                        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-                        'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
-                        'https://fonts.googleapis.com/css2?family=Umsaga:wght@400;700&display=swap',
-                        'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap',
-                        'https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js',
-                        'https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js',
-                        'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png',
-                        'https://i.postimg.cc/66rJN5PW/signature(1).png'
-                    ];
-
-                    self.addEventListener('install', event => {
-                        event.waitUntil(
-                            caches.open(CACHE_NAME)
-                                .then(cache => {
-                                    console.log('Opened cache');
-                                    return cache.addAll(urlsToCache);
-                                })
-                                .then(() => self.skipWaiting())
-                        );
-                    });
-
-                    self.addEventListener('activate', event => {
-                        event.waitUntil(
-                            caches.keys().then(cacheNames => {
-                                return Promise.all(
-                                    cacheNames.map(cacheName => {
-                                        if (cacheName !== CACHE_NAME) {
-                                            return caches.delete(cacheName);
-                                        }
-                                    })
-                                );
-                            }).then(() => self.clients.claim())
-                        );
-                    });
-
-                    self.addEventListener('fetch', event => {
-                        if (!event.request.url.startsWith(self.location.origin) && 
-                            !event.request.url.includes('postimg.cc') &&
-                            !event.request.url.includes('fonts.googleapis.com') &&
-                            !event.request.url.includes('cdnjs.cloudflare.com') &&
-                            !event.request.url.includes('gstatic.com')) {
-                            return;
-                        }
-
-                        event.respondWith(
-                            caches.match(event.request)
-                                .then(cachedResponse => {
-                                    const fetchPromise = fetch(event.request)
-                                        .then(networkResponse => {
-                                            if (networkResponse && networkResponse.status === 200) {
-                                                const responseToCache = networkResponse.clone();
-                                                caches.open(CACHE_NAME)
-                                                    .then(cache => {
-                                                        cache.put(event.request, responseToCache);
-                                                    });
-                                            }
-                                            return networkResponse;
-                                        })
-                                        .catch(() => {
-                                            return cachedResponse;
-                                        });
-
-                                    return cachedResponse || fetchPromise;
-                                })
-                        );
-                    });
-
-                    self.addEventListener('message', event => {
-                        if (event.data.type === 'SKIP_WAITING') {
-                            self.skipWaiting();
-                        }
-                    });
-                `);
-                
-                navigator.serviceWorker.register(swUrl).catch(console.error);
-            });
-        }
-    </script>
-    
 </body>
 </html>
