@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#ca8a04" id="themeColor">
+    <meta name="background-color" content="#0a0a0a">
+    <meta name="color-scheme" content="dark light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="I AM MUGERA">
+    <meta name="application-name" content="I AM MUGERA">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-TileColor" content="#ca8a04">
+    
+    <!-- Version Information -->
+    <meta name="version" content="2.0.0">
+    <meta name="build-date" content="2024-02-19">
+    
+    <!-- Existing Meta Tags -->
+    <title>I AM MUGERA | Afrika Milele</title>
+    <link rel="icon" type="image/x-icon" id="pageFavicon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Base & reset */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --gold: #ca8a04;
+            --gold-dark: #a16207;
+            --black: #0a0a0a;
+            --white: #ffffff;
+            --dark-gray: #1a1a1a;
+            --light-gray: #e8e8e8;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--black);
+            color: var(--white);
+            overflow-x: hidden;
+        }
+        
+        /* LOADING OVERLAY – shows image + animated words */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #0a0a0a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            padding: 1.5rem;
+        }
+        .loading-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        /* The image */
+        .hero-image {
+            max-width: 90%;
+            max-height: 50vh;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(202,138,4,0.3);
+            margin-bottom: 2rem;
+            border: 3px solid var(--gold);
+            object-fit: contain;
+        }
+        
+        /* animated words container */
+        .afrika-milele-container {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .afrika-milele {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: 4px;
+            color: transparent;
+            background: linear-gradient(135deg, #f5e7c8, #ca8a04, #f5e7c8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-shadow: 0 0 10px rgba(202,138,4,0.5);
+            display: inline-block;
+            border-right: 4px solid var(--gold);
+            padding-right: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            animation: blinkCursor 0.8s step-end infinite;
+        }
+        @keyframes blinkCursor {
+            0%, 100% { border-color: var(--gold); }
+            50% { border-color: transparent; }
+        }
+        
+        /* Heroic subtitle */
+        .heroic-sub {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            color: #fef3c7;
+            letter-spacing: 2px;
+            font-weight: 300;
+            text-transform: uppercase;
+            opacity: 0;
+            animation: fadeIn 1s forwards 3s;
+        }
+        @keyframes fadeIn { to { opacity: 1; } }
+        
+        /* After loading, main page fades in */
+        .page-content {
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        .page-content.visible {
+            opacity: 1;
+        }
+        
+        /* Main site styles (simplified but complete) */
+        .site-header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10,10,10,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--gold);
+            z-index: 100;
+            padding: 0.8rem 2rem;
+        }
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .brand-logo {
+            height: 50px;
+            filter: brightness(0) invert(1);
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+        }
+        .nav-links a:hover {
+            background: rgba(202,138,4,0.2);
+            color: var(--gold);
+        }
+        .nav-links i {
+            color: var(--gold);
+        }
+        
+        .hero-section {
+            min-height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.8)), 
+                        url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6rem 2rem;
+        }
+        .hero-content {
+            max-width: 900px;
+        }
+        .hero-content h1 {
+            font-size: 4rem;
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        .hero-content p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: #f0f0f0;
+        }
+        .explore-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            margin-top: 3rem;
+        }
+        .explore-card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(5px);
+            border: 2px solid var(--gold);
+            border-radius: 30px;
+            padding: 2.5rem 2rem;
+            width: 280px;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+        }
+        .explore-card:hover {
+            transform: translateY(-10px);
+            background: rgba(202,138,4,0.2);
+            box-shadow: 0 20px 30px rgba(202,138,4,0.3);
+        }
+        .explore-card i {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        .explore-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-family: 'Cinzel', serif;
+        }
+        .explore-card p {
+            font-size: 1rem;
+            color: #ccc;
+        }
+        
+        .footer {
+            background: #111;
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--gold);
+        }
+        .footer p {
+            color: #aaa;
+        }
+        
+        /* responsive */
+        @media (max-width: 700px) {
+            .nav-links { gap: 0.5rem; }
+            .nav-links a span { display: none; }
+            .nav-links a i { font-size: 1.5rem; }
+            .hero-content h1 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY – image + animated words "Afrika Milele" -->
+<div class="loading-overlay" id="loadingOverlay">
+    <img src="https://i.postimg.cc/xCvsws8M/20260220-1245-Image-Generation-simple-compose-01khx700xgea3rpkfzhfvyzv5d-1-1.webp" 
+         alt="Afrika Milele Hero" 
+         class="hero-image" 
+         id="heroImage">
+    
+    <div class="afrika-milele-container">
+        <span class="afrika-milele" id="animatedText"></span>
+    </div>
+    <div class="heroic-sub">heroically playing below it</div>
+</div>
+
+<!-- MAIN PAGE CONTENT (full site with explore cards) -->
+<div id="mainContent" class="page-content">
+
+    <!-- Header with navigation (the "explore" links are also here) -->
+    <header class="site-header">
+        <div class="header-container">
+            <img src="https://i.postimg.cc/8cr13sL7/MUGERA-1-removebg-preview.png" alt="I AM MUGERA" class="brand-logo" style="height: 50px;">
+            <nav>
+                <ul class="nav-links">
+                    <!-- Book Mugera (index.html) -->
+                    <li><a href="index.html"><i class="fas fa-calendar-check"></i><span>Book Mugera</span></a></li>
+                    <!-- Afrika Milele Campaign (Afrika.html) -->
+                    <li><a href="Afrika.html"><i class="fas fa-map-africa"></i><span>Afrika Milele</span></a></li>
+                    <!-- Mugera Shop (shop.html) -->
+                    <li><a href="shop.html"><i class="fas fa-store"></i><span>Mugera Shop</span></a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section with Explore Cards -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>I AM MUGERA</h1>
+            <p>Public Speaker · Life Coach · Author · Pan-Africanist</p>
+            
+            <div class="explore-grid">
+                <!-- Card 1: Book Mugera -> index.html -->
+                <a href="index.html" class="explore-card">
+                    <i class="fas fa-microphone-alt"></i>
+                    <h3>Book Mugera</h3>
+                    <p>Invite Mugera to speak at your next event or book a coaching session.</p>
+                </a>
+                
+                <!-- Card 2: Afrika Milele Campaign -> Afrika.html -->
+                <a href="Afrika.html" class="explore-card">
+                    <i class="fas fa-map-africa"></i>
+                    <h3>Afrika Milele</h3>
+                    <p>Join the campaign for eternal African renaissance & unity.</p>
+                </a>
+                
+                <!-- Card 3: Mugera Shop -> shop.html -->
+                <a href="shop.html" class="explore-card">
+                    <i class="fas fa-shopping-bag"></i>
+                    <h3>Mugera Shop</h3>
+                    <p>Discover books, merchandise, and exclusive content.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- simple footer -->
+    <footer class="footer">
+        <p>© 2026 I AM MUGERA · Afrika Milele · All rights reserved.</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">Explore: <a href="index.html" style="color: var(--gold;">Book</a> | <a href="Afrika.html" style="color: var(--gold);">Afrika Milele</a> | <a href="shop.html" style="color: var(--gold);">Shop</a></p>
+    </footer>
+</div>
+
+<script>
+(function() {
+    // 1. Image already visible.
+    // 2. Type "Afrika Milele" heroically.
+    
+    const overlay = document.getElementById('loadingOverlay');
+    const animatedSpan = document.getElementById('animatedText');
+    const mainContent = document.querySelector('.page-content');
+    
+    const fullText = "Afrika Milele";
+    let index = 0;
+    animatedSpan.textContent = '';
+    
+    function typeNext() {
+        if (index < fullText.length) {
+            animatedSpan.textContent += fullText.charAt(index);
+            index++;
+            let delay = 120;
+            if (fullText.charAt(index-1) === ' ') delay = 300;
+            setTimeout(typeNext, delay);
+        } else {
+            // keep cursor blinking, then after a beat reveal site
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                mainContent.classList.add('visible');
+            }, 1200);
+        }
+    }
+    
+    setTimeout(typeNext, 400); // slight pause after image appears
+    
+    // fallback
+    setTimeout(() => {
+        if (!overlay.classList.contains('hidden')) {
+            overlay.classList.add('hidden');
+            mainContent.classList.add('visible');
+        }
+    }, 7000);
+})();
+</script>
+
+<!-- inline style for anchor inside footer (fix) -->
+<style>
+    .footer a { color: var(--gold); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+    /* card links */
+    .explore-card { display: block; text-decoration: none; }
+</style>
+
+<!-- include any additional firebase etc if needed – not necessary for demo -->
+</body>
+</html>
