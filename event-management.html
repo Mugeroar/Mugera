@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>I AM MUGERA - Events Management</title>
+    <title>I AM MUGERA - Events & Challenge Management</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/66rJN5PW/signature(1).png">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -787,6 +787,13 @@
             border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
+        /* Challenge specific badge */
+        .status-challenge {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
         /* Action Buttons */
         .action-buttons {
             display: flex;
@@ -1253,7 +1260,7 @@
         <div class="login-card">
             <div class="login-logo">
                 <img src="https://i.postimg.cc/Kzsb3tX6/I_AM_MUGERA.png" alt="I AM MUGERA">
-                <h1>Events Management</h1>
+                <h1>Events & Challenge Management</h1>
                 <p>Admin Authentication Required</p>
             </div>
             
@@ -1280,7 +1287,7 @@
             
             <button type="button" class="btn" id="authBtn">
                 <i class="fas fa-sign-in-alt"></i>
-                Sign In to Events Portal
+                Sign In to Portal
             </button>
             
             <a href="admin.html" class="btn btn-outline" style="margin-top: 1rem;">
@@ -1302,8 +1309,8 @@
                 <div class="sidebar-logo">
                     <img src="https://i.postimg.cc/Kzsb3tX6/I_AM_MUGERA.png" alt="I AM MUGERA">
                 </div>
-                <h2 class="sidebar-title">Events Management</h2>
-                <p class="sidebar-subtitle">Complete Event Administration</p>
+                <h2 class="sidebar-title">Management Portal</h2>
+                <p class="sidebar-subtitle">Events & Challenge Administration</p>
             </div>
             
             <ul class="nav-menu">
@@ -1316,15 +1323,22 @@
                 <li class="nav-item">
                     <a href="#" class="nav-link" data-page="events">
                         <i class="fas fa-calendar-alt nav-icon"></i>
-                        <span>All Events</span>
+                        <span>Events</span>
                         <span class="nav-badge" id="eventCount">0</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="#" class="nav-link" data-page="registrations">
                         <i class="fas fa-users nav-icon"></i>
-                        <span>Registrations</span>
+                        <span>Event Registrations</span>
                         <span class="nav-badge" id="regCount">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="challengeRegistrations">
+                        <i class="fas fa-flag-africa nav-icon"></i>
+                        <span>Challenge Registrations</span>
+                        <span class="nav-badge" id="challengeCount">0</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -1347,10 +1361,10 @@
             <!-- Header -->
             <header class="header">
                 <div>
-                    <h1 class="page-title" id="pageTitle">Events Dashboard</h1>
+                    <h1 class="page-title" id="pageTitle">Dashboard</h1>
                     <div class="page-subtitle">
                         <i class="fas fa-calendar-alt"></i>
-                        <span id="pageSubtitle">Complete Event Management System</span>
+                        <span id="pageSubtitle">Events & Challenge Management System</span>
                     </div>
                 </div>
                 <div class="user-actions">
@@ -1384,7 +1398,15 @@
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="stat-value" id="totalRegistrations">0</div>
-                        <div class="stat-label">Total Registrations</div>
+                        <div class="stat-label">Event Regs</div>
+                    </div>
+
+                    <div class="stat-card" onclick="showPage('challengeRegistrations')">
+                        <div class="stat-icon">
+                            <i class="fas fa-flag-africa"></i>
+                        </div>
+                        <div class="stat-value" id="totalChallenges">0</div>
+                        <div class="stat-label">Challenge Regs</div>
                     </div>
                     
                     <div class="stat-card" onclick="showPage('registrations')">
@@ -1392,15 +1414,7 @@
                             <i class="fas fa-clock"></i>
                         </div>
                         <div class="stat-value" id="pendingRegistrations">0</div>
-                        <div class="stat-label">Pending</div>
-                    </div>
-                    
-                    <div class="stat-card" onclick="showPage('analytics')">
-                        <div class="stat-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div class="stat-value" id="completionRate">0%</div>
-                        <div class="stat-label">Completion Rate</div>
+                        <div class="stat-label">Pending Event</div>
                     </div>
                 </div>
 
@@ -1426,13 +1440,13 @@
 
                 <div class="content-section">
                     <div class="section-header">
-                        <h2 class="section-title">Recent Registrations</h2>
+                        <h2 class="section-title">Recent Challenge Registrations</h2>
                         <div class="section-tools">
-                            <button class="btn btn-sm" onclick="showPage('registrations')">
+                            <button class="btn btn-sm" onclick="showPage('challengeRegistrations')">
                                 <i class="fas fa-list"></i>
-                                View All Registrations
+                                View All
                             </button>
-                            <button class="btn btn-outline btn-sm" onclick="refreshRegistrations()">
+                            <button class="btn btn-outline btn-sm" onclick="refreshChallengeRegistrations()">
                                 <i class="fas fa-sync-alt"></i>
                                 Refresh
                             </button>
@@ -1445,13 +1459,13 @@
                                 <tr>
                                     <th>Name</th>
                                     <th>Email</th>
-                                    <th>Event</th>
+                                    <th>Pillar</th>
+                                    <th>Country</th>
                                     <th>Date</th>
-                                    <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="recentRegistrations">
+                            <tbody id="recentChallenges">
                                 <!-- Dynamic content -->
                             </tbody>
                         </table>
@@ -1502,13 +1516,13 @@
                 </div>
             </div>
 
-            <!-- Registrations Page -->
+            <!-- Event Registrations Page -->
             <div id="registrationsPage" class="page-content" style="display: none;">
                 <div class="content-section">
                     <div class="section-header">
-                        <h2 class="section-title">Registration Management</h2>
+                        <h2 class="section-title">Event Registration Management</h2>
                         <div class="section-tools">
-                            <button class="btn btn-sm" onclick="exportRegistrations()">
+                            <button class="btn btn-sm" onclick="exportRegistrations('event')">
                                 <i class="fas fa-file-export"></i>
                                 Export CSV
                             </button>
@@ -1568,11 +1582,72 @@
                 </div>
             </div>
 
+            <!-- Challenge Registrations Page (NEW) -->
+            <div id="challengeRegistrationsPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">DAIMA | MILELE | PAMOJA Challenge Registrations</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="exportRegistrations('challenge')">
+                                <i class="fas fa-file-export"></i>
+                                Export CSV
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="refreshChallengeRegistrations()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label class="filter-label">Pillar</label>
+                            <select id="challengePillarFilter" class="filter-select" onchange="filterChallengeRegistrations()">
+                                <option value="all">All Pillars</option>
+                                <option value="DAIMA">DAIMA</option>
+                                <option value="PAMOJA">PAMOJA</option>
+                                <option value="MILELE">MILELE</option>
+                                <option value="ALL">ALL (all three)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Date</label>
+                            <select id="challengeDateFilter" class="filter-select" onchange="filterChallengeRegistrations()">
+                                <option value="all">All Time</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email/Phone</th>
+                                    <th>Pillar</th>
+                                    <th>Country</th>
+                                    <th>Social Handle</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allChallengeRegistrations">
+                                <!-- Dynamic content from Firebase path 'challenge_registrations' -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- Analytics Page -->
             <div id="analyticsPage" class="page-content" style="display: none;">
                 <div class="content-section">
                     <div class="section-header">
-                        <h2 class="section-title">Event Analytics</h2>
+                        <h2 class="section-title">Analytics</h2>
                         <div class="section-tools">
                             <button class="btn btn-sm" onclick="refreshAnalytics()">
                                 <i class="fas fa-sync-alt"></i>
@@ -1584,7 +1659,7 @@
                     <div class="dashboard-grid">
                         <div class="stat-card">
                             <div class="stat-icon">
-                                <i class="fas fa-chart-pie"></i>
+                                <i class="fas fa-calendar-alt"></i>
                             </div>
                             <div class="stat-value" id="totalEventsAnalytics">0</div>
                             <div class="stat-label">Total Events</div>
@@ -1592,10 +1667,18 @@
                         
                         <div class="stat-card">
                             <div class="stat-icon">
-                                <i class="fas fa-user-check"></i>
+                                <i class="fas fa-users"></i>
                             </div>
                             <div class="stat-value" id="confirmedRegistrations">0</div>
-                            <div class="stat-label">Confirmed</div>
+                            <div class="stat-label">Confirmed Event</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-flag-africa"></i>
+                            </div>
+                            <div class="stat-value" id="totalChallengeAnalytics">0</div>
+                            <div class="stat-label">Challenge Regs</div>
                         </div>
                         
                         <div class="stat-card">
@@ -1603,15 +1686,7 @@
                                 <i class="fas fa-percentage"></i>
                             </div>
                             <div class="stat-value" id="conversionRate">0%</div>
-                            <div class="stat-label">Conversion Rate</div>
-                        </div>
-                        
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-calendar-week"></i>
-                            </div>
-                            <div class="stat-value" id="weeklyAverage">0</div>
-                            <div class="stat-label">Weekly Avg</div>
+                            <div class="stat-label">Event Conv.</div>
                         </div>
                     </div>
                     
@@ -1630,7 +1705,7 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-content">
             <div class="loading-spinner"></div>
-            <p style="color: var(--white); font-weight: 600;">Loading Events Management System...</p>
+            <p style="color: var(--white); font-weight: 600;">Loading Management System...</p>
         </div>
     </div>
 
@@ -1650,7 +1725,7 @@
         </div>
     </div>
 
-    <!-- Registration Modal -->
+    <!-- Registration Modal (for event registrations) -->
     <div class="modal-overlay" id="registrationModal">
         <div class="modal">
             <div class="modal-header">
@@ -1659,6 +1734,19 @@
             </div>
             <div id="registrationModalContent">
                 <!-- Dynamic registration form will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Challenge Registration Modal (for challenge entries) -->
+    <div class="modal-overlay" id="challengeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="challengeModalTitle">Challenge Registration Details</h3>
+                <button class="modal-close" onclick="hideChallengeModal()">&times;</button>
+            </div>
+            <div id="challengeModalContent">
+                <!-- Dynamic challenge details will be loaded here -->
             </div>
         </div>
     </div>
@@ -1695,8 +1783,10 @@
         let websiteData = null;
         let allEvents = [];
         let allRegistrations = [];
+        let allChallengeRegistrations = []; // NEW: store challenge registrations
         let filteredEvents = [];
         let filteredRegistrations = [];
+        let filteredChallengeRegistrations = [];
 
         // Utility Functions
         function showLoading(message = "Loading...") {
@@ -1861,18 +1951,17 @@
         // Data Management
         async function loadInitialData() {
             try {
-                showLoading("Loading events data...");
+                showLoading("Loading events & challenge data...");
                 
                 // Load website data
                 const snapshot = await database.ref('iam-mugera').once('value');
                 websiteData = snapshot.val();
                 
-                if (!websiteData) {
-                    throw new Error("No website data found");
-                }
-                
-                // Load registrations
+                // Load event registrations
                 await loadRegistrations();
+                
+                // Load challenge registrations from new path
+                await loadChallengeRegistrations();
                 
                 // Extract and organize events
                 extractEventsFromData();
@@ -1888,6 +1977,85 @@
                 console.error("Error loading data:", error);
                 hideLoading();
                 showNotification(`Failed to load data: ${error.message}`, "error");
+            }
+        }
+
+        // NEW: Load challenge registrations from 'challenge_registrations' path
+        async function loadChallengeRegistrations() {
+            try {
+                const snapshot = await database.ref('challenge_registrations').once('value');
+                const data = snapshot.val();
+                
+                if (data) {
+                    allChallengeRegistrations = Object.entries(data).map(([id, reg]) => ({
+                        id: id,
+                        fullName: reg.fullName || '',
+                        email: reg.email || '',
+                        phone: reg.phone || '',
+                        country: reg.country || '',
+                        socialHandle: reg.socialHandle || '',
+                        pillarPreference: reg.pillarPreference || 'ALL',
+                        timestamp: reg.timestamp ? new Date(reg.timestamp) : new Date(),
+                        source: reg.source || 'challenge_page'
+                    }));
+                    
+                    // Sort by timestamp (newest first)
+                    allChallengeRegistrations.sort((a, b) => b.timestamp - a.timestamp);
+                } else {
+                    allChallengeRegistrations = [];
+                }
+                
+                filteredChallengeRegistrations = [...allChallengeRegistrations];
+                
+                // Update badge
+                document.getElementById('challengeCount').textContent = allChallengeRegistrations.length;
+                
+                return allChallengeRegistrations;
+            } catch (error) {
+                console.error("Error loading challenge registrations:", error);
+                showNotification("Failed to load challenge registrations", "error");
+                return [];
+            }
+        }
+
+        async function loadRegistrations() {
+            try {
+                const snapshot = await database.ref('registrations').once('value');
+                const data = snapshot.val();
+                
+                if (data) {
+                    allRegistrations = Object.entries(data).map(([id, reg]) => ({
+                        id: id,
+                        fullName: reg.fullName || '',
+                        email: reg.email || '',
+                        phone: reg.phone || '',
+                        profession: reg.profession || '',
+                        location: reg.location || '',
+                        eventType: reg.eventType || '',
+                        message: reg.message || '',
+                        referralSource: reg.referralSource || '',
+                        source: reg.source || '',
+                        status: reg.status || 'pending',
+                        timestamp: reg.timestamp ? new Date(reg.timestamp) : new Date()
+                    }));
+                    
+                    // Sort by timestamp (newest first)
+                    allRegistrations.sort((a, b) => b.timestamp - a.timestamp);
+                } else {
+                    allRegistrations = [];
+                }
+                
+                filteredRegistrations = [...allRegistrations];
+                
+                // Update UI counts
+                document.getElementById('regCount').textContent = allRegistrations.length;
+                updateEventFilterOptions();
+                
+                return allRegistrations;
+            } catch (error) {
+                console.error("Error loading registrations:", error);
+                showNotification("Failed to load registrations", "error");
+                return [];
             }
         }
 
@@ -1924,47 +2092,6 @@
             console.log('Extracted events:', allEvents);
         }
 
-        async function loadRegistrations() {
-            try {
-                const snapshot = await database.ref('registrations').once('value');
-                const data = snapshot.val();
-                
-                if (data) {
-                    allRegistrations = Object.entries(data).map(([id, reg]) => ({
-                        id: id,
-                        fullName: reg.fullName || '',
-                        email: reg.email || '',
-                        phone: reg.phone || '',
-                        profession: reg.profession || '',
-                        location: reg.location || '',
-                        eventType: reg.eventType || '',
-                        message: reg.message || '',
-                        referralSource: reg.referralSource || '',
-                        source: reg.source || '',
-                        status: reg.status || 'pending',
-                        timestamp: reg.timestamp ? new Date(reg.timestamp) : new Date()
-                    }));
-                    
-                    // Sort by timestamp (newest first)
-                    allRegistrations.sort((a, b) => b.timestamp - a.timestamp);
-                } else {
-                    allRegistrations = [];
-                }
-                
-                filteredRegistrations = [...allRegistrations];
-                
-                // Update UI counts
-                document.getElementById('regCount').textContent = allRegistrations.length;
-                updateRegistrationFilterOptions();
-                
-                return allRegistrations;
-            } catch (error) {
-                console.error("Error loading registrations:", error);
-                showNotification("Failed to load registrations", "error");
-                return [];
-            }
-        }
-
         function updateDashboardStats() {
             // Total events
             document.getElementById('totalEvents').textContent = allEvents.length;
@@ -1973,20 +2100,21 @@
             const totalRegs = allRegistrations.length;
             document.getElementById('totalRegistrations').textContent = totalRegs;
             
-            // Pending registrations
+            // Total challenge registrations
+            document.getElementById('totalChallenges').textContent = allChallengeRegistrations.length;
+            
+            // Pending event registrations
             const pendingRegs = allRegistrations.filter(reg => reg.status === 'pending').length;
             document.getElementById('pendingRegistrations').textContent = pendingRegs;
-            
-            // Completion rate (confirmed vs total)
-            const confirmedRegs = allRegistrations.filter(reg => reg.status === 'confirmed').length;
-            const completionRate = totalRegs > 0 ? Math.round((confirmedRegs / totalRegs) * 100) : 0;
-            document.getElementById('completionRate').textContent = `${completionRate}%`;
             
             // Update recent registrations table
             updateRecentRegistrationsTable();
             
             // Update current events cards
             updateCurrentEventsCards();
+
+            // Update recent challenge registrations table
+            updateRecentChallengesTable();
         }
 
         function updateAnalyticsStats() {
@@ -1995,19 +2123,18 @@
             const confirmedRegs = allRegistrations.filter(reg => reg.status === 'confirmed').length;
             document.getElementById('confirmedRegistrations').textContent = confirmedRegs;
             
-            // Conversion rate (confirmed vs pending)
-            const pendingRegs = allRegistrations.filter(reg => reg.status === 'pending').length;
+            document.getElementById('totalChallengeAnalytics').textContent = allChallengeRegistrations.length;
+            
+            // Conversion rate (confirmed vs total event regs)
             const totalRegs = allRegistrations.length;
             const conversionRate = totalRegs > 0 ? Math.round((confirmedRegs / totalRegs) * 100) : 0;
             document.getElementById('conversionRate').textContent = `${conversionRate}%`;
-            
-            // Weekly average (rough estimate)
-            const weeklyAvg = totalRegs > 0 ? Math.round(totalRegs / 4) : 0;
-            document.getElementById('weeklyAverage').textContent = weeklyAvg;
         }
 
         function updateRecentRegistrationsTable() {
             const tableBody = document.getElementById('recentRegistrations');
+            if (!tableBody) return;
+            
             tableBody.innerHTML = '';
             
             const recentRegs = allRegistrations.slice(0, 5);
@@ -2043,11 +2170,51 @@
             });
         }
 
+        // NEW: Update recent challenge registrations on dashboard
+        function updateRecentChallengesTable() {
+            const tableBody = document.getElementById('recentChallenges');
+            if (!tableBody) return;
+            
+            tableBody.innerHTML = '';
+            
+            const recentChals = allChallengeRegistrations.slice(0, 5);
+            
+            if (recentChals.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-flag-africa" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No recent challenge registrations</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            recentChals.forEach(reg => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${reg.fullName || 'N/A'}</strong></td>
+                    <td>${reg.email || 'N/A'}</td>
+                    <td><span class="status-badge status-challenge">${reg.pillarPreference || 'ALL'}</span></td>
+                    <td>${reg.country || '—'}</td>
+                    <td>${reg.timestamp.toLocaleDateString()}</td>
+                    <td>
+                        <button class="action-btn view" onclick="viewChallengeRegistration('${reg.id}')">
+                            <i class="fas fa-eye"></i>
+                            View
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
         function updateCurrentEventsCards() {
             const container = document.getElementById('currentEventsList');
             container.innerHTML = '';
             
-            // Show all events
+            // Show first 4 events
             const currentEvents = allEvents.slice(0, 4);
             
             if (currentEvents.length === 0) {
@@ -2125,16 +2292,18 @@
                 
                 // Update page title
                 const titles = {
-                    'dashboard': 'Events Dashboard',
+                    'dashboard': 'Dashboard',
                     'events': 'Event Management',
-                    'registrations': 'Registration Management',
-                    'analytics': 'Event Analytics'
+                    'registrations': 'Event Registration Management',
+                    'challengeRegistrations': 'Challenge Registration Management',
+                    'analytics': 'Analytics'
                 };
                 
                 const subtitles = {
-                    'dashboard': 'Complete Event Management System',
+                    'dashboard': 'Events & Challenge Management System',
                     'events': 'Manage all events and schedules',
                     'registrations': 'View and manage all event registrations',
+                    'challengeRegistrations': 'View DAIMA | MILELE | PAMOJA challenge registrations',
                     'analytics': 'Analytics and performance reports'
                 };
                 
@@ -2148,6 +2317,9 @@
                         break;
                     case 'registrations':
                         updateRegistrationsTable();
+                        break;
+                    case 'challengeRegistrations':
+                        updateChallengeRegistrationsTable();
                         break;
                     case 'dashboard':
                         updateDashboardStats();
@@ -2287,7 +2459,7 @@
             filterEvents();
         }
 
-        // Registration Functions
+        // Event Registration Functions
         function updateRegistrationsTable() {
             const tableBody = document.getElementById('allRegistrations');
             tableBody.innerHTML = '';
@@ -2384,6 +2556,7 @@
 
         function updateEventFilterOptions() {
             const select = document.getElementById('regEventFilter');
+            if (!select) return;
             const currentValue = select.value;
             
             // Clear existing options except "All Events"
@@ -2409,8 +2582,172 @@
             }
         }
 
-        function updateRegistrationFilterOptions() {
-            updateEventFilterOptions();
+        // CHALLENGE REGISTRATION FUNCTIONS
+        function updateChallengeRegistrationsTable() {
+            const tableBody = document.getElementById('allChallengeRegistrations');
+            if (!tableBody) return;
+            tableBody.innerHTML = '';
+            
+            if (filteredChallengeRegistrations.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-flag-africa" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No challenge registrations found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            filteredChallengeRegistrations.forEach(reg => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${reg.fullName || 'N/A'}</strong></td>
+                    <td>
+                        <div>${reg.email || 'N/A'}</div>
+                        <small>${reg.phone || ''}</small>
+                    </td>
+                    <td><span class="status-badge status-challenge">${reg.pillarPreference || 'ALL'}</span></td>
+                    <td>${reg.country || '—'}</td>
+                    <td>${reg.socialHandle || '—'}</td>
+                    <td>${reg.timestamp.toLocaleDateString()}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" onclick="viewChallengeRegistration('${reg.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn delete" onclick="deleteChallengeRegistration('${reg.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function filterChallengeRegistrations() {
+            const pillarFilter = document.getElementById('challengePillarFilter').value;
+            const dateFilter = document.getElementById('challengeDateFilter').value;
+            
+            filteredChallengeRegistrations = allChallengeRegistrations.filter(reg => {
+                // Pillar filter
+                if (pillarFilter !== 'all' && reg.pillarPreference !== pillarFilter) {
+                    return false;
+                }
+                
+                // Date filter
+                if (dateFilter !== 'all') {
+                    const now = new Date();
+                    const regDate = reg.timestamp;
+                    
+                    switch (dateFilter) {
+                        case 'today':
+                            if (regDate.toDateString() !== now.toDateString()) return false;
+                            break;
+                        case 'week':
+                            const weekStart = new Date(now);
+                            weekStart.setDate(now.getDate() - now.getDay());
+                            weekStart.setHours(0, 0, 0, 0);
+                            if (regDate < weekStart) return false;
+                            break;
+                        case 'month':
+                            if (regDate.getMonth() !== now.getMonth() || regDate.getFullYear() !== now.getFullYear()) return false;
+                            break;
+                    }
+                }
+                
+                return true;
+            });
+            
+            updateChallengeRegistrationsTable();
+        }
+
+        async function refreshChallengeRegistrations() {
+            showLoading("Refreshing challenge registrations...");
+            await loadChallengeRegistrations();
+            if (document.getElementById('challengeRegistrationsPage').style.display !== 'none') {
+                updateChallengeRegistrationsTable();
+            }
+            if (document.getElementById('dashboardPage').style.display !== 'none') {
+                updateRecentChallengesTable();
+                updateDashboardStats();
+            }
+            hideLoading();
+            showNotification("Challenge registrations refreshed", "success");
+        }
+
+        function viewChallengeRegistration(regId) {
+            const reg = allChallengeRegistrations.find(r => r.id === regId);
+            if (!reg) {
+                showNotification("Registration not found", "error");
+                return;
+            }
+            
+            const content = `
+                <div style="line-height: 1.8; color: var(--white);">
+                    <h4 style="margin-bottom: 1rem;">Challenge Registration Details</h4>
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-lg);">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div><strong>Full Name:</strong><br>${reg.fullName || 'N/A'}</div>
+                            <div><strong>Email:</strong><br>${reg.email || 'N/A'}</div>
+                            <div><strong>Phone:</strong><br>${reg.phone || 'N/A'}</div>
+                            <div><strong>Country:</strong><br>${reg.country || 'N/A'}</div>
+                            <div><strong>Social Handle:</strong><br>${reg.socialHandle || 'N/A'}</div>
+                            <div><strong>Pillar Preference:</strong><br><span class="status-badge status-challenge">${reg.pillarPreference || 'ALL'}</span></div>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Registration Date:</strong><br>
+                            ${reg.timestamp.toLocaleString()}
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Source:</strong><br>
+                            ${reg.source || 'challenge_page'}
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn" onclick="hideChallengeModal()">
+                        Close
+                    </button>
+                </div>
+            `;
+            showChallengeModal(content, `Challenge: ${reg.fullName || 'View Details'}`);
+        }
+
+        async function deleteChallengeRegistration(regId) {
+            if (!confirm("Are you sure you want to delete this challenge registration? This action cannot be undone.")) {
+                return;
+            }
+            
+            showLoading("Deleting challenge registration...");
+            
+            try {
+                // Delete from Firebase
+                await database.ref(`challenge_registrations/${regId}`).remove();
+                
+                // Reload data
+                await loadChallengeRegistrations();
+                
+                // Update current view
+                if (document.getElementById('challengeRegistrationsPage').style.display !== 'none') {
+                    updateChallengeRegistrationsTable();
+                }
+                if (document.getElementById('dashboardPage').style.display !== 'none') {
+                    updateRecentChallengesTable();
+                    updateDashboardStats();
+                    updateAnalyticsStats();
+                }
+                
+                hideLoading();
+                showNotification("Challenge registration deleted successfully!", "success");
+                
+            } catch (error) {
+                console.error("Error deleting challenge registration:", error);
+                hideLoading();
+                showNotification("Failed to delete: " + error.message, "error");
+            }
         }
 
         // Modal Functions
@@ -2432,6 +2769,16 @@
             document.getElementById('registrationModalTitle').textContent = title;
             document.getElementById('registrationModalContent').innerHTML = content;
             document.getElementById('registrationModal').classList.add('active');
+        }
+
+        function hideChallengeModal() {
+            document.getElementById('challengeModal').classList.remove('active');
+        }
+
+        function showChallengeModal(content, title = 'Challenge Registration') {
+            document.getElementById('challengeModalTitle').textContent = title;
+            document.getElementById('challengeModalContent').innerHTML = content;
+            document.getElementById('challengeModal').classList.add('active');
         }
 
         // Event CRUD Functions
@@ -2657,7 +3004,7 @@
             }
         }
 
-        // Registration CRUD Functions
+        // Registration CRUD Functions (event registrations)
         function viewRegistration(regId) {
             const reg = allRegistrations.find(r => r.id === regId);
             if (!reg) {
@@ -2719,6 +3066,10 @@
                 return;
             }
             
+            const eventOptions = allEvents.map(event => 
+                `<option value="${event.registrationEventType}" ${reg.eventType === event.registrationEventType ? 'selected' : ''}>${event.name}</option>`
+            ).join('');
+            
             const form = `
                 <form id="registrationForm" onsubmit="updateRegistration(event, '${regId}')">
                     <div class="form-grid">
@@ -2746,11 +3097,7 @@
                             <label class="form-label">Event Type</label>
                             <select class="form-input" name="eventType">
                                 <option value="">Select Event Type</option>
-                                ${allEvents.map(event => `
-                                    <option value="${event.registrationEventType}" ${reg.eventType === event.registrationEventType ? 'selected' : ''}>
-                                        ${event.name}
-                                    </option>
-                                `).join('')}
+                                ${eventOptions}
                             </select>
                         </div>
                         <div class="form-group">
@@ -2872,7 +3219,7 @@
         }
 
         async function refreshRegistrations() {
-            showLoading("Refreshing registrations...");
+            showLoading("Refreshing event registrations...");
             await loadRegistrations();
             if (document.getElementById('registrationsPage').style.display !== 'none') {
                 updateRegistrationsTable();
@@ -2882,7 +3229,7 @@
                 updateDashboardStats();
             }
             hideLoading();
-            showNotification("Registrations refreshed successfully", "success");
+            showNotification("Event registrations refreshed", "success");
         }
 
         function refreshAnalytics() {
@@ -2890,24 +3237,43 @@
             showNotification("Analytics refreshed", "success");
         }
 
-        function exportRegistrations() {
-            if (allRegistrations.length === 0) {
-                showNotification("No registrations to export", "warning");
+        function exportRegistrations(type) {
+            let data = [];
+            let filename = '';
+            
+            if (type === 'event') {
+                data = allRegistrations;
+                filename = `event_registrations_${new Date().toISOString().split('T')[0]}.csv`;
+            } else if (type === 'challenge') {
+                data = allChallengeRegistrations;
+                filename = `challenge_registrations_${new Date().toISOString().split('T')[0]}.csv`;
+            }
+            
+            if (data.length === 0) {
+                showNotification("No data to export", "warning");
                 return;
             }
             
-            // Create CSV content
-            let csv = 'Name,Email,Phone,Event,Status,Date\n';
-            allRegistrations.forEach(reg => {
-                csv += `"${reg.fullName || ''}","${reg.email || ''}","${reg.phone || ''}","${reg.eventType || ''}","${reg.status || ''}","${reg.timestamp.toLocaleDateString()}"\n`;
-            });
+            // Create CSV content based on type
+            let csv = '';
+            if (type === 'event') {
+                csv = 'Name,Email,Phone,Event,Status,Date\n';
+                data.forEach(reg => {
+                    csv += `"${reg.fullName || ''}","${reg.email || ''}","${reg.phone || ''}","${reg.eventType || ''}","${reg.status || ''}","${reg.timestamp.toLocaleDateString()}"\n`;
+                });
+            } else {
+                csv = 'Name,Email,Phone,Country,Social Handle,Pillar,Date\n';
+                data.forEach(reg => {
+                    csv += `"${reg.fullName || ''}","${reg.email || ''}","${reg.phone || ''}","${reg.country || ''}","${reg.socialHandle || ''}","${reg.pillarPreference || ''}","${reg.timestamp.toLocaleDateString()}"\n`;
+                });
+            }
             
             // Create download link
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `registrations_${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -3019,12 +3385,19 @@
                     hideRegistrationModal();
                 }
             });
+
+            document.getElementById('challengeModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('challengeModal')) {
+                    hideChallengeModal();
+                }
+            });
             
             // Close modals on ESC
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     hideModal();
                     hideRegistrationModal();
+                    hideChallengeModal();
                 }
             });
         }
@@ -3042,17 +3415,24 @@
         window.showPage = showPage;
         window.hideModal = hideModal;
         window.hideRegistrationModal = hideRegistrationModal;
+        window.hideChallengeModal = hideChallengeModal;
         window.addNewEvent = addNewEvent;
         window.refreshEvents = refreshEvents;
         window.refreshRegistrations = refreshRegistrations;
+        window.refreshChallengeRegistrations = refreshChallengeRegistrations;
         window.refreshAnalytics = refreshAnalytics;
         window.exportRegistrations = exportRegistrations;
         window.filterEvents = filterEvents;
         window.filterRegistrations = filterRegistrations;
+        window.filterChallengeRegistrations = filterChallengeRegistrations;
         window.clearEventFilters = clearEventFilters;
         window.viewRegistration = viewRegistration;
         window.editRegistration = editRegistration;
+        window.viewChallengeRegistration = viewChallengeRegistration;
+        window.deleteChallengeRegistration = deleteChallengeRegistration;
         window.viewEventDetails = viewEventDetails;
+        window.editEvent = editEvent;
+        window.deleteEvent = deleteEvent;
     </script>
 </body>
 </html>
