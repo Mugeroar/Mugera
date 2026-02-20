@@ -16,7 +16,7 @@
     <meta name="msapplication-TileColor" content="#ca8a04">
     
     <!-- Version & Build -->
-    <meta name="version" content="4.0.0">
+    <meta name="version" content="4.1.0">
     <meta name="build-date" content="2025-02-20">
     
     <title>I AM MUGERA | Home</title>
@@ -31,11 +31,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    <!-- Firebase SDK (using compat version for better compatibility) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
     
     <style>
         /* ----- RESET & VARIABLES (PRESERVED ORIGINAL) ----- */
@@ -178,6 +178,11 @@
             background: var(--bg-card);
             border: 1px solid var(--gold);
             cursor: pointer;
+            transition: 0.3s;
+        }
+        .user-profile:hover {
+            background: rgba(202,138,4,0.15);
+            transform: translateY(-2px);
         }
         .user-avatar {
             width: 32px;
@@ -402,7 +407,7 @@
         .modal-icon {
             width: 80px;
             height: 80px;
-            background: var(--gold-soft, rgba(202,138,4,0.1));
+            background: rgba(202,138,4,0.1);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -452,6 +457,11 @@
             color: #4285f4;
             font-size: 1.3rem;
         }
+        .google-signin-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
         .modal-footer-text {
             color: var(--text-muted);
             font-size: 0.9rem;
@@ -461,7 +471,7 @@
             text-decoration: none;
         }
         
-        /* Welcome Modal (after sign in) */
+        /* Welcome Modal */
         .welcome-modal .modal-icon i {
             color: var(--gold);
         }
@@ -487,7 +497,22 @@
             font-size: 1.1rem;
         }
         
-        /* Community Page (preserved functionality) */
+        /* Error message */
+        .error-message {
+            background: rgba(255, 0, 0, 0.1);
+            color: #ff4444;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            border: 1px solid #ff4444;
+            display: none;
+        }
+        .error-message.show {
+            display: block;
+        }
+        
+        /* Community Page */
         .community-page {
             position: fixed;
             top: 0;
@@ -542,14 +567,12 @@
             transform: rotate(90deg);
         }
         
-        /* Community container */
         .community-container {
             max-width: 1200px;
             margin: 2rem auto;
             padding: 0 2rem;
         }
         
-        /* Post creator */
         .post-creator {
             background: var(--bg-card);
             border: 1px solid var(--border-light);
@@ -598,7 +621,6 @@
             background: var(--gold-dark);
         }
         
-        /* Post card */
         .post-card {
             background: var(--bg-card);
             border: 1px solid var(--border-light);
@@ -681,8 +703,8 @@
     </div>
 </div>
 
-<!-- BEAUTIFUL SIGN-IN MODAL (Shows on first visit) -->
-<div class="modal-overlay active" id="signInModal">
+<!-- BEAUTIFUL SIGN-IN MODAL -->
+<div class="modal-overlay" id="signInModal">
     <div class="signin-modal">
         <button class="modal-close" onclick="closeSignInModal()">&times;</button>
         <div class="modal-icon">
@@ -691,7 +713,9 @@
         <h2 class="modal-title">Welcome to I AM MUGERA</h2>
         <p class="modal-subtitle">Join our community to connect, share, and engage</p>
         
-        <button class="google-signin-btn" onclick="signInWithGoogle()">
+        <div class="error-message" id="signInError"></div>
+        
+        <button class="google-signin-btn" id="googleSignInBtn" onclick="signInWithGoogle()">
             <i class="fab fa-google"></i> Sign in with Google
         </button>
         
@@ -701,7 +725,7 @@
     </div>
 </div>
 
-<!-- WELCOME MODAL (Shows after successful sign in) -->
+<!-- WELCOME MODAL -->
 <div class="modal-overlay" id="welcomeModal">
     <div class="signin-modal welcome-modal">
         <button class="modal-close" onclick="closeWelcomeModal()">&times;</button>
@@ -711,9 +735,7 @@
         <h2 class="modal-title">Welcome!</h2>
         <p class="modal-subtitle">You've successfully joined the community</p>
         
-        <div class="welcome-user" id="welcomeUserInfo">
-            <!-- Will be populated dynamically -->
-        </div>
+        <div class="welcome-user" id="welcomeUserInfo"></div>
         
         <button class="google-signin-btn" onclick="closeWelcomeModal()" style="background: var(--gold); color: black; border: none;">
             <i class="fas fa-arrow-right"></i> Continue to Community
@@ -855,7 +877,7 @@
 </button>
 
 <script>
-    // Firebase Config
+    // Firebase Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
         authDomain: "mugera-e51cc.firebaseapp.com",
@@ -866,14 +888,19 @@
         appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
     };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const database = firebase.database();
-    const analytics = firebase.analytics();
-
-    // Google Auth Provider
-    const googleProvider = new firebase.auth.GoogleAuthProvider();
+    // Initialize Firebase with error handling
+    let auth, database, analytics;
+    
+    try {
+        firebase.initializeApp(firebaseConfig);
+        auth = firebase.auth();
+        database = firebase.database();
+        analytics = firebase.analytics();
+        console.log('Firebase initialized successfully');
+    } catch (error) {
+        console.error('Firebase initialization error:', error);
+        showError('Failed to initialize. Please refresh the page.');
+    }
 
     // State
     let currentUser = null;
@@ -898,7 +925,7 @@
                 setTimeout(() => {
                     overlay.classList.add('hidden');
                     mainContent.classList.add('visible');
-                    if (analytics) analytics.logEvent('page_view', { page_title: 'Home' });
+                    if (analytics) analytics.logEvent('page_view');
                 }, 1300);
             }
         }
@@ -914,7 +941,6 @@
     // Check if first visit
     if (!localStorage.getItem('hasVisited')) {
         localStorage.setItem('hasVisited', 'true');
-        // Show sign in modal
         setTimeout(() => {
             document.getElementById('signInModal').classList.add('active');
         }, 2000);
@@ -955,6 +981,16 @@
         }
     });
 
+    // Helper Functions
+    function showError(message) {
+        const errorDiv = document.getElementById('signInError');
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            setTimeout(() => errorDiv.classList.remove('show'), 5000);
+        }
+    }
+
     // Modal Controls
     window.closeSignInModal = function() {
         document.getElementById('signInModal').classList.remove('active');
@@ -966,80 +1002,125 @@
 
     // Sign In with Google
     window.signInWithGoogle = function() {
-        auth.signInWithPopup(googleProvider)
+        const btn = document.getElementById('googleSignInBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+        
+        if (!auth) {
+            showError('Authentication not initialized. Please refresh.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fab fa-google"></i> Sign in with Google';
+            return;
+        }
+        
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.setCustomParameters({
+            prompt: 'select_account'
+        });
+        
+        auth.signInWithPopup(provider)
             .then((result) => {
+                console.log('Sign in successful:', result.user);
                 closeSignInModal();
-                // Welcome modal will be shown by auth observer
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fab fa-google"></i> Sign in with Google';
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error('Sign in error:', error);
-                alert('Sign in failed. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fab fa-google"></i> Sign in with Google';
+                
+                let errorMessage = 'Sign in failed. ';
+                switch (error.code) {
+                    case 'auth/popup-blocked':
+                        errorMessage += 'Popup was blocked by your browser.';
+                        break;
+                    case 'auth/popup-closed-by-user':
+                        errorMessage += 'Sign in popup was closed.';
+                        break;
+                    case 'auth/cancelled-popup-request':
+                        errorMessage += 'Sign in cancelled.';
+                        break;
+                    case 'auth/network-request-failed':
+                        errorMessage += 'Network error. Check your connection.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                showError(errorMessage);
             });
     };
 
     // Auth State Observer
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            currentUser = user;
-            
-            // Update UI
-            document.getElementById('userProfile').style.display = 'flex';
-            document.getElementById('userAvatar').src = user.photoURL || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png';
-            document.getElementById('userDisplayName').textContent = user.displayName || 'User';
-            
-            // Update creator section
-            document.getElementById('postCreator').style.display = 'block';
-            document.getElementById('creatorAvatar').src = user.photoURL || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png';
-            document.getElementById('creatorName').textContent = user.displayName || 'User';
-            
-            // Track user in database
-            const userRef = database.ref(`users/${user.uid}`);
-            userRef.set({
-                uid: user.uid,
-                name: user.displayName,
-                email: user.email,
-                photoURL: user.photoURL,
-                lastSeen: firebase.database.ServerValue.TIMESTAMP
-            });
-            
-            // Track online status
-            const statusRef = database.ref(`status/${user.uid}`);
-            statusRef.set({
-                state: 'online',
-                lastChanged: firebase.database.ServerValue.TIMESTAMP
-            });
-            
-            statusRef.onDisconnect().set({
-                state: 'offline',
-                lastChanged: firebase.database.ServerValue.TIMESTAMP
-            });
-            
-            // Show welcome modal if not shown before
-            if (!hasShownWelcome) {
-                const welcomeUserInfo = document.getElementById('welcomeUserInfo');
-                welcomeUserInfo.innerHTML = `
-                    <img src="${user.photoURL || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png'}" alt="">
-                    <span>${user.displayName || 'User'}</span>
-                `;
-                document.getElementById('welcomeModal').classList.add('active');
-                hasShownWelcome = true;
+    if (auth) {
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                console.log('User signed in:', user.displayName);
+                
+                // Update UI
+                document.getElementById('userProfile').style.display = 'flex';
+                document.getElementById('userAvatar').src = user.photoURL || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png';
+                document.getElementById('userDisplayName').textContent = user.displayName || 'User';
+                
+                // Update creator section
+                document.getElementById('postCreator').style.display = 'block';
+                document.getElementById('creatorAvatar').src = user.photoURL || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png';
+                document.getElementById('creatorName').textContent = user.displayName || 'User';
+                
+                // Track user in database
+                if (database) {
+                    const userRef = database.ref(`users/${user.uid}`);
+                    userRef.set({
+                        uid: user.uid,
+                        name: user.displayName,
+                        email: user.email,
+                        photoURL: user.photoURL,
+                        lastSeen: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    
+                    // Track online status
+                    const statusRef = database.ref(`status/${user.uid}`);
+                    statusRef.set({
+                        state: 'online',
+                        lastChanged: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    
+                    statusRef.onDisconnect().set({
+                        state: 'offline',
+                        lastChanged: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
+                
+                // Show welcome modal if not shown before
+                if (!hasShownWelcome) {
+                    const welcomeUserInfo = document.getElementById('welcomeUserInfo');
+                    welcomeUserInfo.innerHTML = `
+                        <img src="${user.photoURL || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png'}" alt="">
+                        <span>${user.displayName || 'User'}</span>
+                    `;
+                    document.getElementById('welcomeModal').classList.add('active');
+                    hasShownWelcome = true;
+                }
+                
+                // Load posts
+                loadPosts();
+                
+            } else {
+                currentUser = null;
+                document.getElementById('userProfile').style.display = 'none';
+                document.getElementById('postCreator').style.display = 'none';
             }
             
-            // Load posts
-            loadPosts();
-            
-        } else {
-            currentUser = null;
-            document.getElementById('userProfile').style.display = 'none';
-            document.getElementById('postCreator').style.display = 'none';
-        }
-        
-        // Load stats regardless of auth state
-        loadStats();
-    });
+            // Load stats regardless of auth state
+            loadStats();
+        });
+    }
 
     // Load Stats
     function loadStats() {
+        if (!database) return;
+        
         database.ref('users').on('value', (snapshot) => {
             document.getElementById('memberCount').textContent = snapshot.numChildren() || 0;
         });
@@ -1075,6 +1156,8 @@
 
     // Load Posts
     function loadPosts() {
+        if (!database) return;
+        
         const postsRef = database.ref('posts').limitToLast(50);
         
         postsRef.off('child_added');
@@ -1123,7 +1206,7 @@
 
     // Create Post
     window.createPost = function() {
-        if (!currentUser) return;
+        if (!currentUser || !database) return;
         
         const content = document.getElementById('postContent').value.trim();
         if (!content) return;
@@ -1141,7 +1224,11 @@
         database.ref('posts').push(post)
             .then(() => {
                 document.getElementById('postContent').value = '';
-                analytics.logEvent('create_post');
+                if (analytics) analytics.logEvent('create_post');
+            })
+            .catch(error => {
+                console.error('Post error:', error);
+                alert('Failed to create post. Please try again.');
             });
     };
 
@@ -1151,6 +1238,8 @@
             document.getElementById('signInModal').classList.add('active');
             return;
         }
+        
+        if (!database) return;
         
         const likeRef = database.ref(`posts/${postId}/likes/${currentUser.uid}`);
         const likesCountRef = database.ref(`posts/${postId}/likesCount`);
@@ -1166,7 +1255,7 @@
         });
     };
 
-    // Toggle Comments (placeholder for future expansion)
+    // Toggle Comments (placeholder)
     window.toggleComments = function(postId) {
         // Comments functionality can be added later
     };
