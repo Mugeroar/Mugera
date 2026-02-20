@@ -16,7 +16,7 @@
     <meta name="msapplication-TileColor" content="#ca8a04">
     
     <!-- Version & Build -->
-    <meta name="version" content="4.2.0">
+    <meta name="version" content="5.0.0">
     <meta name="build-date" content="2025-02-20">
     
     <title>I AM MUGERA | Home</title>
@@ -33,7 +33,6 @@
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
     
@@ -188,8 +187,14 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
+            background: var(--gold);
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
             border: 2px solid var(--gold);
-            object-fit: cover;
         }
         .user-name {
             font-size: 0.9rem;
@@ -353,7 +358,7 @@
         .footer p { color: var(--text-muted); }
         .footer a { color: var(--gold); text-decoration: none; }
         
-        /* ----- BEAUTIFUL SIGN-IN MODAL ----- */
+        /* ----- BEAUTIFUL JOIN US MODAL (NO GOOGLE) ----- */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -374,7 +379,7 @@
             opacity: 1;
             visibility: visible;
         }
-        .signin-modal {
+        .join-modal {
             background: var(--bg-secondary);
             border-radius: 40px;
             padding: 3rem 2.5rem;
@@ -387,7 +392,7 @@
             text-align: center;
             position: relative;
         }
-        .modal-overlay.active .signin-modal {
+        .modal-overlay.active .join-modal {
             transform: scale(1);
         }
         .modal-close {
@@ -427,12 +432,45 @@
         }
         .modal-subtitle {
             color: var(--text-muted);
-            margin-bottom: 2.5rem;
+            margin-bottom: 2rem;
             font-size: 1rem;
         }
-        .google-signin-btn {
-            background: #ffffff;
-            color: #333333;
+        
+        /* Form styling */
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-light);
+            border-radius: 16px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 4px rgba(202,138,4,0.1);
+        }
+        .form-input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+        
+        .join-btn {
+            background: var(--gold);
+            color: black;
             border: none;
             border-radius: 50px;
             padding: 1rem 2rem;
@@ -442,26 +480,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 1rem;
+            gap: 0.8rem;
             cursor: pointer;
             transition: all 0.3s;
-            border: 1px solid #dddddd;
-            margin-bottom: 1.5rem;
+            margin: 1.5rem 0 1rem;
         }
-        .google-signin-btn:hover {
-            background: #f5f5f5;
+        .join-btn:hover {
+            background: var(--gold-dark);
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px var(--shadow-color);
         }
-        .google-signin-btn i {
-            color: #4285f4;
-            font-size: 1.3rem;
-        }
-        .google-signin-btn:disabled {
-            opacity: 0.7;
+        .join-btn:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
+        .join-btn i {
+            font-size: 1.2rem;
+        }
+        
         .modal-footer-text {
             color: var(--text-muted);
             font-size: 0.9rem;
@@ -486,10 +523,17 @@
             border-radius: 60px;
             border: 1px solid var(--gold);
         }
-        .welcome-user img {
+        .welcome-avatar {
             width: 50px;
             height: 50px;
             border-radius: 50%;
+            background: var(--gold);
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.5rem;
             border: 2px solid var(--gold);
         }
         .welcome-user span {
@@ -509,21 +553,6 @@
             display: none;
         }
         .error-message.show {
-            display: block;
-        }
-        
-        /* Success message */
-        .success-message {
-            background: rgba(0, 255, 0, 0.1);
-            color: #00cc00;
-            padding: 0.8rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            border: 1px solid #00cc00;
-            display: none;
-        }
-        .success-message.show {
             display: block;
         }
         
@@ -601,10 +630,17 @@
             gap: 1rem;
             margin-bottom: 1rem;
         }
-        .creator-header img {
+        .creator-avatar {
             width: 48px;
             height: 48px;
             border-radius: 50%;
+            background: var(--gold);
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
             border: 2px solid var(--gold);
         }
         .creator-input {
@@ -637,10 +673,6 @@
             background: var(--gold-dark);
             transform: translateY(-2px);
         }
-        .post-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
         
         .post-card {
             background: var(--bg-card);
@@ -660,10 +692,17 @@
             align-items: center;
             gap: 0.75rem;
         }
-        .post-author img {
+        .post-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
+            background: var(--gold);
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
             border: 2px solid var(--gold);
         }
         .post-time {
@@ -724,32 +763,36 @@
     </div>
 </div>
 
-<!-- BEAUTIFUL SIGN-IN MODAL -->
-<div class="modal-overlay" id="signInModal">
-    <div class="signin-modal">
-        <button class="modal-close" onclick="closeSignInModal()">&times;</button>
+<!-- BEAUTIFUL JOIN US MODAL (Manual Name Entry) -->
+<div class="modal-overlay" id="joinModal">
+    <div class="join-modal">
+        <button class="modal-close" onclick="closeJoinModal()">&times;</button>
         <div class="modal-icon">
-            <i class="fas fa-users"></i>
+            <i class="fas fa-hand-peace"></i>
         </div>
-        <h2 class="modal-title">Welcome to I AM MUGERA</h2>
-        <p class="modal-subtitle">Join our community to connect, share, and engage</p>
+        <h2 class="modal-title">Join Our Community</h2>
+        <p class="modal-subtitle">Enter your name to connect with like-minded individuals</p>
         
-        <div class="error-message" id="signInError"></div>
-        <div class="success-message" id="signInSuccess"></div>
+        <div class="error-message" id="joinError"></div>
         
-        <button class="google-signin-btn" id="googleSignInBtn" onclick="signInWithGoogle()">
-            <i class="fab fa-google"></i> Sign in with Google
+        <div class="form-group">
+            <label class="form-label">Your Name</label>
+            <input type="text" class="form-input" id="userNameInput" placeholder="e.g., John Doe" maxlength="30">
+        </div>
+        
+        <button class="join-btn" id="joinBtn" onclick="joinCommunity()">
+            <i class="fas fa-users"></i> Join Community
         </button>
         
         <p class="modal-footer-text">
-            By signing in, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
+            By joining, you agree to our <a href="#">Community Guidelines</a>
         </p>
     </div>
 </div>
 
 <!-- WELCOME MODAL -->
 <div class="modal-overlay" id="welcomeModal">
-    <div class="signin-modal welcome-modal">
+    <div class="join-modal welcome-modal">
         <button class="modal-close" onclick="closeWelcomeModal()">&times;</button>
         <div class="modal-icon">
             <i class="fas fa-check-circle"></i>
@@ -759,7 +802,7 @@
         
         <div class="welcome-user" id="welcomeUserInfo"></div>
         
-        <button class="google-signin-btn" onclick="closeWelcomeModalAndOpenCommunity()" style="background: var(--gold); color: black; border: none;">
+        <button class="join-btn" onclick="closeWelcomeModalAndOpenCommunity()" style="background: var(--gold); color: black;">
             <i class="fas fa-arrow-right"></i> Continue to Community
         </button>
     </div>
@@ -774,9 +817,9 @@
             <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="I AM MUGERA" class="site-logo">
             
             <div class="header-right">
-                <!-- User profile (hidden until signed in) -->
+                <!-- User profile (hidden until joined) -->
                 <div class="user-profile" id="userProfile" style="display: none;" onclick="openCommunity()">
-                    <img id="userAvatar" src="" alt="" class="user-avatar">
+                    <div class="user-avatar" id="userAvatar">G</div>
                     <span class="user-name" id="userDisplayName"></span>
                 </div>
                 
@@ -881,7 +924,7 @@
         <!-- Post Creator -->
         <div class="post-creator" id="postCreator" style="display: none;">
             <div class="creator-header">
-                <img id="creatorAvatar" src="" alt="">
+                <div class="creator-avatar" id="creatorAvatar">G</div>
                 <span id="creatorName"></span>
             </div>
             <textarea class="creator-input" id="postContent" placeholder="Share your thoughts..." rows="3"></textarea>
@@ -911,18 +954,13 @@
     };
 
     // Initialize Firebase
-    let auth, database, analytics;
+    let database, analytics;
     
     try {
         firebase.initializeApp(firebaseConfig);
-        auth = firebase.auth();
         database = firebase.database();
         analytics = firebase.analytics();
         console.log('Firebase initialized successfully');
-        
-        // Set custom auth domain for Vercel
-        auth.useDeviceLanguage();
-        
     } catch (error) {
         console.error('Firebase initialization error:', error);
     }
@@ -963,11 +1001,20 @@
         }, 7000);
     })();
 
-    // Check if first visit
-    if (!localStorage.getItem('hasVisited')) {
-        localStorage.setItem('hasVisited', 'true');
+    // Check if user has already joined
+    const savedUser = localStorage.getItem('communityUser');
+    if (savedUser) {
+        try {
+            currentUser = JSON.parse(savedUser);
+            updateUIForUser();
+            loadPosts();
+        } catch (e) {
+            console.error('Error parsing saved user:', e);
+        }
+    } else {
+        // Show join modal on first visit
         setTimeout(() => {
-            document.getElementById('signInModal').classList.add('active');
+            document.getElementById('joinModal').classList.add('active');
         }, 2000);
     }
 
@@ -1008,26 +1055,17 @@
 
     // Helper Functions
     function showError(message) {
-        const errorDiv = document.getElementById('signInError');
+        const errorDiv = document.getElementById('joinError');
         if (errorDiv) {
             errorDiv.textContent = message;
             errorDiv.classList.add('show');
-            setTimeout(() => errorDiv.classList.remove('show'), 5000);
-        }
-    }
-
-    function showSuccess(message) {
-        const successDiv = document.getElementById('signInSuccess');
-        if (successDiv) {
-            successDiv.textContent = message;
-            successDiv.classList.add('show');
-            setTimeout(() => successDiv.classList.remove('show'), 3000);
+            setTimeout(() => errorDiv.classList.remove('show'), 3000);
         }
     }
 
     // Modal Controls
-    window.closeSignInModal = function() {
-        document.getElementById('signInModal').classList.remove('active');
+    window.closeJoinModal = function() {
+        document.getElementById('joinModal').classList.remove('active');
     };
 
     window.closeWelcomeModal = function() {
@@ -1039,138 +1077,103 @@
         openCommunity();
     };
 
-    // Sign In with Google
-    window.signInWithGoogle = function() {
-        const btn = document.getElementById('googleSignInBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+    // Join Community with Manual Name
+    window.joinCommunity = function() {
+        const nameInput = document.getElementById('userNameInput');
+        const name = nameInput.value.trim();
+        const joinBtn = document.getElementById('joinBtn');
         
-        if (!auth) {
-            showError('Authentication not initialized. Please refresh.');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fab fa-google"></i> Sign in with Google';
+        if (!name) {
+            showError('Please enter your name');
+            nameInput.focus();
             return;
         }
         
-        const provider = new firebase.auth.GoogleAuthProvider();
-        provider.setCustomParameters({
-            prompt: 'select_account',
-            // Add the current domain to the request
-            login_hint: window.location.hostname
-        });
+        if (name.length < 2) {
+            showError('Name must be at least 2 characters');
+            nameInput.focus();
+            return;
+        }
         
-        // Use signInWithRedirect for better compatibility with some browsers
-        // But popup is better for user experience, so we'll use popup with fallback
-        auth.signInWithPopup(provider)
-            .then((result) => {
-                console.log('Sign in successful:', result.user.displayName);
-                showSuccess('Sign in successful!');
-                
-                setTimeout(() => {
-                    closeSignInModal();
-                }, 500);
-                
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fab fa-google"></i> Sign in with Google';
-            })
-            .catch((error) => {
-                console.error('Sign in error:', error);
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fab fa-google"></i> Sign in with Google';
-                
-                let errorMessage = 'Sign in failed. ';
-                
-                // Handle specific error codes
-                switch (error.code) {
-                    case 'auth/popup-blocked':
-                        errorMessage += 'Popup was blocked by your browser. Please allow popups for this site.';
-                        break;
-                    case 'auth/popup-closed-by-user':
-                        errorMessage += 'Sign in popup was closed. Please try again.';
-                        break;
-                    case 'auth/cancelled-popup-request':
-                        errorMessage += 'Sign in cancelled.';
-                        break;
-                    case 'auth/network-request-failed':
-                        errorMessage += 'Network error. Check your internet connection.';
-                        break;
-                    case 'auth/unauthorized-domain':
-                        errorMessage += 'Domain not authorized. Please contact support.';
-                        // Even though you added the domain, sometimes it takes a few minutes to propagate
-                        errorMessage += ' If you just added iammugera.vercel.app, please wait a few minutes and refresh.';
-                        break;
-                    default:
-                        errorMessage += error.message;
-                }
-                
-                showError(errorMessage);
+        if (name.length > 30) {
+            showError('Name must be less than 30 characters');
+            nameInput.focus();
+            return;
+        }
+        
+        joinBtn.disabled = true;
+        joinBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Joining...';
+        
+        // Create user object
+        const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+        const user = {
+            id: userId,
+            name: name,
+            avatar: name.charAt(0).toUpperCase(),
+            joinedAt: new Date().toISOString()
+        };
+        
+        // Save to localStorage
+        localStorage.setItem('communityUser', JSON.stringify(user));
+        currentUser = user;
+        
+        // Save to Firebase
+        if (database) {
+            database.ref(`users/${userId}`).set({
+                id: userId,
+                name: user.name,
+                joinedAt: user.joinedAt,
+                lastSeen: firebase.database.ServerValue.TIMESTAMP
             });
+            
+            // Track online status
+            const statusRef = database.ref(`status/${userId}`);
+            statusRef.set({
+                state: 'online',
+                name: user.name,
+                lastChanged: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            statusRef.onDisconnect().set({
+                state: 'offline',
+                lastChanged: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+        
+        // Update UI
+        updateUIForUser();
+        
+        // Show welcome modal
+        const welcomeUserInfo = document.getElementById('welcomeUserInfo');
+        welcomeUserInfo.innerHTML = `
+            <div class="welcome-avatar">${user.avatar}</div>
+            <span>${user.name}</span>
+        `;
+        
+        setTimeout(() => {
+            closeJoinModal();
+            document.getElementById('welcomeModal').classList.add('active');
+            joinBtn.disabled = false;
+            joinBtn.innerHTML = '<i class="fas fa-users"></i> Join Community';
+        }, 1000);
+        
+        // Load posts
+        loadPosts();
+        
+        if (analytics) analytics.logEvent('user_joined', { userName: user.name });
     };
 
-    // Auth State Observer
-    if (auth) {
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                currentUser = user;
-                console.log('User signed in:', user.displayName);
-                
-                // Update UI
-                document.getElementById('userProfile').style.display = 'flex';
-                document.getElementById('userAvatar').src = user.photoURL || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png';
-                document.getElementById('userDisplayName').textContent = user.displayName || 'User';
-                
-                // Update creator section
-                document.getElementById('postCreator').style.display = 'block';
-                document.getElementById('creatorAvatar').src = user.photoURL || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png';
-                document.getElementById('creatorName').textContent = user.displayName || 'User';
-                
-                // Track user in database
-                if (database) {
-                    const userRef = database.ref(`users/${user.uid}`);
-                    userRef.set({
-                        uid: user.uid,
-                        name: user.displayName,
-                        email: user.email,
-                        photoURL: user.photoURL,
-                        lastSeen: firebase.database.ServerValue.TIMESTAMP
-                    });
-                    
-                    // Track online status
-                    const statusRef = database.ref(`status/${user.uid}`);
-                    statusRef.set({
-                        state: 'online',
-                        lastChanged: firebase.database.ServerValue.TIMESTAMP
-                    });
-                    
-                    statusRef.onDisconnect().set({
-                        state: 'offline',
-                        lastChanged: firebase.database.ServerValue.TIMESTAMP
-                    });
-                }
-                
-                // Show welcome modal if not shown before
-                if (!hasShownWelcome) {
-                    const welcomeUserInfo = document.getElementById('welcomeUserInfo');
-                    welcomeUserInfo.innerHTML = `
-                        <img src="${user.photoURL || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png'}" alt="">
-                        <span>${user.displayName || 'User'}</span>
-                    `;
-                    document.getElementById('welcomeModal').classList.add('active');
-                    hasShownWelcome = true;
-                }
-                
-                // Load posts
-                loadPosts();
-                
-            } else {
-                currentUser = null;
-                document.getElementById('userProfile').style.display = 'none';
-                document.getElementById('postCreator').style.display = 'none';
-            }
-            
-            // Load stats regardless of auth state
-            loadStats();
-        });
+    // Update UI for logged in user
+    function updateUIForUser() {
+        if (!currentUser) return;
+        
+        document.getElementById('userProfile').style.display = 'flex';
+        document.getElementById('userAvatar').textContent = currentUser.avatar;
+        document.getElementById('userDisplayName').textContent = currentUser.name;
+        
+        document.getElementById('postCreator').style.display = 'block';
+        document.getElementById('creatorAvatar').textContent = currentUser.avatar;
+        document.getElementById('creatorName').textContent = currentUser.name;
     }
 
     // Load Stats
@@ -1198,7 +1201,7 @@
     // Community Controls
     window.openCommunity = function() {
         if (!currentUser) {
-            document.getElementById('signInModal').classList.add('active');
+            document.getElementById('joinModal').classList.add('active');
             return;
         }
         document.getElementById('communityPage').classList.add('active');
@@ -1234,12 +1237,12 @@
         postElement.id = `post-${post.id}`;
         
         const timeAgo = new Date(post.timestamp).toLocaleString();
-        const isLiked = post.likes && currentUser && post.likes[currentUser.uid];
+        const isLiked = post.likes && currentUser && post.likes[currentUser.id];
         
         postElement.innerHTML = `
             <div class="post-header">
                 <div class="post-author">
-                    <img src="${post.photoURL || 'https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png'}" alt="">
+                    <div class="post-avatar">${post.userAvatar || post.userName.charAt(0).toUpperCase()}</div>
                     <div>
                         <h4>${post.userName}</h4>
                         <span class="post-time">${timeAgo}</span>
@@ -1272,9 +1275,9 @@
         postBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
         
         const post = {
-            userId: currentUser.uid,
-            userName: currentUser.displayName,
-            photoURL: currentUser.photoURL,
+            userId: currentUser.id,
+            userName: currentUser.name,
+            userAvatar: currentUser.avatar,
             content: content,
             timestamp: firebase.database.ServerValue.TIMESTAMP,
             likesCount: 0,
@@ -1299,13 +1302,13 @@
     // Toggle Like
     window.toggleLike = function(postId) {
         if (!currentUser) {
-            document.getElementById('signInModal').classList.add('active');
+            document.getElementById('joinModal').classList.add('active');
             return;
         }
         
         if (!database) return;
         
-        const likeRef = database.ref(`posts/${postId}/likes/${currentUser.uid}`);
+        const likeRef = database.ref(`posts/${postId}/likes/${currentUser.id}`);
         const likesCountRef = database.ref(`posts/${postId}/likesCount`);
         
         likeRef.once('value').then((snapshot) => {
@@ -1323,6 +1326,9 @@
     window.toggleComments = function(postId) {
         // Comments functionality can be added later
     };
+
+    // Load initial stats
+    loadStats();
 
     // PWA Install
     let deferredPrompt;
@@ -1345,7 +1351,7 @@
     // Escape key handlers
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            document.getElementById('signInModal').classList.remove('active');
+            document.getElementById('joinModal').classList.remove('active');
             document.getElementById('welcomeModal').classList.remove('active');
             if (document.getElementById('communityPage').classList.contains('active')) {
                 closeCommunity();
