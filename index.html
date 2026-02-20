@@ -16,12 +16,15 @@
     <meta name="msapplication-TileColor" content="#ca8a04">
     
     <!-- Version & Build -->
-    <meta name="version" content="2.1.0">
+    <meta name="version" content="2.2.0">
     <meta name="build-date" content="2025-02-20">
     
     <title>I AM MUGERA | Home</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    
+    <!-- PWA manifest link (to be created separately) -->
+    <link rel="manifest" href="/manifest.json">
     
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -37,7 +40,6 @@
         /* ----- RESET & VARIABLES (light/dark) ----- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        /* Light theme (default fallback, but we start with dark) */
         :root {
             --gold: #ca8a04;
             --gold-dark: #a16207;
@@ -127,17 +129,6 @@
             animation: blinkCursor 0.8s step-end infinite;
         }
         @keyframes blinkCursor { 50% { border-color: transparent; } }
-        .heroic-sub {
-            margin-top: 1.5rem;
-            font-size: 1.2rem;
-            color: #fef3c7;
-            letter-spacing: 2px;
-            font-weight: 300;
-            text-transform: uppercase;
-            opacity: 0;
-            animation: fadeIn 1s ease forwards 3.2s;
-        }
-        @keyframes fadeIn { to { opacity: 0.9; } }
         
         /* ----- MAIN PAGE ----- */
         .page-content {
@@ -147,7 +138,7 @@
         }
         .page-content.visible { opacity: 1; }
         
-        /* ----- HEADER with THEME TOGGLE ----- */
+        /* ----- HEADER with RIGHT LOGO (mm.jpg) and theme toggle ----- */
         .site-header {
             position: fixed;
             top: 0;
@@ -168,11 +159,23 @@
         }
         .brand-logo {
             height: 45px;
+            width: auto;
+            object-fit: contain;
             filter: brightness(0) invert(1);
             transition: filter 0.3s ease;
         }
         body.light-theme .brand-logo {
             filter: brightness(0) invert(0); /* black logo for light bg */
+        }
+        /* Special styling for the right logo (mm.jpg) to keep it visible */
+        .right-logo {
+            max-height: 45px;
+            border-radius: 8px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
         .theme-toggle {
             background: transparent;
@@ -187,6 +190,7 @@
             cursor: pointer;
             font-size: 1.4rem;
             transition: 0.3s;
+            flex-shrink: 0;
         }
         .theme-toggle:hover {
             background: var(--gold);
@@ -194,7 +198,7 @@
             transform: rotate(15deg);
         }
         
-        /* ----- HERO / EXPLORE SECTION (no cards) ----- */
+        /* ----- HERO / EXPLORE SECTION ----- */
         .explore-hero {
             min-height: 100vh;
             background: linear-gradient(135deg, 
@@ -234,7 +238,7 @@
             letter-spacing: 1px;
         }
         
-        /* Simple inline explore list – UPDATED LABELS */
+        /* Explore links */
         .explore-links {
             display: flex;
             flex-wrap: wrap;
@@ -307,7 +311,7 @@
         .footer p { color: var(--text-muted); }
         .footer a { color: var(--gold); text-decoration: none; }
         
-        /* Modals & forms (light/dark adapted) */
+        /* Modals & forms */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
@@ -339,6 +343,26 @@
             cursor: pointer; width: 100%; font-size: 1.1rem;
         }
         .form-success { text-align: center; color: var(--gold); display: none; }
+
+        /* PWA install button (optional but helpful) */
+        .install-pwa {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--gold);
+            color: black;
+            border: none;
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(202,138,4,0.5);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .install-pwa.show { display: flex; }
     </style>
 </head>
 <body class="dark-theme"> <!-- start with dark -->
@@ -355,12 +379,19 @@
 <!-- MAIN PAGE CONTENT -->
 <main id="mainContent" class="page-content">
 
-    <!-- Header with theme toggle -->
+    <!-- Header with right logo (mm.jpg) and theme toggle -->
     <header class="site-header">
         <div class="header-container">
-            <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="I AM MUGERA" class="brand-logo">
-            <div class="theme-toggle" id="themeToggle" title="Toggle light/dark theme">
-                <i class="fas fa-moon" id="themeIcon"></i>
+            <!-- Left logo (optional, using same as right for simplicity or you can add another) -->
+            <img src="https://i.postimg.cc/8cr13sL7/MUGERA-1-removebg-preview.png" alt="Mugera" class="brand-logo">
+            
+            <div class="header-right">
+                <!-- Right logo (mm.jpg) -->
+                <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="MM" class="brand-logo right-logo">
+                <!-- Theme toggle -->
+                <div class="theme-toggle" id="themeToggle" title="Toggle light/dark theme">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </div>
             </div>
         </div>
     </header>
@@ -389,7 +420,7 @@
         </div>
     </section>
 
-    <!-- Preview blocks (matching new labels) -->
+    <!-- Preview blocks -->
     <div class="preview-section">
         <div class="preview-block">
             <h3>I Am Mugera</h3>
@@ -440,6 +471,11 @@
         </div>
     </div>
 </div>
+
+<!-- PWA Install Button (optional but enhances installability) -->
+<button class="install-pwa" id="installButton">
+    <i class="fas fa-download"></i> Install App
+</button>
 
 <!-- Firebase + Core Script (fully integrated) -->
 <script>
@@ -602,6 +638,23 @@
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
     });
+
+    // PWA install prompt handler
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const installBtn = document.getElementById('installButton');
+        installBtn.classList.add('show');
+        
+        installBtn.addEventListener('click', async () => {
+            installBtn.classList.remove('show');
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response to the install prompt: ${outcome}`);
+            deferredPrompt = null;
+        });
+    });
 </script>
 
 <style>
@@ -609,6 +662,8 @@
     .registration-modal { transform: scale(0.95); transition: 0.2s; }
     .form-success { padding: 2rem 0; }
     body.light-theme .explore-item a { background: white; }
+    .install-pwa { transition: 0.3s; }
+    .install-pwa:hover { background: var(--gold-dark); }
 </style>
 </body>
 </html>
