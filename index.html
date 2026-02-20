@@ -16,14 +16,14 @@
     <meta name="msapplication-TileColor" content="#ca8a04">
     
     <!-- Version & Build -->
-    <meta name="version" content="2.2.0">
+    <meta name="version" content="2.2.1">
     <meta name="build-date" content="2025-02-20">
     
     <title>I AM MUGERA | Home</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
     
-    <!-- PWA manifest link (to be created separately) -->
+    <!-- PWA manifest link -->
     <link rel="manifest" href="/manifest.json">
     
     <!-- Fonts & Icons -->
@@ -31,13 +31,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDK (production) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
     
     <style>
-        /* ----- RESET & VARIABLES (light/dark) ----- */
+        /* ----- RESET & VARIABLES ----- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         :root {
@@ -81,7 +81,7 @@
             transition: background-color 0.3s ease, color 0.2s ease;
         }
         
-        /* ----- LOADING OVERLAY (image + typed words) ----- */
+        /* ----- LOADING OVERLAY ----- */
         .loading-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -138,7 +138,7 @@
         }
         .page-content.visible { opacity: 1; }
         
-        /* ----- HEADER with RIGHT LOGO (mm.jpg) and theme toggle ----- */
+        /* ----- HEADER with SINGLE LEFT LOGO (mm.jpg) and theme toggle ----- */
         .site-header {
             position: fixed;
             top: 0;
@@ -157,20 +157,16 @@
             align-items: center;
             justify-content: space-between;
         }
-        .brand-logo {
+        /* Single logo style - no filter inversion to preserve original colors */
+        .site-logo {
             height: 45px;
             width: auto;
             object-fit: contain;
-            filter: brightness(0) invert(1);
-            transition: filter 0.3s ease;
+            display: block;
         }
-        body.light-theme .brand-logo {
-            filter: brightness(0) invert(0); /* black logo for light bg */
-        }
-        /* Special styling for the right logo (mm.jpg) to keep it visible */
-        .right-logo {
-            max-height: 45px;
-            border-radius: 8px;
+        /* No filter changes on theme toggle - logo stays true to its colors */
+        body.light-theme .site-logo {
+            filter: none; /* Keep original colors */
         }
         .header-right {
             display: flex;
@@ -344,7 +340,7 @@
         }
         .form-success { text-align: center; color: var(--gold); display: none; }
 
-        /* PWA install button (optional but helpful) */
+        /* PWA install button */
         .install-pwa {
             position: fixed;
             bottom: 20px;
@@ -365,9 +361,9 @@
         .install-pwa.show { display: flex; }
     </style>
 </head>
-<body class="dark-theme"> <!-- start with dark -->
+<body class="dark-theme">
 
-<!-- LOADING OVERLAY: image + typed "Afrika Milele" -->
+<!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loadingOverlay">
     <img src="https://i.postimg.cc/xCvsws8M/20260220-1245-Image-Generation-simple-compose-01khx700xgea3rpkfzhfvyzv5d-1-1.webp" 
          alt="Afrika Milele" class="hero-image">
@@ -379,16 +375,14 @@
 <!-- MAIN PAGE CONTENT -->
 <main id="mainContent" class="page-content">
 
-    <!-- Header with right logo (mm.jpg) and theme toggle -->
+    <!-- Header with SINGLE LEFT LOGO (mm.jpg) and theme toggle -->
     <header class="site-header">
         <div class="header-container">
-            <!-- Left logo (optional, using same as right for simplicity or you can add another) -->
-            <img src="https://i.postimg.cc/8cr13sL7/MUGERA-1-removebg-preview.png" alt="Mugera" class="brand-logo">
+            <!-- Single logo on left: mm.jpg -->
+            <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="I AM MUGERA" class="site-logo">
             
             <div class="header-right">
-                <!-- Right logo (mm.jpg) -->
-                <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="MM" class="brand-logo right-logo">
-                <!-- Theme toggle -->
+                <!-- Theme toggle only -->
                 <div class="theme-toggle" id="themeToggle" title="Toggle light/dark theme">
                     <i class="fas fa-moon" id="themeIcon"></i>
                 </div>
@@ -396,7 +390,7 @@
         </div>
     </header>
 
-    <!-- Explore Section – updated labels exactly as requested -->
+    <!-- Explore Section -->
     <section class="explore-hero">
         <div class="explore-container">
             <h1 class="main-title">I AM MUGERA</h1>
@@ -448,7 +442,7 @@
     </footer>
 </main>
 
-<!-- Registration Modal (Firebase connected) -->
+<!-- Registration Modal -->
 <div class="modal-overlay" id="registrationModal">
     <div class="registration-modal">
         <button class="modal-close" onclick="closeModal('registrationModal')">&times;</button>
@@ -472,14 +466,14 @@
     </div>
 </div>
 
-<!-- PWA Install Button (optional but enhances installability) -->
+<!-- PWA Install Button -->
 <button class="install-pwa" id="installButton">
     <i class="fas fa-download"></i> Install App
 </button>
 
-<!-- Firebase + Core Script (fully integrated) -->
+<!-- Firebase + Core Script -->
 <script>
-    // Firebase Config (production)
+    // Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
         authDomain: "mugera-e51cc.firebaseapp.com",
@@ -500,7 +494,7 @@
         console.warn('Firebase init failed:', e);
     }
 
-    // Typing animation for "Afrika Milele"
+    // Typing animation
     (function() {
         const overlay = document.getElementById('loadingOverlay');
         const animatedSpan = document.getElementById('animatedText');
@@ -532,14 +526,13 @@
         }, 7000);
     })();
 
-    // ---------- THEME TOGGLE (perfect light/dark) ----------
+    // Theme Toggle
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const body = document.body;
     const metaThemeColor = document.getElementById('themeColor');
     const metaBgColor = document.getElementById('bgColorMeta');
 
-    // Check localStorage
     const savedTheme = localStorage.getItem('siteTheme');
     if (savedTheme === 'light') {
         body.classList.add('light-theme');
@@ -577,7 +570,7 @@
     window.openModal = (id) => document.getElementById(id)?.classList.add('active');
     window.closeModal = (id) => document.getElementById(id)?.classList.remove('active');
 
-    // Registration submit with Firebase
+    // Registration submit
     window.submitRegistration = async function() {
         const btn = event?.submitter;
         const form = document.getElementById('registrationForm');
@@ -639,7 +632,7 @@
         if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
     });
 
-    // PWA install prompt handler
+    // PWA install handler
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
@@ -651,7 +644,7 @@
             installBtn.classList.remove('show');
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
-            console.log(`User response to the install prompt: ${outcome}`);
+            console.log(`User response: ${outcome}`);
             deferredPrompt = null;
         });
     });
@@ -665,5 +658,6 @@
     .install-pwa { transition: 0.3s; }
     .install-pwa:hover { background: var(--gold-dark); }
 </style>
+
 </body>
 </html>
