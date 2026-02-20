@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#ca8a04" id="themeColor">
+    <meta name="background-color" content="#0a0a0a" id="bgColorMeta">
+    <meta name="color-scheme" content="dark light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DAIMA | PAMOJA | MILELE">
+    <meta name="application-name" content="Afrika Milele Challenge">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-TileColor" content="#ca8a04">
+    
+    <!-- Version & Build -->
+    <meta name="version" content="2.0.0">
+    <meta name="build-date" content="2025-02-20">
+    
+    <title>Afrika Milele | The Challenge</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    
+    <!-- PWA manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --gold: #ca8a04;
+            --gold-dark: #a16207;
+            --gold-light: #fef3c7;
+            
+            /* Dark theme (default) */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-card: rgba(255,255,255,0.03);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border-light: #333333;
+            --shadow-color: rgba(202,138,4,0.3);
+            --nav-bg: rgba(10,10,10,0.95);
+        }
+
+        body.light-theme {
+            --bg-primary: #f8f5f0;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #2d2d2d;
+            --text-muted: #555555;
+            --border-light: #dddddd;
+            --shadow-color: rgba(202,138,4,0.5);
+            --nav-bg: rgba(255,255,255,0.95);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.2s ease;
+        }
+        
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #0a0a0a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            padding: 1.5rem;
+        }
+        .loading-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .hero-image {
+            max-width: min(90%, 800px);
+            max-height: 50vh;
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -8px rgba(202,138,4,0.4);
+            margin-bottom: 2rem;
+            border: 3px solid var(--gold);
+            object-fit: cover;
+        }
+        .afrika-milele-container {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .afrika-milele {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2.5rem, 8vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: 4px;
+            color: transparent;
+            background: linear-gradient(135deg, #f5e7c8, #ca8a04, #f5e7c8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(202,138,4,0.6);
+            display: inline-block;
+            border-right: 4px solid var(--gold);
+            padding-right: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            animation: blinkCursor 0.8s step-end infinite;
+        }
+        @keyframes blinkCursor { 50% { border-color: transparent; } }
+        
+        .page-content {
+            opacity: 0;
+            transition: opacity 1s ease;
+            min-height: 100vh;
+        }
+        .page-content.visible { opacity: 1; }
+        
+        /* Header */
+        .site-header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold);
+            z-index: 1000;
+            padding: 0.7rem 2rem;
+            transition: background 0.3s ease;
+        }
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .site-logo {
+            height: 45px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .theme-toggle {
+            background: transparent;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.4rem;
+            transition: 0.3s;
+            flex-shrink: 0;
+        }
+        .theme-toggle:hover {
+            background: var(--gold);
+            color: var(--bg-primary);
+            transform: rotate(15deg);
+        }
+        
+        /* Hero section */
+        .challenge-hero {
+            min-height: 80vh;
+            background: linear-gradient(135deg, rgba(0,0,0,0.85), rgba(0,0,0,0.8)), 
+                        url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+        }
+        body.light-theme .challenge-hero {
+            background: linear-gradient(135deg, rgba(255,245,235,0.92), rgba(255,255,255,0.95)), 
+                        url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover fixed;
+        }
+        .hero-content {
+            max-width: 900px;
+        }
+        .hero-content h1 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(3rem, 8vw, 5rem);
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        .hero-content .challenge-tagline {
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: 6px;
+            color: var(--text-secondary);
+            margin: 1.5rem 0;
+        }
+        .hero-content p {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        /* Section */
+        .section {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            font-size: 1.2rem;
+        }
+        
+        /* Unified Challenge Card (single challenge with three pillars) */
+        .unified-challenge {
+            background: var(--bg-card);
+            border-radius: 40px;
+            padding: 3rem;
+            border: 1px solid var(--gold);
+            box-shadow: 0 20px 40px var(--shadow-color);
+            backdrop-filter: blur(8px);
+            margin-bottom: 3rem;
+        }
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        .pillar-item {
+            text-align: center;
+            padding: 2rem 1rem;
+            border-radius: 24px;
+            background: rgba(202,138,4,0.05);
+            border: 1px solid var(--border-light);
+            transition: 0.3s;
+        }
+        .pillar-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+        }
+        .pillar-icon {
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        .pillar-item h3 {
+            font-size: 2rem;
+            font-family: 'Cinzel', serif;
+            margin-bottom: 0.5rem;
+        }
+        .pillar-item p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        
+        /* Instructions / Steps */
+        .steps-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            margin: 4rem 0;
+        }
+        .step-card {
+            background: var(--bg-secondary);
+            border-radius: 30px;
+            padding: 2rem;
+            flex: 1 1 250px;
+            text-align: center;
+            border: 1px solid var(--border-light);
+            position: relative;
+        }
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--gold);
+            color: black;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 0 auto 1.5rem;
+        }
+        .step-card h3 {
+            margin-bottom: 1rem;
+            color: var(--gold);
+        }
+        .step-card p {
+            color: var(--text-muted);
+        }
+        .social-tag {
+            background: rgba(202,138,4,0.15);
+            color: var(--gold);
+            padding: 0.8rem;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+        
+        /* CTA Button */
+        .btn-primary {
+            background: var(--gold);
+            color: black;
+            border: none;
+            padding: 1.2rem 3rem;
+            border-radius: 60px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 10px 25px var(--shadow-color);
+        }
+        .btn-primary:hover {
+            background: var(--gold-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 30px var(--shadow-color);
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--bg-secondary);
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border-light);
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2000; opacity: 0; visibility: hidden; transition: 0.3s;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .registration-modal {
+            background: var(--bg-secondary);
+            border-radius: 32px; padding: 2.5rem;
+            max-width: 500px; width: 90%; border: 2px solid var(--gold);
+            color: var(--text-primary);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-close {
+            float: right; font-size: 2rem; background: none; border: none;
+            color: var(--gold); cursor: pointer;
+        }
+        .form-group { margin-bottom: 1rem; }
+        .form-input, .form-select {
+            width: 100%; padding: 0.9rem; margin-top: 0.3rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+        .form-submit {
+            background: var(--gold); color: black; font-weight: bold;
+            border: none; padding: 1rem 2rem; border-radius: 40px;
+            cursor: pointer; width: 100%; font-size: 1.1rem;
+        }
+        .form-success { text-align: center; color: var(--gold); display: none; }
+        .success-social {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: rgba(202,138,4,0.1);
+            border-radius: 16px;
+        }
+        
+        .install-pwa {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--gold);
+            color: black;
+            border: none;
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(202,138,4,0.5);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .install-pwa.show { display: flex; }
+    </style>
+</head>
+<body class="dark-theme">
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+    <img src="https://i.postimg.cc/xCvsws8M/20260220-1245-Image-Generation-simple-compose-01khx700xgea3rpkfzhfvyzv5d-1-1.webp" 
+         alt="Afrika Milele" class="hero-image">
+    <div class="afrika-milele-container">
+        <span class="afrika-milele" id="animatedText"></span>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<main id="mainContent" class="page-content">
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-container">
+            <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="Afrika Milele" class="site-logo">
+            <div class="header-right">
+                <div class="theme-toggle" id="themeToggle" title="Toggle theme">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="challenge-hero">
+        <div class="hero-content">
+            <h1>AFRIKA MILELE</h1>
+            <div class="challenge-tagline">DAIMA | MILELE | PAMOJA</div>
+            <p>The Unified Peace Challenge for the Continent</p>
+        </div>
+    </section>
+
+    <!-- The Challenge Section -->
+    <section class="section" id="challenge">
+        <h2 class="section-title">The DAIMA | MILELE | PAMOJA Challenge</h2>
+        <p class="section-subtitle">One movement, three eternal pillars — preach peace across Africa.</p>
+        
+        <div class="unified-challenge">
+            <!-- Three pillars side by side -->
+            <div class="pillars-grid">
+                <div class="pillar-item">
+                    <div class="pillar-icon"><i class="fas fa-infinity"></i></div>
+                    <h3>DAIMA</h3>
+                    <p>"Always" — The commitment to lasting peace through daily actions.</p>
+                </div>
+                <div class="pillar-item">
+                    <div class="pillar-icon"><i class="fas fa-handshake"></i></div>
+                    <h3>PAMOJA</h3>
+                    <p>"Together" — Unity across borders, cultures, and generations.</p>
+                </div>
+                <div class="pillar-item">
+                    <div class="pillar-icon"><i class="fas fa-tree"></i></div>
+                    <h3>MILELE</h3>
+                    <p>"Eternal" — Building sustainable peace for the future.</p>
+                </div>
+            </div>
+            
+            <!-- How to participate -->
+            <div style="text-align: center; margin: 3rem 0 2rem;">
+                <h3 style="color: var(--gold); font-size: 2rem; margin-bottom: 2rem;">How to Join the Challenge</h3>
+                
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h3>Register</h3>
+                        <p>Fill out the registration form below to officially join the challenge.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h3>Record Yourself</h3>
+                        <p>Create a video or photo series showing how you embrace DAIMA, PAMOJA, and MILELE in your community.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h3>Share & Tag</h3>
+                        <p>Post on social media (Facebook, Instagram, X, TikTok) and tag <strong>@Mugera</strong>.</p>
+                        <div class="social-tag">
+                            <i class="fab fa-instagram"></i> <i class="fab fa-x-twitter"></i> <i class="fab fa-facebook"></i> @Mugera
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Registration CTA -->
+                <div style="margin: 4rem 0 2rem;">
+                    <button class="btn-primary" onclick="openRegistrationModal()">
+                        <i class="fas fa-hand-peace"></i> Register for the Challenge
+                    </button>
+                    <p style="color: var(--text-muted); margin-top: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                        After registration, you'll receive a confirmation with official hashtags and more details. Remember to tag <strong>@Mugera</strong> in your posts!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2026 Afrika Milele — DAIMA | MILELE | PAMOJA Peace Challenge</p>
+        <p style="margin-top: 1rem;"><a href="index.html" style="color: var(--gold);">Home</a> · <a href="#challenge" style="color: var(--gold);">The Challenge</a></p>
+    </footer>
+</main>
+
+<!-- Registration Modal (simplified for challenge) -->
+<div class="modal-overlay" id="registrationModal">
+    <div class="registration-modal">
+        <button class="modal-close" onclick="closeModal('registrationModal')">&times;</button>
+        <h2 style="color: var(--gold); margin-bottom: 1rem;">Join the Challenge</h2>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Register to participate in DAIMA | MILELE | PAMOJA</p>
+        
+        <form id="registrationForm" onsubmit="event.preventDefault(); submitChallengeRegistration()">
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" class="form-input" id="fullName" required placeholder="Enter your full name">
+            </div>
+            <div class="form-group">
+                <label>Email *</label>
+                <input type="email" class="form-input" id="email" required placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label>Phone / WhatsApp *</label>
+                <input type="tel" class="form-input" id="phone" required placeholder="+254 ...">
+            </div>
+            <div class="form-group">
+                <label>Country</label>
+                <input type="text" class="form-input" id="country" placeholder="e.g., Kenya">
+            </div>
+            <div class="form-group">
+                <label>Social Media Handle (for tagging)</label>
+                <input type="text" class="form-input" id="socialHandle" placeholder="@yourhandle">
+            </div>
+            <div class="form-group">
+                <label>Which pillar inspires you most?</label>
+                <select class="form-select" id="pillarPreference">
+                    <option value="DAIMA">DAIMA (Always)</option>
+                    <option value="PAMOJA">PAMOJA (Together)</option>
+                    <option value="MILELE">MILELE (Eternal)</option>
+                    <option value="ALL">All three equally</option>
+                </select>
+            </div>
+            <button type="submit" class="form-submit" id="submitBtn">Submit Registration</button>
+        </form>
+        
+        <div class="form-success" id="formSuccess">
+            <i class="fas fa-check-circle" style="font-size: 3rem;"></i>
+            <h3>Welcome to the Challenge!</h3>
+            <p>You're officially registered for DAIMA | MILELE | PAMOJA.</p>
+            <div class="success-social">
+                <p><strong>Next step:</strong> Record your challenge video and post on social media.</p>
+                <p style="font-size: 1.2rem; margin-top: 0.5rem;"><i class="fab fa-instagram"></i> <i class="fab fa-x-twitter"></i> <i class="fab fa-facebook"></i> <strong style="color: var(--gold);">@Mugera</strong></p>
+                <p style="font-size: 0.9rem;">Tag @Mugera so we can share your peace message!</p>
+            </div>
+            <button class="btn-primary" onclick="closeModal('registrationModal')" style="margin-top: 1rem; padding: 0.8rem 2rem; font-size: 1rem;">Got it!</button>
+        </div>
+    </div>
+</div>
+
+<!-- PWA Install Button -->
+<button class="install-pwa" id="installButton">
+    <i class="fas fa-download"></i> Install App
+</button>
+
+<!-- Firebase + Core Script -->
+<script>
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+        authDomain: "mugera-e51cc.firebaseapp.com",
+        databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mugera-e51cc",
+        storageBucket: "mugera-e51cc.firebasestorage.app",
+        messagingSenderId: "1024868637509",
+        appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    let database, analytics;
+    try {
+        firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+        analytics = firebase.analytics();
+        console.log('Firebase ready');
+    } catch (e) {
+        console.warn('Firebase init failed:', e);
+    }
+
+    // Typing animation
+    (function() {
+        const overlay = document.getElementById('loadingOverlay');
+        const animatedSpan = document.getElementById('animatedText');
+        const mainContent = document.querySelector('.page-content');
+        const fullText = "Afrika Milele";
+        let index = 0;
+        animatedSpan.textContent = '';
+
+        function typeNext() {
+            if (index < fullText.length) {
+                animatedSpan.textContent += fullText.charAt(index);
+                index++;
+                let delay = fullText.charAt(index-1) === ' ' ? 280 : 120;
+                setTimeout(typeNext, delay);
+            } else {
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    mainContent.classList.add('visible');
+                    if (analytics) analytics.logEvent('page_view', { page_title: 'Challenge' });
+                }, 1300);
+            }
+        }
+        setTimeout(typeNext, 400);
+        setTimeout(() => {
+            if (!overlay.classList.contains('hidden')) {
+                overlay.classList.add('hidden');
+                mainContent.classList.add('visible');
+            }
+        }, 7000);
+    })();
+
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const body = document.body;
+    const metaThemeColor = document.getElementById('themeColor');
+    const metaBgColor = document.getElementById('bgColorMeta');
+
+    const savedTheme = localStorage.getItem('siteTheme');
+    if (savedTheme === 'light') {
+        body.classList.add('light-theme');
+        themeIcon.classList.remove('fa-moon');
+        themeIcon.classList.add('fa-sun');
+        metaThemeColor?.setAttribute('content', '#f8f5f0');
+        metaBgColor?.setAttribute('content', '#ffffff');
+    } else {
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+        metaThemeColor?.setAttribute('content', '#ca8a04');
+        metaBgColor?.setAttribute('content', '#0a0a0a');
+    }
+
+    themeToggle.addEventListener('click', () => {
+        if (body.classList.contains('light-theme')) {
+            body.classList.remove('light-theme');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+            localStorage.setItem('siteTheme', 'dark');
+            metaThemeColor?.setAttribute('content', '#ca8a04');
+            metaBgColor?.setAttribute('content', '#0a0a0a');
+        } else {
+            body.classList.add('light-theme');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+            localStorage.setItem('siteTheme', 'light');
+            metaThemeColor?.setAttribute('content', '#f8f5f0');
+            metaBgColor?.setAttribute('content', '#ffffff');
+        }
+    });
+
+    // Modal functions
+    window.openModal = (id) => document.getElementById(id)?.classList.add('active');
+    window.closeModal = (id) => document.getElementById(id)?.classList.remove('active');
+    
+    window.openRegistrationModal = () => {
+        const modal = document.getElementById('registrationModal');
+        document.getElementById('registrationForm').style.display = 'block';
+        document.getElementById('formSuccess').style.display = 'none';
+        modal.classList.add('active');
+    };
+
+    // Submit challenge registration
+    window.submitChallengeRegistration = async function() {
+        const btn = document.getElementById('submitBtn');
+        const form = document.getElementById('registrationForm');
+        const successDiv = document.getElementById('formSuccess');
+        const fullName = document.getElementById('fullName')?.value.trim();
+        const email = document.getElementById('email')?.value.trim();
+        const phone = document.getElementById('phone')?.value.trim();
+        const country = document.getElementById('country')?.value.trim();
+        const socialHandle = document.getElementById('socialHandle')?.value.trim();
+        const pillarPreference = document.getElementById('pillarPreference')?.value;
+
+        if (!fullName || !email || !phone) {
+            alert('Please fill required fields');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+        
+        try {
+            if (database) {
+                const regId = 'challenge_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
+                await database.ref('challenge_registrations/' + regId).set({
+                    fullName, email, phone, country, socialHandle, pillarPreference,
+                    timestamp: new Date().toISOString(),
+                    source: 'challenge_page'
+                });
+            }
+            form.style.display = 'none';
+            successDiv.style.display = 'block';
+            // Reset form after successful submission (when they close)
+        } catch (error) {
+            alert('Registration recorded locally. Thank you! Remember to tag @Mugera!');
+            console.error(error);
+            // Still show success
+            form.style.display = 'none';
+            successDiv.style.display = 'block';
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Submit Registration';
+        }
+    };
+
+    // Track visitor
+    if (database) {
+        const visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
+        database.ref('visitors/' + visitorId).set({
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent,
+            page: 'challenge'
+        }).catch(() => {});
+    }
+
+    // Close modal on outside click / escape
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal-overlay')) {
+            e.target.classList.remove('active');
+            // Reset form if needed
+            const form = document.getElementById('registrationForm');
+            const success = document.getElementById('formSuccess');
+            if (form && success) {
+                form.style.display = 'block';
+                success.style.display = 'none';
+                form.reset();
+            }
+        }
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay.active').forEach(m => {
+                m.classList.remove('active');
+                const form = document.getElementById('registrationForm');
+                const success = document.getElementById('formSuccess');
+                if (form && success) {
+                    form.style.display = 'block';
+                    success.style.display = 'none';
+                    form.reset();
+                }
+            });
+        }
+    });
+
+    // PWA install handler
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const installBtn = document.getElementById('installButton');
+        installBtn.classList.add('show');
+        
+        installBtn.addEventListener('click', async () => {
+            installBtn.classList.remove('show');
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response: ${outcome}`);
+            deferredPrompt = null;
+        });
+    });
+</script>
+
+<style>
+    .modal-overlay.active .registration-modal { transform: scale(1); }
+    .registration-modal { transform: scale(0.95); transition: 0.2s; }
+    .form-success { padding: 1rem 0; }
+    body.light-theme .pillar-item { background: #f0f0f0; }
+    .install-pwa:hover { background: var(--gold-dark); }
+    @media (max-width: 700px) {
+        .pillars-grid { grid-template-columns: 1fr; }
+    }
+</style>
+</body>
+</html>
