@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Mugera Community · Social</title>
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+    <!-- Pico.css (minimal, clean) + custom -->
+    <style>
+        *{margin:0; padding:0; box-sizing: border-box;}
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #e5e5e5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        /* main container uses flex column, header + scrollable + bottom nav */
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+            background: #0f0f0f;
+            border-left: 1px solid #222;
+            border-right: 1px solid #222;
+            position: relative;
+        }
+        /* header */
+        .community-header {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #2a2a2a;
+            background: #0f0f0f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: sticky;
+            top:0;
+            z-index: 10;
+        }
+        .community-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ca8a04;
+            flex:1;
+        }
+        .avatar-small {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: #ca8a04; color: black;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; border: 2px solid #ca8a04;
+        }
+        .online-badge {
+            font-size: 0.7rem; color: #4caf50; margin-left: 0.3rem;
+        }
+        /* scrollable area (feed or chats) */
+        .view-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem 0.8rem 0.5rem 0.8rem;
+            scroll-behavior: smooth;
+            background: #0a0a0a;
+        }
+        /* post creator (always visible above feed) */
+        .post-creator {
+            background: #151515;
+            border-radius: 20px;
+            padding: 0.8rem;
+            margin-bottom: 1.2rem;
+            border: 1px solid #2a2a2a;
+            display: flex;
+            gap: 0.6rem;
+        }
+        .creator-avatar {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: #ca8a04; color: black;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; flex-shrink:0;
+        }
+        .creator-input-area {
+            flex:1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .creator-input-area textarea {
+            width:100%; background: #1f1f1f; border: 1px solid #333;
+            border-radius: 16px; padding: 0.7rem; color: white;
+            font-family: 'Inter', sans-serif; resize: none;
+            font-size: 0.95rem;
+        }
+        .creator-input-area textarea:focus { outline: 2px solid #ca8a04; }
+        .post-actions-bar {
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .emoji-picker-btn {
+            background: none; border: none; color: #ca8a04; font-size: 1.3rem;
+            cursor: pointer; padding: 0 0.3rem;
+        }
+        .post-submit {
+            background: #ca8a04; border: none; color: black; font-weight: 600;
+            padding: 0.4rem 1.2rem; border-radius: 30px; cursor: pointer;
+            transition: 0.2s;
+        }
+        .post-submit:hover { background: #b87c04; }
+        /* Post card */
+        .post-card {
+            background: #151515;
+            border: 1px solid #2a2a2a;
+            border-radius: 24px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: 0.2s;
+        }
+        .post-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 0.6rem;
+        }
+        .post-author {
+            display: flex; gap: 0.7rem; align-items: center;
+        }
+        .post-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: #ca8a04; color: black; display: flex;
+            align-items: center; justify-content: center; font-weight: 700;
+        }
+        .author-name { font-weight: 600; color: #fff; }
+        .post-time { font-size: 0.7rem; color: #888; }
+        .post-menu {
+            position: relative;
+        }
+        .menu-btn {
+            background: none; border: none; color: #888; font-size: 1.2rem;
+            cursor: pointer; padding: 0.3rem;
+        }
+        .menu-dropdown {
+            position: absolute; right: 0; top: 25px; background: #252525;
+            border: 1px solid #444; border-radius: 16px; padding: 0.4rem 0;
+            display: none; flex-direction: column; min-width: 160px;
+            z-index: 100;
+        }
+        .menu-dropdown.show { display: flex; }
+        .menu-dropdown button {
+            background: none; border: none; padding: 0.7rem 1rem;
+            text-align: left; color: #ddd; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 0.6rem; cursor: pointer;
+        }
+        .menu-dropdown button:hover { background: #333; color: #ca8a04; }
+        .post-content {
+            font-size: 0.95rem; line-height: 1.5; margin: 0.6rem 0 1rem 3rem;
+            white-space: pre-wrap; word-break: break-word;
+        }
+        .post-stats {
+            display: flex; gap: 1.2rem; margin-left: 3rem; margin-bottom: 0.5rem;
+        }
+        .stat-btn {
+            background: none; border: none; color: #888;
+            display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem;
+            cursor: pointer; transition: 0.1s;
+        }
+        .stat-btn.liked { color: #ca8a04; }
+        .stat-btn i { font-size: 1.1rem; }
+        .comment-section {
+            margin-left: 3rem; margin-top: 0.8rem; border-top: 1px solid #2a2a2a;
+            padding-top: 0.8rem;
+        }
+        .comment-input-area {
+            display: flex; gap: 0.5rem; align-items: center;
+            margin-bottom: 0.8rem;
+        }
+        .comment-input-area input {
+            flex:1; background: #1f1f1f; border: 1px solid #333;
+            border-radius: 40px; padding: 0.5rem 1rem; color: white;
+        }
+        .comment-input-area button {
+            background: #ca8a04; border: none; color: black; font-weight: 600;
+            border-radius: 40px; padding: 0.4rem 1rem; cursor: pointer;
+        }
+        .comment-item {
+            display: flex; gap: 0.6rem; align-items: flex-start;
+            margin-top: 0.6rem; font-size: 0.9rem;
+        }
+        .comment-avatar {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #ca8a04; color: black; display: flex;
+            align-items: center; justify-content: center; font-weight: 600;
+            font-size: 0.8rem; flex-shrink:0;
+        }
+        .comment-body {
+            background: #1f1f1f; padding: 0.4rem 1rem; border-radius: 18px;
+            max-width: 80%;
+        }
+        .comment-name { font-weight: 600; font-size: 0.8rem; color: #ca8a04; }
+        .comment-text { color: #ddd; }
+        /* Chats panel */
+        .chats-list {
+            display: flex; flex-direction: column; gap: 0.5rem;
+        }
+        .chat-item {
+            background: #151515; border-radius: 18px; padding: 1rem;
+            border: 1px solid #2a2a2a; display: flex; gap: 1rem;
+            align-items: center; cursor: pointer;
+        }
+        .chat-item:hover { background: #1f1f1f; }
+        .chat-avatar {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: #ca8a04; color: black; display: flex;
+            align-items: center; justify-content: center; font-weight: 700;
+        }
+        .chat-preview {
+            flex:1; overflow: hidden;
+        }
+        .chat-name { font-weight: 600; }
+        .chat-last { color: #aaa; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-time { font-size: 0.7rem; color: #666; }
+        /* chat detail view */
+        .chat-messages {
+            flex:1; overflow-y: auto; padding: 0.5rem;
+            display: flex; flex-direction: column; gap: 0.6rem;
+        }
+        .message {
+            max-width: 75%; padding: 0.6rem 1rem; border-radius: 24px;
+            background: #1f1f1f; align-self: flex-start;
+        }
+        .message.own {
+            background: #2c2c2c; align-self: flex-end; color: #eee;
+        }
+        .chat-footer {
+            display: flex; gap: 0.5rem; padding: 0.8rem; border-top: 1px solid #2a2a2a;
+        }
+        .chat-footer input {
+            flex:1; background: #1f1f1f; border: 1px solid #333;
+            border-radius: 40px; padding: 0.7rem 1rem; color: white;
+        }
+        .chat-footer button {
+            background: #ca8a04; border: none; border-radius: 40px;
+            padding: 0.7rem 1.2rem; color: black; font-weight: 600;
+        }
+        .back-btn {
+            background: none; border: none; color: #ca8a04; font-size: 1.3rem;
+            margin-right: 0.5rem; cursor: pointer;
+        }
+        /* bottom navigation */
+        .bottom-nav {
+            display: flex; border-top: 1px solid #2a2a2a;
+            background: #0f0f0f; padding: 0.3rem 0;
+            justify-content: space-around;
+        }
+        .nav-btn {
+            flex:1; background: none; border: none; color: #888;
+            font-size: 1rem; padding: 0.7rem; display: flex;
+            flex-direction: column; align-items: center; gap: 0.2rem;
+            cursor: pointer; transition: 0.2s;
+        }
+        .nav-btn i { font-size: 1.4rem; }
+        .nav-btn.active { color: #ca8a04; }
+        /* helper hide */
+        .hidden { display: none !important; }
+        /* simple emoji picker (quick replace) */
+        .emoji-panel {
+            display: flex; gap: 0.3rem; background: #252525; border-radius: 40px;
+            padding: 0.3rem 0.6rem; border: 1px solid #444;
+        }
+        .emoji-panel span {
+            font-size: 1.4rem; cursor: pointer; transition: 0.1s;
+        }
+        .emoji-panel span:hover { transform: scale(1.2); }
+    </style>
+</head>
+<body>
+<div id="app">
+    <!-- header with current user (hardcoded demo or from storage) -->
+    <div class="community-header">
+        <div class="avatar-small" id="headerAvatar">M</div>
+        <h2>Community <span class="online-badge" id="onlineCountBadge">● 0</span></h2>
+        <i class="fas fa-ellipsis-h" style="color:#ca8a04;"></i>
+    </div>
+
+    <!-- main dynamic views: feed / chats / chat-detail -->
+    <div id="feedView" class="view-container">
+        <!-- post creator -->
+        <div class="post-creator" id="postCreatorBox">
+            <div class="creator-avatar" id="creatorAvatar">M</div>
+            <div class="creator-input-area">
+                <textarea id="postInput" placeholder="Share your thoughts..." rows="2"></textarea>
+                <div class="post-actions-bar">
+                    <div class="emoji-picker-btn" id="emojiToggle"><i class="far fa-smile"></i></div>
+                    <div id="quickEmojiPanel" class="emoji-panel hidden">
+                        <span>😀</span><span>😂</span><span>😍</span><span>🔥</span><span>👍</span><span>💯</span>
+                    </div>
+                    <button class="post-submit" id="submitPost">Post</button>
+                </div>
+            </div>
+        </div>
+        <div id="postsContainer"></div>
+    </div>
+
+    <!-- chats list view -->
+    <div id="chatsView" class="view-container hidden">
+        <div class="chats-list" id="chatsList"></div>
+    </div>
+
+    <!-- single chat detail view (hidden by default) -->
+    <div id="chatDetailView" class="view-container hidden" style="padding:0; display: flex; flex-direction: column;">
+        <div style="display: flex; align-items: center; padding: 0.6rem; border-bottom:1px solid #2a2a2a;">
+            <button class="back-btn" id="backFromChat"><i class="fas fa-arrow-left"></i></button>
+            <div id="chatPartnerName" style="font-weight:600; flex:1;">Loading...</div>
+        </div>
+        <div id="chatMessagesContainer" class="chat-messages"></div>
+        <div class="chat-footer">
+            <input type="text" id="chatMessageInput" placeholder="Message...">
+            <button id="sendChatBtn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- bottom navigation -->
+    <div class="bottom-nav">
+        <button class="nav-btn active" id="navFeed"><i class="fas fa-home"></i><span>Feed</span></button>
+        <button class="nav-btn" id="navChats"><i class="fas fa-comment-dots"></i><span>Chats</span></button>
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+    // Firebase config (same as before)
+    const firebaseConfig = {
+        apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+        authDomain: "mugera-e51cc.firebaseapp.com",
+        databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mugera-e51cc",
+        storageBucket: "mugera-e51cc.firebasestorage.app",
+        messagingSenderId: "1024868637509",
+        appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // ---------- mock current user (in real app would be after join) ----------
+    // try to load from localStorage or create a demo
+    let currentUser = null;
+    const saved = localStorage.getItem('mugera_community_user');
+    if (saved) {
+        currentUser = JSON.parse(saved);
+    } else {
+        // create a random user for demo (for testing)
+        const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2,5);
+        currentUser = {
+            id: userId,
+            name: 'Guest_' + Math.floor(Math.random()*1000),
+            avatar: 'U'
+        };
+        localStorage.setItem('mugera_community_user', JSON.stringify(currentUser));
+    }
+    // update header avatars
+    document.querySelectorAll('.creator-avatar, #headerAvatar, #creatorAvatar').forEach(el => {
+        el.textContent = currentUser.avatar || currentUser.name.charAt(0).toUpperCase();
+    });
+
+    // ---------- global references ----------
+    const feedView = document.getElementById('feedView');
+    const chatsView = document.getElementById('chatsView');
+    const chatDetailView = document.getElementById('chatDetailView');
+    const postsContainer = document.getElementById('postsContainer');
+    const navFeed = document.getElementById('navFeed');
+    const navChats = document.getElementById('navChats');
+    const backFromChat = document.getElementById('backFromChat');
+
+    // state for chat detail
+    let activeChatUserId = null;  // the other user
+    let currentChatId = null;
+
+    // navigation
+    navFeed.addEventListener('click', () => {
+        navFeed.classList.add('active');
+        navChats.classList.remove('active');
+        feedView.classList.remove('hidden');
+        chatsView.classList.add('hidden');
+        chatDetailView.classList.add('hidden');
+    });
+    navChats.addEventListener('click', () => {
+        navFeed.classList.remove('active');
+        navChats.classList.add('active');
+        feedView.classList.add('hidden');
+        chatsView.classList.remove('hidden');
+        chatDetailView.classList.add('hidden');
+        loadChatsList();
+    });
+
+    // ---------- realtime posts (new on top) ----------
+    function loadPosts() {
+        db.ref('posts').orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
+            const posts = [];
+            snapshot.forEach(child => posts.push({ id: child.key, ...child.val() }));
+            // reverse to show newest first (timestamp descending)
+            posts.reverse();
+            renderPosts(posts);
+        });
+    }
+
+    function renderPosts(posts) {
+        postsContainer.innerHTML = '';
+        posts.forEach(post => renderPost(post));
+    }
+
+    function renderPost(post) {
+        const postDiv = document.createElement('div');
+        postDiv.className = 'post-card';
+        postDiv.id = `post-${post.id}`;
+        const time = post.timestamp ? new Date(post.timestamp).toLocaleString() : 'just now';
+        const userLiked = post.likes && post.likes[currentUser.id] ? true : false;
+        const likesCount = post.likesCount || 0;
+        const comments = post.comments ? Object.values(post.comments) : [];
+        const commentsCount = comments.length;
+
+        // Build comments HTML (simplified, realtime not fully nested but we update)
+        let commentsHtml = '';
+        if (comments.length) {
+            comments.forEach(c => {
+                if (!c) return;
+                commentsHtml += `<div class="comment-item">
+                    <div class="comment-avatar">${c.userAvatar || c.userName?.charAt(0) || '?'}</div>
+                    <div class="comment-body"><span class="comment-name">${c.userName || 'anonymous'}</span> <span class="comment-text">${c.text}</span></div>
+                </div>`;
+            });
+        }
+
+        postDiv.innerHTML = `
+            <div class="post-header">
+                <div class="post-author">
+                    <div class="post-avatar">${post.userAvatar || post.userName?.charAt(0) || 'U'}</div>
+                    <div>
+                        <div class="author-name">${post.userName || 'Unknown'}</div>
+                        <span class="post-time">${time}</span>
+                    </div>
+                </div>
+                <div class="post-menu">
+                    <button class="menu-btn" onclick="toggleMenu('${post.id}')"><i class="fas fa-ellipsis-h"></i></button>
+                    <div class="menu-dropdown" id="menu-${post.id}">
+                        <button onclick="chatWithUser('${post.userId}')"><i class="fas fa-comment"></i> Chat with member</button>
+                        <button><i class="fas fa-share"></i> Share</button>
+                    </div>
+                </div>
+            </div>
+            <div class="post-content">${post.content}</div>
+            <div class="post-stats">
+                <button class="stat-btn ${userLiked ? 'liked' : ''}" onclick="toggleLike('${post.id}')"><i class="fas fa-heart"></i> <span id="likes-${post.id}">${likesCount}</span></button>
+                <button class="stat-btn" onclick="toggleComments('${post.id}')"><i class="fas fa-comment"></i> <span>${commentsCount}</span></button>
+            </div>
+            <div class="comment-section" id="comments-${post.id}" style="display: none;">
+                <div class="comment-input-area">
+                    <input type="text" id="commentInput-${post.id}" placeholder="Write a comment...">
+                    <button onclick="addComment('${post.id}')">Post</button>
+                </div>
+                <div id="commentsList-${post.id}">${commentsHtml}</div>
+            </div>
+        `;
+        postsContainer.appendChild(postDiv);
+    }
+
+    // global functions for onclick
+    window.toggleMenu = (postId) => {
+        document.querySelectorAll('.menu-dropdown').forEach(m => m.classList.remove('show'));
+        document.getElementById(`menu-${postId}`)?.classList.toggle('show');
+    };
+    window.chatWithUser = (otherUserId) => {
+        if (otherUserId === currentUser.id) { alert('That’s you!'); return; }
+        // switch to chats view and open chat with that user
+        navChats.click(); // go to chats list first
+        // create or open chat
+        startChatWith(otherUserId);
+    };
+
+    // like toggle with optimistic update
+    window.toggleLike = (postId) => {
+        const likeRef = db.ref(`posts/${postId}/likes/${currentUser.id}`);
+        likeRef.once('value').then(snap => {
+            if (snap.exists()) {
+                likeRef.remove();
+                db.ref(`posts/${postId}/likesCount`).transaction(c => Math.max(0, (c||1)-1));
+            } else {
+                likeRef.set(true);
+                db.ref(`posts/${postId}/likesCount`).transaction(c => (c||0)+1);
+            }
+        });
+    };
+
+    window.toggleComments = (postId) => {
+        const el = document.getElementById(`comments-${postId}`);
+        if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    };
+
+    window.addComment = (postId) => {
+        const input = document.getElementById(`commentInput-${postId}`);
+        if (!input.value.trim()) return;
+        const comment = {
+            userId: currentUser.id,
+            userName: currentUser.name,
+            userAvatar: currentUser.avatar || currentUser.name[0],
+            text: input.value.trim(),
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        };
+        db.ref(`posts/${postId}/comments`).push(comment).then(() => {
+            db.ref(`posts/${postId}/commentsCount`).transaction(c => (c||0)+1);
+            input.value = '';
+        });
+    };
+
+    // submit new post
+    document.getElementById('submitPost').addEventListener('click', () => {
+        const content = document.getElementById('postInput').value.trim();
+        if (!content) return;
+        const post = {
+            userId: currentUser.id,
+            userName: currentUser.name,
+            userAvatar: currentUser.avatar || currentUser.name[0],
+            content: content,
+            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            likesCount: 0,
+            commentsCount: 0
+        };
+        db.ref('posts').push(post).then(() => {
+            document.getElementById('postInput').value = '';
+        });
+    });
+
+    // Emoji picker (simple)
+    const emojiToggle = document.getElementById('emojiToggle');
+    const emojiPanel = document.getElementById('quickEmojiPanel');
+    emojiToggle.addEventListener('click', () => emojiPanel.classList.toggle('hidden'));
+    emojiPanel.querySelectorAll('span').forEach(span => {
+        span.addEventListener('click', (e) => {
+            document.getElementById('postInput').value += e.target.textContent;
+            emojiPanel.classList.add('hidden');
+        });
+    });
+
+    // ---------- CHATS ----------
+    function loadChatsList() {
+        // list all users the current user has exchanged messages with
+        // we'll just pull from messages structure
+        db.ref('messages').orderByChild('participants/'+currentUser.id).equalTo(true).on('value', (snap) => {
+            const chatIds = new Set();
+            const chatsMap = {};
+            snap.forEach(msgSnap => {
+                const msg = msgSnap.val();
+                const chatId = msg.chatId;
+                if (!chatId) return;
+                chatIds.add(chatId);
+                if (!chatsMap[chatId]) {
+                    chatsMap[chatId] = { lastMessage: msg, otherId: msg.senderId === currentUser.id ? msg.receiverId : msg.senderId };
+                } else {
+                    // keep latest
+                    if (msg.timestamp > (chatsMap[chatId].lastMessage?.timestamp || 0)) {
+                        chatsMap[chatId].lastMessage = msg;
+                        chatsMap[chatId].otherId = msg.senderId === currentUser.id ? msg.receiverId : msg.senderId;
+                    }
+                }
+            });
+            renderChatsList(Object.values(chatsMap));
+        });
+    }
+
+    function renderChatsList(chats) {
+        const list = document.getElementById('chatsList');
+        list.innerHTML = '';
+        chats.forEach(chat => {
+            // get other user name from users ref (simplified: we store minimal)
+            const otherId = chat.otherId;
+            db.ref(`users/${otherId}/name`).once('value').then(snap => {
+                const name = snap.val() || 'Unknown';
+                const last = chat.lastMessage?.text || '...';
+                const time = chat.lastMessage?.timestamp ? new Date(chat.lastMessage.timestamp).toLocaleTimeString() : '';
+                const item = document.createElement('div');
+                item.className = 'chat-item';
+                item.setAttribute('data-other', otherId);
+                item.innerHTML = `
+                    <div class="chat-avatar">${name[0]}</div>
+                    <div class="chat-preview">
+                        <div class="chat-name">${name}</div>
+                        <div class="chat-last">${last}</div>
+                    </div>
+                    <div class="chat-time">${time}</div>
+                `;
+                item.addEventListener('click', () => openChat(otherId));
+                list.appendChild(item);
+            });
+        });
+    }
+
+    function startChatWith(otherUserId) {
+        openChat(otherUserId);
+    }
+
+    function openChat(otherUserId) {
+        activeChatUserId = otherUserId;
+        // switch to chat detail view
+        feedView.classList.add('hidden');
+        chatsView.classList.add('hidden');
+        chatDetailView.classList.remove('hidden');
+        navFeed.classList.remove('active');
+        navChats.classList.add('active');
+
+        // load chat messages: find chatId (participant pair)
+        const chatId = [currentUser.id, otherUserId].sort().join('_');
+        currentChatId = chatId;
+        db.ref(`users/${otherUserId}/name`).once('value').then(snap => {
+            document.getElementById('chatPartnerName').textContent = snap.val() || 'User';
+        });
+        // listen messages for this chat
+        const msgsRef = db.ref('messages').orderByChild('chatId').equalTo(chatId);
+        msgsRef.on('value', (snap) => {
+            const msgs = [];
+            snap.forEach(m => msgs.push({ id: m.key, ...m.val() }));
+            msgs.sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
+            renderMessages(msgs);
+        });
+    }
+
+    function renderMessages(msgs) {
+        const container = document.getElementById('chatMessagesContainer');
+        container.innerHTML = '';
+        msgs.forEach(m => {
+            const div = document.createElement('div');
+            div.className = `message ${m.senderId === currentUser.id ? 'own' : ''}`;
+            div.textContent = m.text;
+            container.appendChild(div);
+        });
+        container.scrollTop = container.scrollHeight;
+    }
+
+    document.getElementById('sendChatBtn').addEventListener('click', sendMessage);
+    document.getElementById('chatMessageInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    function sendMessage() {
+        const input = document.getElementById('chatMessageInput');
+        const text = input.value.trim();
+        if (!text || !activeChatUserId) return;
+        const chatId = [currentUser.id, activeChatUserId].sort().join('_');
+        const message = {
+            chatId: chatId,
+            senderId: currentUser.id,
+            receiverId: activeChatUserId,
+            text: text,
+            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            participants: { [currentUser.id]: true, [activeChatUserId]: true }
+        };
+        db.ref('messages').push(message).then(() => {
+            input.value = '';
+        });
+    }
+
+    backFromChat.addEventListener('click', () => {
+        // go back to chats list
+        chatDetailView.classList.add('hidden');
+        chatsView.classList.remove('hidden');
+        feedView.classList.add('hidden');
+        navFeed.classList.remove('active');
+        navChats.classList.add('active');
+        // detach listener?
+    });
+
+    // close menus when clicking elsewhere
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.menu-btn')) {
+            document.querySelectorAll('.menu-dropdown').forEach(m => m.classList.remove('show'));
+        }
+    });
+
+    // online presence (simplified)
+    const statusRef = db.ref(`status/${currentUser.id}`);
+    statusRef.set({ state: 'online', name: currentUser.name, lastChanged: firebase.database.ServerValue.TIMESTAMP });
+    window.addEventListener('beforeunload', () => {
+        statusRef.set({ state: 'offline', lastChanged: firebase.database.ServerValue.TIMESTAMP });
+    });
+    db.ref('status').on('value', (snap) => {
+        let online = 0;
+        snap.forEach(c => { if (c.val().state === 'online') online++; });
+        document.getElementById('onlineCountBadge').innerHTML = `● ${online}`;
+    });
+
+    // start
+    loadPosts();
+</script>
+</body>
+</html>
