@@ -20,7 +20,7 @@
     <!-- Version Information -->
     <meta name="version" content="2.0.0">
     <meta name="build-date" content="2024-02-19">
-    <meta name="release-notes" content="Added PWA features, improved performance, enhanced offline support">
+    <meta name="release-notes" content="Updated communities section design">
     
     <!-- Existing Meta Tags -->
     <title id="pageTitle">I AM MUGERA | Public Speaking, Life Coaching & Author</title>
@@ -59,7 +59,6 @@
                     .then(registration => {
                         console.log('Service Worker registered with scope:', registration.scope);
                         
-                        // Check for updates
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
                             console.log('New service worker installing...');
@@ -75,7 +74,6 @@
                         console.error('Service Worker registration failed:', error);
                     });
                 
-                // Listen for controller change (new service worker activated)
                 navigator.serviceWorker.addEventListener('controllerchange', () => {
                     console.log('New service worker activated');
                     window.location.reload();
@@ -89,7 +87,6 @@
         window.appVersion = '2.0.0';
         window.buildDate = '2024-02-19';
         
-        // Check for version updates from Firebase
         async function checkForUpdates() {
             if (!firebase.apps.length) return;
             
@@ -1472,7 +1469,7 @@
             border: 1px solid rgba(202, 138, 4, 0.2);
         }
 
-        /* Communities */
+        /* Communities - Redesigned with smaller icons */
         .communities-section {
             background: 
                 linear-gradient(135deg, rgba(17, 24, 39, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%),
@@ -1493,66 +1490,135 @@
             max-width: 1200px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
             margin-top: 3rem;
+            position: relative;
+            z-index: 2;
         }
 
-        .community-card {
-            background: rgba(255, 255, 255, 0.08);
+        .community-item {
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            border-radius: var(--radius-xl);
-            padding: 2.5rem 2rem;
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
             text-align: center;
             transition: var(--transition);
-            border: 3px solid transparent;
-            background: 
-                linear-gradient(rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.08)) padding-box,
-                repeating-linear-gradient(
-                    45deg,
-                    var(--gold) 0px,
-                    var(--gold) 8px,
-                    var(--gold-dark) 8px,
-                    var(--gold-dark) 16px
-                ) border-box;
+            border: 2px solid rgba(202, 138, 4, 0.2);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 280px;
             cursor: pointer;
             position: relative;
             overflow: hidden;
+            box-shadow: var(--shadow-md);
         }
 
-        .community-card:hover {
-            background: rgba(255, 255, 255, 0.12);
-            transform: translateY(-8px);
+        .community-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--gold);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(202, 138, 4, 0.2);
         }
 
         .community-logo {
-            width: 120px;
-            height: 120px;
-            border-radius: var(--radius-lg);
+            width: 70px;
+            height: 70px;
+            border-radius: var(--radius-md);
             object-fit: contain;
-            margin-bottom: 1.5rem;
-            padding: 15px;
+            margin-bottom: 1rem;
+            padding: 8px;
             background: rgba(255, 255, 255, 0.1);
             transition: var(--transition);
-            border: 2px solid rgba(202, 138, 4, 0.3);
+            border: 1px solid rgba(202, 138, 4, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
 
-        .community-card:hover .community-logo {
+        .community-item:hover .community-logo {
             transform: scale(1.1);
-            background: rgba(202, 138, 4, 0.2);
+            background: rgba(202, 138, 4, 0.15);
             border-color: var(--gold);
+            box-shadow: 0 6px 15px rgba(202, 138, 4, 0.3);
         }
 
         .community-name {
-            font-size: 1.3rem;
-            font-weight: 700;
+            font-size: 1.1rem;
+            font-weight: 600;
             color: var(--white);
-            text-align: center;
+            margin: 0.5rem 0 0.25rem;
+            line-height: 1.3;
+        }
+
+        .community-description {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0.25rem 0;
+            max-width: 180px;
+        }
+
+        .community-badge {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: var(--white);
+            font-size: 0.6rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            box-shadow: var(--shadow-sm);
+            z-index: 3;
+        }
+
+        /* Responsive adjustments for communities grid */
+        @media (max-width: 992px) {
+            .communities-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.25rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .communities-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+            
+            .community-logo {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .community-name {
+                font-size: 1rem;
+            }
+            
+            .community-description {
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .communities-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.75rem;
+            }
+            
+            .community-item {
+                padding: 1rem;
+            }
+            
+            .community-logo {
+                width: 50px;
+                height: 50px;
+                padding: 6px;
+                margin-bottom: 0.75rem;
+            }
+            
+            .community-name {
+                font-size: 0.9rem;
+            }
         }
 
         /* About */
@@ -1601,189 +1667,6 @@
             width: 100%;
             height: auto;
             display: block;
-        }
-
-        /* FEATURED PRODUCTS SECTION - REPLACED STORE SECTION */
-        .featured-products-section {
-            background: 
-                linear-gradient(135deg, var(--african-pattern-bg) 0%, var(--white) 100%),
-                repeating-linear-gradient(
-                    45deg,
-                    transparent,
-                    transparent 25px,
-                    rgba(202, 138, 4, 0.03) 25px,
-                    rgba(202, 138, 4, 0.03) 50px
-                );
-            background-size: cover, 100px 100px;
-            position: relative;
-            padding: 5rem 1.5rem;
-        }
-
-        .featured-products-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        .featured-products-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 3rem;
-            margin-bottom: 4rem;
-        }
-
-        .featured-product-card {
-            background: var(--white);
-            border-radius: var(--radius-xl);
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-            transition: var(--transition);
-            border: 3px solid transparent;
-            background: 
-                linear-gradient(var(--white), var(--white)) padding-box,
-                repeating-linear-gradient(
-                    45deg,
-                    var(--gold) 0px,
-                    var(--gold) 8px,
-                    var(--gold-dark) 8px,
-                    var(--gold-dark) 16px
-                ) border-box;
-            position: relative;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .featured-product-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-xl);
-        }
-
-        .featured-product-image {
-            height: 280px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .featured-product-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: var(--transition);
-        }
-
-        .featured-product-card:hover .featured-product-image img {
-            transform: scale(1.05);
-        }
-
-        .featured-product-badge {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            color: var(--white);
-            padding: 0.5rem 1.5rem;
-            border-radius: var(--radius-full);
-            font-size: 0.85rem;
-            font-weight: 700;
-            z-index: 2;
-            box-shadow: var(--shadow-md);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .featured-product-content {
-            padding: 2rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .featured-product-tag {
-            display: inline-block;
-            padding: 0.4rem 1rem;
-            background: rgba(202, 138, 4, 0.1);
-            color: var(--gold);
-            border-radius: var(--radius-full);
-            font-size: 0.8rem;
-            margin-bottom: 1rem;
-            font-weight: 600;
-            align-self: flex-start;
-            text-transform: uppercase;
-        }
-
-        .featured-product-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: var(--black);
-            font-family: 'Cinzel', serif;
-            line-height: 1.3;
-        }
-
-        .featured-product-description {
-            color: var(--dark-gray);
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
-            flex: 1;
-        }
-
-        .featured-product-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: auto;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--light-gray);
-        }
-
-        .featured-product-price {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--gold-dark);
-        }
-
-        .featured-product-price del {
-            font-size: 1rem;
-            color: var(--dark-gray);
-            margin-right: 0.5rem;
-        }
-
-        .featured-products-cta {
-            text-align: center;
-            margin-top: 3rem;
-        }
-
-        .featured-products-cta .cta-button {
-            padding: 1rem 3rem;
-            font-size: 1.1rem;
-            background: linear-gradient(135deg, var(--african-brown), var(--gold-dark));
-        }
-
-        .featured-products-cta .cta-button:hover {
-            background: linear-gradient(135deg, var(--gold-dark), var(--african-brown));
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .featured-products-notice {
-            text-align: center;
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background: rgba(202, 138, 4, 0.05);
-            border-radius: var(--radius-lg);
-            border: 1px solid rgba(202, 138, 4, 0.15);
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .featured-products-notice p {
-            margin-bottom: 0.5rem;
-            color: var(--dark-gray);
-            font-size: 0.95rem;
         }
 
         /* Contact */
@@ -2509,7 +2392,7 @@
             visibility: visible;
         }
 
-        /* Responsive Design for Featured Products */
+        /* Responsive Design */
         @media (max-width: 992px) {
             .mobile-menu-toggle {
                 display: flex;
@@ -2522,14 +2405,9 @@
             .talk-series-container,
             .about-container,
             .conference-grid,
-            .article-feature,
-            .featured-products-grid {
+            .article-feature {
                 grid-template-columns: 1fr;
                 gap: 3rem;
-            }
-
-            .communities-grid {
-                grid-template-columns: 1fr;
             }
 
             html {
@@ -2565,14 +2443,6 @@
             .footer-column {
                 padding: 1.25rem;
             }
-
-            .featured-product-image {
-                height: 250px;
-            }
-
-            .featured-product-title {
-                font-size: 1.3rem;
-            }
         }
 
         @media (max-width: 768px) {
@@ -2587,17 +2457,6 @@
             .cta-button {
                 width: 100%;
                 justify-content: center;
-            }
-
-            .community-logo {
-                width: 100px;
-                height: 100px;
-                padding: 12px;
-            }
-
-            .community-card {
-                height: 260px;
-                padding: 2rem 1.5rem;
             }
 
             .program-card {
@@ -2618,26 +2477,6 @@
 
             .registration-modal {
                 padding: 2rem 1.5rem;
-            }
-
-            .featured-products-grid {
-                gap: 2rem;
-            }
-
-            .featured-product-card {
-                margin-bottom: 1rem;
-            }
-
-            .featured-product-image {
-                height: 220px;
-            }
-
-            .featured-product-content {
-                padding: 1.5rem;
-            }
-
-            .featured-product-title {
-                font-size: 1.25rem;
             }
 
             .footer-container {
@@ -2679,38 +2518,12 @@
 
         @media (max-width: 480px) {
             .community-logo {
-                width: 90px;
-                height: 90px;
-            }
-
-            .community-card {
-                height: 240px;
-                padding: 1.5rem;
+                width: 50px;
+                height: 50px;
             }
 
             .event-card, .program-card {
                 padding: 2rem 1.5rem;
-            }
-
-            .featured-product-image {
-                height: 200px;
-            }
-
-            .featured-product-content {
-                padding: 1.25rem;
-            }
-
-            .featured-product-title {
-                font-size: 1.1rem;
-            }
-
-            .featured-product-price {
-                font-size: 1.3rem;
-            }
-
-            .featured-products-cta .cta-button {
-                width: 100%;
-                padding: 1rem 2rem;
             }
 
             .social-link {
@@ -3149,7 +2962,6 @@
                     loadEvents(),
                     loadCommunities(),
                     loadAbout(),
-                    loadFeaturedProducts(),
                     loadContact(),
                     loadFooter()
                 ]);
@@ -3271,7 +3083,7 @@
                 
                 return `
                     <li class="${isMobile ? 'mobile-nav-item' : 'nav-item'}">
-                        <a href="${href}" ${target} class="${isMobile ? 'mobile-nav-link' : 'nav-link'}" ${onclick}>
+                        <a href="${href}" ${target} class="${isMobile ? 'mobile-nav-link' : 'nav-link'}" ${onClick}>
                             <i class="${item.icon || 'fas fa-circle'}"></i>
                             <span>${item.title}</span>
                         </a>
@@ -3523,8 +3335,8 @@
                 image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
                 price: "From $99",
                 category: "Lifestyle",
-                    badge: "New",
-                    status: "available"
+                badge: "New",
+                status: "available"
             };
         }
 
@@ -3643,218 +3455,6 @@
             
             // Initialize
             updateSlideshow();
-        }
-
-        // Load Featured Products (replaces store section)
-        function loadFeaturedProducts() {
-            if (!brandData.store) return;
-            
-            const main = document.getElementById('mainContent');
-            const store = brandData.store;
-            
-            const featuredSection = document.createElement('section');
-            featuredSection.className = 'featured-products-section';
-            featuredSection.id = 'featured-products';
-            
-            // Get featured products
-            const featuredProducts = getFeaturedProducts();
-            
-            featuredSection.innerHTML = `
-                <div class="section-header">
-                    <h2 class="umsaga-font">${store.title || 'Featured Products'}</h2>
-                    ${store.subtitle ? `<p class="section-subtitle">${store.subtitle}</p>` : `
-                        <p class="section-subtitle">Discover our most popular and latest offerings. Handpicked for excellence.</p>
-                    `}
-                </div>
-                
-                <div class="featured-products-container">
-                    <div class="featured-products-grid">
-                        ${featuredProducts.mostBought ? generateFeaturedProductCard(featuredProducts.mostBought, 'most-bought') : ''}
-                        ${featuredProducts.latest ? generateFeaturedProductCard(featuredProducts.latest, 'latest') : ''}
-                    </div>
-                    
-                    <div class="featured-products-cta">
-                        <a href="shop.html" class="cta-button">
-                            <i class="fas fa-store"></i>
-                            <span>Visit Full Shop</span>
-                        </a>
-                    </div>
-                    
-                    ${store.settings?.storeNotice ? `
-                        <div class="featured-products-notice">
-                            <p><i class="fas fa-info-circle" style="color: var(--gold); margin-right: 0.5rem;"></i> ${store.settings.storeNotice}</p>
-                            ${store.settings.shippingInfo ? `<p style="font-size: 0.9rem; color: var(--dark-gray);">${store.settings.shippingInfo}</p>` : ''}
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-            
-            main.appendChild(featuredSection);
-        }
-
-        // Get featured products (most bought and latest)
-        function getFeaturedProducts() {
-            if (!brandData.store?.products) {
-                return {
-                    mostBought: {
-                        name: "Signature Collection",
-                        description: "Our best-selling premium collection designed for personal and professional excellence. Loved by thousands of clients worldwide.",
-                        image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-                        price: "$99",
-                        originalPrice: "$149",
-                        category: "Best Seller",
-                        badge: "Most Popular",
-                        status: "available",
-                        salesCount: "1000+ sold"
-                    },
-                    latest: {
-                        name: "New Release: Mindset Mastery",
-                        description: "Our newest product offering groundbreaking techniques for mindset transformation and peak performance achievement.",
-                        image: "https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-                        price: "$79",
-                        category: "New Arrival",
-                        badge: "Just Released",
-                        status: "available",
-                        isNew: true
-                    }
-                };
-            }
-            
-            const products = Object.values(brandData.store.products)
-                .filter(product => product.visible !== false);
-            
-            if (products.length === 0) {
-                return getDefaultFeaturedProducts();
-            }
-            
-            // Find most bought product (look for products with salesCount or bestseller badge)
-            let mostBought = products.find(product => 
-                product.badge && product.badge.toLowerCase().includes('bestseller') || 
-                product.badge && product.badge.toLowerCase().includes('popular') ||
-                product.salesCount
-            );
-            
-            // If no bestseller found, take the first product
-            if (!mostBought) {
-                mostBought = products[0];
-            }
-            
-            // Find latest product (look for "New" badge or most recent by order)
-            let latest = products.find(product => 
-                product.badge && product.badge.toLowerCase().includes('new') ||
-                product.isNew
-            );
-            
-            // If no new product found, take the second product or a different one than most bought
-            if (!latest) {
-                latest = products.find(product => product !== mostBought) || 
-                        products[1] || 
-                        getDefaultFeaturedProducts().latest;
-            }
-            
-            // Ensure we have two different products
-            if (mostBought === latest && products.length > 1) {
-                latest = products[1];
-            }
-            
-            // Add sales count to most bought if not present
-            if (mostBought && !mostBought.salesCount) {
-                mostBought.salesCount = "500+ sold";
-            }
-            
-            return {
-                mostBought: mostBought || getDefaultFeaturedProducts().mostBought,
-                latest: latest || getDefaultFeaturedProducts().latest
-            };
-        }
-
-        function getDefaultFeaturedProducts() {
-            return {
-                mostBought: {
-                    name: "Signature Collection",
-                    description: "Our best-selling premium collection designed for personal and professional excellence. Loved by thousands of clients worldwide.",
-                    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-                    price: "$99",
-                    originalPrice: "$149",
-                    category: "Best Seller",
-                    badge: "Most Popular",
-                    status: "available",
-                    salesCount: "1000+ sold"
-                },
-                latest: {
-                    name: "New Release: Mindset Mastery",
-                    description: "Our newest product offering groundbreaking techniques for mindset transformation and peak performance achievement.",
-                    image: "https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-                    price: "$79",
-                    category: "New Arrival",
-                    badge: "Just Released",
-                    status: "available",
-                    isNew: true
-                }
-            };
-        }
-
-        // Generate featured product card
-        function generateFeaturedProductCard(product, type) {
-            if (!product) return '';
-            
-            const badgeText = type === 'most-bought' ? 'Most Popular' : 'Just Released';
-            const badgeIcon = type === 'most-bought' ? 'fas fa-crown' : 'fas fa-star';
-            const tagText = type === 'most-bought' ? 'Best Seller' : 'New Arrival';
-            
-            let actionButton = '';
-            if (product.action === 'waitlist') {
-                actionButton = `<button class="cta-button outline" onclick="openWaitlistModal()">
-                    <i class="fas fa-bell"></i>
-                    <span>Join Waitlist</span>
-                </button>`;
-            } else if (product.status === 'available') {
-                actionButton = `<button class="cta-button" onclick="openProductModal('${product.name}', '${product.price}', '${product.image}')">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Order Now</span>
-                </button>`;
-            } else if (product.status === 'out-of-stock') {
-                actionButton = `<button class="cta-button outline" disabled>
-                    <i class="fas fa-clock"></i>
-                    <span>Out of Stock</span>
-                </button>`;
-            } else {
-                actionButton = `<button class="cta-button" onclick="openProductModal('${product.name}', '${product.price}', '${product.image}')">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Order Now</span>
-                </button>`;
-            }
-            
-            return `
-                <div class="featured-product-card">
-                    <div class="featured-product-image">
-                        <img src="${product.image}" alt="${product.name}" loading="lazy">
-                        <div class="featured-product-badge">
-                            <i class="${badgeIcon}"></i> ${badgeText}
-                        </div>
-                    </div>
-                    <div class="featured-product-content">
-                        <span class="featured-product-tag">${tagText}</span>
-                        <h3 class="featured-product-title">${product.name}</h3>
-                        <p class="featured-product-description">${product.description}</p>
-                        
-                        ${type === 'most-bought' && product.salesCount ? `
-                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; color: var(--gold); font-weight: 600;">
-                                <i class="fas fa-chart-line"></i>
-                                <span>${product.salesCount}</span>
-                            </div>
-                        ` : ''}
-                        
-                        <div class="featured-product-footer">
-                            <div class="featured-product-price">
-                                ${product.originalPrice ? `<del>${product.originalPrice}</del>` : ''}
-                                <div>${product.price}</div>
-                            </div>
-                            ${actionButton}
-                        </div>
-                    </div>
-                </div>
-            `;
         }
 
         function loadTalkSeries() {
@@ -4182,6 +3782,7 @@
             `).join('');
         }
 
+        // Updated Communities Section with smaller icons
         function loadCommunities() {
             if (!brandData.communities) return;
             
@@ -4221,13 +3822,13 @@
             }
             
             return communitiesArray.map(community => `
-                <div class="community-card" onclick="openRegistrationModal('${community.registrationEventType || community.name}')">
+                <div class="community-item" onclick="openRegistrationModal('${community.registrationEventType || community.name}')">
+                    ${community.badge ? `<span class="community-badge">${community.badge}</span>` : ''}
                     ${community.logo ? `
                         <img src="${community.logo}" alt="${community.name}" class="community-logo" loading="lazy">
                     ` : ''}
-                    
                     <h3 class="community-name">${community.name}</h3>
-                    ${community.description ? `<p style="color: rgba(255, 255, 255, 0.8); margin-top: 0.5rem; font-size: 0.95rem;">${community.description}</p>` : ''}
+                    ${community.description ? `<p class="community-description">${community.description}</p>` : ''}
                 </div>
             `).join('');
         }
