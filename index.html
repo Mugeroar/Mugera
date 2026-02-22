@@ -16,7 +16,7 @@
     <meta name="msapplication-TileColor" content="#ca8a04">
     
     <!-- Version & Build -->
-    <meta name="version" content="5.3.0">
+    <meta name="version" content="5.4.0">
     <meta name="build-date" content="2025-02-22">
     
     <title>I AM MUGERA | Afrika Milele</title>
@@ -159,8 +159,9 @@
             width: auto;
             object-fit: contain;
             display: block;
-            /* Added padding for better spacing around logo */
-            padding: 4px 0;
+            /* Enhanced padding for perfect spacing */
+            padding: 8px 0;
+            margin: 0;
         }
         .header-right {
             display: flex;
@@ -588,7 +589,7 @@
 <!-- MAIN PAGE CONTENT (LANDING PAGE) -->
 <main id="mainContent" class="page-content">
 
-    <!-- Header (logo now has vertical padding) -->
+    <!-- Header (logo now has enhanced padding) -->
     <header class="site-header">
         <div class="header-container">
             <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="I AM MUGERA" class="site-logo">
@@ -613,14 +614,14 @@
         </div>
     </section>
 
-    <!-- NEWSLETTER SECTION: THE MUGERA REPORT (as a card matching activity cards) -->
+    <!-- NEWSLETTER SECTION: THE MUGERA REPORT (with Firebase submission) -->
     <section class="newsletter-section">
         <div class="section-header">
             <h2>The Mugera Report</h2>
             <p>Weekly insights from the heart of Africa's renaissance</p>
         </div>
         <div class="newsletter-grid">
-            <!-- Single card - will be full width on mobile, but grid allows easy future expansion -->
+            <!-- Single card - will be full width on mobile -->
             <div class="newsletter-card">
                 <!-- Image placeholder - replace src with your screenshot -->
                 <img src="https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp" 
@@ -636,15 +637,16 @@
                         <span>Progress, pride, purpose — one report at a time.</span>
                     </div>
                     <div class="newsletter-form-compact">
-                        <form id="newsletterForm" onsubmit="event.preventDefault(); alert('📬 Thank you! You are now subscribed to The Mugera Report.');">
+                        <!-- Form now sends to Firebase -->
+                        <form id="newsletterForm">
                             <div class="form-row">
-                                <input type="text" placeholder="Your name" class="form-input" required>
-                                <input type="email" placeholder="Email" class="form-input" required>
-                                <button type="submit" class="newsletter-button">
+                                <input type="text" id="newsletterName" placeholder="Your name" class="form-input" required>
+                                <input type="email" id="newsletterEmail" placeholder="Email" class="form-input" required>
+                                <button type="submit" class="newsletter-button" id="subscribeBtn">
                                     <i class="fas fa-paper-plane"></i> Join
                                 </button>
                             </div>
-                            <p class="privacy-note">No spam, only renaissance updates. Unsubscribe anytime.</p>
+                            <p class="privacy-note" id="newsletterMessage">No spam, only renaissance updates. Unsubscribe anytime.</p>
                         </form>
                     </div>
                 </div>
@@ -759,13 +761,13 @@
     <i class="fas fa-download"></i> Install App
 </button>
 
-<!-- Firebase SDK (for stats only) -->
+<!-- Firebase SDK (for stats and newsletter) -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
 
 <script>
-    // Firebase Configuration (unchanged)
+    // Firebase Configuration
     const firebaseConfig = {
         apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
         authDomain: "mugera-e51cc.firebaseapp.com",
@@ -776,13 +778,13 @@
         appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
     };
 
-    // Initialize Firebase (only for stats display)
+    // Initialize Firebase
     let database, analytics;
     try {
         firebase.initializeApp(firebaseConfig);
         database = firebase.database();
         analytics = firebase.analytics();
-        console.log('Firebase initialized for stats');
+        console.log('Firebase initialized');
     } catch (error) {
         console.error('Firebase init error:', error);
     }
@@ -854,7 +856,7 @@
         }
     });
 
-    // Load stats from Firebase and update all stat spans (community card & footer)
+    // Load stats from Firebase and update all stat spans
     function loadStats() {
         if (!database) return;
 
@@ -884,6 +886,63 @@
     }
 
     loadStats();
+
+    // Newsletter subscription to Firebase
+    const newsletterForm = document.getElementById('newsletterForm');
+    if (newsletterForm && database) {
+        newsletterForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const nameInput = document.getElementById('newsletterName');
+            const emailInput = document.getElementById('newsletterEmail');
+            const subscribeBtn = document.getElementById('subscribeBtn');
+            const messageEl = document.getElementById('newsletterMessage');
+            
+            const name = nameInput.value.trim();
+            const email = emailInput.value.trim();
+            
+            if (!name || !email) return;
+            
+            // Disable button during submission
+            subscribeBtn.disabled = true;
+            subscribeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subscribing...';
+            
+            // Generate a unique key for each subscription
+            const newSubRef = database.ref('newsletter_subscribers').push();
+            
+            newSubRef.set({
+                name: name,
+                email: email,
+                subscribedAt: firebase.database.ServerValue.TIMESTAMP,
+                source: 'Mugera Report card'
+            })
+            .then(() => {
+                messageEl.textContent = '✅ Thank you! You are now subscribed to The Mugera Report.';
+                messageEl.style.color = 'var(--gold)';
+                newsletterForm.reset();
+                
+                // Optional: log analytics event
+                if (analytics) {
+                    analytics.logEvent('newsletter_signup', { method: 'Mugera Report card' });
+                }
+            })
+            .catch((error) => {
+                console.error('Error saving subscription:', error);
+                messageEl.textContent = '❌ Something went wrong. Please try again.';
+                messageEl.style.color = '#ff6b6b';
+            })
+            .finally(() => {
+                subscribeBtn.disabled = false;
+                subscribeBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Join';
+                
+                // Reset message after 5 seconds
+                setTimeout(() => {
+                    messageEl.textContent = 'No spam, only renaissance updates. Unsubscribe anytime.';
+                    messageEl.style.color = '';
+                }, 5000);
+            });
+        });
+    }
 
     // PWA Install (preserved)
     let deferredPrompt;
