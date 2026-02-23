@@ -54,6 +54,7 @@
             --shadow-color: rgba(202,138,4,0.25);
             --nav-bg: rgba(10,10,10,0.95);
             --card-bg: #151515;
+            --popup-bg: rgba(0,0,0,0.95);
         }
 
         /* Light theme class */
@@ -68,6 +69,7 @@
             --shadow-color: rgba(202,138,4,0.4);
             --nav-bg: rgba(255,255,255,0.95);
             --card-bg: #ffffff;
+            --popup-bg: rgba(255,255,255,0.98);
             background-color: var(--bg-primary);
             color: var(--text-primary);
         }
@@ -128,6 +130,117 @@
             animation: blinkCursor 0.8s step-end infinite;
         }
         @keyframes blinkCursor { 50% { border-color: transparent; } }
+        
+        /* ----- WELCOME POPUP ----- */
+        .welcome-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--popup-bg);
+            backdrop-filter: blur(10px);
+            z-index: 9000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        
+        .welcome-popup.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .popup-content {
+            max-width: 500px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 40px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            border: 2px solid var(--gold);
+            box-shadow: 0 30px 60px var(--shadow-color);
+            animation: popupAppear 0.5s ease;
+        }
+        
+        @keyframes popupAppear {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .popup-content h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        
+        .popup-content p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .popup-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .popup-btn {
+            padding: 1.2rem;
+            border: none;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            text-decoration: none;
+        }
+        
+        .popup-songa {
+            background: var(--sonGa);
+            color: black;
+        }
+        
+        .popup-workfit {
+            background: var(--workfit);
+            color: white;
+        }
+        
+        .popup-main {
+            background: var(--gold);
+            color: black;
+        }
+        
+        .popup-btn:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+            gap: 1.3rem;
+        }
+        
+        .popup-close {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--text-muted);
+            padding: 0.8rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+        }
+        
+        .popup-close:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
         
         /* ----- MAIN PAGE ----- */
         .page-content {
@@ -243,7 +356,7 @@
             border-radius: 0 20px 20px 0;
         }
         
-        /* ----- ACTIVITIES GRID (NOW WITH 5 BEAUTIFUL CARDS) ----- */
+        /* ----- ACTIVITIES SECTION (4 CARDS) ----- */
         .activities-section {
             max-width: 1200px;
             margin: 5rem auto;
@@ -266,10 +379,9 @@
             margin: 0 auto;
         }
         
-        /* Activity cards grid - 5 beautiful cards */
         .activities-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 2rem;
             margin-top: 2rem;
         }
@@ -336,7 +448,6 @@
             gap: 0.8rem;
         }
 
-        /* Feature badge */
         .feature-badge {
             display: inline-block;
             background: rgba(202,138,4,0.15);
@@ -348,17 +459,28 @@
             border: 1px solid var(--gold);
         }
         
-        /* ----- BEAUTIFUL COMMUNITY CARDS (MATCHING THE OTHERS) ----- */
+        /* ----- COMMUNITIES SECTION (2 CLICKABLE CARDS) ----- */
+        .communities-section {
+            max-width: 1200px;
+            margin: 5rem auto;
+            padding: 0 2rem;
+        }
+        
+        .communities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-top: 2rem;
+        }
+        
         .community-card {
             background: var(--card-bg);
-            border-radius: 24px;
+            border-radius: 30px;
             overflow: hidden;
             border: 1px solid var(--border-light);
             transition: all 0.3s ease;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            height: 100%;
+            cursor: pointer;
+            position: relative;
         }
         
         .community-card:hover {
@@ -367,73 +489,110 @@
             box-shadow: 0 20px 40px var(--shadow-color);
         }
         
-        .community-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-bottom: 2px solid var(--gold);
-            transition: transform 0.5s;
+        .community-card.expanded {
+            cursor: default;
+            transform: translateY(-8px);
+            border-color: var(--gold);
+            box-shadow: 0 20px 40px var(--shadow-color);
+        }
+        
+        .community-preview {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
             position: relative;
         }
         
-        .community-card:hover .community-image {
-            transform: scale(1.02);
-        }
-        
-        .community-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.7) 100%);
-            display: flex;
-            align-items: flex-end;
-            padding: 1rem;
-        }
-        
-        .community-stats-badge {
-            background: rgba(202,138,4,0.9);
-            color: black;
-            padding: 0.3rem 1rem;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        
-        .sonGa-stats { background: rgba(212, 160, 23, 0.9); }
-        .workfit-stats { background: rgba(46, 125, 50, 0.9); color: white; }
-        
-        .community-content {
-            padding: 1.5rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .community-header {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
+        .community-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50px;
+            object-fit: cover;
+            border: 3px solid var(--gold);
             margin-bottom: 1rem;
         }
         
-        .community-logo-small {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            object-fit: cover;
-            border: 2px solid var(--gold);
+        .community-preview h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
         }
         
-        .sonGa-title { color: var(--sonGa) !important; }
-        .workfit-title { color: var(--workfit) !important; }
+        .sonGa-preview h3 { color: var(--sonGa); }
+        .workfit-preview h3 { color: var(--workfit); }
+        
+        .community-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        
+        .click-hint {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            background: var(--gold);
+            color: black;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s;
+        }
+        
+        .community-card:hover .click-hint {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .community-form-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+            background: var(--bg-secondary);
+            border-top: 1px solid transparent;
+        }
+        
+        .community-card.expanded .community-form-container {
+            max-height: 600px;
+            border-top-color: var(--border-light);
+        }
+        
+        .community-form {
+            padding: 2rem;
+        }
+        
+        .form-title {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
         
         .region-selector {
-            margin: 1rem 0;
+            margin-bottom: 1.5rem;
         }
         
         .region-label {
@@ -449,14 +608,13 @@
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
-            margin-bottom: 1rem;
         }
         
         .region-option {
             flex: 1;
             min-width: 80px;
-            padding: 0.5rem;
-            background: var(--bg-secondary);
+            padding: 0.6rem;
+            background: var(--bg-card);
             border: 1px solid var(--border-light);
             border-radius: 30px;
             text-align: center;
@@ -482,8 +640,8 @@
         .form-input {
             width: 100%;
             padding: 0.8rem 1rem;
-            margin-bottom: 0.8rem;
-            background: var(--bg-secondary);
+            margin-bottom: 1rem;
+            background: var(--bg-card);
             border: 1px solid var(--border-light);
             border-radius: 12px;
             color: var(--text-primary);
@@ -495,9 +653,14 @@
             border-color: var(--gold);
         }
         
+        textarea.form-input {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
         .join-btn {
             width: 100%;
-            padding: 0.8rem;
+            padding: 1rem;
             border: none;
             border-radius: 50px;
             font-weight: 600;
@@ -528,13 +691,13 @@
         
         .success-message {
             text-align: center;
-            padding: 0.8rem;
+            padding: 1rem;
             background: rgba(37, 211, 102, 0.1);
             border: 1px solid #25D366;
             border-radius: 12px;
             color: #25D366;
             font-size: 0.9rem;
-            margin: 0.5rem 0;
+            margin: 1rem 0;
         }
         
         /* Footer */
@@ -566,9 +729,64 @@
             gap: 0.5rem;
         }
         .install-pwa.show { display: flex; }
+        
+        /* Quick navigation buttons */
+        .quick-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 2000;
+        }
+        
+        .nav-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        
+        .nav-btn:hover {
+            background: var(--gold);
+            color: black;
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body class="dark-theme">
+
+<!-- WELCOME POPUP -->
+<div class="welcome-popup" id="welcomePopup">
+    <div class="popup-content">
+        <h2>Karibu!</h2>
+        <p>Where would you like to go today?</p>
+        
+        <div class="popup-buttons">
+            <button class="popup-btn popup-songa" onclick="navigateToCommunity('sonGa')">
+                <i class="fas fa-users"></i> SonGa Community
+            </button>
+            <button class="popup-btn popup-workfit" onclick="navigateToCommunity('workfit')">
+                <i class="fas fa-dumbbell"></i> WorkFit Club
+            </button>
+            <button class="popup-btn popup-main" onclick="navigateToSection('activities')">
+                <i class="fas fa-compass"></i> Explore Activities
+            </button>
+        </div>
+        
+        <button class="popup-close" onclick="closePopup()">
+            Continue to Homepage
+        </button>
+    </div>
+</div>
 
 <!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loadingOverlay">
@@ -594,6 +812,22 @@
         </div>
     </header>
 
+    <!-- Quick Navigation -->
+    <div class="quick-nav">
+        <div class="nav-btn" onclick="navigateToSection('activities')" title="Activities">
+            <i class="fas fa-compass"></i>
+        </div>
+        <div class="nav-btn" onclick="navigateToCommunity('sonGa')" title="SonGa">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="nav-btn" onclick="navigateToCommunity('workfit')" title="WorkFit">
+            <i class="fas fa-dumbbell"></i>
+        </div>
+        <div class="nav-btn" onclick="showPopup()" title="Menu">
+            <i class="fas fa-bars"></i>
+        </div>
+    </div>
+
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="hero-container">
@@ -605,41 +839,41 @@
         </div>
     </section>
 
-    <!-- Brand Activities Section - 5 BEAUTIFUL CARDS -->
-    <section class="activities-section">
+    <!-- Activities Section (4 CARDS) -->
+    <section class="activities-section" id="activities">
         <div class="section-header">
             <h2>Explore the Camp</h2>
             <p>Discover the pillars of I AM MUGERA — each crafted to inspire and uplift.</p>
         </div>
         
         <div class="activities-grid">
-            <!-- Card 1: I Am Mugera (Profile) -->
+            <!-- Card 1: I Am Mugera -->
             <div class="activity-card">
                 <img src="https://i.postimg.cc/VNs27j4G/MUG(4).gif" alt="Mugera" class="card-image" loading="lazy">
                 <div class="card-content">
                     <h3>Empowerment</h3>
-                    <p>Meet the voice behind the movement. Speaker, coach, and author dedicated to awakening African greatness. Learn the story, vision, and message.</p>
+                    <p>Meet the voice behind the movement. Speaker, coach, and author dedicated to awakening African greatness.</p>
                     <a href="mugera.html" class="card-link">Visit page <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             
-            <!-- Card 2: Afrika Milele Campaigns -->
+            <!-- Card 2: Afrika Milele -->
             <div class="activity-card">
                 <img src="https://i.postimg.cc/kGNc3Hg6/MUG(5).gif" alt="Campaigns" class="card-image" loading="lazy">
                 <div class="card-content">
                     <h3>Afrika Milele</h3>
-                    <p>A grassroots movement to promote dignity and drive change. Join campaigns, events, and initiatives that uplift communities.</p>
+                    <p>A grassroots movement to promote dignity and drive change. Join campaigns that uplift communities.</p>
                     <a href="Afrika.html" class="card-link">Get involved <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             
-            <!-- Card 3: Eye of Mugera (Newsletter) -->
+            <!-- Card 3: Eye of Mugera -->
             <div class="activity-card">
                 <img src="https://i.postimg.cc/Gm4hfHr4/AFRICA-ON-THE-RISE(2).gif" alt="Eye of Mugera" class="card-image" loading="lazy">
                 <div class="card-content">
                     <span class="feature-badge"><i class="far fa-newspaper"></i> Weekly Newsletter</span>
                     <h3>Eye of Mugera</h3>
-                    <p>Weekly insights from the heart of Africa's renaissance. Read exclusive stories or get featured as a business, creator, or change-maker.</p>
+                    <p>Weekly insights from the heart of Africa's renaissance. Read exclusive stories or get featured.</p>
                     <a href="eye-of-mugera.html" class="card-link">Read & get featured <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
@@ -653,90 +887,123 @@
                     <a href="shop.html" class="card-link">Browse store <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
-            
-            <!-- Card 5: SonGa Community (BEAUTIFUL DESIGN) -->
-            <div class="community-card sonGa">
-                <div style="position: relative;">
-                    <img src="https://i.postimg.cc/KjVZb0p3/MUG(7).gif" alt="SonGa Community" class="community-image" loading="lazy">
-                    <div class="community-overlay">
-                        <span class="community-stats-badge sonGa-stats" id="sonGaStat">
-                            <i class="fas fa-users"></i> <span id="sonGaCount">0</span> members
-                        </span>
-                    </div>
-                </div>
-                
-                <div class="community-content">
-                    <div class="community-header">
-                        <img src="https://i.postimg.cc/BbdzCkxQ/20260116-0851-Elegant-Lion-Emblem-remix-01kf2npwbtf06ttr4htekjnd47-removebg-preview-2.webp" 
-                             alt="SonGa Logo" class="community-logo-small">
-                        <h3 class="sonGa-title">SonGa Community</h3>
-                    </div>
+        </div>
+    </section>
+
+    <!-- Communities Section (2 CLICKABLE CARDS) -->
+    <section class="communities-section">
+        <div class="section-header">
+            <h2>Our Communities</h2>
+            <p>Click on a community to join and connect with like-minded individuals.</p>
+        </div>
+        
+        <div class="communities-grid">
+            <!-- SonGa Community Card -->
+            <div class="community-card sonGa" id="sonGaCard" onclick="toggleCommunity('sonGa')">
+                <div class="community-preview">
+                    <img src="https://i.postimg.cc/BbdzCkxQ/20260116-0851-Elegant-Lion-Emblem-remix-01kf2npwbtf06ttr4htekjnd47-removebg-preview-2.webp" 
+                         alt="SonGa" class="community-logo">
+                    <h3>SonGa Community</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">Events, Talks & Personal Growth</p>
                     
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
-                        Events, talks & personal growth. Connect with like-minded individuals.
-                    </p>
-                    
-                    <div class="region-selector">
-                        <span class="region-label"><i class="fas fa-map-marker-alt"></i> Select your County</span>
-                        <div class="region-options" id="sonGaRegions">
-                            <div class="region-option selected" onclick="selectRegion('sonGa', 'Nairobi')">Nairobi</div>
+                    <div class="community-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="sonGaCount">0</div>
+                            <div class="stat-label">MEMBERS</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="sonGaEvents">12</div>
+                            <div class="stat-label">EVENTS</div>
                         </div>
                     </div>
                     
-                    <input type="text" class="form-input" id="sonGaName" placeholder="Your full name" required>
-                    <input type="email" class="form-input" id="sonGaEmail" placeholder="Your email address" required>
-                    
-                    <button class="join-btn sonGa-btn" onclick="joinCommunity('sonGa')">
-                        <i class="fab fa-whatsapp"></i> Join SonGa on WhatsApp
-                    </button>
-                    
-                    <div id="sonGaSuccess" class="success-message" style="display: none;">
-                        <i class="fas fa-check-circle"></i> Thanks! Redirecting to WhatsApp...
+                    <div class="click-hint">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+                
+                <div class="community-form-container">
+                    <div class="community-form">
+                        <div class="form-title">Join SonGa Community</div>
+                        
+                        <div class="region-selector">
+                            <span class="region-label"><i class="fas fa-map-marker-alt"></i> Your County</span>
+                            <div class="region-options" id="sonGaRegions">
+                                <div class="region-option selected" onclick="event.stopPropagation(); selectRegion('sonGa', 'Nairobi')">Nairobi</div>
+                            </div>
+                        </div>
+                        
+                        <input type="text" class="form-input" id="sonGaName" placeholder="Full name" onclick="event.stopPropagation()" required>
+                        <input type="email" class="form-input" id="sonGaEmail" placeholder="Email address" onclick="event.stopPropagation()" required>
+                        <input type="tel" class="form-input" id="sonGaPhone" placeholder="Phone number (optional)" onclick="event.stopPropagation()">
+                        <textarea class="form-input" id="sonGaInterests" placeholder="What interests you? (optional)" onclick="event.stopPropagation()" rows="2"></textarea>
+                        
+                        <button class="join-btn sonGa-btn" onclick="event.stopPropagation(); joinCommunity('sonGa')">
+                            <i class="fab fa-whatsapp"></i> Join on WhatsApp
+                        </button>
+                        
+                        <div id="sonGaSuccess" class="success-message" style="display: none;">
+                            <i class="fas fa-check-circle"></i> Thanks! Redirecting to WhatsApp...
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Card 6: WorkFit Community (BEAUTIFUL DESIGN) -->
-            <div class="community-card workfit">
-                <div style="position: relative;">
-                    <img src="https://i.postimg.cc/5yPXC5PZ/MUG(6).gif" alt="WorkFit Community" class="community-image" loading="lazy">
-                    <div class="community-overlay">
-                        <span class="community-stats-badge workfit-stats" id="workfitStat">
-                            <i class="fas fa-users"></i> <span id="workfitCount">0</span> members
-                        </span>
+            <!-- WorkFit Community Card -->
+            <div class="community-card workfit" id="workfitCard" onclick="toggleCommunity('workfit')">
+                <div class="community-preview">
+                    <div class="community-logo" style="background: linear-gradient(135deg, #2E7D32, #1B5E20); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: white;">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <h3>WorkFit Club</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 1rem;">Fitness, Health & Wellness</p>
+                    
+                    <div class="community-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="workfitCount">0</div>
+                            <div class="stat-label">MEMBERS</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="workfitWorkouts">34</div>
+                            <div class="stat-label">WORKOUTS</div>
+                        </div>
+                    </div>
+                    
+                    <div class="click-hint">
+                        <i class="fas fa-chevron-down"></i>
                     </div>
                 </div>
                 
-                <div class="community-content">
-                    <div class="community-header">
-                        <div class="community-logo-small" style="background: linear-gradient(135deg, #2E7D32, #1B5E20); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;">
-                            <i class="fas fa-dumbbell"></i>
+                <div class="community-form-container">
+                    <div class="community-form">
+                        <div class="form-title">Join WorkFit Club</div>
+                        
+                        <div class="region-selector">
+                            <span class="region-label"><i class="fas fa-map-marker-alt"></i> Your Region</span>
+                            <div class="region-options" id="workfitRegions">
+                                <div class="region-option" onclick="event.stopPropagation(); selectRegion('workfit', 'Uthiru')">Uthiru</div>
+                                <div class="region-option" onclick="event.stopPropagation(); selectRegion('workfit', 'Lavington')">Lavington</div>
+                                <div class="region-option selected" onclick="event.stopPropagation(); selectRegion('workfit', 'Satelite')">Satelite</div>
+                            </div>
                         </div>
-                        <h3 class="workfit-title">WorkFit Club</h3>
-                    </div>
-                    
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
-                        Fitness, health & wellness. Achieve your physical best with support.
-                    </p>
-                    
-                    <div class="region-selector">
-                        <span class="region-label"><i class="fas fa-map-marker-alt"></i> Select your Region</span>
-                        <div class="region-options" id="workfitRegions">
-                            <div class="region-option" onclick="selectRegion('workfit', 'Uthiru')">Uthiru</div>
-                            <div class="region-option" onclick="selectRegion('workfit', 'Lavington')">Lavington</div>
-                            <div class="region-option selected" onclick="selectRegion('workfit', 'Satelite')">Satelite</div>
+                        
+                        <input type="text" class="form-input" id="workfitName" placeholder="Full name" onclick="event.stopPropagation()" required>
+                        <input type="email" class="form-input" id="workfitEmail" placeholder="Email address" onclick="event.stopPropagation()" required>
+                        <input type="tel" class="form-input" id="workfitPhone" placeholder="Phone number" onclick="event.stopPropagation()" required>
+                        <select class="form-input" id="workfitFitnessLevel" onclick="event.stopPropagation()">
+                            <option value="">Fitness level (optional)</option>
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                        
+                        <button class="join-btn workfit-btn" onclick="event.stopPropagation(); joinCommunity('workfit')">
+                            <i class="fab fa-whatsapp"></i> Join on WhatsApp
+                        </button>
+                        
+                        <div id="workfitSuccess" class="success-message" style="display: none;">
+                            <i class="fas fa-check-circle"></i> Thanks! Redirecting to WhatsApp...
                         </div>
-                    </div>
-                    
-                    <input type="text" class="form-input" id="workfitName" placeholder="Your full name" required>
-                    <input type="email" class="form-input" id="workfitEmail" placeholder="Your email address" required>
-                    
-                    <button class="join-btn workfit-btn" onclick="joinCommunity('workfit')">
-                        <i class="fab fa-whatsapp"></i> Join WorkFit on WhatsApp
-                    </button>
-                    
-                    <div id="workfitSuccess" class="success-message" style="display: none;">
-                        <i class="fas fa-check-circle"></i> Thanks! Redirecting to WhatsApp...
                     </div>
                 </div>
             </div>
@@ -750,9 +1017,7 @@
             <a href="mugera.html">About</a> · 
             <a href="Afrika.html">Campaigns</a> · 
             <a href="eye-of-mugera.html">Eye of Mugera</a> ·
-            <a href="shop.html">Shop</a> ·
-            <a href="#sonGa">SonGa</a> ·
-            <a href="#workfit">WorkFit</a>
+            <a href="shop.html">Shop</a>
         </p>
     </footer>
 </main>
@@ -834,6 +1099,39 @@
         }, 7000);
     })();
 
+    // Welcome Popup
+    window.onload = function() {
+        // Show popup after loading
+        setTimeout(() => {
+            document.getElementById('welcomePopup').classList.remove('hidden');
+        }, 8000); // Shows after loading animation
+    };
+
+    window.closePopup = function() {
+        document.getElementById('welcomePopup').classList.add('hidden');
+    };
+
+    window.showPopup = function() {
+        document.getElementById('welcomePopup').classList.remove('hidden');
+    };
+
+    window.navigateToCommunity = function(community) {
+        closePopup();
+        // Scroll to communities section
+        document.querySelector('.communities-section').scrollIntoView({ behavior: 'smooth' });
+        // Open the specific community card
+        setTimeout(() => {
+            if (!document.getElementById(community + 'Card').classList.contains('expanded')) {
+                toggleCommunity(community);
+            }
+        }, 500);
+    };
+
+    window.navigateToSection = function(section) {
+        closePopup();
+        document.getElementById(section).scrollIntoView({ behavior: 'smooth' });
+    };
+
     // Theme Toggle
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
@@ -869,14 +1167,29 @@
         }
     });
 
-    // Select region function
+    // Toggle community card expansion
+    window.toggleCommunity = function(community) {
+        const card = document.getElementById(community + 'Card');
+        const wasExpanded = card.classList.contains('expanded');
+        
+        // Close all other cards
+        document.querySelectorAll('.community-card').forEach(c => {
+            c.classList.remove('expanded');
+        });
+        
+        // Toggle current card
+        if (!wasExpanded) {
+            card.classList.add('expanded');
+        }
+    };
+
+    // Select region
     window.selectRegion = function(community, region) {
         selectedRegions[community] = region;
         
-        // Update UI
         const regionOptions = document.querySelectorAll(`#${community}Regions .region-option`);
         regionOptions.forEach(option => {
-            if (option.textContent === region) {
+            if (option.textContent.trim() === region) {
                 option.classList.add('selected');
             } else {
                 option.classList.remove('selected');
@@ -884,7 +1197,7 @@
         });
     };
 
-    // Load real member counts from Firebase
+    // Load member counts from Firebase
     function loadCommunityStats() {
         if (!database) return;
         
@@ -899,15 +1212,16 @@
         });
     }
 
-    // Join community function
+    // Join community
     window.joinCommunity = function(community) {
         const nameInput = document.getElementById(`${community}Name`);
         const emailInput = document.getElementById(`${community}Email`);
+        const phoneInput = document.getElementById(`${community}Phone`);
         const successDiv = document.getElementById(`${community}Success`);
-        const formCard = successDiv.closest('.community-content');
+        const formDiv = document.getElementById(`${community}Card`).querySelector('.community-form');
         
         if (!nameInput.value || !emailInput.value) {
-            alert('Please fill in both name and email');
+            alert('Please fill in your name and email');
             return;
         }
         
@@ -915,19 +1229,23 @@
             const userData = {
                 name: nameInput.value,
                 email: emailInput.value,
+                phone: phoneInput ? phoneInput.value : '',
                 community: community,
                 region: selectedRegions[community],
                 joinedAt: new Date().toISOString()
             };
             
+            // Add extra fields based on community
+            if (community === 'sonGa') {
+                userData.interests = document.getElementById('sonGaInterests').value;
+            } else {
+                userData.fitnessLevel = document.getElementById('workfitFitnessLevel').value;
+            }
+            
             database.ref(`community_members/${community}`).push(userData)
                 .then(() => {
                     // Hide form, show success
-                    nameInput.style.display = 'none';
-                    emailInput.style.display = 'none';
-                    document.querySelector(`#${community}Regions`).style.display = 'none';
-                    document.querySelector(`.region-label`).style.display = 'none';
-                    document.querySelector(`.join-btn`).style.display = 'none';
+                    formDiv.style.display = 'none';
                     successDiv.style.display = 'block';
                     
                     if (analytics) {
@@ -941,15 +1259,11 @@
                     setTimeout(() => {
                         window.open(communityLinks[community], '_blank');
                         setTimeout(() => {
-                            // Reset form
-                            nameInput.style.display = 'block';
-                            emailInput.style.display = 'block';
-                            document.querySelector(`#${community}Regions`).style.display = 'flex';
-                            document.querySelector(`.region-label`).style.display = 'block';
-                            document.querySelector(`.join-btn`).style.display = 'block';
+                            formDiv.style.display = 'block';
                             successDiv.style.display = 'none';
                             nameInput.value = '';
                             emailInput.value = '';
+                            if (phoneInput) phoneInput.value = '';
                         }, 1000);
                     }, 1500);
                 })
