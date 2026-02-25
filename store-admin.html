@@ -1029,6 +1029,28 @@
             border: 1px solid rgba(139, 92, 246, 0.3);
         }
 
+        /* Delivery Tags */
+        .delivery-tag {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .delivery-standard {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--info);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .delivery-express {
+            background: rgba(202, 138, 4, 0.2);
+            color: var(--gold);
+            border: 1px solid rgba(202, 138, 4, 0.3);
+        }
+
         /* Product Badges */
         .product-badge {
             padding: 0.2rem 0.5rem;
@@ -1283,30 +1305,6 @@
             max-width: 400px;
             margin-left: auto;
             margin-right: auto;
-        }
-
-        /* Image Upload */
-        .image-upload-container {
-            margin-bottom: 0.875rem;
-        }
-
-        .image-preview {
-            width: 100%;
-            height: 180px;
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 0.5rem;
-            overflow: hidden;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .image-preview img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
         }
 
         /* Responsive */
@@ -1592,6 +1590,7 @@
                                     <th>Type</th>
                                     <th>Items</th>
                                     <th>Amount</th>
+                                    <th>Delivery</th>
                                     <th>Date</th>
                                     <th>Status</th>
                                     <th>Actions</th>
@@ -1723,7 +1722,9 @@
                                     <th>Customer</th>
                                     <th>Type</th>
                                     <th>Items</th>
-                                    <th>Amount</th>
+                                    <th>Subtotal</th>
+                                    <th>Delivery</th>
+                                    <th>Total</th>
                                     <th>Date</th>
                                     <th>Status</th>
                                     <th>Actions</th>
@@ -1777,10 +1778,10 @@
                         
                         <div class="stat-card">
                             <div class="stat-icon">
-                                <i class="fas fa-percentage"></i>
+                                <i class="fas fa-truck"></i>
                             </div>
-                            <div class="stat-value" id="conversionRate">0%</div>
-                            <div class="stat-label">Conversion Rate</div>
+                            <div class="stat-value" id="totalDeliveryFees">KSh 0</div>
+                            <div class="stat-label">Total Delivery Fees</div>
                         </div>
                     </div>
                     
@@ -1788,7 +1789,7 @@
                         <h3 style="margin-bottom: 1rem; color: var(--white);">Sales Analysis</h3>
                         <div id="analyticsContent">
                             <div id="salesByCategory" style="margin-bottom: 2rem;"></div>
-                            <div id="recentSales" style="margin-top: 2rem;"></div>
+                            <div id="deliveryAnalysis" style="margin-top: 2rem;"></div>
                         </div>
                     </div>
                 </div>
@@ -1905,10 +1906,15 @@
             }, 3000);
         }
 
-        function parsePrice(priceStr) {
-            if (!priceStr) return 0;
-            const numStr = priceStr.replace(/[^0-9.]/g, '');
-            return parseFloat(numStr) || 0;
+        // IMPROVED: Parse price function that handles all formats
+        function parsePrice(price) {
+            if (!price) return 0;
+            if (typeof price === 'number') return price;
+            
+            // Handle string formats like "KSh 1,500", "KSh 1200", "1500", "1,500", etc.
+            const numericStr = String(price).replace(/[^\d.-]/g, '');
+            const parsed = parseFloat(numericStr);
+            return isNaN(parsed) ? 0 : parsed;
         }
 
         function formatCurrency(amount) {
@@ -2095,8 +2101,8 @@
                         id: id,
                         name: product.name || 'Unnamed Product',
                         description: product.description || '',
-                        price: product.price || 'KSh 0',
-                        originalPrice: product.originalPrice || '',
+                        price: parsePrice(product.price),
+                        originalPrice: parsePrice(product.originalPrice),
                         category: product.category || 'materials',
                         status: product.status || 'available',
                         stock: parseInt(product.stock) || 0,
@@ -2119,6 +2125,7 @@
             console.log('Extracted products:', allProducts);
         }
 
+        // IMPROVED: Load orders with proper delivery fee handling
         async function loadOrders() {
             try {
                 const snapshot = await database.ref('orders').once('value');
@@ -2128,6 +2135,57 @@
                 
                 if (data) {
                     Object.entries(data).forEach(([id, order]) => {
+                        // Parse delivery fee (default to 150 for standard, 250 for express if not specified)
+                        let deliveryFee = 0;
+                        if (order.deliveryFee !== undefined && order.deliveryFee !== null) {
+                            deliveryFee = parseFloat(order.deliveryFee);
+                        } else if (order.delivery) {
+                            deliveryFee = parseFloat(order.delivery);
+                        } else if (order.deliveryOption === 'express') {
+                            deliveryFee = 250;
+                        } else {
+                            deliveryFee = 150; // Default standard delivery
+                        }
+                        
+                        // Parse subtotal and total
+                        let subtotal = 0;
+                        let total = 0;
+                        
+                        if (order.type === 'cart_order') {
+                            // Calculate from items if available
+                            if (order.items && Array.isArray(order.items)) {
+                                subtotal = order.items.reduce((sum, item) => {
+                                    return sum + (parsePrice(item.price) * (item.quantity || 1));
+                                }, 0);
+                            } else {
+                                subtotal = parseFloat(order.subtotal) || 0;
+                            }
+                            
+                            // Calculate total (subtotal + delivery)
+                            total = subtotal + deliveryFee;
+                            
+                            // Use stored total if available and seems correct
+                            if (order.totalAmount && Math.abs(parseFloat(order.totalAmount) - total) < 10) {
+                                total = parseFloat(order.totalAmount);
+                            } else if (order.total) {
+                                total = parseFloat(order.total);
+                            }
+                        } else {
+                            // Single product order
+                            const price = parsePrice(order.productPrice);
+                            const quantity = parseInt(order.quantity) || 1;
+                            subtotal = price * quantity;
+                            
+                            // For single orders, total is just the product price (delivery might be included in price or separate)
+                            if (order.totalAmount) {
+                                total = parseFloat(order.totalAmount);
+                            } else if (order.total) {
+                                total = parseFloat(order.total);
+                            } else {
+                                total = price * quantity;
+                            }
+                        }
+                        
                         const orderData = {
                             id: id,
                             fullName: order.fullName || '',
@@ -2138,24 +2196,18 @@
                             paymentMethod: order.paymentMethod || '',
                             productName: order.productName || '',
                             productPrice: order.productPrice || 'KSh 0',
+                            quantity: order.quantity || 1,
                             status: order.status || 'pending',
                             timestamp: order.timestamp ? new Date(order.timestamp) : new Date(),
                             type: order.type || 'product_order',
-                            deliveryOption: order.deliveryOption || '',
-                            deliveryFee: order.deliveryFee || 0,
-                            subtotal: order.subtotal || 0,
-                            totalAmount: order.totalAmount || 0
+                            deliveryOption: order.deliveryOption || 'standard',
+                            deliveryFee: deliveryFee,
+                            subtotal: subtotal,
+                            totalAmount: total || (subtotal + deliveryFee),
+                            items: order.items || [],
+                            totalItems: order.items ? order.items.reduce((sum, item) => sum + (item.quantity || 1), 0) : 1,
+                            source: order.source || 'store_page'
                         };
-                        
-                        // Handle cart orders
-                        if (order.type === 'cart_order' && order.items && Array.isArray(order.items)) {
-                            orderData.items = order.items;
-                            orderData.totalItems = order.items.reduce((total, item) => total + (item.quantity || 1), 0);
-                            orderData.productName = `Cart (${orderData.totalItems} items)`;
-                            orderData.productPrice = formatCurrency(order.totalAmount || 0);
-                        } else if (order.type === 'custom_order') {
-                            orderData.productName = 'Custom Order';
-                        }
                         
                         allOrders.push(orderData);
                     });
@@ -2177,6 +2229,7 @@
             }
         }
 
+        // IMPROVED: Update dashboard stats with proper delivery fee calculation
         function updateDashboardStats() {
             // Total products
             document.getElementById('totalProducts').textContent = allProducts.length;
@@ -2189,17 +2242,17 @@
             const pendingOrders = allOrders.filter(order => order.status === 'pending').length;
             document.getElementById('pendingOrders').textContent = pendingOrders;
             
-            // Total revenue
+            // Total revenue (excluding cancelled orders)
             let totalRevenue = 0;
+            let totalDeliveryFees = 0;
+            
             allOrders.forEach(order => {
                 if (order.status !== 'cancelled') {
-                    if (order.type === 'cart_order') {
-                        totalRevenue += order.totalAmount || 0;
-                    } else {
-                        totalRevenue += parsePrice(order.productPrice);
-                    }
+                    totalRevenue += order.totalAmount || 0;
+                    totalDeliveryFees += order.deliveryFee || 0;
                 }
             });
+            
             document.getElementById('revenue').textContent = formatCurrency(totalRevenue);
             
             // Update recent orders table
@@ -2209,21 +2262,23 @@
             updateRecentProductsCards();
         }
 
+        // IMPROVED: Update analytics stats with delivery fee totals
         function updateAnalyticsStats() {
             document.getElementById('totalProductsAnalytics').textContent = allProducts.length;
             
-            // Total revenue
+            // Total revenue and delivery fees
             let totalRevenue = 0;
+            let totalDeliveryFees = 0;
+            
             allOrders.forEach(order => {
                 if (order.status !== 'cancelled') {
-                    if (order.type === 'cart_order') {
-                        totalRevenue += order.totalAmount || 0;
-                    } else {
-                        totalRevenue += parsePrice(order.productPrice);
-                    }
+                    totalRevenue += order.totalAmount || 0;
+                    totalDeliveryFees += order.deliveryFee || 0;
                 }
             });
+            
             document.getElementById('totalRevenueAnalytics').textContent = formatCurrency(totalRevenue);
+            document.getElementById('totalDeliveryFees').textContent = formatCurrency(totalDeliveryFees);
             
             // Total stock
             let totalStock = 0;
@@ -2242,28 +2297,53 @@
             updateAnalyticsContent();
         }
 
+        // IMPROVED: Analytics content with delivery analysis
         function updateAnalyticsContent() {
             // Sales by category
             const categorySales = {};
+            let totalRevenue = 0;
+            let deliveryByType = { standard: 0, express: 0, standard_count: 0, express_count: 0 };
+            
+            // Calculate totals
             allOrders.forEach(order => {
                 if (order.status !== 'cancelled') {
-                    if (order.type === 'cart_order' && order.items) {
+                    totalRevenue += order.totalAmount || 0;
+                    
+                    // Track delivery stats
+                    const deliveryType = order.deliveryOption || 'standard';
+                    if (deliveryType === 'express') {
+                        deliveryByType.express += order.deliveryFee || 0;
+                        deliveryByType.express_count++;
+                    } else {
+                        deliveryByType.standard += order.deliveryFee || 0;
+                        deliveryByType.standard_count++;
+                    }
+                    
+                    // Calculate category sales
+                    if (order.type === 'cart_order' && order.items && order.items.length > 0) {
                         order.items.forEach(item => {
                             const product = getProductById(item.id);
                             const category = product?.category || 'general';
-                            const amount = (item.price || 0) * (item.quantity || 1);
+                            const amount = parsePrice(item.price) * (item.quantity || 1);
                             categorySales[category] = (categorySales[category] || 0) + amount;
                         });
                     } else if (order.type === 'product_order') {
-                        // Find product by name
-                        const product = allProducts.find(p => p.name === order.productName);
+                        // Find product by name or id
+                        let product = null;
+                        if (order.items && order.items[0]) {
+                            product = getProductById(order.items[0].id);
+                        } else {
+                            product = allProducts.find(p => p.name === order.productName);
+                        }
+                        
                         const category = product?.category || 'general';
-                        const amount = parsePrice(order.productPrice);
+                        const amount = parsePrice(order.productPrice) * (order.quantity || 1);
                         categorySales[category] = (categorySales[category] || 0) + amount;
                     }
                 }
             });
             
+            // Sales by category display
             const salesByCategory = document.getElementById('salesByCategory');
             if (Object.keys(categorySales).length > 0) {
                 let html = '<h4 style="margin-bottom: 1rem;">Sales by Category</h4><div style="display: flex; flex-direction: column; gap: 0.5rem;">';
@@ -2293,8 +2373,49 @@
             } else {
                 salesByCategory.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-chart-bar"></i></div><h3 class="empty-state-title">No Sales Data</h3><p class="empty-state-text">Sales analytics will appear here once you have more orders.</p></div>';
             }
+            
+            // Delivery analysis display
+            const deliveryAnalysis = document.getElementById('deliveryAnalysis');
+            if (deliveryByType.standard_count > 0 || deliveryByType.express_count > 0) {
+                let html = '<h4 style="margin-bottom: 1rem;">Delivery Analysis</h4>';
+                html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">';
+                
+                // Standard delivery card
+                html += `
+                    <div style="background: rgba(59, 130, 246, 0.1); padding: 1rem; border-radius: var(--radius-md); border: 1px solid rgba(59, 130, 246, 0.3);">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <i class="fas fa-truck" style="color: var(--info);"></i>
+                            <h5 style="color: var(--info);">Standard Delivery</h5>
+                        </div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: white;">${deliveryByType.standard_count}</div>
+                        <div style="color: rgba(255,255,255,0.7);">orders</div>
+                        <div style="margin-top: 0.5rem; font-weight: bold; color: var(--gold);">${formatCurrency(deliveryByType.standard)}</div>
+                        <div style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">total fees</div>
+                    </div>
+                `;
+                
+                // Express delivery card
+                html += `
+                    <div style="background: rgba(202, 138, 4, 0.1); padding: 1rem; border-radius: var(--radius-md); border: 1px solid rgba(202, 138, 4, 0.3);">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <i class="fas fa-bolt" style="color: var(--gold);"></i>
+                            <h5 style="color: var(--gold);">Express Delivery</h5>
+                        </div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: white;">${deliveryByType.express_count}</div>
+                        <div style="color: rgba(255,255,255,0.7);">orders</div>
+                        <div style="margin-top: 0.5rem; font-weight: bold; color: var(--gold);">${formatCurrency(deliveryByType.express)}</div>
+                        <div style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">total fees</div>
+                    </div>
+                `;
+                
+                html += '</div>';
+                deliveryAnalysis.innerHTML = html;
+            } else {
+                deliveryAnalysis.innerHTML = '';
+            }
         }
 
+        // IMPROVED: Recent orders table with delivery column
         function updateRecentOrdersTable() {
             const tableBody = document.getElementById('recentOrders');
             tableBody.innerHTML = '';
@@ -2304,7 +2425,7 @@
             if (recentOrders.length === 0) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                        <td colspan="8" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
                             <i class="fas fa-shopping-cart" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
                             <p>No recent orders found</p>
                         </td>
@@ -2315,18 +2436,34 @@
             
             recentOrders.forEach(order => {
                 let itemsText = '';
-                if (order.type === 'cart_order' && order.items) {
+                let orderType = 'Single';
+                let typeClass = 'apparel';
+                
+                if (order.type === 'cart_order') {
                     itemsText = `${order.totalItems || 0} items`;
+                    orderType = 'Cart';
+                    typeClass = 'general';
+                } else if (order.type === 'custom_order') {
+                    itemsText = 'Custom Order';
+                    orderType = 'Custom';
+                    typeClass = 'general';
                 } else {
                     itemsText = order.productName || 'N/A';
                 }
                 
+                const deliveryClass = order.deliveryOption === 'express' ? 'delivery-express' : 'delivery-standard';
+                const deliveryText = order.deliveryOption === 'express' ? 'Express' : 'Standard';
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><strong>${order.fullName || 'N/A'}</strong><br><small style="color: rgba(255, 255, 255, 0.7);">${order.phone || ''}</small></td>
-                    <td><span class="category-tag category-${order.type === 'cart_order' ? 'general' : 'apparel'}">${order.type === 'cart_order' ? 'Cart' : 'Single'}</span></td>
+                    <td><span class="category-tag category-${typeClass}">${orderType}</span></td>
                     <td>${itemsText}</td>
-                    <td>${order.type === 'cart_order' ? formatCurrency(order.totalAmount || 0) : order.productPrice || 'KSh 0'}</td>
+                    <td>${formatCurrency(order.totalAmount || 0)}</td>
+                    <td>
+                        <span class="delivery-tag ${deliveryClass}">${deliveryText}</span><br>
+                        <small>${formatCurrency(order.deliveryFee || 0)}</small>
+                    </td>
                     <td>${order.timestamp.toLocaleDateString()}</td>
                     <td><span class="status-badge status-${order.status || 'pending'}">${order.status || 'pending'}</span></td>
                     <td>
@@ -2334,6 +2471,84 @@
                             <i class="fas fa-eye"></i>
                             View
                         </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // IMPROVED: Full orders table with delivery breakdown
+        function updateOrdersTable() {
+            const tableBody = document.getElementById('allOrders');
+            tableBody.innerHTML = '';
+            
+            if (filteredOrders.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="10" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-shopping-cart" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No orders found matching your filters</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            filteredOrders.forEach(order => {
+                let itemsText = '';
+                let orderType = 'Single';
+                let typeClass = 'apparel';
+                
+                if (order.type === 'cart_order' && order.items && order.items.length > 0) {
+                    itemsText = `${order.totalItems || 0} items`;
+                    orderType = 'Cart';
+                    typeClass = 'general';
+                } else if (order.type === 'custom_order') {
+                    itemsText = 'Custom Order';
+                    orderType = 'Custom';
+                    typeClass = 'general';
+                } else {
+                    itemsText = order.productName || 'N/A';
+                }
+                
+                const deliveryClass = order.deliveryOption === 'express' ? 'delivery-express' : 'delivery-standard';
+                const deliveryText = order.deliveryOption === 'express' ? 'Express' : 'Standard';
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <small style="color: rgba(255, 255, 255, 0.7);">${order.id.substring(0, 8)}...</small>
+                    </td>
+                    <td>
+                        <strong>${order.fullName || 'N/A'}</strong>
+                        ${order.email ? `<br><small style="color: rgba(255, 255, 255, 0.7);">${order.email}</small>` : ''}
+                        ${order.phone ? `<br><small style="color: rgba(255, 255, 255, 0.7);">${order.phone}</small>` : ''}
+                    </td>
+                    <td><span class="category-tag category-${typeClass}">${orderType}</span></td>
+                    <td>${itemsText}</td>
+                    <td>${formatCurrency(order.subtotal || 0)}</td>
+                    <td>
+                        <span class="delivery-tag ${deliveryClass}">${deliveryText}</span><br>
+                        <small>${formatCurrency(order.deliveryFee || 0)}</small>
+                    </td>
+                    <td><strong style="color: var(--gold);">${formatCurrency(order.totalAmount || 0)}</strong></td>
+                    <td>
+                        <div>${order.timestamp.toLocaleDateString()}</div>
+                        <small style="color: rgba(255, 255, 255, 0.7);">${order.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
+                    </td>
+                    <td><span class="status-badge status-${order.status || 'pending'}">${order.status || 'pending'}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" onclick="viewOrder('${order.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit" onclick="editOrder('${order.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete" onclick="deleteOrder('${order.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </td>
                 `;
                 tableBody.appendChild(row);
@@ -2407,8 +2622,8 @@
                     <p class="product-card-description">${product.description || 'No description available'}</p>
                     <div class="product-card-footer">
                         <div class="price-container">
-                            <span class="current-price">${product.price}</span>
-                            ${product.originalPrice ? `<span class="original-price">${product.originalPrice}</span>` : ''}
+                            <span class="current-price">${formatCurrency(product.price)}</span>
+                            ${product.originalPrice ? `<span class="original-price">${formatCurrency(product.originalPrice)}</span>` : ''}
                         </div>
                         <div class="action-buttons">
                             <button class="action-btn edit" onclick="editProduct('${product.id}')">
@@ -2424,68 +2639,6 @@
             });
         }
 
-        // Page Management
-        function showPage(pageId) {
-            // Hide all pages
-            document.querySelectorAll('.page-content').forEach(page => {
-                page.style.display = 'none';
-            });
-            
-            // Show selected page
-            const page = document.getElementById(pageId + 'Page');
-            if (page) {
-                page.style.display = 'block';
-                
-                // Update page title
-                const titles = {
-                    'dashboard': 'Store Dashboard',
-                    'products': 'Product Management',
-                    'orders': 'Order Management',
-                    'analytics': 'Store Analytics'
-                };
-                
-                const subtitles = {
-                    'dashboard': 'Complete Product & Order Management System',
-                    'products': 'Manage all products and inventory',
-                    'orders': 'View and manage all product orders',
-                    'analytics': 'Sales and performance reports'
-                };
-                
-                document.getElementById('pageTitle').textContent = titles[pageId] || pageId;
-                document.getElementById('pageSubtitle').textContent = subtitles[pageId] || '';
-                
-                // Load page-specific content
-                switch (pageId) {
-                    case 'products':
-                        updateProductsList();
-                        break;
-                    case 'orders':
-                        updateOrdersTable();
-                        break;
-                    case 'dashboard':
-                        updateDashboardStats();
-                        break;
-                    case 'analytics':
-                        updateAnalyticsStats();
-                        break;
-                }
-            }
-            
-            // Update navigation
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            document.querySelector(`.nav-link[data-page="${pageId}"]`)?.classList.add('active');
-        }
-
-        function updateUserInfo() {
-            const email = localStorage.getItem('adminEmail') || currentUser?.email || 'admin@iammugera.com';
-            const name = email.split('@')[0];
-            
-            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-        }
-
-        // Product List Functions
         function updateProductsList() {
             const container = document.getElementById('allProductsList');
             container.innerHTML = '';
@@ -2556,8 +2709,8 @@
                     <p class="product-card-description">${product.description || 'No description available'}</p>
                     <div class="product-card-footer">
                         <div class="price-container">
-                            <span class="current-price">${product.price}</span>
-                            ${product.originalPrice ? `<span class="original-price">${product.originalPrice}</span>` : ''}
+                            <span class="current-price">${formatCurrency(product.price)}</span>
+                            ${product.originalPrice ? `<span class="original-price">${formatCurrency(product.originalPrice)}</span>` : ''}
                         </div>
                         <div class="action-buttons">
                             <button class="action-btn edit" onclick="editProduct('${product.id}')">
@@ -2578,6 +2731,68 @@
             });
         }
 
+        // Page Management
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            // Show selected page
+            const page = document.getElementById(pageId + 'Page');
+            if (page) {
+                page.style.display = 'block';
+                
+                // Update page title
+                const titles = {
+                    'dashboard': 'Store Dashboard',
+                    'products': 'Product Management',
+                    'orders': 'Order Management',
+                    'analytics': 'Store Analytics'
+                };
+                
+                const subtitles = {
+                    'dashboard': 'Complete Product & Order Management System',
+                    'products': 'Manage all products and inventory',
+                    'orders': 'View and manage all product orders',
+                    'analytics': 'Sales and performance reports'
+                };
+                
+                document.getElementById('pageTitle').textContent = titles[pageId] || pageId;
+                document.getElementById('pageSubtitle').textContent = subtitles[pageId] || '';
+                
+                // Load page-specific content
+                switch (pageId) {
+                    case 'products':
+                        updateProductsList();
+                        break;
+                    case 'orders':
+                        updateOrdersTable();
+                        break;
+                    case 'dashboard':
+                        updateDashboardStats();
+                        break;
+                    case 'analytics':
+                        updateAnalyticsStats();
+                        break;
+                }
+            }
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`.nav-link[data-page="${pageId}"]`)?.classList.add('active');
+        }
+
+        function updateUserInfo() {
+            const email = localStorage.getItem('adminEmail') || currentUser?.email || 'admin@iammugera.com';
+            const name = email.split('@')[0];
+            
+            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+        }
+
+        // Filter Functions
         function filterProducts() {
             const statusFilter = document.getElementById('productStatusFilter').value;
             const categoryFilter = document.getElementById('productCategoryFilter').value;
@@ -2585,23 +2800,13 @@
             
             filteredProducts = allProducts.filter(product => {
                 // Status filter
-                if (statusFilter === 'visible' && !product.visible) {
-                    return false;
-                }
-                if (statusFilter === 'hidden' && product.visible) {
-                    return false;
-                }
-                if (statusFilter === 'available' && product.status !== 'available') {
-                    return false;
-                }
-                if (statusFilter === 'outofstock' && product.status !== 'outofstock') {
-                    return false;
-                }
+                if (statusFilter === 'visible' && !product.visible) return false;
+                if (statusFilter === 'hidden' && product.visible) return false;
+                if (statusFilter === 'available' && product.status !== 'available') return false;
+                if (statusFilter === 'outofstock' && product.status !== 'outofstock') return false;
                 
                 // Category filter
-                if (categoryFilter !== 'all' && product.category !== categoryFilter) {
-                    return false;
-                }
+                if (categoryFilter !== 'all' && product.category !== categoryFilter) return false;
                 
                 return true;
             });
@@ -2612,9 +2817,9 @@
                     case 'name':
                         return a.name.localeCompare(b.name);
                     case 'price-low':
-                        return parsePrice(a.price) - parsePrice(b.price);
+                        return (a.price || 0) - (b.price || 0);
                     case 'price-high':
-                        return parsePrice(b.price) - parsePrice(a.price);
+                        return (b.price || 0) - (a.price || 0);
                     case 'stock-low':
                         return (a.stock || 0) - (b.stock || 0);
                     default: // 'order'
@@ -2632,76 +2837,6 @@
             filterProducts();
         }
 
-        // Order Functions
-        function updateOrdersTable() {
-            const tableBody = document.getElementById('allOrders');
-            tableBody.innerHTML = '';
-            
-            if (filteredOrders.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
-                            <i class="fas fa-shopping-cart" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                            <p>No orders found matching your filters</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            filteredOrders.forEach(order => {
-                let itemsText = '';
-                let orderType = 'Single';
-                let typeClass = 'apparel';
-                
-                if (order.type === 'cart_order' && order.items) {
-                    itemsText = `${order.totalItems || 0} items`;
-                    orderType = 'Cart';
-                    typeClass = 'general';
-                } else if (order.type === 'custom_order') {
-                    itemsText = 'Custom Order';
-                    orderType = 'Custom';
-                    typeClass = 'general';
-                } else {
-                    itemsText = order.productName || 'N/A';
-                }
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>
-                        <small style="color: rgba(255, 255, 255, 0.7);">${order.id.substring(0, 8)}...</small>
-                    </td>
-                    <td>
-                        <strong>${order.fullName || 'N/A'}</strong>
-                        ${order.email ? `<br><small style="color: rgba(255, 255, 255, 0.7);">${order.email}</small>` : ''}
-                        ${order.phone ? `<br><small style="color: rgba(255, 255, 255, 0.7);">${order.phone}</small>` : ''}
-                    </td>
-                    <td><span class="category-tag category-${typeClass}">${orderType}</span></td>
-                    <td>${itemsText}</td>
-                    <td>${order.type === 'cart_order' ? formatCurrency(order.totalAmount || 0) : order.productPrice || 'KSh 0'}</td>
-                    <td>
-                        <div>${order.timestamp.toLocaleDateString()}</div>
-                        <small style="color: rgba(255, 255, 255, 0.7);">${order.timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</small>
-                    </td>
-                    <td><span class="status-badge status-${order.status || 'pending'}">${order.status || 'pending'}</span></td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="action-btn view" onclick="viewOrder('${order.id}')">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="action-btn edit" onclick="editOrder('${order.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="action-btn delete" onclick="deleteOrder('${order.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
         function filterOrders() {
             const typeFilter = document.getElementById('orderTypeFilter').value;
             const statusFilter = document.getElementById('orderStatusFilter').value;
@@ -2709,14 +2844,10 @@
             
             filteredOrders = allOrders.filter(order => {
                 // Type filter
-                if (typeFilter !== 'all' && order.type !== typeFilter) {
-                    return false;
-                }
+                if (typeFilter !== 'all' && order.type !== typeFilter) return false;
                 
                 // Status filter
-                if (statusFilter !== 'all' && order.status !== statusFilter) {
-                    return false;
-                }
+                if (statusFilter !== 'all' && order.status !== statusFilter) return false;
                 
                 // Date filter
                 if (dateFilter !== 'all') {
@@ -2764,6 +2895,265 @@
             document.getElementById('orderModalTitle').textContent = title;
             document.getElementById('orderModalContent').innerHTML = content;
             document.getElementById('orderModal').classList.add('active');
+        }
+
+        // Order CRUD Functions
+        function viewOrder(orderId) {
+            const order = allOrders.find(o => o.id === orderId);
+            if (!order) {
+                showNotification("Order not found", "error");
+                return;
+            }
+            
+            let itemsHtml = '';
+            if (order.type === 'cart_order' && order.items && order.items.length > 0) {
+                itemsHtml = '<h5 style="margin-top: 1rem; margin-bottom: 0.5rem;">Cart Items:</h5><div style="background: rgba(255, 255, 255, 0.05); padding: 0.75rem; border-radius: var(--radius-sm);">';
+                order.items.forEach(item => {
+                    const product = getProductById(item.id);
+                    const itemTotal = parsePrice(item.price) * (item.quantity || 1);
+                    itemsHtml += `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <div>
+                                <div><strong>${item.name}</strong></div>
+                                <small style="color: rgba(255, 255, 255, 0.7);">Qty: ${item.quantity || 1} × ${formatCurrency(parsePrice(item.price))}</small>
+                            </div>
+                            <div style="font-weight: bold; color: var(--gold);">${formatCurrency(itemTotal)}</div>
+                        </div>
+                    `;
+                });
+                itemsHtml += '</div>';
+            }
+            
+            const deliveryClass = order.deliveryOption === 'express' ? 'delivery-express' : 'delivery-standard';
+            const deliveryText = order.deliveryOption === 'express' ? 'Express' : 'Standard';
+            
+            const content = `
+                <div style="line-height: 1.8; color: var(--white);">
+                    <h4 style="margin-bottom: 1rem;">Order Details</h4>
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-lg);">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div><strong>Order ID:</strong><br><small style="color: rgba(255, 255, 255, 0.7);">${order.id}</small></div>
+                            <div><strong>Order Type:</strong><br>${order.type === 'cart_order' ? 'Cart Order' : order.type === 'custom_order' ? 'Custom Order' : 'Single Product'}</div>
+                            <div><strong>Customer Name:</strong><br>${order.fullName || 'N/A'}</div>
+                            <div><strong>Email:</strong><br>${order.email || 'N/A'}</div>
+                            <div><strong>Phone:</strong><br>${order.phone || 'N/A'}</div>
+                            <div><strong>Product:</strong><br>${order.type === 'cart_order' ? 'Cart Order' : order.productName || 'N/A'}</div>
+                            <div><strong>Payment Method:</strong><br>${order.paymentMethod || 'N/A'}</div>
+                            <div><strong>Status:</strong><br><span class="status-badge status-${order.status || 'pending'}">${order.status || 'pending'}</span></div>
+                            <div><strong>Delivery Option:</strong><br><span class="delivery-tag ${deliveryClass}">${deliveryText}</span></div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Order Summary:</strong><br>
+                            <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
+                                <span>Subtotal:</span>
+                                <span>${formatCurrency(order.subtotal || 0)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Delivery Fee (${order.deliveryOption || 'standard'}):</span>
+                                <span>${formatCurrency(order.deliveryFee || 0)}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-weight: bold; color: var(--gold); border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 0.5rem; margin-top: 0.5rem;">
+                                <span>Total:</span>
+                                <span>${formatCurrency(order.totalAmount || 0)}</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Shipping Address:</strong><br>
+                            ${order.address || 'N/A'}
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Order Date:</strong><br>
+                            ${order.timestamp.toLocaleString()}
+                        </div>
+                        
+                        ${itemsHtml}
+                        
+                        ${order.instructions ? `
+                        <div style="margin-top: 1rem;">
+                            <strong>Special Instructions:</strong><br>
+                            <p style="color: rgba(255, 255, 255, 0.9);">${order.instructions}</p>
+                        </div>
+                        ` : ''}
+                        
+                        ${order.source ? `
+                        <div style="margin-top: 1rem;">
+                            <strong>Order Source:</strong><br>
+                            <small style="color: rgba(255, 255, 255, 0.7);">${order.source}</small>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="editOrder('${order.id}')">
+                        <i class="fas fa-edit"></i>
+                        Edit Order
+                    </button>
+                    <button type="button" class="btn" onclick="hideOrderModal()">
+                        Close
+                    </button>
+                </div>
+            `;
+            showOrderModal(content, `Order: ${order.fullName || 'View Details'}`);
+        }
+
+        function editOrder(orderId) {
+            const order = allOrders.find(o => o.id === orderId);
+            if (!order) {
+                showNotification("Order not found", "error");
+                return;
+            }
+            
+            const form = `
+                <form id="orderForm" onsubmit="updateOrder(event, '${orderId}')">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Customer Name *</label>
+                            <input type="text" class="form-input" name="fullName" value="${order.fullName || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-input" name="email" value="${order.email || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="text" class="form-input" name="phone" value="${order.phone || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Address</label>
+                            <textarea class="form-input" name="address" rows="2">${order.address || ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-input" name="status">
+                                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+                                <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                                <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+                                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Payment Method</label>
+                            <select class="form-input" name="paymentMethod">
+                                <option value="M-Pesa" ${order.paymentMethod === 'M-Pesa' ? 'selected' : ''}>M-Pesa</option>
+                                <option value="Bank Transfer" ${order.paymentMethod === 'Bank Transfer' ? 'selected' : ''}>Bank Transfer</option>
+                                <option value="Cash on Delivery" ${order.paymentMethod === 'Cash on Delivery' ? 'selected' : ''}>Cash on Delivery</option>
+                                <option value="Card" ${order.paymentMethod === 'Card' ? 'selected' : ''}>Credit/Debit Card</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Delivery Option</label>
+                            <select class="form-input" name="deliveryOption">
+                                <option value="standard" ${order.deliveryOption === 'standard' ? 'selected' : ''}>Standard (KSh 150)</option>
+                                <option value="express" ${order.deliveryOption === 'express' ? 'selected' : ''}>Express (KSh 250)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Special Instructions</label>
+                            <textarea class="form-input" name="instructions" rows="3">${order.instructions || ''}</textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="hideOrderModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-save"></i>
+                            Update Order
+                        </button>
+                    </div>
+                </form>
+            `;
+            showOrderModal(form, `Edit Order: ${order.fullName}`);
+        }
+
+        async function updateOrder(e, orderId) {
+            e.preventDefault();
+            showLoading("Updating order...");
+            
+            try {
+                const form = e.target;
+                const formData = new FormData(form);
+                
+                // Determine delivery fee based on option
+                const deliveryOption = formData.get('deliveryOption') || 'standard';
+                const deliveryFee = deliveryOption === 'express' ? 250 : 150;
+                
+                const orderData = {
+                    fullName: formData.get('fullName'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone') || '',
+                    address: formData.get('address') || '',
+                    instructions: formData.get('instructions') || '',
+                    paymentMethod: formData.get('paymentMethod') || '',
+                    status: formData.get('status') || 'pending',
+                    deliveryOption: deliveryOption,
+                    deliveryFee: deliveryFee
+                };
+                
+                // Update in Firebase
+                await database.ref(`orders/${orderId}`).update(orderData);
+                
+                // Reload data
+                await loadOrders();
+                
+                // Update current view
+                if (document.getElementById('ordersPage').style.display !== 'none') {
+                    updateOrdersTable();
+                }
+                if (document.getElementById('dashboardPage').style.display !== 'none') {
+                    updateRecentOrdersTable();
+                    updateDashboardStats();
+                    updateAnalyticsStats();
+                }
+                
+                hideOrderModal();
+                hideLoading();
+                showNotification("Order updated successfully!", "success");
+                
+            } catch (error) {
+                console.error("Error updating order:", error);
+                hideLoading();
+                showNotification("Failed to update order: " + error.message, "error");
+            }
+        }
+
+        async function deleteOrder(orderId) {
+            if (!confirm("Are you sure you want to delete this order? This action cannot be undone.")) {
+                return;
+            }
+            
+            showLoading("Deleting order...");
+            
+            try {
+                // Delete from Firebase
+                await database.ref(`orders/${orderId}`).remove();
+                
+                // Reload data
+                await loadOrders();
+                
+                // Update current view
+                if (document.getElementById('ordersPage').style.display !== 'none') {
+                    updateOrdersTable();
+                }
+                if (document.getElementById('dashboardPage').style.display !== 'none') {
+                    updateRecentOrdersTable();
+                    updateDashboardStats();
+                    updateAnalyticsStats();
+                }
+                
+                hideLoading();
+                showNotification("Order deleted successfully!", "success");
+                
+            } catch (error) {
+                console.error("Error deleting order:", error);
+                hideLoading();
+                showNotification("Failed to delete order: " + error.message, "error");
+            }
         }
 
         // Product CRUD Functions
@@ -2884,8 +3274,6 @@
                 const randomStr = Math.random().toString(36).substring(2, 8);
                 const productId = `product_${timestamp}_${randomStr}`;
                 
-                console.log('Saving new product with ID:', productId); // Debug log
-                
                 // Save to Firebase
                 await database.ref(`iam-mugera/store/products/${productId}`).set(productData);
                 
@@ -2931,7 +3319,7 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Price *</label>
-                            <input type="text" class="form-input" name="price" value="${product.price || 'KSh '}" required>
+                            <input type="text" class="form-input" name="price" value="${product.price}" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Original Price (Optional)</label>
@@ -3087,301 +3475,6 @@
             }
         }
 
-        // Order CRUD Functions
-        function viewOrder(orderId) {
-            const order = allOrders.find(o => o.id === orderId);
-            if (!order) {
-                showNotification("Order not found", "error");
-                return;
-            }
-            
-            let itemsHtml = '';
-            if (order.type === 'cart_order' && order.items) {
-                itemsHtml = '<h5 style="margin-top: 1rem; margin-bottom: 0.5rem;">Cart Items:</h5><div style="background: rgba(255, 255, 255, 0.05); padding: 0.75rem; border-radius: var(--radius-sm);">';
-                order.items.forEach(item => {
-                    const product = getProductById(item.id);
-                    const itemTotal = (item.price || 0) * (item.quantity || 1);
-                    itemsHtml += `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                            <div>
-                                <div><strong>${item.name}</strong></div>
-                                <small style="color: rgba(255, 255, 255, 0.7);">Qty: ${item.quantity || 1} × ${formatCurrency(item.price || 0)}</small>
-                            </div>
-                            <div style="font-weight: bold; color: var(--gold);">${formatCurrency(itemTotal)}</div>
-                        </div>
-                    `;
-                });
-                itemsHtml += '</div>';
-            }
-            
-            const content = `
-                <div style="line-height: 1.8; color: var(--white);">
-                    <h4 style="margin-bottom: 1rem;">Order Details</h4>
-                    <div style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-lg);">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                            <div><strong>Order ID:</strong><br><small style="color: rgba(255, 255, 255, 0.7);">${order.id}</small></div>
-                            <div><strong>Order Type:</strong><br>${order.type === 'cart_order' ? 'Cart Order' : order.type === 'custom_order' ? 'Custom Order' : 'Single Product'}</div>
-                            <div><strong>Customer Name:</strong><br>${order.fullName || 'N/A'}</div>
-                            <div><strong>Email:</strong><br>${order.email || 'N/A'}</div>
-                            <div><strong>Phone:</strong><br>${order.phone || 'N/A'}</div>
-                            <div><strong>Product:</strong><br>${order.type === 'cart_order' ? 'Cart Order' : order.productName || 'N/A'}</div>
-                            <div><strong>Amount:</strong><br>${order.type === 'cart_order' ? formatCurrency(order.totalAmount || 0) : order.productPrice || 'KSh 0'}</div>
-                            <div><strong>Payment Method:</strong><br>${order.paymentMethod || 'N/A'}</div>
-                            <div><strong>Status:</strong><br><span class="status-badge status-${order.status || 'pending'}">${order.status || 'pending'}</span></div>
-                        </div>
-                        ${order.type === 'cart_order' ? `
-                        <div style="margin-bottom: 1rem;">
-                            <strong>Order Summary:</strong><br>
-                            <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
-                                <span>Subtotal:</span>
-                                <span>${formatCurrency(order.subtotal || 0)}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between;">
-                                <span>Delivery Fee (${order.deliveryOption === 'express' ? 'Express' : 'Standard'}):</span>
-                                <span>${formatCurrency(order.deliveryFee || 0)}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; font-weight: bold; color: var(--gold); border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 0.5rem; margin-top: 0.5rem;">
-                                <span>Total:</span>
-                                <span>${formatCurrency(order.totalAmount || 0)}</span>
-                            </div>
-                        </div>
-                        ` : ''}
-                        <div style="margin-bottom: 1rem;">
-                            <strong>Shipping Address:</strong><br>
-                            ${order.address || 'N/A'}
-                        </div>
-                        <div style="margin-bottom: 1rem;">
-                            <strong>Order Date:</strong><br>
-                            ${order.timestamp.toLocaleString()}
-                        </div>
-                        ${itemsHtml}
-                        ${order.instructions ? `
-                        <div style="margin-top: 1rem;">
-                            <strong>Special Instructions:</strong><br>
-                            <p style="color: rgba(255, 255, 255, 0.9);">${order.instructions}</p>
-                        </div>
-                        ` : ''}
-                    </div>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-outline" onclick="editOrder('${order.id}')">
-                        <i class="fas fa-edit"></i>
-                        Edit Order
-                    </button>
-                    <button type="button" class="btn" onclick="hideOrderModal()">
-                        Close
-                    </button>
-                </div>
-            `;
-            showOrderModal(content, `Order: ${order.fullName || 'View Details'}`);
-        }
-
-        function editOrder(orderId) {
-            const order = allOrders.find(o => o.id === orderId);
-            if (!order) {
-                showNotification("Order not found", "error");
-                return;
-            }
-            
-            const form = `
-                <form id="orderForm" onsubmit="updateOrder(event, '${orderId}')">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label class="form-label">Customer Name *</label>
-                            <input type="text" class="form-input" name="fullName" value="${order.fullName || ''}" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Email *</label>
-                            <input type="email" class="form-input" name="email" value="${order.email || ''}" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Phone</label>
-                            <input type="text" class="form-input" name="phone" value="${order.phone || ''}">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Address</label>
-                            <textarea class="form-input" name="address" rows="2">${order.address || ''}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Status</label>
-                            <select class="form-input" name="status">
-                                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
-                                <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
-                                <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
-                                <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
-                                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Payment Method</label>
-                            <select class="form-input" name="paymentMethod">
-                                <option value="M-Pesa" ${order.paymentMethod === 'M-Pesa' ? 'selected' : ''}>M-Pesa</option>
-                                <option value="Bank Transfer" ${order.paymentMethod === 'Bank Transfer' ? 'selected' : ''}>Bank Transfer</option>
-                                <option value="Cash on Delivery" ${order.paymentMethod === 'Cash on Delivery' ? 'selected' : ''}>Cash on Delivery</option>
-                                <option value="Card" ${order.paymentMethod === 'Card' ? 'selected' : ''}>Credit/Debit Card</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Special Instructions</label>
-                            <textarea class="form-input" name="instructions" rows="3">${order.instructions || ''}</textarea>
-                        </div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-outline" onclick="hideOrderModal()">
-                            Cancel
-                        </button>
-                        <button type="submit" class="btn">
-                            <i class="fas fa-save"></i>
-                            Update Order
-                        </button>
-                    </div>
-                </form>
-            `;
-            showOrderModal(form, `Edit Order: ${order.fullName}`);
-        }
-
-        async function updateOrder(e, orderId) {
-            e.preventDefault();
-            showLoading("Updating order...");
-            
-            try {
-                const form = e.target;
-                const formData = new FormData(form);
-                const orderData = {
-                    fullName: formData.get('fullName'),
-                    email: formData.get('email'),
-                    phone: formData.get('phone') || '',
-                    address: formData.get('address') || '',
-                    instructions: formData.get('instructions') || '',
-                    paymentMethod: formData.get('paymentMethod') || '',
-                    status: formData.get('status') || 'pending'
-                };
-                
-                // Update in Firebase
-                await database.ref(`orders/${orderId}`).update(orderData);
-                
-                // Reload data
-                await loadOrders();
-                
-                // Update current view
-                if (document.getElementById('ordersPage').style.display !== 'none') {
-                    updateOrdersTable();
-                }
-                if (document.getElementById('dashboardPage').style.display !== 'none') {
-                    updateRecentOrdersTable();
-                    updateDashboardStats();
-                    updateAnalyticsStats();
-                }
-                
-                hideOrderModal();
-                hideLoading();
-                showNotification("Order updated successfully!", "success");
-                
-            } catch (error) {
-                console.error("Error updating order:", error);
-                hideLoading();
-                showNotification("Failed to update order: " + error.message, "error");
-            }
-        }
-
-        async function deleteOrder(orderId) {
-            if (!confirm("Are you sure you want to delete this order? This action cannot be undone.")) {
-                return;
-            }
-            
-            showLoading("Deleting order...");
-            
-            try {
-                // Delete from Firebase
-                await database.ref(`orders/${orderId}`).remove();
-                
-                // Reload data
-                await loadOrders();
-                
-                // Update current view
-                if (document.getElementById('ordersPage').style.display !== 'none') {
-                    updateOrdersTable();
-                }
-                if (document.getElementById('dashboardPage').style.display !== 'none') {
-                    updateRecentOrdersTable();
-                    updateDashboardStats();
-                    updateAnalyticsStats();
-                }
-                
-                hideLoading();
-                showNotification("Order deleted successfully!", "success");
-                
-            } catch (error) {
-                console.error("Error deleting order:", error);
-                hideLoading();
-                showNotification("Failed to delete order: " + error.message, "error");
-            }
-        }
-
-        // Utility Functions
-        function refreshProducts() {
-            showLoading("Refreshing products...");
-            extractProductsFromData();
-            updateProductsList();
-            hideLoading();
-            showNotification("Products refreshed successfully", "success");
-        }
-
-        async function refreshOrders() {
-            showLoading("Refreshing orders...");
-            await loadOrders();
-            if (document.getElementById('ordersPage').style.display !== 'none') {
-                updateOrdersTable();
-            }
-            if (document.getElementById('dashboardPage').style.display !== 'none') {
-                updateRecentOrdersTable();
-                updateDashboardStats();
-            }
-            hideLoading();
-            showNotification("Orders refreshed successfully", "success");
-        }
-
-        function refreshAnalytics() {
-            showLoading("Refreshing analytics...");
-            updateAnalyticsStats();
-            hideLoading();
-            showNotification("Analytics refreshed", "success");
-        }
-
-        function exportOrders() {
-            if (allOrders.length === 0) {
-                showNotification("No orders to export", "warning");
-                return;
-            }
-            
-            // Create CSV content
-            let csv = 'Order ID,Order Type,Customer Name,Email,Phone,Product,Amount,Status,Date,Payment Method,Address\n';
-            allOrders.forEach(order => {
-                let productInfo = '';
-                if (order.type === 'cart_order') {
-                    productInfo = `Cart (${order.totalItems || 0} items)`;
-                } else {
-                    productInfo = order.productName || '';
-                }
-                
-                csv += `"${order.id}","${order.type || ''}","${order.fullName || ''}","${order.email || ''}","${order.phone || ''}","${productInfo}","${order.type === 'cart_order' ? (order.totalAmount || 0) : parsePrice(order.productPrice) || 0}","${order.status || ''}","${order.timestamp.toISOString()}","${order.paymentMethod || ''}","${order.address || ''}"\n`;
-            });
-            
-            // Create download link
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `orders_${new Date().toISOString().split('T')[0]}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            
-            showNotification("Export completed successfully", "success");
-        }
-
         function viewProductDetails(productId) {
             const product = getProductById(productId);
             if (!product) return;
@@ -3411,7 +3504,7 @@
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                             <div><strong>Category:</strong><br>${getCategoryName(product.category)}</div>
-                            <div><strong>Price:</strong><br>${product.price} ${product.originalPrice ? `<small style="color: rgba(255, 255, 255, 0.7); text-decoration: line-through;">${product.originalPrice}</small>` : ''}</div>
+                            <div><strong>Price:</strong><br>${formatCurrency(product.price)} ${product.originalPrice ? `<small style="color: rgba(255, 255, 255, 0.7); text-decoration: line-through;">${formatCurrency(product.originalPrice)}</small>` : ''}</div>
                             <div><strong>Stock:</strong><br>${product.stock || 0} units</div>
                             <div><strong>Status:</strong><br><span class="status-badge status-${product.status || 'available'}">${product.status || 'available'}</span></div>
                         </div>
@@ -3434,7 +3527,7 @@
                         ${product.badge ? `
                         <div style="margin-bottom: 1rem;">
                             <strong>Badge:</strong><br>
-                            <span class="badge-${product.badge.toLowerCase()}">${product.badge}</span>
+                            <span class="product-badge badge-${product.badge.toLowerCase()}">${product.badge}</span>
                         </div>
                         ` : ''}
                     </div>
@@ -3450,6 +3543,88 @@
                 </div>
             `;
             showModal(content, `Product Details: ${product.name}`);
+        }
+
+        // Utility Functions
+        function refreshProducts() {
+            showLoading("Refreshing products...");
+            extractProductsFromData();
+            updateProductsList();
+            hideLoading();
+            showNotification("Products refreshed successfully", "success");
+        }
+
+        async function refreshOrders() {
+            showLoading("Refreshing orders...");
+            await loadOrders();
+            if (document.getElementById('ordersPage').style.display !== 'none') {
+                updateOrdersTable();
+            }
+            if (document.getElementById('dashboardPage').style.display !== 'none') {
+                updateRecentOrdersTable();
+                updateDashboardStats();
+                updateAnalyticsStats();
+            }
+            hideLoading();
+            showNotification("Orders refreshed successfully", "success");
+        }
+
+        function refreshAnalytics() {
+            showLoading("Refreshing analytics...");
+            updateAnalyticsStats();
+            hideLoading();
+            showNotification("Analytics refreshed", "success");
+        }
+
+        function exportOrders() {
+            if (allOrders.length === 0) {
+                showNotification("No orders to export", "warning");
+                return;
+            }
+            
+            // Create CSV content
+            let csv = 'Order ID,Order Type,Customer Name,Email,Phone,Items,Subtotal,Delivery Fee,Total,Status,Date,Payment Method,Address,Delivery Option\n';
+            allOrders.forEach(order => {
+                let itemsInfo = '';
+                if (order.type === 'cart_order' && order.items) {
+                    itemsInfo = `Cart (${order.totalItems || 0} items)`;
+                } else {
+                    itemsInfo = order.productName || '';
+                }
+                
+                // Escape any commas in fields
+                const escapeCsv = (str) => `"${String(str || '').replace(/"/g, '""')}"`;
+                
+                csv += [
+                    escapeCsv(order.id),
+                    escapeCsv(order.type || ''),
+                    escapeCsv(order.fullName || ''),
+                    escapeCsv(order.email || ''),
+                    escapeCsv(order.phone || ''),
+                    escapeCsv(itemsInfo),
+                    order.subtotal || 0,
+                    order.deliveryFee || 0,
+                    order.totalAmount || 0,
+                    escapeCsv(order.status || ''),
+                    order.timestamp.toISOString(),
+                    escapeCsv(order.paymentMethod || ''),
+                    escapeCsv(order.address || ''),
+                    escapeCsv(order.deliveryOption || 'standard')
+                ].join(',') + '\n';
+            });
+            
+            // Create download link
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `orders_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showNotification("Export completed successfully", "success");
         }
 
         // Event Listeners
