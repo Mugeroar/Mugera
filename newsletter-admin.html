@@ -1,0 +1,3719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>I AM MUGERA - Newsletter Management</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/66rJN5PW/signature(1).png">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- PDF.js for preview -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    
+    <style>
+        :root {
+            --black: #0a0a0a;
+            --white: #ffffff;
+            --gray: #f9f9f9;
+            --dark-gray: #1a1a1a;
+            --light-gray: #e8e8e8;
+            --gold: #ca8a04;
+            --gold-light: #fef3c7;
+            --gold-dark: #a16207;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --teal: #14b8a6;
+            --pink: #ec4899;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 15px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+        }
+
+        .professional-bg {
+            background: 
+                linear-gradient(135deg, 
+                    rgba(10, 10, 10, 0.92) 0%, 
+                    rgba(10, 10, 10, 0.88) 100%),
+                url('https://i.postimg.cc/Hn3fK4jT/20260206_1227_Image_Generation_remix_01kgs4ccqtf63rvv82pa8tmgzm.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        /* Login Page */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-2xl);
+            padding: 3.5rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: var(--shadow-2xl);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+            z-index: 1;
+            transform: translateY(0);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-2xl), 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .login-logo img {
+            height: 90px;
+            width: auto;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+        }
+
+        .login-logo h1 {
+            font-size: 2rem;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .login-logo p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+        }
+
+        .alert {
+            padding: 1.25rem 1.5rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.75rem;
+            display: none;
+            border-left: 4px solid;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: var(--white);
+            box-shadow: var(--shadow-sm);
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-error {
+            border-left-color: var(--error);
+            background: linear-gradient(to right, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
+        }
+
+        .alert-success {
+            border-left-color: var(--success);
+            background: linear-gradient(to right, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+        }
+
+        .alert.show {
+            display: flex;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label i {
+            color: var(--gold);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 4px rgba(202, 138, 4, 0.25);
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-input[type="file"] {
+            padding: 0.75rem 1rem;
+        }
+
+        .form-input[type="file"]::-webkit-file-upload-button {
+            background: var(--gold);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            margin-right: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: var(--transition);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(202, 138, 4, 0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid rgba(202, 138, 4, 0.4);
+            color: var(--gold);
+        }
+
+        .btn-outline:hover {
+            background: var(--gold);
+            color: var(--white);
+        }
+
+        .btn-sm {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Admin Panel */
+        .admin-container {
+            display: none;
+            min-height: 100vh;
+            background: 
+                linear-gradient(135deg, 
+                    rgba(10, 10, 10, 0.92) 0%, 
+                    rgba(10, 10, 10, 0.88) 100%),
+                url('https://i.postimg.cc/Hn3fK4jT/20260206_1227_Image_Generation_remix_01kgs4ccqtf63rvv82pa8tmgzm.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 2rem;
+            right: 2rem;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .sidebar-logo {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-logo img {
+            height: 70px;
+            width: auto;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+        }
+
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 0.25rem;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 2rem 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+            font-weight: 500;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--gold);
+            transform: scaleY(0);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .nav-link:hover::before {
+            transform: scaleY(1);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(90deg, rgba(202, 138, 4, 0.2), transparent);
+            color: var(--gold);
+        }
+
+        .nav-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--gold);
+            color: var(--white);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--white);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 2px solid rgba(202, 138, 4, 0.4);
+            color: var(--gold);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: var(--gold);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(202, 138, 4, 0.4);
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 2px solid rgba(239, 68, 68, 0.4);
+            color: var(--error);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: var(--error);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Page Content */
+        .page-content {
+            display: none;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+            border-color: rgba(202, 138, 4, 0.3);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(202, 138, 4, 0.2), rgba(161, 98, 7, 0.2));
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: var(--gold);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 0.25rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--white);
+            margin: 0;
+        }
+
+        .section-tools {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(202, 138, 4, 0.1);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(202, 138, 4, 0.2);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 180px;
+        }
+
+        .filter-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.25);
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow-sm);
+            background: rgba(255, 255, 255, 0.05);
+            margin-top: 1rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .data-table th {
+            background: rgba(202, 138, 4, 0.2);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gold);
+            border-bottom: 2px solid var(--gold);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--gold);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-public {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .status-private {
+            background: rgba(100, 116, 139, 0.2);
+            color: #94a3b8;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 0.375rem 0.75rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: var(--transition);
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .action-btn.view {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--info);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .action-btn.view:hover {
+            background: rgba(59, 130, 246, 0.3);
+        }
+
+        .action-btn.edit {
+            background: rgba(202, 138, 4, 0.2);
+            color: var(--gold);
+            border: 1px solid rgba(202, 138, 4, 0.3);
+        }
+
+        .action-btn.edit:hover {
+            background: rgba(202, 138, 4, 0.3);
+        }
+
+        .action-btn.delete {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .action-btn.delete:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .action-btn.download {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .action-btn.download:hover {
+            background: rgba(16, 185, 129, 0.3);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .newsletter-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .newsletter-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-xl);
+            border-color: rgba(202, 138, 4, 0.3);
+        }
+
+        .newsletter-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .newsletter-card-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--white);
+            margin: 0;
+        }
+
+        .newsletter-card-badge {
+            padding: 0.25rem 0.75rem;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: var(--white);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .newsletter-card-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .newsletter-card-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+        }
+
+        .newsletter-card-meta-item i {
+            color: var(--gold);
+            width: 16px;
+        }
+
+        .newsletter-card-description {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .newsletter-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .newsletter-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .newsletter-stat-item {
+            text-align: center;
+        }
+
+        .newsletter-stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .newsletter-stat-label {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(30px);
+            border-radius: var(--radius-2xl);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow-2xl);
+            animation: modalSlideIn 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--white);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--white);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Progress Bar */
+        .upload-progress {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-lg);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* PDF Preview */
+        .pdf-preview {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-lg);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .pdf-page {
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .pdf-page canvas {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Tags */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tag {
+            padding: 0.25rem 0.75rem;
+            background: rgba(202, 138, 4, 0.2);
+            border: 1px solid rgba(202, 138, 4, 0.3);
+            border-radius: var(--radius-sm);
+            color: var(--gold);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .tag-add {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            background: transparent;
+            border: 1px dashed rgba(202, 138, 4, 0.3);
+            border-radius: var(--radius-sm);
+            color: var(--gold);
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .tag-remove {
+            margin-left: 0.25rem;
+            cursor: pointer;
+            color: var(--error);
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-content {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(30px);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(202, 138, 4, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--gold);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Notification */
+        .notification-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
+            max-width: 350px;
+        }
+
+        .notification {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideInRight 0.3s ease;
+            border-left: 4px solid;
+            color: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .notification.success {
+            border-left-color: var(--success);
+            background: linear-gradient(to right, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+        }
+
+        .notification.error {
+            border-left-color: var(--error);
+            background: linear-gradient(to right, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
+        }
+
+        .notification.warning {
+            border-left-color: var(--warning);
+            background: linear-gradient(to right, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
+        }
+
+        .notification.info {
+            border-left-color: var(--info);
+            background: linear-gradient(to right, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+            color: var(--gold);
+        }
+
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--white);
+        }
+
+        .empty-state-text {
+            margin-bottom: 1.5rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .user-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .section-tools {
+                justify-content: center;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+            
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .login-card {
+                padding: 2.5rem 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar-header {
+                padding: 1.5rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .header {
+                padding: 1.5rem;
+            }
+            
+            .content-section {
+                padding: 1.5rem;
+            }
+            
+            .modal {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="professional-bg">
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <img src="https://i.postimg.cc/Kzsb3tX6/I_AM_MUGERA.png" alt="I AM MUGERA">
+                <h1>Newsletter Management</h1>
+                <p>Admin Authentication Required</p>
+            </div>
+            
+            <div id="authError" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText">Invalid credentials or session expired</span>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-envelope"></i>
+                    Admin Email
+                </label>
+                <input type="email" id="authEmail" class="form-input" placeholder="admin@iammugera.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-lock"></i>
+                    Password
+                </label>
+                <input type="password" id="authPassword" class="form-input" placeholder="••••••••" required>
+            </div>
+            
+            <button type="button" class="btn" id="authBtn">
+                <i class="fas fa-sign-in-alt"></i>
+                Sign In to Portal
+            </button>
+            
+            <a href="admin.html" class="btn btn-outline" style="margin-top: 1rem;">
+                <i class="fas fa-arrow-left"></i>
+                Back to Master Portal
+            </a>
+            
+            <p style="text-align: center; margin-top: 1.5rem; color: rgba(255, 255, 255, 0.7); font-size: 0.85rem;">
+                <i class="fas fa-shield-alt"></i> Secure Admin Access
+            </p>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <img src="https://i.postimg.cc/Kzsb3tX6/I_AM_MUGERA.png" alt="I AM MUGERA">
+                </div>
+                <h2 class="sidebar-title">Newsletter Portal</h2>
+                <p class="sidebar-subtitle">Eye of Mugera Administration</p>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt nav-icon"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="newsletters">
+                        <i class="fas fa-newspaper nav-icon"></i>
+                        <span>Newsletters</span>
+                        <span class="nav-badge" id="newsletterCount">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="subscribers">
+                        <i class="fas fa-users nav-icon"></i>
+                        <span>Subscribers</span>
+                        <span class="nav-badge" id="subscriberCount">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="upload">
+                        <i class="fas fa-upload nav-icon"></i>
+                        <span>Upload Newsletter</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="analytics">
+                        <i class="fas fa-chart-bar nav-icon"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="settings">
+                        <i class="fas fa-cog nav-icon"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div style="padding: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto;">
+                <p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); text-align: center;">
+                    <i class="fas fa-lock"></i> Secure Session Active
+                </p>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div>
+                    <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                    <div class="page-subtitle">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span id="pageSubtitle">Newsletter Management System</span>
+                    </div>
+                </div>
+                <div class="user-actions">
+                    <a href="admin.html" class="back-btn">
+                        <i class="fas fa-home"></i>
+                        Master Portal
+                    </a>
+                    <div class="user-avatar" id="userAvatar">
+                        A
+                    </div>
+                    <button class="logout-btn" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <div id="dashboardPage" class="page-content">
+                <div class="dashboard-grid">
+                    <div class="stat-card" onclick="showPage('newsletters')">
+                        <div class="stat-icon">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <div class="stat-value" id="totalNewsletters">0</div>
+                        <div class="stat-label">Total Newsletters</div>
+                    </div>
+                    
+                    <div class="stat-card" onclick="showPage('subscribers')">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-value" id="totalSubscribers">0</div>
+                        <div class="stat-label">Subscribers</div>
+                    </div>
+                    
+                    <div class="stat-card" onclick="showPage('analytics')">
+                        <div class="stat-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div class="stat-value" id="totalDownloads">0</div>
+                        <div class="stat-label">Total Downloads</div>
+                    </div>
+                    
+                    <div class="stat-card" onclick="showPage('analytics')">
+                        <div class="stat-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="stat-value" id="totalViews">0</div>
+                        <div class="stat-label">Total Views</div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Recent Newsletters</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="showPage('newsletters')">
+                                <i class="fas fa-eye"></i>
+                                View All
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="showPage('upload')">
+                                <i class="fas fa-plus"></i>
+                                Upload New
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="cards-grid" id="recentNewslettersList">
+                        <!-- Newsletters will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Recent Subscribers</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="showPage('subscribers')">
+                                <i class="fas fa-list"></i>
+                                View All
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="refreshSubscribers()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Source</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentSubscribers">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Newsletters Page -->
+            <div id="newslettersPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Newsletter Management</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="refreshNewsletters()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="showPage('upload')">
+                                <i class="fas fa-upload"></i>
+                                Upload Newsletter
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label class="filter-label">Year</label>
+                            <select id="newsletterYearFilter" class="filter-select" onchange="filterNewsletters()">
+                                <option value="all">All Years</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Access</label>
+                            <select id="newsletterAccessFilter" class="filter-select" onchange="filterNewsletters()">
+                                <option value="all">All</option>
+                                <option value="public">Public</option>
+                                <option value="private">Subscriber Only</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Sort By</label>
+                            <select id="newsletterSortFilter" class="filter-select" onchange="filterNewsletters()">
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="title">Title A-Z</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="cards-grid" id="allNewslettersList">
+                        <!-- Newsletters will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subscribers Page -->
+            <div id="subscribersPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Subscriber Management</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="exportSubscribers()">
+                                <i class="fas fa-file-export"></i>
+                                Export CSV
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="refreshSubscribers()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label class="filter-label">Status</label>
+                            <select id="subscriberStatusFilter" class="filter-select" onchange="filterSubscribers()">
+                                <option value="all">All</option>
+                                <option value="verified">Verified</option>
+                                <option value="pending">Pending</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Date</label>
+                            <select id="subscriberDateFilter" class="filter-select" onchange="filterSubscribers()">
+                                <option value="all">All Time</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Source</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allSubscribers">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Newsletter Page -->
+            <div id="uploadPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Upload Newsletter</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-outline btn-sm" onclick="showPage('newsletters')">
+                                <i class="fas fa-arrow-left"></i>
+                                Back to Newsletters
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <form id="uploadNewsletterForm" onsubmit="uploadNewsletter(event)">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-heading"></i>
+                                    Newsletter Title *
+                                </label>
+                                <input type="text" class="form-input" id="newsletterTitle" placeholder="e.g., Eye of Mugera - February 2026: The Renaissance Issue" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-hashtag"></i>
+                                    Issue Number
+                                </label>
+                                <input type="number" class="form-input" id="issueNumber" placeholder="e.g., 12" min="1">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-layer-group"></i>
+                                    Volume
+                                </label>
+                                <input type="number" class="form-input" id="volume" placeholder="e.g., 2" min="1" value="1">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-calendar"></i>
+                                    Publication Date
+                                </label>
+                                <input type="date" class="form-input" id="publicationDate" required>
+                            </div>
+                            
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label class="form-label">
+                                    <i class="fas fa-align-left"></i>
+                                    Description *
+                                </label>
+                                <textarea class="form-input" id="newsletterDescription" rows="3" placeholder="Brief description of this newsletter issue..." required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-tags"></i>
+                                    Tags
+                                </label>
+                                <div id="tagsContainer" class="tags-container">
+                                    <!-- Tags will be added here -->
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                    <input type="text" class="form-input" id="tagInput" placeholder="Add a tag" style="flex: 1;">
+                                    <button type="button" class="btn btn-sm" onclick="addTag()" style="width: auto;">
+                                        <i class="fas fa-plus"></i>
+                                        Add
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-microphone"></i>
+                                    Featured Voice
+                                </label>
+                                <input type="text" class="form-input" id="featuredVoice" placeholder="e.g., Dr. James Mwangi - Equity Bank CEO">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-globe"></i>
+                                    Access Level
+                                </label>
+                                <select class="form-input" id="accessLevel">
+                                    <option value="monthly">Subscriber Only</option>
+                                    <option value="annual">Annual Subscribers Only</option>
+                                    <option value="public">Public Access</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-image"></i>
+                                    Cover Image URL
+                                </label>
+                                <input type="url" class="form-input" id="coverImage" placeholder="https://...">
+                            </div>
+                            
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label class="form-label">
+                                    <i class="fas fa-file-pdf"></i>
+                                    PDF File *
+                                </label>
+                                <input type="file" class="form-input" id="pdfFile" accept=".pdf" required>
+                                <div id="fileInfo" style="margin-top: 0.5rem; font-size: 0.875rem; color: rgba(255, 255, 255, 0.7);"></div>
+                            </div>
+                            
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label class="form-label">
+                                    <i class="fas fa-eye"></i>
+                                    Preview First Page
+                                </label>
+                                <div id="pdfPreview" class="pdf-preview" style="display: none;">
+                                    <!-- PDF preview will be shown here -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Upload Progress -->
+                        <div id="uploadProgress" class="upload-progress" style="display: none;">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="uploadProgressBar" style="width: 0%;"></div>
+                            </div>
+                            <div class="progress-text" id="uploadProgressText">Uploading: 0%</div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" onclick="showPage('newsletters')">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn" id="uploadButton">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                Upload Newsletter
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div id="analyticsPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Newsletter Analytics</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="refreshAnalytics()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh Data
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-newspaper"></i>
+                            </div>
+                            <div class="stat-value" id="analyticsNewsletterCount">0</div>
+                            <div class="stat-label">Total Newsletters</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-value" id="analyticsSubscriberCount">0</div>
+                            <div class="stat-label">Subscribers</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-download"></i>
+                            </div>
+                            <div class="stat-value" id="analyticsDownloads">0</div>
+                            <div class="stat-label">Total Downloads</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="stat-value" id="analyticsViews">0</div>
+                            <div class="stat-label">Total Views</div>
+                        </div>
+                    </div>
+                    
+                    <div class="content-section">
+                        <h3 style="margin-bottom: 1rem; color: var(--white);">Newsletter Performance</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Newsletter</th>
+                                        <th>Date</th>
+                                        <th>Views</th>
+                                        <th>Downloads</th>
+                                        <th>Shares</th>
+                                        <th>Engagement</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="analyticsTable">
+                                    <!-- Analytics data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settingsPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Newsletter Settings</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="saveSettings()">
+                                <i class="fas fa-save"></i>
+                                Save Settings
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <form id="settingsForm">
+                        <div class="form-grid">
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label class="form-label">
+                                    <i class="fas fa-envelope"></i>
+                                    Notification Email
+                                </label>
+                                <input type="email" class="form-input" id="settingsNotificationEmail" value="info.iammugera@gmail.com">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-check-circle"></i>
+                                    Auto-Verify Subscribers
+                                </label>
+                                <select class="form-input" id="settingsAutoVerify">
+                                    <option value="false">No - Manual Verification Required</option>
+                                    <option value="true">Yes - Auto Verify</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-clock"></i>
+                                    Review Time (hours)
+                                </label>
+                                <input type="number" class="form-input" id="settingsReviewTime" value="24" min="1">
+                            </div>
+                            
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label class="form-label">
+                                    <i class="fas fa-lock"></i>
+                                    Default Access Level for New Newsletters
+                                </label>
+                                <select class="form-input" id="settingsDefaultAccess">
+                                    <option value="monthly">Subscriber Only</option>
+                                    <option value="annual">Annual Subscribers Only</option>
+                                    <option value="public">Public Access</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p style="color: var(--white); font-weight: 600;" id="loadingMessage">Loading Management System...</p>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Newsletter Modal -->
+    <div class="modal-overlay" id="newsletterModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="newsletterModalTitle">Newsletter Details</h3>
+                <button class="modal-close" onclick="hideNewsletterModal()">&times;</button>
+            </div>
+            <div id="newsletterModalContent">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscriber Modal -->
+    <div class="modal-overlay" id="subscriberModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="subscriberModalTitle">Subscriber Details</h3>
+                <button class="modal-close" onclick="hideSubscriberModal()">&times;</button>
+            </div>
+            <div id="subscriberModalContent">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+
+        // Initialize Firebase
+        let app;
+        let auth;
+        let database;
+        let storage;
+        
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            database = firebase.database();
+            storage = firebase.storage();
+            console.log("Firebase initialized successfully");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+            showNotification("Firebase initialization failed. Please refresh the page.", "error");
+        }
+
+        // Global State
+        let currentUser = null;
+        let newsletters = [];
+        let subscribers = [];
+        let filteredNewsletters = [];
+        let filteredSubscribers = [];
+        let tags = [];
+        let currentPDFFile = null;
+
+        // Utility Functions
+        function showLoading(message = "Loading...") {
+            const loading = document.getElementById('loadingOverlay');
+            document.getElementById('loadingMessage').textContent = message;
+            loading.classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const icons = {
+                'success': 'check-circle',
+                'error': 'exclamation-circle',
+                'warning': 'exclamation-triangle',
+                'info': 'info-circle'
+            };
+            
+            notification.innerHTML = `
+                <i class="fas fa-${icons[type] || 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Authentication
+        async function authenticate() {
+            showLoading("Checking authentication...");
+            
+            // Check for stored session
+            const storedEmail = localStorage.getItem('adminEmail');
+            const storedToken = localStorage.getItem('adminToken');
+            
+            if (storedEmail && storedToken) {
+                try {
+                    if (auth.currentUser) {
+                        currentUser = auth.currentUser;
+                        await loadInitialData();
+                        showPanel();
+                        hideLoading();
+                        showNotification("Welcome back!", "success");
+                        return true;
+                    }
+                } catch (error) {
+                    console.error("Session check failed:", error);
+                }
+            }
+            
+            // Check URL for token
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlToken = urlParams.get('token');
+            
+            if (urlToken) {
+                try {
+                    await auth.signInWithCustomToken(urlToken);
+                    currentUser = auth.currentUser;
+                    
+                    localStorage.setItem('adminToken', urlToken);
+                    localStorage.setItem('adminEmail', currentUser.email);
+                    
+                    await loadInitialData();
+                    showPanel();
+                    hideLoading();
+                    showNotification("Access granted", "success");
+                    
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    
+                    return true;
+                } catch (error) {
+                    console.error("Custom token login failed:", error);
+                    showNotification("Access token invalid or expired", "error");
+                }
+            }
+            
+            hideLoading();
+            document.getElementById('loginPage').style.display = 'flex';
+            return false;
+        }
+
+        async function login(email, password) {
+            try {
+                showLoading("Authenticating...");
+                document.getElementById('authError').style.display = 'none';
+                
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                
+                const token = await currentUser.getIdToken();
+                
+                localStorage.setItem('adminToken', token);
+                localStorage.setItem('adminEmail', email);
+                
+                await loadInitialData();
+                showPanel();
+                hideLoading();
+                showNotification("Successfully logged in!", "success");
+                
+                return true;
+            } catch (error) {
+                console.error("Login error:", error);
+                document.getElementById('authError').style.display = 'flex';
+                document.getElementById('errorText').textContent = error.message;
+                hideLoading();
+                return false;
+            }
+        }
+
+        async function logout() {
+            try {
+                showLoading("Logging out...");
+                await auth.signOut();
+                
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminEmail');
+                currentUser = null;
+                
+                document.getElementById('adminPanel').style.display = 'none';
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('authEmail').value = '';
+                document.getElementById('authPassword').value = '';
+                document.getElementById('authError').style.display = 'none';
+                
+                hideLoading();
+                showNotification("Successfully logged out", "success");
+            } catch (error) {
+                console.error("Logout error:", error);
+                hideLoading();
+                showNotification("Logout failed", "error");
+            }
+        }
+
+        function showPanel() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            updateUserInfo();
+            showPage('dashboard');
+        }
+
+        // Data Loading
+        async function loadInitialData() {
+            try {
+                showLoading("Loading newsletter data...");
+                
+                await loadNewsletters();
+                await loadSubscribers();
+                await loadSettings();
+                
+                updateDashboardStats();
+                updateAnalyticsStats();
+                updateYearFilter();
+                
+                hideLoading();
+                showNotification("Data loaded successfully", "success");
+                
+            } catch (error) {
+                console.error("Error loading data:", error);
+                hideLoading();
+                showNotification(`Failed to load data: ${error.message}`, "error");
+            }
+        }
+
+        async function loadNewsletters() {
+            try {
+                // Load from newsletters path
+                const snapshot = await database.ref('newsletters').once('value');
+                const data = snapshot.val();
+                
+                newsletters = [];
+                
+                if (data) {
+                    Object.entries(data).forEach(([id, newsletter]) => {
+                        newsletters.push({
+                            id: id,
+                            title: newsletter.metadata?.title || 'Untitled',
+                            issueNumber: newsletter.metadata?.issue_number || 0,
+                            volume: newsletter.metadata?.volume || 1,
+                            date: newsletter.metadata?.date || '',
+                            publishedAt: newsletter.metadata?.published_at || Date.now(),
+                            description: newsletter.metadata?.description || '',
+                            tags: newsletter.metadata?.tags || [],
+                            featuredVoice: newsletter.metadata?.featured_voice || '',
+                            coverImage: newsletter.metadata?.cover_image || '',
+                            pdfFile: newsletter.pdf_file || {},
+                            access: newsletter.access || { is_public: false, minimum_tier: 'monthly' },
+                            statistics: newsletter.statistics || { views: 0, downloads: 0, shares: 0, bookmarks: 0 }
+                        });
+                    });
+                    
+                    // Sort by date (newest first)
+                    newsletters.sort((a, b) => b.publishedAt - a.publishedAt);
+                }
+                
+                filteredNewsletters = [...newsletters];
+                document.getElementById('newsletterCount').textContent = newsletters.length;
+                
+                return newsletters;
+            } catch (error) {
+                console.error("Error loading newsletters:", error);
+                showNotification("Failed to load newsletters", "error");
+                return [];
+            }
+        }
+
+        async function loadSubscribers() {
+            try {
+                // Load from newsletter_subscribers path
+                const snapshot = await database.ref('newsletter_subscribers').once('value');
+                const data = snapshot.val();
+                
+                subscribers = [];
+                
+                if (data) {
+                    Object.entries(data).forEach(([id, sub]) => {
+                        subscribers.push({
+                            id: id,
+                            name: sub.name || '',
+                            email: sub.email || '',
+                            source: sub.source || 'website',
+                            subscribedAt: sub.subscribedAt || Date.now(),
+                            verified: sub.verified || false
+                        });
+                    });
+                    
+                    // Sort by date (newest first)
+                    subscribers.sort((a, b) => b.subscribedAt - a.subscribedAt);
+                }
+                
+                // Also check subscribers path for additional subscribers
+                const subscribersSnapshot = await database.ref('subscribers').once('value');
+                const subscribersData = subscribersSnapshot.val();
+                
+                if (subscribersData) {
+                    Object.entries(subscribersData).forEach(([id, sub]) => {
+                        // Avoid duplicates by checking email
+                        const exists = subscribers.some(s => s.email === sub.email);
+                        if (!exists) {
+                            subscribers.push({
+                                id: id,
+                                name: sub.name || '',
+                                email: sub.email || '',
+                                source: 'legacy',
+                                subscribedAt: sub.created || Date.now(),
+                                verified: sub.verified || false
+                            });
+                        }
+                    });
+                }
+                
+                // Re-sort
+                subscribers.sort((a, b) => b.subscribedAt - a.subscribedAt);
+                
+                filteredSubscribers = [...subscribers];
+                document.getElementById('subscriberCount').textContent = subscribers.length;
+                
+                return subscribers;
+            } catch (error) {
+                console.error("Error loading subscribers:", error);
+                showNotification("Failed to load subscribers", "error");
+                return [];
+            }
+        }
+
+        async function loadSettings() {
+            try {
+                const snapshot = await database.ref('settings').once('value');
+                const data = snapshot.val();
+                
+                if (data) {
+                    document.getElementById('settingsNotificationEmail').value = data.contact?.email || 'info.iammugera@gmail.com';
+                    document.getElementById('settingsAutoVerify').value = data.verification?.auto_verify ? 'true' : 'false';
+                    document.getElementById('settingsReviewTime').value = data.verification?.review_time || 24;
+                }
+            } catch (error) {
+                console.error("Error loading settings:", error);
+            }
+        }
+
+        async function saveSettings() {
+            showLoading("Saving settings...");
+            
+            try {
+                const settings = {
+                    contact: {
+                        email: document.getElementById('settingsNotificationEmail').value
+                    },
+                    verification: {
+                        auto_verify: document.getElementById('settingsAutoVerify').value === 'true',
+                        review_time: parseInt(document.getElementById('settingsReviewTime').value)
+                    }
+                };
+                
+                await database.ref('settings').update(settings);
+                
+                hideLoading();
+                showNotification("Settings saved successfully", "success");
+            } catch (error) {
+                console.error("Error saving settings:", error);
+                hideLoading();
+                showNotification("Failed to save settings", "error");
+            }
+        }
+
+        function updateDashboardStats() {
+            document.getElementById('totalNewsletters').textContent = newsletters.length;
+            document.getElementById('totalSubscribers').textContent = subscribers.length;
+            
+            const totalDownloads = newsletters.reduce((sum, n) => sum + (n.statistics?.downloads || 0), 0);
+            const totalViews = newsletters.reduce((sum, n) => sum + (n.statistics?.views || 0), 0);
+            
+            document.getElementById('totalDownloads').textContent = totalDownloads;
+            document.getElementById('totalViews').textContent = totalViews;
+            
+            updateRecentNewsletters();
+            updateRecentSubscribers();
+        }
+
+        function updateRecentNewsletters() {
+            const container = document.getElementById('recentNewslettersList');
+            container.innerHTML = '';
+            
+            const recent = newsletters.slice(0, 3);
+            
+            if (recent.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <h3 class="empty-state-title">No Newsletters Yet</h3>
+                        <p class="empty-state-text">Upload your first newsletter to get started.</p>
+                        <button class="btn btn-sm" onclick="showPage('upload')">
+                            <i class="fas fa-upload"></i>
+                            Upload Newsletter
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            recent.forEach(newsletter => {
+                const card = document.createElement('div');
+                card.className = 'newsletter-card';
+                card.innerHTML = `
+                    <div class="newsletter-card-header">
+                        <h3 class="newsletter-card-title">${newsletter.title}</h3>
+                        <span class="newsletter-card-badge">Issue ${newsletter.issueNumber}</span>
+                    </div>
+                    <div class="newsletter-card-meta">
+                        <div class="newsletter-card-meta-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>${newsletter.date || new Date(newsletter.publishedAt).toLocaleDateString()}</span>
+                        </div>
+                        <div class="newsletter-card-meta-item">
+                            <i class="fas fa-lock"></i>
+                            <span>${newsletter.access?.is_public ? 'Public' : newsletter.access?.minimum_tier || 'Subscriber Only'}</span>
+                        </div>
+                    </div>
+                    <p class="newsletter-card-description">${newsletter.description}</p>
+                    <div class="newsletter-stats">
+                        <div class="newsletter-stat-item">
+                            <div class="newsletter-stat-value">${newsletter.statistics?.views || 0}</div>
+                            <div class="newsletter-stat-label">Views</div>
+                        </div>
+                        <div class="newsletter-stat-item">
+                            <div class="newsletter-stat-value">${newsletter.statistics?.downloads || 0}</div>
+                            <div class="newsletter-stat-label">Downloads</div>
+                        </div>
+                    </div>
+                    <div class="newsletter-card-footer">
+                        <button class="action-btn edit" onclick="editNewsletter('${newsletter.id}')">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </button>
+                        <button class="action-btn view" onclick="viewNewsletter('${newsletter.id}')">
+                            <i class="fas fa-eye"></i>
+                            View
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updateRecentSubscribers() {
+            const tableBody = document.getElementById('recentSubscribers');
+            tableBody.innerHTML = '';
+            
+            const recent = subscribers.slice(0, 5);
+            
+            if (recent.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-users-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No subscribers yet</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            recent.forEach(sub => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${sub.name || 'Anonymous'}</strong></td>
+                    <td>${sub.email}</td>
+                    <td>${sub.source || 'website'}</td>
+                    <td>${new Date(sub.subscribedAt).toLocaleDateString()}</td>
+                    <td><span class="status-badge ${sub.verified ? 'status-active' : 'status-pending'}">${sub.verified ? 'Verified' : 'Pending'}</span></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateAllNewsletters() {
+            const container = document.getElementById('allNewslettersList');
+            container.innerHTML = '';
+            
+            if (filteredNewsletters.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <h3 class="empty-state-title">No Newsletters Found</h3>
+                        <p class="empty-state-text">No newsletters match your current filters.</p>
+                        <button class="btn btn-sm" onclick="clearNewsletterFilters()">
+                            <i class="fas fa-filter"></i>
+                            Clear Filters
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            filteredNewsletters.forEach(newsletter => {
+                const card = document.createElement('div');
+                card.className = 'newsletter-card';
+                
+                // Format tags
+                const tags = newsletter.tags || [];
+                const tagsHtml = tags.length > 0 ? 
+                    `<div style="display: flex; gap: 0.25rem; margin-top: 0.5rem;">
+                        ${tags.slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('')}
+                        ${tags.length > 3 ? `<span class="tag">+${tags.length - 3}</span>` : ''}
+                    </div>` : '';
+                
+                card.innerHTML = `
+                    <div class="newsletter-card-header">
+                        <h3 class="newsletter-card-title">${newsletter.title}</h3>
+                        <span class="newsletter-card-badge">#${newsletter.issueNumber}</span>
+                    </div>
+                    <div class="newsletter-card-meta">
+                        <div class="newsletter-card-meta-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>${newsletter.date || new Date(newsletter.publishedAt).toLocaleDateString()}</span>
+                        </div>
+                        <div class="newsletter-card-meta-item">
+                            <i class="fas fa-layer-group"></i>
+                            <span>Vol. ${newsletter.volume}</span>
+                        </div>
+                        <div class="newsletter-card-meta-item">
+                            <i class="fas fa-lock"></i>
+                            <span>${newsletter.access?.is_public ? 'Public' : newsletter.access?.minimum_tier || 'Subscriber Only'}</span>
+                        </div>
+                    </div>
+                    <p class="newsletter-card-description">${newsletter.description}</p>
+                    ${tagsHtml}
+                    <div class="newsletter-stats">
+                        <div class="newsletter-stat-item">
+                            <div class="newsletter-stat-value">${newsletter.statistics?.views || 0}</div>
+                            <div class="newsletter-stat-label">Views</div>
+                        </div>
+                        <div class="newsletter-stat-item">
+                            <div class="newsletter-stat-value">${newsletter.statistics?.downloads || 0}</div>
+                            <div class="newsletter-stat-label">Downloads</div>
+                        </div>
+                        <div class="newsletter-stat-item">
+                            <div class="newsletter-stat-value">${newsletter.statistics?.shares || 0}</div>
+                            <div class="newsletter-stat-label">Shares</div>
+                        </div>
+                    </div>
+                    <div class="newsletter-card-footer">
+                        <button class="action-btn edit" onclick="editNewsletter('${newsletter.id}')">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </button>
+                        <button class="action-btn view" onclick="viewNewsletter('${newsletter.id}')">
+                            <i class="fas fa-eye"></i>
+                            View
+                        </button>
+                        <button class="action-btn download" onclick="downloadNewsletter('${newsletter.id}')">
+                            <i class="fas fa-download"></i>
+                            PDF
+                        </button>
+                        <button class="action-btn delete" onclick="deleteNewsletter('${newsletter.id}')">
+                            <i class="fas fa-trash"></i>
+                            Delete
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updateAllSubscribers() {
+            const tableBody = document.getElementById('allSubscribers');
+            tableBody.innerHTML = '';
+            
+            if (filteredSubscribers.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-users-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No subscribers found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            filteredSubscribers.forEach(sub => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${sub.name || 'Anonymous'}</strong></td>
+                    <td>${sub.email}</td>
+                    <td>${sub.source || 'website'}</td>
+                    <td>${new Date(sub.subscribedAt).toLocaleDateString()}</td>
+                    <td><span class="status-badge ${sub.verified ? 'status-active' : 'status-pending'}">${sub.verified ? 'Verified' : 'Pending'}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" onclick="viewSubscriber('${sub.id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit" onclick="editSubscriber('${sub.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete" onclick="deleteSubscriber('${sub.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateYearFilter() {
+            const select = document.getElementById('newsletterYearFilter');
+            const years = [...new Set(newsletters.map(n => new Date(n.publishedAt).getFullYear()))];
+            
+            years.sort((a, b) => b - a);
+            
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                select.appendChild(option);
+            });
+        }
+
+        function filterNewsletters() {
+            const yearFilter = document.getElementById('newsletterYearFilter').value;
+            const accessFilter = document.getElementById('newsletterAccessFilter').value;
+            const sortFilter = document.getElementById('newsletterSortFilter').value;
+            
+            filteredNewsletters = newsletters.filter(n => {
+                if (yearFilter !== 'all' && new Date(n.publishedAt).getFullYear().toString() !== yearFilter) {
+                    return false;
+                }
+                
+                if (accessFilter === 'public' && !n.access?.is_public) {
+                    return false;
+                }
+                if (accessFilter === 'private' && n.access?.is_public) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // Sorting
+            filteredNewsletters.sort((a, b) => {
+                switch (sortFilter) {
+                    case 'oldest':
+                        return a.publishedAt - b.publishedAt;
+                    case 'title':
+                        return a.title.localeCompare(b.title);
+                    default: // 'newest'
+                        return b.publishedAt - a.publishedAt;
+                }
+            });
+            
+            updateAllNewsletters();
+        }
+
+        function filterSubscribers() {
+            const statusFilter = document.getElementById('subscriberStatusFilter').value;
+            const dateFilter = document.getElementById('subscriberDateFilter').value;
+            
+            filteredSubscribers = subscribers.filter(sub => {
+                // Status filter
+                if (statusFilter === 'verified' && !sub.verified) {
+                    return false;
+                }
+                if (statusFilter === 'pending' && sub.verified) {
+                    return false;
+                }
+                
+                // Date filter
+                if (dateFilter !== 'all') {
+                    const now = new Date();
+                    const subDate = new Date(sub.subscribedAt);
+                    
+                    switch (dateFilter) {
+                        case 'today':
+                            if (subDate.toDateString() !== now.toDateString()) return false;
+                            break;
+                        case 'week':
+                            const weekStart = new Date(now);
+                            weekStart.setDate(now.getDate() - now.getDay());
+                            weekStart.setHours(0, 0, 0, 0);
+                            if (subDate < weekStart) return false;
+                            break;
+                        case 'month':
+                            if (subDate.getMonth() !== now.getMonth() || subDate.getFullYear() !== now.getFullYear()) return false;
+                            break;
+                    }
+                }
+                
+                return true;
+            });
+            
+            updateAllSubscribers();
+        }
+
+        function updateAnalyticsStats() {
+            document.getElementById('analyticsNewsletterCount').textContent = newsletters.length;
+            document.getElementById('analyticsSubscriberCount').textContent = subscribers.length;
+            
+            const totalDownloads = newsletters.reduce((sum, n) => sum + (n.statistics?.downloads || 0), 0);
+            const totalViews = newsletters.reduce((sum, n) => sum + (n.statistics?.views || 0), 0);
+            
+            document.getElementById('analyticsDownloads').textContent = totalDownloads;
+            document.getElementById('analyticsViews').textContent = totalViews;
+            
+            const tableBody = document.getElementById('analyticsTable');
+            tableBody.innerHTML = '';
+            
+            if (newsletters.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 2rem;">
+                            No data available
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            newsletters.slice(0, 10).forEach(n => {
+                const row = document.createElement('tr');
+                const views = n.statistics?.views || 0;
+                const downloads = n.statistics?.downloads || 0;
+                const shares = n.statistics?.shares || 0;
+                const engagement = views > 0 ? Math.round((downloads / views) * 100) : 0;
+                
+                row.innerHTML = `
+                    <td>${n.title}</td>
+                    <td>${n.date || new Date(n.publishedAt).toLocaleDateString()}</td>
+                    <td>${views}</td>
+                    <td>${downloads}</td>
+                    <td>${shares}</td>
+                    <td>${engagement}%</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // PDF Upload Functions
+        function addTag() {
+            const input = document.getElementById('tagInput');
+            const tag = input.value.trim();
+            
+            if (tag && !tags.includes(tag)) {
+                tags.push(tag);
+                renderTags();
+                input.value = '';
+            }
+        }
+
+        function removeTag(tagToRemove) {
+            tags = tags.filter(t => t !== tagToRemove);
+            renderTags();
+        }
+
+        function renderTags() {
+            const container = document.getElementById('tagsContainer');
+            container.innerHTML = '';
+            
+            tags.forEach(tag => {
+                const tagEl = document.createElement('span');
+                tagEl.className = 'tag';
+                tagEl.innerHTML = `
+                    ${tag}
+                    <span class="tag-remove" onclick="removeTag('${tag}')">
+                        <i class="fas fa-times"></i>
+                    </span>
+                `;
+                container.appendChild(tagEl);
+            });
+        }
+
+        document.getElementById('pdfFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            currentPDFFile = file;
+            
+            // Show file info
+            const fileSize = (file.size / 1024 / 1024).toFixed(2);
+            document.getElementById('fileInfo').innerHTML = `
+                <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                Selected: ${file.name} (${fileSize} MB)
+            `;
+            
+            // Preview first page
+            previewPDF(file);
+        });
+
+        function previewPDF(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const pdfData = new Uint8Array(e.target.result);
+                
+                pdfjsLib.getDocument({ data: pdfData }).promise.then(pdf => {
+                    pdf.getPage(1).then(page => {
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        const viewport = page.getViewport({ scale: 0.5 });
+                        
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        
+                        const renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+                        
+                        page.render(renderContext).promise.then(() => {
+                            const preview = document.getElementById('pdfPreview');
+                            preview.innerHTML = '';
+                            preview.appendChild(canvas);
+                            preview.style.display = 'block';
+                        });
+                    });
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function uploadNewsletter(e) {
+            e.preventDefault();
+            
+            if (!currentPDFFile) {
+                showNotification("Please select a PDF file", "error");
+                return;
+            }
+            
+            const title = document.getElementById('newsletterTitle').value.trim();
+            const description = document.getElementById('newsletterDescription').value.trim();
+            const publicationDate = document.getElementById('publicationDate').value;
+            
+            if (!title || !description || !publicationDate) {
+                showNotification("Please fill in all required fields", "error");
+                return;
+            }
+            
+            showLoading("Preparing upload...");
+            
+            try {
+                // Create newsletter ID
+                const newsletterId = `newsletter_${Date.now()}`;
+                
+                // Upload PDF to Firebase Storage
+                const storagePath = `newsletters/${new Date(publicationDate).getFullYear()}/${newsletterId}.pdf`;
+                const storageRef = storage.ref().child(storagePath);
+                
+                // Show progress
+                document.getElementById('uploadProgress').style.display = 'block';
+                document.getElementById('uploadButton').disabled = true;
+                
+                const uploadTask = storageRef.put(currentPDFFile);
+                
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        // Progress
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        document.getElementById('uploadProgressBar').style.width = progress + '%';
+                        document.getElementById('uploadProgressText').textContent = `Uploading: ${Math.round(progress)}%`;
+                    },
+                    (error) => {
+                        // Error
+                        console.error("Upload error:", error);
+                        hideLoading();
+                        document.getElementById('uploadProgress').style.display = 'none';
+                        document.getElementById('uploadButton').disabled = false;
+                        showNotification("Upload failed: " + error.message, "error");
+                    },
+                    async () => {
+                        // Complete
+                        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                        
+                        // Create newsletter data
+                        const newsletterData = {
+                            metadata: {
+                                title: title,
+                                issue_number: parseInt(document.getElementById('issueNumber').value) || 1,
+                                volume: parseInt(document.getElementById('volume').value) || 1,
+                                date: publicationDate,
+                                published_at: Date.now(),
+                                description: description,
+                                cover_image: document.getElementById('coverImage').value || '',
+                                tags: tags,
+                                featured_voice: document.getElementById('featuredVoice').value || ''
+                            },
+                            pdf_file: {
+                                url: downloadURL,
+                                filename: currentPDFFile.name,
+                                file_size: currentPDFFile.size,
+                                pages: 0, // Could extract page count from PDF
+                                storage_path: storagePath,
+                                uploaded_at: Date.now(),
+                                uploaded_by: currentUser?.uid || 'admin'
+                            },
+                            access: {
+                                is_public: document.getElementById('accessLevel').value === 'public',
+                                minimum_tier: document.getElementById('accessLevel').value === 'public' ? null : document.getElementById('accessLevel').value,
+                                release_date: Date.now()
+                            },
+                            statistics: {
+                                views: 0,
+                                downloads: 0,
+                                shares: 0,
+                                bookmarks: 0
+                            }
+                        };
+                        
+                        // Save to database
+                        await database.ref(`newsletters/${newsletterId}`).set(newsletterData);
+                        
+                        // Update newsletters_by_year
+                        const year = new Date(publicationDate).getFullYear();
+                        await database.ref(`newsletters_by_year/${year}/${newsletterId}`).set({
+                            title: title,
+                            date: publicationDate,
+                            cover_image: document.getElementById('coverImage').value || '',
+                            order: parseInt(document.getElementById('issueNumber').value) || 1
+                        });
+                        
+                        // Reset form
+                        document.getElementById('uploadNewsletterForm').reset();
+                        document.getElementById('pdfPreview').style.display = 'none';
+                        document.getElementById('fileInfo').innerHTML = '';
+                        tags = [];
+                        renderTags();
+                        
+                        // Hide progress
+                        document.getElementById('uploadProgress').style.display = 'none';
+                        document.getElementById('uploadButton').disabled = false;
+                        
+                        // Reload data
+                        await loadNewsletters();
+                        await loadInitialData();
+                        
+                        hideLoading();
+                        showNotification("Newsletter uploaded successfully!", "success");
+                        
+                        // Go to newsletters page
+                        showPage('newsletters');
+                    }
+                );
+                
+            } catch (error) {
+                console.error("Error uploading newsletter:", error);
+                hideLoading();
+                document.getElementById('uploadProgress').style.display = 'none';
+                document.getElementById('uploadButton').disabled = false;
+                showNotification("Failed to upload: " + error.message, "error");
+            }
+        }
+
+        // Newsletter CRUD
+        function viewNewsletter(newsletterId) {
+            const newsletter = newsletters.find(n => n.id === newsletterId);
+            if (!newsletter) return;
+            
+            const content = `
+                <div style="line-height: 1.8; color: var(--white);">
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                        ${newsletter.coverImage ? `
+                        <img src="${newsletter.coverImage}" alt="Cover" style="width: 120px; height: auto; border-radius: var(--radius-md);">
+                        ` : ''}
+                        <div>
+                            <h4 style="margin-bottom: 0.5rem;">${newsletter.title}</h4>
+                            <p style="color: var(--gold);">Issue #${newsletter.issueNumber} | Vol. ${newsletter.volume}</p>
+                            <p style="color: rgba(255, 255, 255, 0.8);">${newsletter.date}</p>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-lg);">
+                        <p style="margin-bottom: 1rem;">${newsletter.description}</p>
+                        
+                        ${newsletter.featuredVoice ? `
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Featured Voice:</strong><br>
+                            ${newsletter.featuredVoice}
+                        </div>
+                        ` : ''}
+                        
+                        ${newsletter.tags?.length > 0 ? `
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Tags:</strong><br>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                ${newsletter.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.5rem 0;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--gold);">${newsletter.statistics?.views || 0}</div>
+                                <div style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.7);">Views</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--gold);">${newsletter.statistics?.downloads || 0}</div>
+                                <div style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.7);">Downloads</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--gold);">${newsletter.statistics?.shares || 0}</div>
+                                <div style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.7);">Shares</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <strong>PDF File:</strong><br>
+                            <a href="${newsletter.pdfFile?.url}" target="_blank" style="color: var(--gold);">${newsletter.pdfFile?.filename || 'Download PDF'}</a>
+                            <br>
+                            <small>Size: ${(newsletter.pdfFile?.file_size / 1024 / 1024).toFixed(2)} MB | Pages: ${newsletter.pdfFile?.pages || 'Unknown'}</small>
+                        </div>
+                        
+                        <div>
+                            <strong>Access:</strong><br>
+                            <span class="status-badge ${newsletter.access?.is_public ? 'status-public' : 'status-private'}">
+                                ${newsletter.access?.is_public ? 'Public' : newsletter.access?.minimum_tier || 'Subscriber Only'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="editNewsletter('${newsletter.id}')">
+                        <i class="fas fa-edit"></i>
+                        Edit Newsletter
+                    </button>
+                    <button type="button" class="btn" onclick="hideNewsletterModal()">
+                        Close
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('newsletterModalTitle').textContent = newsletter.title;
+            document.getElementById('newsletterModalContent').innerHTML = content;
+            document.getElementById('newsletterModal').classList.add('active');
+        }
+
+        function editNewsletter(newsletterId) {
+            const newsletter = newsletters.find(n => n.id === newsletterId);
+            if (!newsletter) return;
+            
+            // Set tags
+            tags = newsletter.tags || [];
+            
+            const form = `
+                <form id="editNewsletterForm" onsubmit="updateNewsletter(event, '${newsletterId}')">
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label class="form-label">Title *</label>
+                            <input type="text" class="form-input" id="editTitle" value="${newsletter.title.replace(/"/g, '&quot;')}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Issue Number</label>
+                            <input type="number" class="form-input" id="editIssueNumber" value="${newsletter.issueNumber || 1}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Volume</label>
+                            <input type="number" class="form-input" id="editVolume" value="${newsletter.volume || 1}">
+                        </div>
+                        
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label class="form-label">Description *</label>
+                            <textarea class="form-input" id="editDescription" rows="3" required>${newsletter.description || ''}</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Tags</label>
+                            <div id="editTagsContainer" class="tags-container"></div>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                <input type="text" class="form-input" id="editTagInput" placeholder="Add a tag" style="flex: 1;">
+                                <button type="button" class="btn btn-sm" onclick="addEditTag()" style="width: auto;">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Featured Voice</label>
+                            <input type="text" class="form-input" id="editFeaturedVoice" value="${newsletter.featuredVoice || ''}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Cover Image URL</label>
+                            <input type="url" class="form-input" id="editCoverImage" value="${newsletter.coverImage || ''}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Access Level</label>
+                            <select class="form-input" id="editAccessLevel">
+                                <option value="monthly" ${!newsletter.access?.is_public && newsletter.access?.minimum_tier === 'monthly' ? 'selected' : ''}>Subscriber Only</option>
+                                <option value="annual" ${!newsletter.access?.is_public && newsletter.access?.minimum_tier === 'annual' ? 'selected' : ''}>Annual Subscribers Only</option>
+                                <option value="public" ${newsletter.access?.is_public ? 'selected' : ''}>Public Access</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="hideNewsletterModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-save"></i>
+                            Update Newsletter
+                        </button>
+                    </div>
+                </form>
+            `;
+            
+            document.getElementById('newsletterModalTitle').textContent = `Edit: ${newsletter.title}`;
+            document.getElementById('newsletterModalContent').innerHTML = form;
+            document.getElementById('newsletterModal').classList.add('active');
+            
+            // Render tags
+            renderEditTags();
+        }
+
+        function renderEditTags() {
+            const container = document.getElementById('editTagsContainer');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            tags.forEach(tag => {
+                const tagEl = document.createElement('span');
+                tagEl.className = 'tag';
+                tagEl.innerHTML = `
+                    ${tag}
+                    <span class="tag-remove" onclick="removeEditTag('${tag}')">
+                        <i class="fas fa-times"></i>
+                    </span>
+                `;
+                container.appendChild(tagEl);
+            });
+        }
+
+        function addEditTag() {
+            const input = document.getElementById('editTagInput');
+            const tag = input.value.trim();
+            
+            if (tag && !tags.includes(tag)) {
+                tags.push(tag);
+                renderEditTags();
+                input.value = '';
+            }
+        }
+
+        function removeEditTag(tagToRemove) {
+            tags = tags.filter(t => t !== tagToRemove);
+            renderEditTags();
+        }
+
+        async function updateNewsletter(e, newsletterId) {
+            e.preventDefault();
+            showLoading("Updating newsletter...");
+            
+            try {
+                const title = document.getElementById('editTitle').value.trim();
+                const description = document.getElementById('editDescription').value.trim();
+                
+                if (!title || !description) {
+                    hideLoading();
+                    showNotification("Title and description are required", "error");
+                    return;
+                }
+                
+                const newsletter = newsletters.find(n => n.id === newsletterId);
+                const accessLevel = document.getElementById('editAccessLevel').value;
+                
+                const updates = {
+                    'metadata/title': title,
+                    'metadata/issue_number': parseInt(document.getElementById('editIssueNumber').value) || 1,
+                    'metadata/volume': parseInt(document.getElementById('editVolume').value) || 1,
+                    'metadata/description': description,
+                    'metadata/cover_image': document.getElementById('editCoverImage').value || '',
+                    'metadata/tags': tags,
+                    'metadata/featured_voice': document.getElementById('editFeaturedVoice').value || '',
+                    'access/is_public': accessLevel === 'public',
+                    'access/minimum_tier': accessLevel === 'public' ? null : accessLevel
+                };
+                
+                await database.ref(`newsletters/${newsletterId}`).update(updates);
+                
+                // Update newsletters_by_year
+                const year = new Date(newsletter.date).getFullYear();
+                await database.ref(`newsletters_by_year/${year}/${newsletterId}`).update({
+                    title: title,
+                    cover_image: document.getElementById('editCoverImage').value || ''
+                });
+                
+                await loadNewsletters();
+                
+                hideNewsletterModal();
+                hideLoading();
+                showNotification("Newsletter updated successfully", "success");
+                
+                updateAllNewsletters();
+                updateDashboardStats();
+                
+            } catch (error) {
+                console.error("Error updating newsletter:", error);
+                hideLoading();
+                showNotification("Failed to update: " + error.message, "error");
+            }
+        }
+
+        function downloadNewsletter(newsletterId) {
+            const newsletter = newsletters.find(n => n.id === newsletterId);
+            if (!newsletter || !newsletter.pdfFile?.url) {
+                showNotification("PDF file not found", "error");
+                return;
+            }
+            
+            // Increment download count
+            incrementStat(newsletterId, 'downloads');
+            
+            // Open in new tab
+            window.open(newsletter.pdfFile.url, '_blank');
+        }
+
+        async function incrementStat(newsletterId, stat) {
+            try {
+                const newsletter = newsletters.find(n => n.id === newsletterId);
+                const current = newsletter.statistics?.[stat] || 0;
+                
+                await database.ref(`newsletters/${newsletterId}/statistics/${stat}`).set(current + 1);
+                
+                // Update local
+                newsletter.statistics[stat] = current + 1;
+            } catch (error) {
+                console.error("Error incrementing stat:", error);
+            }
+        }
+
+        async function deleteNewsletter(newsletterId) {
+            if (!confirm("Are you sure you want to delete this newsletter? This action cannot be undone.")) {
+                return;
+            }
+            
+            showLoading("Deleting newsletter...");
+            
+            try {
+                const newsletter = newsletters.find(n => n.id === newsletterId);
+                
+                // Delete from newsletters path
+                await database.ref(`newsletters/${newsletterId}`).remove();
+                
+                // Delete from newsletters_by_year
+                if (newsletter) {
+                    const year = new Date(newsletter.date || newsletter.publishedAt).getFullYear();
+                    await database.ref(`newsletters_by_year/${year}/${newsletterId}`).remove();
+                    
+                    // Delete PDF from storage
+                    if (newsletter.pdfFile?.storage_path) {
+                        try {
+                            const storageRef = storage.ref().child(newsletter.pdfFile.storage_path);
+                            await storageRef.delete();
+                        } catch (storageError) {
+                            console.warn("Could not delete PDF file:", storageError);
+                        }
+                    }
+                }
+                
+                await loadNewsletters();
+                
+                hideLoading();
+                showNotification("Newsletter deleted successfully", "success");
+                
+                updateAllNewsletters();
+                updateDashboardStats();
+                updateAnalyticsStats();
+                
+            } catch (error) {
+                console.error("Error deleting newsletter:", error);
+                hideLoading();
+                showNotification("Failed to delete: " + error.message, "error");
+            }
+        }
+
+        // Subscriber Functions
+        function viewSubscriber(subId) {
+            const sub = subscribers.find(s => s.id === subId);
+            if (!sub) return;
+            
+            const content = `
+                <div style="line-height: 1.8; color: var(--white);">
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-lg);">
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Name:</strong><br>
+                            ${sub.name || 'Anonymous'}
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Email:</strong><br>
+                            ${sub.email}
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Source:</strong><br>
+                            ${sub.source || 'website'}
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Subscribed:</strong><br>
+                            ${new Date(sub.subscribedAt).toLocaleString()}
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Status:</strong><br>
+                            <span class="status-badge ${sub.verified ? 'status-active' : 'status-pending'}">
+                                ${sub.verified ? 'Verified' : 'Pending Verification'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="editSubscriber('${sub.id}')">
+                        <i class="fas fa-edit"></i>
+                        Edit
+                    </button>
+                    <button type="button" class="btn" onclick="hideSubscriberModal()">
+                        Close
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('subscriberModalTitle').textContent = `Subscriber: ${sub.email}`;
+            document.getElementById('subscriberModalContent').innerHTML = content;
+            document.getElementById('subscriberModal').classList.add('active');
+        }
+
+        function editSubscriber(subId) {
+            const sub = subscribers.find(s => s.id === subId);
+            if (!sub) return;
+            
+            const form = `
+                <form id="editSubscriberForm" onsubmit="updateSubscriber(event, '${sub.id}')">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-input" id="editSubName" value="${sub.name || ''}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-input" id="editSubEmail" value="${sub.email}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Source</label>
+                            <input type="text" class="form-input" id="editSubSource" value="${sub.source || ''}">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-input" id="editSubStatus">
+                                <option value="true" ${sub.verified ? 'selected' : ''}>Verified</option>
+                                <option value="false" ${!sub.verified ? 'selected' : ''}>Pending</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="hideSubscriberModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-save"></i>
+                            Update Subscriber
+                        </button>
+                    </div>
+                </form>
+            `;
+            
+            document.getElementById('subscriberModalTitle').textContent = `Edit: ${sub.email}`;
+            document.getElementById('subscriberModalContent').innerHTML = form;
+            document.getElementById('subscriberModal').classList.add('active');
+        }
+
+        async function updateSubscriber(e, subId) {
+            e.preventDefault();
+            showLoading("Updating subscriber...");
+            
+            try {
+                const name = document.getElementById('editSubName').value.trim();
+                const email = document.getElementById('editSubEmail').value.trim();
+                const source = document.getElementById('editSubSource').value.trim();
+                const verified = document.getElementById('editSubStatus').value === 'true';
+                
+                if (!email) {
+                    hideLoading();
+                    showNotification("Email is required", "error");
+                    return;
+                }
+                
+                const subscriber = subscribers.find(s => s.id === subId);
+                
+                // Determine which path to update
+                if (subId.startsWith('subscriber_')) {
+                    // In newsletter_subscribers path
+                    await database.ref(`newsletter_subscribers/${subId}`).update({
+                        name: name,
+                        email: email,
+                        source: source,
+                        verified: verified
+                    });
+                } else {
+                    // In subscribers path
+                    await database.ref(`subscribers/${subId}`).update({
+                        name: name,
+                        email: email,
+                        verified: verified
+                    });
+                }
+                
+                await loadSubscribers();
+                
+                hideSubscriberModal();
+                hideLoading();
+                showNotification("Subscriber updated successfully", "success");
+                
+                updateAllSubscribers();
+                updateRecentSubscribers();
+                
+            } catch (error) {
+                console.error("Error updating subscriber:", error);
+                hideLoading();
+                showNotification("Failed to update: " + error.message, "error");
+            }
+        }
+
+        async function deleteSubscriber(subId) {
+            if (!confirm("Are you sure you want to delete this subscriber?")) {
+                return;
+            }
+            
+            showLoading("Deleting subscriber...");
+            
+            try {
+                // Determine which path to delete from
+                if (subId.startsWith('subscriber_')) {
+                    await database.ref(`newsletter_subscribers/${subId}`).remove();
+                } else {
+                    await database.ref(`subscribers/${subId}`).remove();
+                }
+                
+                await loadSubscribers();
+                
+                hideLoading();
+                showNotification("Subscriber deleted successfully", "success");
+                
+                updateAllSubscribers();
+                updateRecentSubscribers();
+                updateDashboardStats();
+                
+            } catch (error) {
+                console.error("Error deleting subscriber:", error);
+                hideLoading();
+                showNotification("Failed to delete: " + error.message, "error");
+            }
+        }
+
+        function exportSubscribers() {
+            if (subscribers.length === 0) {
+                showNotification("No subscribers to export", "warning");
+                return;
+            }
+            
+            let csv = 'Name,Email,Source,Date,Status\n';
+            subscribers.forEach(sub => {
+                csv += `"${sub.name || ''}","${sub.email}","${sub.source || 'website'}","${new Date(sub.subscribedAt).toLocaleDateString()}","${sub.verified ? 'Verified' : 'Pending'}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `subscribers_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showNotification("Export completed successfully", "success");
+        }
+
+        // Page Management
+        function showPage(pageId) {
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            const page = document.getElementById(pageId + 'Page');
+            if (page) {
+                page.style.display = 'block';
+                
+                const titles = {
+                    'dashboard': 'Dashboard',
+                    'newsletters': 'Newsletter Management',
+                    'subscribers': 'Subscriber Management',
+                    'upload': 'Upload Newsletter',
+                    'analytics': 'Analytics',
+                    'settings': 'Settings'
+                };
+                
+                const subtitles = {
+                    'dashboard': 'Newsletter Management System',
+                    'newsletters': 'Manage all newsletter issues',
+                    'subscribers': 'View and manage subscribers',
+                    'upload': 'Upload a new newsletter PDF',
+                    'analytics': 'Newsletter performance analytics',
+                    'settings': 'Configure newsletter settings'
+                };
+                
+                document.getElementById('pageTitle').textContent = titles[pageId] || pageId;
+                document.getElementById('pageSubtitle').textContent = subtitles[pageId] || '';
+                
+                // Load page-specific content
+                switch (pageId) {
+                    case 'newsletters':
+                        filteredNewsletters = [...newsletters];
+                        updateAllNewsletters();
+                        break;
+                    case 'subscribers':
+                        filteredSubscribers = [...subscribers];
+                        updateAllSubscribers();
+                        break;
+                    case 'dashboard':
+                        updateDashboardStats();
+                        break;
+                    case 'analytics':
+                        updateAnalyticsStats();
+                        break;
+                    case 'upload':
+                        // Reset form
+                        document.getElementById('uploadNewsletterForm').reset();
+                        document.getElementById('pdfPreview').style.display = 'none';
+                        document.getElementById('fileInfo').innerHTML = '';
+                        tags = [];
+                        renderTags();
+                        // Set default date to today
+                        const today = new Date().toISOString().split('T')[0];
+                        document.getElementById('publicationDate').value = today;
+                        break;
+                }
+            }
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`.nav-link[data-page="${pageId}"]`)?.classList.add('active');
+        }
+
+        function updateUserInfo() {
+            const email = localStorage.getItem('adminEmail') || currentUser?.email || 'admin@iammugera.com';
+            const name = email.split('@')[0];
+            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+        }
+
+        // Refresh Functions
+        async function refreshNewsletters() {
+            showLoading("Refreshing newsletters...");
+            await loadNewsletters();
+            updateAllNewsletters();
+            updateDashboardStats();
+            updateAnalyticsStats();
+            hideLoading();
+            showNotification("Newsletters refreshed", "success");
+        }
+
+        async function refreshSubscribers() {
+            showLoading("Refreshing subscribers...");
+            await loadSubscribers();
+            updateAllSubscribers();
+            updateRecentSubscribers();
+            updateDashboardStats();
+            hideLoading();
+            showNotification("Subscribers refreshed", "success");
+        }
+
+        function refreshAnalytics() {
+            updateAnalyticsStats();
+            showNotification("Analytics refreshed", "success");
+        }
+
+        function clearNewsletterFilters() {
+            document.getElementById('newsletterYearFilter').value = 'all';
+            document.getElementById('newsletterAccessFilter').value = 'all';
+            document.getElementById('newsletterSortFilter').value = 'newest';
+            filterNewsletters();
+        }
+
+        function clearSubscriberFilters() {
+            document.getElementById('subscriberStatusFilter').value = 'all';
+            document.getElementById('subscriberDateFilter').value = 'all';
+            filterSubscribers();
+        }
+
+        // Modal Functions
+        function hideNewsletterModal() {
+            document.getElementById('newsletterModal').classList.remove('active');
+        }
+
+        function hideSubscriberModal() {
+            document.getElementById('subscriberModal').classList.remove('active');
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            document.getElementById('authBtn').addEventListener('click', async () => {
+                const email = document.getElementById('authEmail').value.trim();
+                const password = document.getElementById('authPassword').value;
+                
+                if (!email || !password) {
+                    showNotification("Please enter both email and password", "error");
+                    return;
+                }
+                
+                await login(email, password);
+            });
+            
+            document.getElementById('authPassword').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('authBtn').click();
+                }
+            });
+            
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.getAttribute('data-page');
+                    showPage(page);
+                });
+            });
+            
+            // Tag input enter key
+            document.getElementById('tagInput')?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addTag();
+                }
+            });
+            
+            // Close modals
+            document.getElementById('newsletterModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('newsletterModal')) {
+                    hideNewsletterModal();
+                }
+            });
+            
+            document.getElementById('subscriberModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('subscriberModal')) {
+                    hideSubscriberModal();
+                }
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    hideNewsletterModal();
+                    hideSubscriberModal();
+                }
+            });
+        }
+
+        // Initialize
+        async function init() {
+            setupEventListeners();
+            await authenticate();
+        }
+
+        window.addEventListener('DOMContentLoaded', init);
+
+        // Make functions globally available
+        window.showPage = showPage;
+        window.hideNewsletterModal = hideNewsletterModal;
+        window.hideSubscriberModal = hideSubscriberModal;
+        window.refreshNewsletters = refreshNewsletters;
+        window.refreshSubscribers = refreshSubscribers;
+        window.refreshAnalytics = refreshAnalytics;
+        window.filterNewsletters = filterNewsletters;
+        window.filterSubscribers = filterSubscribers;
+        window.clearNewsletterFilters = clearNewsletterFilters;
+        window.clearSubscriberFilters = clearSubscriberFilters;
+        window.exportSubscribers = exportSubscribers;
+        window.viewNewsletter = viewNewsletter;
+        window.editNewsletter = editNewsletter;
+        window.downloadNewsletter = downloadNewsletter;
+        window.deleteNewsletter = deleteNewsletter;
+        window.viewSubscriber = viewSubscriber;
+        window.editSubscriber = editSubscriber;
+        window.deleteSubscriber = deleteSubscriber;
+        window.addTag = addTag;
+        window.removeTag = removeTag;
+        window.addEditTag = addEditTag;
+        window.removeEditTag = removeEditTag;
+        window.uploadNewsletter = uploadNewsletter;
+        window.saveSettings = saveSettings;
+    </script>
+</body>
+</html>
