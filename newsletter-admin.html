@@ -9,13 +9,10 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- PDF.js for preview -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     
     <style>
         :root {
@@ -876,6 +873,52 @@
             background: rgba(16, 185, 129, 0.3);
         }
 
+        /* Google Drive Specific Styles */
+        .drive-instructions {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(202, 138, 4, 0.3);
+        }
+
+        .drive-step {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: flex-start;
+        }
+
+        .drive-step-number {
+            width: 30px;
+            height: 30px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .drive-step-text {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .drive-note {
+            background: rgba(202, 138, 4, 0.1);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--gold);
+            margin-top: 1rem;
+        }
+
+        .drive-note i {
+            color: var(--gold);
+            margin-right: 0.5rem;
+        }
+
         /* Cards Grid */
         .cards-grid {
             display: grid;
@@ -1088,56 +1131,6 @@
             margin-top: 2rem;
             padding-top: 1.5rem;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* Progress Bar */
-        .upload-progress {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: var(--radius-lg);
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
-            transition: width 0.3s ease;
-        }
-
-        .progress-text {
-            margin-top: 0.5rem;
-            font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        /* PDF Preview */
-        .pdf-preview {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: var(--radius-lg);
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .pdf-page {
-            margin-bottom: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: var(--radius-md);
-            overflow: hidden;
-        }
-
-        .pdf-page canvas {
-            width: 100%;
-            height: auto;
         }
 
         /* Tags */
@@ -1472,9 +1465,9 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link" data-page="upload">
-                        <i class="fas fa-upload nav-icon"></i>
-                        <span>Upload Newsletter</span>
+                    <a href="#" class="nav-link" data-page="add">
+                        <i class="fas fa-plus-circle nav-icon"></i>
+                        <span>Add Newsletter</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -1493,7 +1486,8 @@
             
             <div style="padding: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto;">
                 <p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); text-align: center;">
-                    <i class="fas fa-lock"></i> Secure Session Active
+                    <i class="fas fa-google-drive" style="color: #0F9D58; margin-right: 0.25rem;"></i>
+                    Google Drive Integration
                 </p>
             </div>
         </nav>
@@ -1568,9 +1562,9 @@
                                 <i class="fas fa-eye"></i>
                                 View All
                             </button>
-                            <button class="btn btn-outline btn-sm" onclick="showPage('upload')">
+                            <button class="btn btn-outline btn-sm" onclick="showPage('add')">
                                 <i class="fas fa-plus"></i>
-                                Upload New
+                                Add Newsletter
                             </button>
                         </div>
                     </div>
@@ -1624,9 +1618,9 @@
                                 <i class="fas fa-sync-alt"></i>
                                 Refresh
                             </button>
-                            <button class="btn btn-outline btn-sm" onclick="showPage('upload')">
-                                <i class="fas fa-upload"></i>
-                                Upload Newsletter
+                            <button class="btn btn-outline btn-sm" onclick="showPage('add')">
+                                <i class="fas fa-plus"></i>
+                                Add Newsletter
                             </button>
                         </div>
                     </div>
@@ -1722,11 +1716,11 @@
                 </div>
             </div>
 
-            <!-- Upload Newsletter Page -->
-            <div id="uploadPage" class="page-content" style="display: none;">
+            <!-- Add Newsletter Page (with Google Drive) -->
+            <div id="addPage" class="page-content" style="display: none;">
                 <div class="content-section">
                     <div class="section-header">
-                        <h2 class="section-title">Upload Newsletter</h2>
+                        <h2 class="section-title">Add Newsletter via Google Drive</h2>
                         <div class="section-tools">
                             <button class="btn btn-outline btn-sm" onclick="showPage('newsletters')">
                                 <i class="fas fa-arrow-left"></i>
@@ -1735,7 +1729,43 @@
                         </div>
                     </div>
                     
-                    <form id="uploadNewsletterForm" onsubmit="uploadNewsletter(event)">
+                    <!-- Google Drive Instructions -->
+                    <div class="drive-instructions">
+                        <h3 style="color: var(--gold); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fab fa-google-drive"></i>
+                            How to add a newsletter from Google Drive
+                        </h3>
+                        
+                        <div class="drive-step">
+                            <div class="drive-step-number">1</div>
+                            <div class="drive-step-text">Upload your PDF newsletter to Google Drive</div>
+                        </div>
+                        
+                        <div class="drive-step">
+                            <div class="drive-step-number">2</div>
+                            <div class="drive-step-text">Right-click the file and select <strong>"Get link"</strong></div>
+                        </div>
+                        
+                        <div class="drive-step">
+                            <div class="drive-step-number">3</div>
+                            <div class="drive-step-text">Set sharing to <strong>"Anyone with the link can view"</strong></div>
+                        </div>
+                        
+                        <div class="drive-step">
+                            <div class="drive-step-number">4</div>
+                            <div class="drive-step-text">Copy the link and paste it below</div>
+                        </div>
+                        
+                        <div class="drive-note">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Link Format:</strong> Your Google Drive link should look like: 
+                            <code style="background: rgba(0,0,0,0.3); padding: 0.25rem 0.5rem; border-radius: 4px; color: var(--gold);">
+                                https://drive.google.com/file/d/FILE_ID/view
+                            </code>
+                        </div>
+                    </div>
+                    
+                    <form id="addNewsletterForm" onsubmit="addNewsletter(event)">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label">
@@ -1824,39 +1854,44 @@
                             
                             <div class="form-group" style="grid-column: span 2;">
                                 <label class="form-label">
-                                    <i class="fas fa-file-pdf"></i>
-                                    PDF File *
+                                    <i class="fab fa-google-drive" style="color: #0F9D58;"></i>
+                                    Google Drive PDF Link *
                                 </label>
-                                <input type="file" class="form-input" id="pdfFile" accept=".pdf" required>
-                                <div id="fileInfo" style="margin-top: 0.5rem; font-size: 0.875rem; color: rgba(255, 255, 255, 0.7);"></div>
+                                <input type="url" class="form-input" id="googleDriveLink" placeholder="https://drive.google.com/file/d/..." required>
+                                <div style="margin-top: 0.5rem; font-size: 0.875rem; color: rgba(255, 255, 255, 0.7);">
+                                    <i class="fas fa-info-circle"></i>
+                                    Make sure the link is shared with "Anyone with the link can view"
+                                </div>
                             </div>
                             
                             <div class="form-group" style="grid-column: span 2;">
                                 <label class="form-label">
-                                    <i class="fas fa-eye"></i>
-                                    Preview First Page
+                                    <i class="fas fa-file-pdf"></i>
+                                    PDF Filename
                                 </label>
-                                <div id="pdfPreview" class="pdf-preview" style="display: none;">
-                                    <!-- PDF preview will be shown here -->
+                                <input type="text" class="form-input" id="pdfFilename" placeholder="e.g., eye_of_mugera_feb_2026.pdf">
+                                <div style="margin-top: 0.5rem; font-size: 0.875rem; color: rgba(255, 255, 255, 0.7);">
+                                    <i class="fas fa-info-circle"></i>
+                                    Optional - will be extracted from the link if left blank
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- Upload Progress -->
-                        <div id="uploadProgress" class="upload-progress" style="display: none;">
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="uploadProgressBar" style="width: 0%;"></div>
+                        <!-- Preview Section -->
+                        <div id="drivePreview" class="drive-instructions" style="display: none; margin-top: 1.5rem;">
+                            <h4 style="color: var(--gold); margin-bottom: 0.5rem;">Link Preview</h4>
+                            <div id="previewContent">
+                                <!-- Preview will be shown here -->
                             </div>
-                            <div class="progress-text" id="uploadProgressText">Uploading: 0%</div>
                         </div>
                         
                         <div class="form-actions">
                             <button type="button" class="btn btn-outline" onclick="showPage('newsletters')">
                                 Cancel
                             </button>
-                            <button type="submit" class="btn" id="uploadButton">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                Upload Newsletter
+                            <button type="submit" class="btn" id="addButton">
+                                <i class="fas fa-save"></i>
+                                Save Newsletter
                             </button>
                         </div>
                     </form>
@@ -1997,7 +2032,7 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-content">
             <div class="loading-spinner"></div>
-            <p style="color: var(--white); font-weight: 600;" id="loadingMessage">Loading Management System...</p>
+            <p style="color: var(--white); font-weight: 600;" id="loadingMessage">Loading...</p>
         </div>
     </div>
 
@@ -2042,17 +2077,15 @@
             appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
         };
 
-        // Initialize Firebase
+        // Initialize Firebase (without storage since we're using Google Drive)
         let app;
         let auth;
         let database;
-        let storage;
         
         try {
             app = firebase.initializeApp(firebaseConfig);
             auth = firebase.auth();
             database = firebase.database();
-            storage = firebase.storage();
             console.log("Firebase initialized successfully");
         } catch (error) {
             console.error("Firebase initialization error:", error);
@@ -2066,7 +2099,6 @@
         let filteredNewsletters = [];
         let filteredSubscribers = [];
         let tags = [];
-        let currentPDFFile = null;
 
         // Utility Functions
         function showLoading(message = "Loading...") {
@@ -2109,7 +2141,6 @@
         async function authenticate() {
             showLoading("Checking authentication...");
             
-            // Check for stored session
             const storedEmail = localStorage.getItem('adminEmail');
             const storedToken = localStorage.getItem('adminToken');
             
@@ -2128,7 +2159,6 @@
                 }
             }
             
-            // Check URL for token
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
             
@@ -2243,7 +2273,6 @@
 
         async function loadNewsletters() {
             try {
-                // Load from newsletters path
                 const snapshot = await database.ref('newsletters').once('value');
                 const data = snapshot.val();
                 
@@ -2268,7 +2297,6 @@
                         });
                     });
                     
-                    // Sort by date (newest first)
                     newsletters.sort((a, b) => b.publishedAt - a.publishedAt);
                 }
                 
@@ -2285,7 +2313,6 @@
 
         async function loadSubscribers() {
             try {
-                // Load from newsletter_subscribers path
                 const snapshot = await database.ref('newsletter_subscribers').once('value');
                 const data = snapshot.val();
                 
@@ -2303,17 +2330,14 @@
                         });
                     });
                     
-                    // Sort by date (newest first)
                     subscribers.sort((a, b) => b.subscribedAt - a.subscribedAt);
                 }
                 
-                // Also check subscribers path for additional subscribers
                 const subscribersSnapshot = await database.ref('subscribers').once('value');
                 const subscribersData = subscribersSnapshot.val();
                 
                 if (subscribersData) {
                     Object.entries(subscribersData).forEach(([id, sub]) => {
-                        // Avoid duplicates by checking email
                         const exists = subscribers.some(s => s.email === sub.email);
                         if (!exists) {
                             subscribers.push({
@@ -2328,7 +2352,6 @@
                     });
                 }
                 
-                // Re-sort
                 subscribers.sort((a, b) => b.subscribedAt - a.subscribedAt);
                 
                 filteredSubscribers = [...subscribers];
@@ -2409,10 +2432,10 @@
                             <i class="fas fa-newspaper"></i>
                         </div>
                         <h3 class="empty-state-title">No Newsletters Yet</h3>
-                        <p class="empty-state-text">Upload your first newsletter to get started.</p>
-                        <button class="btn btn-sm" onclick="showPage('upload')">
-                            <i class="fas fa-upload"></i>
-                            Upload Newsletter
+                        <p class="empty-state-text">Add your first newsletter to get started.</p>
+                        <button class="btn btn-sm" onclick="showPage('add')">
+                            <i class="fas fa-plus"></i>
+                            Add Newsletter
                         </button>
                     </div>
                 `;
@@ -2519,13 +2542,16 @@
                 const card = document.createElement('div');
                 card.className = 'newsletter-card';
                 
-                // Format tags
                 const tags = newsletter.tags || [];
                 const tagsHtml = tags.length > 0 ? 
                     `<div style="display: flex; gap: 0.25rem; margin-top: 0.5rem;">
                         ${tags.slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('')}
                         ${tags.length > 3 ? `<span class="tag">+${tags.length - 3}</span>` : ''}
                     </div>` : '';
+                
+                // Determine if it's a Google Drive link
+                const isGoogleDrive = newsletter.pdfFile?.url?.includes('drive.google.com');
+                const driveIcon = isGoogleDrive ? '<i class="fab fa-google-drive" style="color: #0F9D58;"></i>' : '<i class="fas fa-file-pdf" style="color: #ca8a04;"></i>';
                 
                 card.innerHTML = `
                     <div class="newsletter-card-header">
@@ -2542,8 +2568,8 @@
                             <span>Vol. ${newsletter.volume}</span>
                         </div>
                         <div class="newsletter-card-meta-item">
-                            <i class="fas fa-lock"></i>
-                            <span>${newsletter.access?.is_public ? 'Public' : newsletter.access?.minimum_tier || 'Subscriber Only'}</span>
+                            ${driveIcon}
+                            <span>${isGoogleDrive ? 'Google Drive' : 'PDF'}</span>
                         </div>
                     </div>
                     <p class="newsletter-card-description">${newsletter.description}</p>
@@ -2661,14 +2687,13 @@
                 return true;
             });
             
-            // Sorting
             filteredNewsletters.sort((a, b) => {
                 switch (sortFilter) {
                     case 'oldest':
                         return a.publishedAt - b.publishedAt;
                     case 'title':
                         return a.title.localeCompare(b.title);
-                    default: // 'newest'
+                    default:
                         return b.publishedAt - a.publishedAt;
                 }
             });
@@ -2681,15 +2706,9 @@
             const dateFilter = document.getElementById('subscriberDateFilter').value;
             
             filteredSubscribers = subscribers.filter(sub => {
-                // Status filter
-                if (statusFilter === 'verified' && !sub.verified) {
-                    return false;
-                }
-                if (statusFilter === 'pending' && sub.verified) {
-                    return false;
-                }
+                if (statusFilter === 'verified' && !sub.verified) return false;
+                if (statusFilter === 'pending' && sub.verified) return false;
                 
-                // Date filter
                 if (dateFilter !== 'all') {
                     const now = new Date();
                     const subDate = new Date(sub.subscribedAt);
@@ -2759,7 +2778,32 @@
             });
         }
 
-        // PDF Upload Functions
+        // Google Drive Functions
+        function extractDriveFileId(url) {
+            // Handle different Google Drive URL formats
+            const patterns = [
+                /\/d\/([a-zA-Z0-9_-]+)/,  // /d/FILE_ID
+                /id=([a-zA-Z0-9_-]+)/,     // ?id=FILE_ID
+                /\/file\/d\/([a-zA-Z0-9_-]+)/ // /file/d/FILE_ID
+            ];
+            
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) return match[1];
+            }
+            
+            return null;
+        }
+
+        function convertToDirectDriveLink(url) {
+            const fileId = extractDriveFileId(url);
+            if (!fileId) return url;
+            
+            // Return direct download link
+            return `https://drive.google.com/uc?export=download&id=${fileId}`;
+        }
+
+        // Tag Functions
         function addTag() {
             const input = document.getElementById('tagInput');
             const tag = input.value.trim();
@@ -2793,182 +2837,143 @@
             });
         }
 
-        document.getElementById('pdfFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+        // Google Drive Link Preview
+        document.getElementById('googleDriveLink')?.addEventListener('input', function(e) {
+            const link = e.target.value;
+            const preview = document.getElementById('drivePreview');
+            const previewContent = document.getElementById('previewContent');
             
-            currentPDFFile = file;
-            
-            // Show file info
-            const fileSize = (file.size / 1024 / 1024).toFixed(2);
-            document.getElementById('fileInfo').innerHTML = `
-                <i class="fas fa-check-circle" style="color: var(--success);"></i>
-                Selected: ${file.name} (${fileSize} MB)
-            `;
-            
-            // Preview first page
-            previewPDF(file);
+            if (link && link.includes('drive.google.com')) {
+                const fileId = extractDriveFileId(link);
+                if (fileId) {
+                    preview.style.display = 'block';
+                    previewContent.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <i class="fab fa-google-drive" style="font-size: 2rem; color: #0F9D58;"></i>
+                            <div>
+                                <strong>File ID:</strong> ${fileId}<br>
+                                <small>This link will work for anyone with access</small>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    preview.style.display = 'none';
+                }
+            } else {
+                preview.style.display = 'none';
+            }
         });
 
-        function previewPDF(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const pdfData = new Uint8Array(e.target.result);
-                
-                pdfjsLib.getDocument({ data: pdfData }).promise.then(pdf => {
-                    pdf.getPage(1).then(page => {
-                        const canvas = document.createElement('canvas');
-                        const context = canvas.getContext('2d');
-                        const viewport = page.getViewport({ scale: 0.5 });
-                        
-                        canvas.width = viewport.width;
-                        canvas.height = viewport.height;
-                        
-                        const renderContext = {
-                            canvasContext: context,
-                            viewport: viewport
-                        };
-                        
-                        page.render(renderContext).promise.then(() => {
-                            const preview = document.getElementById('pdfPreview');
-                            preview.innerHTML = '';
-                            preview.appendChild(canvas);
-                            preview.style.display = 'block';
-                        });
-                    });
-                });
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        async function uploadNewsletter(e) {
+        // Add Newsletter
+        async function addNewsletter(e) {
             e.preventDefault();
-            
-            if (!currentPDFFile) {
-                showNotification("Please select a PDF file", "error");
-                return;
-            }
             
             const title = document.getElementById('newsletterTitle').value.trim();
             const description = document.getElementById('newsletterDescription').value.trim();
             const publicationDate = document.getElementById('publicationDate').value;
+            const driveLink = document.getElementById('googleDriveLink').value.trim();
             
-            if (!title || !description || !publicationDate) {
+            if (!title || !description || !publicationDate || !driveLink) {
                 showNotification("Please fill in all required fields", "error");
                 return;
             }
             
-            showLoading("Preparing upload...");
+            // Validate Google Drive link
+            if (!driveLink.includes('drive.google.com')) {
+                showNotification("Please enter a valid Google Drive link", "error");
+                return;
+            }
+            
+            showLoading("Saving newsletter...");
             
             try {
+                // Convert to direct link
+                const directLink = convertToDirectDriveLink(driveLink);
+                const fileId = extractDriveFileId(driveLink);
+                
+                // Get filename from link or input
+                let filename = document.getElementById('pdfFilename').value.trim();
+                if (!filename) {
+                    filename = `newsletter_${fileId || Date.now()}.pdf`;
+                }
+                
                 // Create newsletter ID
                 const newsletterId = `newsletter_${Date.now()}`;
                 
-                // Upload PDF to Firebase Storage
-                const storagePath = `newsletters/${new Date(publicationDate).getFullYear()}/${newsletterId}.pdf`;
-                const storageRef = storage.ref().child(storagePath);
-                
-                // Show progress
-                document.getElementById('uploadProgress').style.display = 'block';
-                document.getElementById('uploadButton').disabled = true;
-                
-                const uploadTask = storageRef.put(currentPDFFile);
-                
-                uploadTask.on('state_changed',
-                    (snapshot) => {
-                        // Progress
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        document.getElementById('uploadProgressBar').style.width = progress + '%';
-                        document.getElementById('uploadProgressText').textContent = `Uploading: ${Math.round(progress)}%`;
+                // Create newsletter data
+                const newsletterData = {
+                    metadata: {
+                        title: title,
+                        issue_number: parseInt(document.getElementById('issueNumber').value) || 1,
+                        volume: parseInt(document.getElementById('volume').value) || 1,
+                        date: publicationDate,
+                        published_at: Date.now(),
+                        description: description,
+                        cover_image: document.getElementById('coverImage').value || '',
+                        tags: tags,
+                        featured_voice: document.getElementById('featuredVoice').value || ''
                     },
-                    (error) => {
-                        // Error
-                        console.error("Upload error:", error);
-                        hideLoading();
-                        document.getElementById('uploadProgress').style.display = 'none';
-                        document.getElementById('uploadButton').disabled = false;
-                        showNotification("Upload failed: " + error.message, "error");
+                    pdf_file: {
+                        url: directLink,
+                        filename: filename,
+                        file_size: 0, // Can't get size from Google Drive without API
+                        pages: 0,
+                        storage_path: `googledrive:${fileId || 'unknown'}`,
+                        uploaded_at: Date.now(),
+                        uploaded_by: currentUser?.uid || 'admin',
+                        source: 'google_drive'
                     },
-                    async () => {
-                        // Complete
-                        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                        
-                        // Create newsletter data
-                        const newsletterData = {
-                            metadata: {
-                                title: title,
-                                issue_number: parseInt(document.getElementById('issueNumber').value) || 1,
-                                volume: parseInt(document.getElementById('volume').value) || 1,
-                                date: publicationDate,
-                                published_at: Date.now(),
-                                description: description,
-                                cover_image: document.getElementById('coverImage').value || '',
-                                tags: tags,
-                                featured_voice: document.getElementById('featuredVoice').value || ''
-                            },
-                            pdf_file: {
-                                url: downloadURL,
-                                filename: currentPDFFile.name,
-                                file_size: currentPDFFile.size,
-                                pages: 0, // Could extract page count from PDF
-                                storage_path: storagePath,
-                                uploaded_at: Date.now(),
-                                uploaded_by: currentUser?.uid || 'admin'
-                            },
-                            access: {
-                                is_public: document.getElementById('accessLevel').value === 'public',
-                                minimum_tier: document.getElementById('accessLevel').value === 'public' ? null : document.getElementById('accessLevel').value,
-                                release_date: Date.now()
-                            },
-                            statistics: {
-                                views: 0,
-                                downloads: 0,
-                                shares: 0,
-                                bookmarks: 0
-                            }
-                        };
-                        
-                        // Save to database
-                        await database.ref(`newsletters/${newsletterId}`).set(newsletterData);
-                        
-                        // Update newsletters_by_year
-                        const year = new Date(publicationDate).getFullYear();
-                        await database.ref(`newsletters_by_year/${year}/${newsletterId}`).set({
-                            title: title,
-                            date: publicationDate,
-                            cover_image: document.getElementById('coverImage').value || '',
-                            order: parseInt(document.getElementById('issueNumber').value) || 1
-                        });
-                        
-                        // Reset form
-                        document.getElementById('uploadNewsletterForm').reset();
-                        document.getElementById('pdfPreview').style.display = 'none';
-                        document.getElementById('fileInfo').innerHTML = '';
-                        tags = [];
-                        renderTags();
-                        
-                        // Hide progress
-                        document.getElementById('uploadProgress').style.display = 'none';
-                        document.getElementById('uploadButton').disabled = false;
-                        
-                        // Reload data
-                        await loadNewsletters();
-                        await loadInitialData();
-                        
-                        hideLoading();
-                        showNotification("Newsletter uploaded successfully!", "success");
-                        
-                        // Go to newsletters page
-                        showPage('newsletters');
+                    access: {
+                        is_public: document.getElementById('accessLevel').value === 'public',
+                        minimum_tier: document.getElementById('accessLevel').value === 'public' ? null : document.getElementById('accessLevel').value,
+                        release_date: Date.now()
+                    },
+                    statistics: {
+                        views: 0,
+                        downloads: 0,
+                        shares: 0,
+                        bookmarks: 0
                     }
-                );
+                };
+                
+                // Save to database
+                await database.ref(`newsletters/${newsletterId}`).set(newsletterData);
+                
+                // Update newsletters_by_year
+                const year = new Date(publicationDate).getFullYear();
+                await database.ref(`newsletters_by_year/${year}/${newsletterId}`).set({
+                    title: title,
+                    date: publicationDate,
+                    cover_image: document.getElementById('coverImage').value || '',
+                    order: parseInt(document.getElementById('issueNumber').value) || 1
+                });
+                
+                // Reset form
+                document.getElementById('addNewsletterForm').reset();
+                document.getElementById('drivePreview').style.display = 'none';
+                tags = [];
+                renderTags();
+                
+                // Set default date to today
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('publicationDate').value = today;
+                
+                // Reload data
+                await loadNewsletters();
+                updateDashboardStats();
+                updateAnalyticsStats();
+                updateYearFilter();
+                
+                hideLoading();
+                showNotification("Newsletter added successfully! (Stored in Google Drive)", "success");
+                
+                // Go to newsletters page
+                showPage('newsletters');
                 
             } catch (error) {
-                console.error("Error uploading newsletter:", error);
+                console.error("Error adding newsletter:", error);
                 hideLoading();
-                document.getElementById('uploadProgress').style.display = 'none';
-                document.getElementById('uploadButton').disabled = false;
-                showNotification("Failed to upload: " + error.message, "error");
+                showNotification("Failed to add newsletter: " + error.message, "error");
             }
         }
 
@@ -2977,6 +2982,10 @@
             const newsletter = newsletters.find(n => n.id === newsletterId);
             if (!newsletter) return;
             
+            const isGoogleDrive = newsletter.pdfFile?.url?.includes('drive.google.com');
+            const driveBadge = isGoogleDrive ? 
+                '<span style="color: #0F9D58; margin-left: 0.5rem;"><i class="fab fa-google-drive"></i> Google Drive</span>' : '';
+            
             const content = `
                 <div style="line-height: 1.8; color: var(--white);">
                     <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
@@ -2984,7 +2993,7 @@
                         <img src="${newsletter.coverImage}" alt="Cover" style="width: 120px; height: auto; border-radius: var(--radius-md);">
                         ` : ''}
                         <div>
-                            <h4 style="margin-bottom: 0.5rem;">${newsletter.title}</h4>
+                            <h4 style="margin-bottom: 0.5rem;">${newsletter.title} ${driveBadge}</h4>
                             <p style="color: var(--gold);">Issue #${newsletter.issueNumber} | Vol. ${newsletter.volume}</p>
                             <p style="color: rgba(255, 255, 255, 0.8);">${newsletter.date}</p>
                         </div>
@@ -3026,9 +3035,11 @@
                         
                         <div style="margin-bottom: 1rem;">
                             <strong>PDF File:</strong><br>
-                            <a href="${newsletter.pdfFile?.url}" target="_blank" style="color: var(--gold);">${newsletter.pdfFile?.filename || 'Download PDF'}</a>
-                            <br>
-                            <small>Size: ${(newsletter.pdfFile?.file_size / 1024 / 1024).toFixed(2)} MB | Pages: ${newsletter.pdfFile?.pages || 'Unknown'}</small>
+                            <a href="${newsletter.pdfFile?.url}" target="_blank" style="color: var(--gold);">
+                                ${newsletter.pdfFile?.filename || 'Open PDF'}
+                            </a>
+                            ${newsletter.pdfFile?.source === 'google_drive' ? 
+                                '<br><small><i class="fab fa-google-drive" style="color: #0F9D58;"></i> Hosted on Google Drive</small>' : ''}
                         </div>
                         
                         <div>
@@ -3059,8 +3070,9 @@
             const newsletter = newsletters.find(n => n.id === newsletterId);
             if (!newsletter) return;
             
-            // Set tags
             tags = newsletter.tags || [];
+            
+            const isGoogleDrive = newsletter.pdfFile?.url?.includes('drive.google.com');
             
             const form = `
                 <form id="editNewsletterForm" onsubmit="updateNewsletter(event, '${newsletterId}')">
@@ -3114,6 +3126,16 @@
                                 <option value="public" ${newsletter.access?.is_public ? 'selected' : ''}>Public Access</option>
                             </select>
                         </div>
+                        
+                        ${isGoogleDrive ? `
+                        <div class="form-group" style="grid-column: span 2;">
+                            <label class="form-label">
+                                <i class="fab fa-google-drive" style="color: #0F9D58;"></i>
+                                Google Drive PDF Link
+                            </label>
+                            <input type="url" class="form-input" id="editDriveLink" value="${newsletter.pdfFile?.url || ''}">
+                        </div>
+                        ` : ''}
                     </div>
                     
                     <div class="form-actions">
@@ -3132,7 +3154,6 @@
             document.getElementById('newsletterModalContent').innerHTML = form;
             document.getElementById('newsletterModal').classList.add('active');
             
-            // Render tags
             renderEditTags();
         }
 
@@ -3188,6 +3209,7 @@
                 const newsletter = newsletters.find(n => n.id === newsletterId);
                 const accessLevel = document.getElementById('editAccessLevel').value;
                 
+                // Build updates
                 const updates = {
                     'metadata/title': title,
                     'metadata/issue_number': parseInt(document.getElementById('editIssueNumber').value) || 1,
@@ -3200,9 +3222,15 @@
                     'access/minimum_tier': accessLevel === 'public' ? null : accessLevel
                 };
                 
+                // Update Google Drive link if present
+                const driveLink = document.getElementById('editDriveLink');
+                if (driveLink && driveLink.value) {
+                    const directLink = convertToDirectDriveLink(driveLink.value);
+                    updates['pdf_file/url'] = directLink;
+                }
+                
                 await database.ref(`newsletters/${newsletterId}`).update(updates);
                 
-                // Update newsletters_by_year
                 const year = new Date(newsletter.date).getFullYear();
                 await database.ref(`newsletters_by_year/${year}/${newsletterId}`).update({
                     title: title,
@@ -3232,10 +3260,7 @@
                 return;
             }
             
-            // Increment download count
             incrementStat(newsletterId, 'downloads');
-            
-            // Open in new tab
             window.open(newsletter.pdfFile.url, '_blank');
         }
 
@@ -3245,8 +3270,6 @@
                 const current = newsletter.statistics?.[stat] || 0;
                 
                 await database.ref(`newsletters/${newsletterId}/statistics/${stat}`).set(current + 1);
-                
-                // Update local
                 newsletter.statistics[stat] = current + 1;
             } catch (error) {
                 console.error("Error incrementing stat:", error);
@@ -3263,23 +3286,11 @@
             try {
                 const newsletter = newsletters.find(n => n.id === newsletterId);
                 
-                // Delete from newsletters path
                 await database.ref(`newsletters/${newsletterId}`).remove();
                 
-                // Delete from newsletters_by_year
                 if (newsletter) {
                     const year = new Date(newsletter.date || newsletter.publishedAt).getFullYear();
                     await database.ref(`newsletters_by_year/${year}/${newsletterId}`).remove();
-                    
-                    // Delete PDF from storage
-                    if (newsletter.pdfFile?.storage_path) {
-                        try {
-                            const storageRef = storage.ref().child(newsletter.pdfFile.storage_path);
-                            await storageRef.delete();
-                        } catch (storageError) {
-                            console.warn("Could not delete PDF file:", storageError);
-                        }
-                    }
                 }
                 
                 await loadNewsletters();
@@ -3410,11 +3421,7 @@
                     return;
                 }
                 
-                const subscriber = subscribers.find(s => s.id === subId);
-                
-                // Determine which path to update
                 if (subId.startsWith('subscriber_')) {
-                    // In newsletter_subscribers path
                     await database.ref(`newsletter_subscribers/${subId}`).update({
                         name: name,
                         email: email,
@@ -3422,7 +3429,6 @@
                         verified: verified
                     });
                 } else {
-                    // In subscribers path
                     await database.ref(`subscribers/${subId}`).update({
                         name: name,
                         email: email,
@@ -3454,7 +3460,6 @@
             showLoading("Deleting subscriber...");
             
             try {
-                // Determine which path to delete from
                 if (subId.startsWith('subscriber_')) {
                     await database.ref(`newsletter_subscribers/${subId}`).remove();
                 } else {
@@ -3515,7 +3520,7 @@
                     'dashboard': 'Dashboard',
                     'newsletters': 'Newsletter Management',
                     'subscribers': 'Subscriber Management',
-                    'upload': 'Upload Newsletter',
+                    'add': 'Add Newsletter via Google Drive',
                     'analytics': 'Analytics',
                     'settings': 'Settings'
                 };
@@ -3524,7 +3529,7 @@
                     'dashboard': 'Newsletter Management System',
                     'newsletters': 'Manage all newsletter issues',
                     'subscribers': 'View and manage subscribers',
-                    'upload': 'Upload a new newsletter PDF',
+                    'add': 'Add a newsletter using Google Drive link',
                     'analytics': 'Newsletter performance analytics',
                     'settings': 'Configure newsletter settings'
                 };
@@ -3532,7 +3537,6 @@
                 document.getElementById('pageTitle').textContent = titles[pageId] || pageId;
                 document.getElementById('pageSubtitle').textContent = subtitles[pageId] || '';
                 
-                // Load page-specific content
                 switch (pageId) {
                     case 'newsletters':
                         filteredNewsletters = [...newsletters];
@@ -3548,14 +3552,7 @@
                     case 'analytics':
                         updateAnalyticsStats();
                         break;
-                    case 'upload':
-                        // Reset form
-                        document.getElementById('uploadNewsletterForm').reset();
-                        document.getElementById('pdfPreview').style.display = 'none';
-                        document.getElementById('fileInfo').innerHTML = '';
-                        tags = [];
-                        renderTags();
-                        // Set default date to today
+                    case 'add':
                         const today = new Date().toISOString().split('T')[0];
                         document.getElementById('publicationDate').value = today;
                         break;
@@ -3652,7 +3649,6 @@
                 });
             });
             
-            // Tag input enter key
             document.getElementById('tagInput')?.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
@@ -3660,7 +3656,6 @@
                 }
             });
             
-            // Close modals
             document.getElementById('newsletterModal').addEventListener('click', (e) => {
                 if (e.target === document.getElementById('newsletterModal')) {
                     hideNewsletterModal();
@@ -3712,7 +3707,7 @@
         window.removeTag = removeTag;
         window.addEditTag = addEditTag;
         window.removeEditTag = removeEditTag;
-        window.uploadNewsletter = uploadNewsletter;
+        window.addNewsletter = addNewsletter;
         window.saveSettings = saveSettings;
     </script>
 </body>
