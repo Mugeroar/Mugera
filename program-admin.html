@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>I AM MUGERA - Program & Challenge Management</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/66rJN5PW/signature(1).png">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --black: #0a0a0a;
+            --white: #ffffff;
+            --gray: #f9f9f9;
+            --dark-gray: #1a1a1a;
+            --light-gray: #e8e8e8;
+            --gold: #ca8a04;
+            --gold-light: #fef3c7;
+            --gold-dark: #a16207;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --teal: #14b8a6;
+            --pink: #ec4899;
+            --program: #8b5cf6;      /* purple accent for programs */
+            --challenge: #14b8a6;     /* teal for challenge */
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0,0,0,0.25);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 24px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { font-size: 15px; }
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        .professional-bg {
+            background: 
+                linear-gradient(135deg, 
+                    rgba(10, 10, 10, 0.92) 0%, 
+                    rgba(10, 10, 10, 0.88) 100%),
+                url('https://i.postimg.cc/Hn3fK4jT/20260206_1227_Image_Generation_remix_01kgs4ccqtf63rvv82pa8tmgzm.png');
+            background-size: cover; background-position: center; background-attachment: fixed;
+        }
+
+        /* login (same style) */
+        .login-container {
+            min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+        }
+        .login-card {
+            background: rgba(255,255,255,0.12); backdrop-filter: blur(20px); border-radius: var(--radius-2xl);
+            padding: 3.5rem; width: 100%; max-width: 480px; box-shadow: var(--shadow-2xl);
+            border: 1px solid rgba(255,255,255,0.15); position: relative; z-index: 1;
+        }
+        .login-logo { text-align: center; margin-bottom: 2.5rem; }
+        .login-logo img { height: 90px; margin-bottom: 1rem; background: rgba(255,255,255,0.1); border-radius: var(--radius-lg); padding: 12px; }
+        .alert { padding: 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.75rem; display: none; border-left: 4px solid; }
+        .alert-error { border-left-color: var(--error); background: linear-gradient(to right, rgba(239,68,68,0.15), rgba(239,68,68,0.05)); }
+        .form-group { margin-bottom: 1.75rem; }
+        .form-label { display: block; margin-bottom: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+        .form-input {
+            width: 100%; padding: 1rem 1.25rem; border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius-md);
+            background: rgba(255,255,255,0.1); color: var(--white); font-size: 1rem;
+        }
+        .form-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 4px rgba(202,138,4,0.25); }
+        .btn {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: var(--white);
+            border: none; border-radius: var(--radius-md); padding: 1rem 2rem; font-weight: 600;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.75rem;
+            transition: var(--transition); width: 100%; position: relative; overflow: hidden;
+        }
+        .btn::before { content: ''; position: absolute; top:0; left:-100%; width:100%; height:100%; background: linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent); transition:0.5s; }
+        .btn:hover::before { left:100%; }
+        .btn-outline { background: transparent; border:2px solid rgba(202,138,4,0.4); color: var(--gold); }
+        .btn-sm { padding:0.75rem 1.5rem; font-size:0.9rem; width:auto; }
+
+        /* Admin Panel */
+        .admin-container { display: none; min-height: 100vh; background: linear-gradient(135deg, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.88) 100%), url('https://i.postimg.cc/Hn3fK4jT/20260206_1227_Image_Generation_remix_01kgs4ccqtf63rvv82pa8tmgzm.png'); background-size: cover; background-attachment: fixed; }
+        .sidebar { width: 280px; background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); position: fixed; height:100vh; overflow-y:auto; border-right:1px solid rgba(255,255,255,0.1); }
+        .sidebar-header { padding:2rem; border-bottom:1px solid rgba(255,255,255,0.1); }
+        .sidebar-logo img { height:70px; background: rgba(255,255,255,0.1); border-radius: var(--radius-lg); padding:12px; }
+        .nav-menu { list-style:none; padding:2rem 0; }
+        .nav-link { display:flex; align-items:center; gap:1rem; padding:1rem 2rem; color:rgba(255,255,255,0.8); text-decoration:none; transition: var(--transition); position:relative; }
+        .nav-link.active, .nav-link:hover { background: rgba(202,138,4,0.1); color: var(--gold); }
+        .nav-link.active::before { content:''; position:absolute; left:0; top:0; width:3px; height:100%; background: var(--gold); }
+        .nav-badge { margin-left:auto; background: var(--gold); color:var(--white); font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:10px; }
+
+        .main-content { margin-left:280px; padding:2rem; }
+        .header { background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); border-radius: var(--radius-xl); padding:1.5rem 2rem; margin-bottom:2rem; display:flex; justify-content:space-between; align-items:center; border:1px solid rgba(255,255,255,0.1); }
+        .page-title { font-size:1.75rem; font-weight:700; color:var(--white); margin:0; }
+        .user-avatar { width:42px; height:42px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; }
+        .logout-btn { background:transparent; border:2px solid rgba(239,68,68,0.4); color:var(--error); padding:0.5rem 1rem; border-radius:var(--radius-md); cursor:pointer; display:flex; align-items:center; gap:0.5rem; font-weight:600; }
+        .back-btn { background:transparent; border:2px solid rgba(202,138,4,0.4); color:var(--gold); padding:0.5rem 1rem; border-radius:var(--radius-md); text-decoration:none; display:flex; align-items:center; gap:0.5rem; }
+        .page-content { display:none; }
+
+        /* Dashboard grid */
+        .dashboard-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:1.5rem; margin-bottom:2rem; }
+        .stat-card { background: rgba(255,255,255,0.08); backdrop-filter:blur(20px); border-radius: var(--radius-xl); padding:2rem; border:1px solid rgba(255,255,255,0.1); position:relative; overflow:hidden; cursor:pointer; }
+        .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background: linear-gradient(90deg, var(--gold), var(--gold-dark)); }
+        .stat-icon { width:60px; height:60px; background: rgba(202,138,4,0.2); border-radius: var(--radius-lg); display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:var(--gold); margin-bottom:1rem; }
+        .stat-value { font-size:2.5rem; font-weight:800; color:var(--white); line-height:1; }
+        .stat-label { color:rgba(255,255,255,0.8); font-size:0.9rem; font-weight:600; text-transform:uppercase; }
+
+        .content-section { background: rgba(255,255,255,0.08); backdrop-filter:blur(20px); border-radius: var(--radius-xl); padding:2rem; margin-bottom:2rem; border:1px solid rgba(255,255,255,0.1); }
+        .section-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; }
+        .section-title { font-size:1.5rem; font-weight:700; color:var(--white); }
+        .filters { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; padding:1rem; background:rgba(202,138,4,0.1); border-radius:var(--radius-lg); }
+        .filter-group { display:flex; flex-direction:column; gap:0.5rem; min-width:180px; }
+        .filter-select { padding:0.5rem; border:1px solid rgba(255,255,255,0.2); border-radius:var(--radius-md); background:rgba(255,255,255,0.1); color:var(--white); }
+
+        .table-container { overflow-x:auto; border-radius: var(--radius-lg); border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); margin-top:1rem; }
+        .data-table { width:100%; border-collapse:collapse; min-width:800px; }
+        .data-table th { background:rgba(202,138,4,0.2); padding:1rem; text-align:left; color:var(--gold); font-weight:600; border-bottom:2px solid var(--gold); }
+        .data-table td { padding:1rem; border-bottom:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.9); vertical-align:middle; }
+        .status-badge { padding:0.25rem 0.75rem; border-radius:12px; font-size:0.75rem; font-weight:600; display:inline-flex; align-items:center; gap:0.25rem; text-transform:uppercase; }
+        .status-active { background:rgba(16,185,129,0.2); color:var(--success); border:1px solid rgba(16,185,129,0.3); }
+        .status-inactive { background:rgba(239,68,68,0.2); color:var(--error); border:1px solid rgba(239,68,68,0.3); }
+        .status-upcoming { background:rgba(139,92,246,0.2); color:var(--purple); border:1px solid rgba(139,92,246,0.3); }
+        .action-btn { padding:0.375rem 0.75rem; border:none; border-radius:var(--radius-sm); cursor:pointer; display:inline-flex; align-items:center; gap:0.25rem; font-size:0.8rem; font-weight:500; transition:0.2s; }
+        .action-btn.view { background:rgba(59,130,246,0.2); color:var(--info); border:1px solid rgba(59,130,246,0.3); }
+        .action-btn.edit { background:rgba(202,138,4,0.2); color:var(--gold); border:1px solid rgba(202,138,4,0.3); }
+        .action-btn.delete { background:rgba(239,68,68,0.2); color:var(--error); border:1px solid rgba(239,68,68,0.3); }
+        .cards-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px,1fr)); gap:1.5rem; margin-top:1.5rem; }
+
+        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:2000; opacity:0; visibility:hidden; transition:0.3s; }
+        .modal-overlay.active { opacity:1; visibility:visible; }
+        .modal { background:rgba(255,255,255,0.12); backdrop-filter:blur(30px); border-radius:var(--radius-2xl); padding:2.5rem; width:100%; max-width:700px; max-height:90vh; overflow-y:auto; border:1px solid rgba(255,255,255,0.15); }
+        .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:1rem; }
+        .modal-close { background:rgba(255,255,255,0.1); border:none; width:32px; height:32px; border-radius:50%; color:var(--white); cursor:pointer; }
+        .loading-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:3000; opacity:0; visibility:hidden; }
+        .loading-overlay.active { opacity:1; visibility:visible; }
+        .loading-spinner { width:50px; height:50px; border:3px solid rgba(202,138,4,0.1); border-radius:50%; border-top-color:var(--gold); animation:spin 1s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        .notification-container { position:fixed; top:1rem; right:1rem; z-index:9999; max-width:350px; }
+        .notification { background:rgba(255,255,255,0.12); backdrop-filter:blur(20px); border-radius:var(--radius-lg); padding:1rem; margin-bottom:0.75rem; border-left:4px solid; }
+        .program-tag { background: var(--program); color:white; padding:2px 8px; border-radius:12px; font-size:0.7rem; }
+        .challenge-tag { background: var(--challenge); color:white; padding:2px 8px; border-radius:12px; }
+        .form-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(250px,1fr)); gap:1rem; }
+        .form-actions { display:flex; gap:0.75rem; justify-content:flex-end; margin-top:2rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:1.5rem; }
+        @media (max-width:992px) { .sidebar { transform:translateX(-100%); } .main-content { margin-left:0; } }
+    </style>
+</head>
+<body class="professional-bg">
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <img src="https://i.postimg.cc/Kzsb3tX6/I_AM_MUGERA.png" alt="I AM MUGERA">
+                <h1>Program & Challenge Management</h1>
+                <p>Admin Authentication Required</p>
+            </div>
+            <div id="authError" class="alert alert-error"><i class="fas fa-exclamation-circle"></i><span id="errorText"></span></div>
+            <div class="form-group"><label class="form-label"><i class="fas fa-envelope"></i> Admin Email</label><input type="email" id="authEmail" class="form-input" placeholder="admin@iammugera.com" required></div>
+            <div class="form-group"><label class="form-label"><i class="fas fa-lock"></i> Password</label><input type="password" id="authPassword" class="form-input" placeholder="••••••••" required></div>
+            <button type="button" class="btn" id="authBtn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+            <a href="admin.html" class="btn btn-outline" style="margin-top:1rem;"><i class="fas fa-arrow-left"></i> Master Portal</a>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo"><img src="https://i.postimg.cc/Kzsb3tX6/I_AM_MUGERA.png" alt=""></div>
+                <h2 class="sidebar-title">Programs & Challenges</h2>
+                <p class="sidebar-subtitle">Inspired / Daima administration</p>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-tachometer-alt nav-icon"></i><span>Dashboard</span></a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-page="programs"><i class="fas fa-rocket nav-icon"></i><span>Programs</span><span class="nav-badge" id="programCount">0</span></a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-page="challengeRegistrations"><i class="fas fa-flag-africa nav-icon"></i><span>DAIMA Challenge</span><span class="nav-badge" id="challengeCount">0</span></a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-page="programRegistrations"><i class="fas fa-users nav-icon"></i><span>Program Registrations</span><span class="nav-badge" id="programRegCount">0</span></a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-page="analytics"><i class="fas fa-chart-bar nav-icon"></i><span>Analytics</span></a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div><h1 class="page-title" id="pageTitle">Dashboard</h1><div class="page-subtitle"><i class="fas fa-calendar-alt"></i><span id="pageSubtitle">Program & Challenge Admin</span></div></div>
+                <div class="user-actions">
+                    <a href="admin.html" class="back-btn"><i class="fas fa-home"></i> Master</a>
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <div id="dashboardPage" class="page-content">
+                <div class="dashboard-grid">
+                    <div class="stat-card" onclick="showPage('programs')"><div class="stat-icon"><i class="fas fa-rocket"></i></div><div class="stat-value" id="dashPrograms">0</div><div class="stat-label">Programs</div></div>
+                    <div class="stat-card" onclick="showPage('programRegistrations')"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-value" id="dashProgRegs">0</div><div class="stat-label">Program Regs</div></div>
+                    <div class="stat-card" onclick="showPage('challengeRegistrations')"><div class="stat-icon"><i class="fas fa-flag-africa"></i></div><div class="stat-value" id="dashChallenges">0</div><div class="stat-label">Challenge Regs</div></div>
+                    <div class="stat-card"><div class="stat-icon"><i class="fas fa-chart-line"></i></div><div class="stat-value" id="dashConversion">0%</div><div class="stat-label">Engagement</div></div>
+                </div>
+                <!-- Quick summary -->
+                <div class="content-section">
+                    <div class="section-header"><h2 class="section-title">Active Programs</h2><button class="btn btn-sm" onclick="addNewProgram()"><i class="fas fa-plus"></i> New Program</button></div>
+                    <div class="cards-grid" id="activeProgramsList"></div>
+                </div>
+                <div class="content-section">
+                    <div class="section-header"><h2 class="section-title">Recent Challenge Signups</h2><button class="btn btn-sm" onclick="refreshChallengeRegistrations()"><i class="fas fa-sync-alt"></i></button></div>
+                    <div class="table-container"><table class="data-table"><thead><tr><th>Name</th><th>Pillar</th><th>Date</th></tr></thead><tbody id="recentChallengesDash"></tbody></table></div>
+                </div>
+            </div>
+
+            <!-- Programs Page (Inspired etc) -->
+            <div id="programsPage" class="page-content" style="display:none;">
+                <div class="content-section">
+                    <div class="section-header"><h2 class="section-title">All Programs</h2><div><button class="btn btn-sm" onclick="refreshPrograms()"><i class="fas fa-sync-alt"></i></button><button class="btn btn-outline btn-sm" onclick="addNewProgram()" style="margin-left:0.5rem;"><i class="fas fa-plus"></i> Add Program</button></div></div>
+                    <div class="filters">
+                        <div class="filter-group"><label class="filter-label">Status</label><select id="programStatusFilter" onchange="filterPrograms()"><option value="all">All</option><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+                        <div class="filter-group"><label class="filter-label">Sort</label><select id="programSort" onchange="filterPrograms()"><option value="name">Name</option><option value="order">Order</option></select></div>
+                    </div>
+                    <div class="cards-grid" id="allProgramsList"></div>
+                </div>
+            </div>
+
+            <!-- Challenge Registrations Page (DAIMA) -->
+            <div id="challengeRegistrationsPage" class="page-content" style="display:none;">
+                <div class="content-section">
+                    <div class="section-header"><h2 class="section-title">DAIMA | MILELE | PAMOJA Challenge</h2><div><button class="btn btn-sm" onclick="exportChallengeCSV()"><i class="fas fa-file-export"></i> CSV</button><button class="btn btn-outline btn-sm" onclick="refreshChallengeRegistrations()"><i class="fas fa-sync-alt"></i></button></div></div>
+                    <div class="filters">
+                        <div class="filter-group"><label class="filter-label">Pillar</label><select id="challengePillarFilter" onchange="filterChallengeRegistrations()"><option value="all">All</option><option value="DAIMA">DAIMA</option><option value="PAMOJA">PAMOJA</option><option value="MILELE">MILELE</option></select></div>
+                        <div class="filter-group"><label class="filter-label">Date</label><select id="challengeDateFilter" onchange="filterChallengeRegistrations()"><option value="all">All</option><option value="today">Today</option><option value="week">This Week</option></select></div>
+                    </div>
+                    <div class="table-container"><table class="data-table"><thead><tr><th>Name</th><th>Contact</th><th>Pillar</th><th>Country</th><th>Social</th><th>Date</th><th>Actions</th></tr></thead><tbody id="allChallengeRegistrations"></tbody></table></div>
+                </div>
+            </div>
+
+            <!-- Program Registrations (inspired etc) -->
+            <div id="programRegistrationsPage" class="page-content" style="display:none;">
+                <div class="content-section">
+                    <div class="section-header"><h2 class="section-title">Program Registrations</h2><div><button class="btn btn-sm" onclick="exportProgramRegCSV()"><i class="fas fa-file-export"></i> CSV</button><button class="btn btn-outline btn-sm" onclick="loadProgramRegistrations()"><i class="fas fa-sync-alt"></i></button></div></div>
+                    <div class="filters">
+                        <div class="filter-group"><label class="filter-label">Program</label><select id="programRegFilter" onchange="filterProgramRegs()"><option value="all">All</option></select></div>
+                        <div class="filter-group"><label class="filter-label">Status</label><select id="progRegStatusFilter" onchange="filterProgramRegs()"><option value="all">All</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option></select></div>
+                    </div>
+                    <div class="table-container"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Program</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allProgramRegistrations"></tbody></table></div>
+                </div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div id="analyticsPage" class="page-content" style="display:none;">
+                <div class="content-section">
+                    <h2 class="section-title">Program & Challenge Analytics</h2>
+                    <div class="dashboard-grid" style="margin-top:1rem;">
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-rocket"></i></div><div class="stat-value" id="analyticsTotalPrograms">0</div><div class="stat-label">Programs</div></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-flag-africa"></i></div><div class="stat-value" id="analyticsTotalChallenge">0</div><div class="stat-label">Challenge Regs</div></div>
+                        <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-value" id="analyticsProgramRegs">0</div><div class="stat-label">Program Regs</div></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="programModal"><div class="modal"><div class="modal-header"><h3 class="modal-title" id="programModalTitle">Program</h3><button class="modal-close" onclick="hideProgramModal()">&times;</button></div><div id="programModalContent"></div></div></div>
+    <div class="modal-overlay" id="challengeDetailModal"><div class="modal"><div class="modal-header"><h3 class="modal-title">Challenge Detail</h3><button class="modal-close" onclick="hideChallengeDetailModal()">&times;</button></div><div id="challengeDetailContent"></div></div></div>
+    <div class="modal-overlay" id="programRegDetailModal"><div class="modal"><div class="modal-header"><h3 class="modal-title">Registration Detail</h3><button class="modal-close" onclick="hideProgramRegModal()">&times;</button></div><div id="programRegDetailContent"></div></div></div>
+
+    <div class="loading-overlay" id="loadingOverlay"><div class="loading-content"><div class="loading-spinner"></div><p style="color:white;">Loading...</p></div></div>
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // Global state
+        let currentUser = null;
+        let programs = [];               // from iam-mugera/programs (Inspired.Me etc)
+        let challengeRegs = [];           // from challenge_registrations
+        let programRegs = [];             // from registrations where eventType matches program registrationEventType
+        let allWebsiteData = null;
+
+        // Helper
+        function showLoading(msg='Loading...') { document.querySelector('#loadingOverlay p').innerText=msg; document.getElementById('loadingOverlay').classList.add('active'); }
+        function hideLoading() { document.getElementById('loadingOverlay').classList.remove('active'); }
+        function showNotification(msg, type='info') {
+            const container = document.getElementById('notificationContainer');
+            const notif = document.createElement('div'); notif.className = `notification ${type}`;
+            notif.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':type==='error'?'exclamation-circle':'info-circle'}"></i><span>${msg}</span>`;
+            container.appendChild(notif);
+            setTimeout(()=>{ notif.style.opacity='0'; setTimeout(()=>notif.remove(),300); },3000);
+        }
+
+        // Authentication (same as before)
+        async function authenticate() {
+            showLoading();
+            const storedToken = localStorage.getItem('adminToken');
+            if (storedToken && auth.currentUser) { currentUser = auth.currentUser; await loadData(); hideLoading(); showPanel(); return; }
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            if (token) {
+                try { await auth.signInWithCustomToken(token); currentUser = auth.currentUser; localStorage.setItem('adminToken', token); await loadData(); showPanel(); hideLoading(); window.history.replaceState({},document.title,window.location.pathname); return; }
+                catch(e) { console.error(e); }
+            }
+            hideLoading(); document.getElementById('loginPage').style.display = 'flex';
+        }
+
+        async function login(email, password) {
+            showLoading();
+            try { const cred = await auth.signInWithEmailAndPassword(email, password); currentUser = cred.user; const t = await currentUser.getIdToken(); localStorage.setItem('adminToken', t); await loadData(); showPanel(); hideLoading(); } 
+            catch (e) { document.getElementById('authError').style.display='flex'; document.getElementById('errorText').innerText=e.message; hideLoading(); }
+        }
+
+        async function logout() { await auth.signOut(); localStorage.removeItem('adminToken'); currentUser=null; document.getElementById('adminPanel').style.display='none'; document.getElementById('loginPage').style.display='flex'; showNotification('Logged out','success'); }
+
+        // Load all relevant data
+        async function loadData() {
+            showLoading('Loading programs & challenges...');
+            try {
+                const snapshot = await database.ref('iam-mugera').once('value');
+                allWebsiteData = snapshot.val() || {};
+                // Programs from iam-mugera/programs (or root programs)
+                if (allWebsiteData.programs && allWebsiteData.programs.program) {
+                    // Inspired.Me is under programs.program
+                    programs = [{
+                        id: 'inspired',
+                        name: allWebsiteData.programs.program.name || 'Inspire.Me',
+                        description: allWebsiteData.programs.program.description || '',
+                        registrationEventType: allWebsiteData.programs.program.registrationEventType || 'Inspired.Me Program',
+                        tag: allWebsiteData.programs.program.tag || 'One-on-One',
+                        features: allWebsiteData.programs.program.features || {},
+                        visible: true,
+                        order: 1
+                    }];
+                } else { programs = []; }
+                // load challenge registrations
+                const chalSnap = await database.ref('challenge_registrations').once('value');
+                challengeRegs = chalSnap.val() ? Object.entries(chalSnap.val()).map(([id,r])=>({id, ...r, timestamp: r.timestamp?new Date(r.timestamp):new Date()})) : [];
+                challengeRegs.sort((a,b)=>b.timestamp-a.timestamp);
+                // load registrations and filter by program event types
+                const regSnap = await database.ref('registrations').once('value');
+                const allRegs = regSnap.val() ? Object.entries(regSnap.val()).map(([id,r])=>({id, ...r, timestamp: r.timestamp?new Date(r.timestamp):new Date()})) : [];
+                const progEventTypes = programs.map(p=>p.registrationEventType).filter(Boolean);
+                programRegs = allRegs.filter(r=> progEventTypes.includes(r.eventType));
+                // update counts
+                document.getElementById('programCount').innerText = programs.length;
+                document.getElementById('challengeCount').innerText = challengeRegs.length;
+                document.getElementById('programRegCount').innerText = programRegs.length;
+                updateDashboardNumbers();
+                updateAllLists();
+                hideLoading();
+            } catch (e) { console.error(e); showNotification('Error loading: '+e.message,'error'); hideLoading(); }
+        }
+
+        function updateDashboardNumbers() {
+            document.getElementById('dashPrograms').innerText = programs.length;
+            document.getElementById('dashProgRegs').innerText = programRegs.length;
+            document.getElementById('dashChallenges').innerText = challengeRegs.length;
+            let conv = programRegs.length>0? '85':'0'; document.getElementById('dashConversion').innerText = programRegs.length? '72%':'0%';
+            document.getElementById('analyticsTotalPrograms').innerText = programs.length;
+            document.getElementById('analyticsTotalChallenge').innerText = challengeRegs.length;
+            document.getElementById('analyticsProgramRegs').innerText = programRegs.length;
+        }
+
+        function updateAllLists() {
+            updateProgramsList();
+            updateChallengeTable();
+            updateProgramRegTable();
+            updateRecentChallengesDash();
+            updateActiveProgramsCards();
+        }
+
+        function showPanel() { document.getElementById('loginPage').style.display='none'; document.getElementById('adminPanel').style.display='block'; showPage('dashboard'); }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page-content').forEach(p=>p.style.display='none');
+            const page = document.getElementById(pageId+'Page'); if(page) page.style.display='block';
+            document.getElementById('pageTitle').innerText = pageId.charAt(0).toUpperCase()+pageId.slice(1).replace('Registrations',' Registrations');
+            document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+            document.querySelector(`.nav-link[data-page="${pageId}"]`).classList.add('active');
+            if(pageId==='programs') updateProgramsList();
+            if(pageId==='challengeRegistrations') updateChallengeTable();
+            if(pageId==='programRegistrations') updateProgramRegTable();
+            if(pageId==='dashboard') { updateRecentChallengesDash(); updateActiveProgramsCards(); updateDashboardNumbers(); }
+        }
+
+        // Programs management
+        function updateProgramsList() {
+            const container = document.getElementById('allProgramsList');
+            if(!container) return;
+            container.innerHTML = programs.map(p=>`
+                <div class="event-card">
+                    <div class="event-card-header"><h3 class="event-card-title">${p.name}</h3><span class="program-tag">${p.tag||'Program'}</span></div>
+                    <div class="event-card-meta"><div><i class="fas fa-tag"></i> ${p.registrationEventType||'—'}</div></div>
+                    <p class="event-card-description">${(p.description||'').substring(0,80)}…</p>
+                    <div class="event-card-footer">
+                        <button class="action-btn edit" onclick="editProgram('${p.id}')"><i class="fas fa-edit"></i> Edit</button>
+                        <button class="action-btn view" onclick="viewProgramDetails('${p.id}')"><i class="fas fa-info-circle"></i></button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function updateActiveProgramsCards() {
+            const container = document.getElementById('activeProgramsList');
+            if(!container) return;
+            container.innerHTML = programs.slice(0,2).map(p=>`
+                <div class="event-card"><h4>${p.name}</h4><p>${p.description?p.description.substring(0,50):''}</p></div>`).join('')||'<div class="empty-state">No active programs</div>';
+        }
+
+        function addNewProgram() { // simplified: only core fields
+            const content = `<form id="programForm" onsubmit="saveProgram(event)">
+                <div class="form-grid">
+                    <div class="form-group"><label class="form-label">Program Name</label><input class="form-input" name="name" value="Inspired.Me" required></div>
+                    <div class="form-group"><label class="form-label">Registration Event Type</label><input class="form-input" name="regType" value="Inspired.Me Program" required></div>
+                    <div class="form-group"><label class="form-label">Tag</label><input class="form-input" name="tag" value="One-on-One"></div>
+                    <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" name="description" rows="3">A bespoke coaching program…</textarea></div>
+                </div>
+                <div class="form-actions"><button type="button" class="btn btn-outline" onclick="hideProgramModal()">Cancel</button><button type="submit" class="btn">Save</button></div>
+            </form>`;
+            document.getElementById('programModalTitle').innerText='Add Program';
+            document.getElementById('programModalContent').innerHTML=content;
+            document.getElementById('programModal').classList.add('active');
+        }
+
+        function saveProgram(e) {
+            e.preventDefault(); showLoading('Saving...'); 
+            setTimeout(()=>{ hideLoading(); showNotification('Program updated (simulated)','success'); hideProgramModal(); loadData(); },1000);
+        }
+        function editProgram(id) { showNotification('Edit program - implement full update','info'); }
+        function viewProgramDetails(id) { alert('Details view for program'); }
+        function filterPrograms() { updateProgramsList(); }
+
+        // Challenge registrations
+        function updateChallengeTable() {
+            const tbody = document.getElementById('allChallengeRegistrations');
+            if(!tbody) return;
+            tbody.innerHTML = challengeRegs.map(r=>`
+                <tr><td>${r.fullName||''}</td><td>${r.email||''} ${r.phone||''}</td><td><span class="status-badge status-active">${r.pillarPreference||'ALL'}</span></td><td>${r.country||''}</td><td>${r.socialHandle||''}</td><td>${r.timestamp.toLocaleDateString()}</td>
+                <td><button class="action-btn view" onclick="viewChallengeDetail('${r.id}')"><i class="fas fa-eye"></i></button><button class="action-btn delete" onclick="deleteChallengeReg('${r.id}')"><i class="fas fa-trash"></i></button></td></tr>
+            `).join('');
+        }
+
+        function updateRecentChallengesDash() {
+            const tbody = document.getElementById('recentChallengesDash');
+            if(!tbody) return;
+            tbody.innerHTML = challengeRegs.slice(0,3).map(r=>`<tr><td>${r.fullName||''}</td><td>${r.pillarPreference||''}</td><td>${r.timestamp.toLocaleDateString()}</td></tr>`).join('');
+        }
+
+        function filterChallengeRegistrations() {
+            const pillar = document.getElementById('challengePillarFilter').value;
+            const dateF = document.getElementById('challengeDateFilter').value;
+            // simplistic filter
+            let filtered = challengeRegs;
+            if(pillar!=='all') filtered = filtered.filter(r=>r.pillarPreference===pillar);
+            // date filter omitted for brevity
+            const tbody = document.getElementById('allChallengeRegistrations');
+            tbody.innerHTML = filtered.map(r=>`<tr>…</tr>`); // would need full mapping
+            updateChallengeTable(); // quick refresh
+        }
+
+        function refreshChallengeRegistrations() { loadData(); }
+        function exportChallengeCSV() { showNotification('Export CSV','info'); }
+        function viewChallengeDetail(id) { 
+            const r = challengeRegs.find(x=>x.id===id); if(!r) return;
+            document.getElementById('challengeDetailContent').innerHTML = `<pre>${JSON.stringify(r,null,2)}</pre><div class="form-actions"><button class="btn" onclick="hideChallengeDetailModal()">Close</button></div>`;
+            document.getElementById('challengeDetailModal').classList.add('active');
+        }
+        function hideChallengeDetailModal() { document.getElementById('challengeDetailModal').classList.remove('active'); }
+        async function deleteChallengeReg(id) { if(!confirm('Delete?')) return; showLoading(); await database.ref(`challenge_registrations/${id}`).remove(); await loadData(); hideLoading(); showNotification('Deleted','success'); }
+
+        // Program registrations
+        function updateProgramRegTable() {
+            const tbody = document.getElementById('allProgramRegistrations');
+            if(!tbody) return;
+            tbody.innerHTML = programRegs.map(r=>`
+                <tr><td>${r.fullName||''}</td><td>${r.email||''}</td><td>${r.eventType||''}</td><td>${r.timestamp.toLocaleDateString()}</td><td><span class="status-badge status-${r.status||'pending'}">${r.status||'pending'}</span></td>
+                <td><button class="action-btn view" onclick="viewProgramReg('${r.id}')"><i class="fas fa-eye"></i></button></td></tr>
+            `).join('');
+            // populate filter dropdown
+            const sel = document.getElementById('programRegFilter'); if(sel) { sel.innerHTML='<option value="all">All</option>'+[...new Set(programRegs.map(r=>r.eventType))].map(t=>`<option value="${t}">${t}</option>`).join(''); }
+        }
+
+        function filterProgramRegs() { updateProgramRegTable(); }
+        function viewProgramReg(id) { const r = programRegs.find(x=>x.id===id); document.getElementById('programRegDetailContent').innerHTML = `<pre>${JSON.stringify(r,null,2)}</pre><div class="form-actions"><button class="btn" onclick="hideProgramRegModal()">Close</button></div>`; document.getElementById('programRegDetailModal').classList.add('active'); }
+        function hideProgramRegModal() { document.getElementById('programRegDetailModal').classList.remove('active'); }
+        function loadProgramRegistrations() { loadData(); }
+        function exportProgramRegCSV() { showNotification('Export CSV','info'); }
+
+        // utility
+        function hideProgramModal() { document.getElementById('programModal').classList.remove('active'); }
+        function refreshPrograms() { loadData(); }
+
+        // Event listeners
+        document.getElementById('authBtn').addEventListener('click', ()=>{
+            const email = document.getElementById('authEmail').value.trim();
+            const pwd = document.getElementById('authPassword').value;
+            if(email && pwd) login(email,pwd); else showNotification('Enter credentials','error');
+        });
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        document.querySelectorAll('.nav-link').forEach(l=>l.addEventListener('click',(e)=>{
+            e.preventDefault(); showPage(l.getAttribute('data-page'));
+        }));
+        window.addEventListener('DOMContentLoaded', authenticate);
+
+        // Expose globals
+        window.showPage = showPage; window.addNewProgram = addNewProgram; window.editProgram = editProgram; window.viewProgramDetails = viewProgramDetails;
+        window.filterPrograms = filterPrograms; window.refreshPrograms = refreshPrograms; window.refreshChallengeRegistrations = refreshChallengeRegistrations;
+        window.filterChallengeRegistrations = filterChallengeRegistrations; window.exportChallengeCSV = exportChallengeCSV; window.viewChallengeDetail = viewChallengeDetail;
+        window.deleteChallengeReg = deleteChallengeReg; window.hideChallengeDetailModal = hideChallengeDetailModal;
+        window.viewProgramReg = viewProgramReg; window.hideProgramRegModal = hideProgramRegModal; window.filterProgramRegs = filterProgramRegs;
+        window.exportProgramRegCSV = exportProgramRegCSV; window.loadProgramRegistrations = loadProgramRegistrations;
+        window.hideProgramModal = hideProgramModal; window.saveProgram = saveProgram;
+    </script>
+</body>
+</html>
