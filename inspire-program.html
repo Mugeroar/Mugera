@@ -29,6 +29,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     
     <style>
         /* ----- EXACT SAME VARIABLES & RESET AS MAIN PAGE ----- */
@@ -63,6 +64,13 @@
             --personal: #ca8a04;
             --financial: #0ea5e9;
             --entrepreneur: #8B4513;
+            
+            /* Status colors */
+            --status-pending: #f59e0b;
+            --status-approved: #10b981;
+            --status-scheduled: #3b82f6;
+            --status-completed: #6b7280;
+            --status-cancelled: #ef4444;
         }
 
         /* Light theme class (exactly as main) */
@@ -178,6 +186,103 @@
             align-items: center;
             gap: 1rem;
         }
+        
+        /* Auth Buttons */
+        .auth-buttons {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .btn-auth {
+            padding: 0.5rem 1.2rem;
+            border: 2px solid var(--gold);
+            background: transparent;
+            color: var(--gold);
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .btn-auth:hover {
+            background: var(--gold);
+            color: var(--bg-primary);
+        }
+        
+        .btn-auth.primary {
+            background: var(--gold);
+            color: var(--bg-primary);
+        }
+        
+        .btn-auth.primary:hover {
+            background: transparent;
+            color: var(--gold);
+        }
+        
+        /* User Menu */
+        .user-menu {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .user-menu-btn {
+            background: var(--gold);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 30px;
+            padding: 0.5rem 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .user-menu-btn i {
+            font-size: 1rem;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background: var(--card-bg);
+            border: 2px solid var(--gold);
+            border-radius: 20px;
+            min-width: 200px;
+            box-shadow: var(--glass-shadow);
+            display: none;
+            z-index: 1001;
+            overflow: hidden;
+        }
+        
+        .user-dropdown.active {
+            display: block;
+        }
+        
+        .user-dropdown a, .user-dropdown button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: var(--text-primary);
+            width: 100%;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-align: left;
+            transition: 0.2s;
+        }
+        
+        .user-dropdown a:hover, .user-dropdown button:hover {
+            background: rgba(202,138,4,0.1);
+        }
+        
         .theme-toggle {
             background: transparent;
             border: 2px solid var(--gold);
@@ -411,7 +516,160 @@
         .package-card[data-package="financial"]:hover { border-color: var(--financial); }
         .package-card[data-package="entrepreneurship"]:hover { border-color: var(--entrepreneur); }
         
-        /* ----- MODAL (same elegant style as main) ----- */
+        /* ----- APPLICATIONS SECTION ----- */
+        .applications-section {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+        
+        .applications-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .application-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-light);
+            transition: 0.3s;
+        }
+        
+        .application-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-3px);
+        }
+        
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .application-package {
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            color: var(--gold);
+        }
+        
+        .application-status {
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-pending { background: rgba(245,158,11,0.2); color: #f59e0b; }
+        .status-approved { background: rgba(16,185,129,0.2); color: #10b981; }
+        .status-scheduled { background: rgba(59,130,246,0.2); color: #3b82f6; }
+        .status-completed { background: rgba(107,114,128,0.2); color: #6b7280; }
+        .status-cancelled { background: rgba(239,68,68,0.2); color: #ef4444; }
+        
+        .application-date {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .application-schedule {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-light);
+        }
+        
+        .schedule-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .schedule-item i {
+            color: var(--gold);
+            width: 20px;
+        }
+        
+        .no-applications {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        
+        .no-applications i {
+            font-size: 4rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        
+        /* ----- AUTH MODAL ----- */
+        .auth-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            z-index: 9500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.4s;
+        }
+        
+        .auth-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .auth-content {
+            max-width: 450px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 40px;
+            padding: 2.5rem 2rem;
+            border: 1px solid var(--gold);
+            box-shadow: var(--glass-shadow);
+            position: relative;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-light);
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 1rem;
+            background: none;
+            border: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+        
+        .auth-tab.active {
+            color: var(--gold);
+            border-bottom: 3px solid var(--gold);
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        /* ----- MODAL (elegant glassmorphism) ----- */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -492,7 +750,7 @@
             border: 1px solid var(--gold);
         }
         
-        /* ----- FORM STYLES (proper sentence case, no all-caps) ----- */
+        /* ----- FORM STYLES ----- */
         .inspired-form {
             display: flex;
             flex-direction: column;
@@ -670,6 +928,27 @@
             color: black;
             transform: scale(1.1);
         }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-right {
+                gap: 0.5rem;
+            }
+            
+            .back-link span {
+                display: none;
+            }
+            
+            .btn-auth {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .user-menu-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
 <body class="dark-theme">
@@ -690,7 +969,37 @@
         <div class="header-container">
             <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="I AM MUGERA" class="site-logo" onclick="window.location.href='index.html'">
             <div class="header-right">
-                <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> back to main</a>
+                <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> <span>back to main</span></a>
+                
+                <!-- Auth Buttons (visible when logged out) -->
+                <div class="auth-buttons" id="authButtons">
+                    <button class="btn-auth" onclick="openAuthModal('login')">Login</button>
+                    <button class="btn-auth primary" onclick="openAuthModal('register')">Register</button>
+                </div>
+                
+                <!-- User Menu (visible when logged in) -->
+                <div class="user-menu" id="userMenu" style="display: none;">
+                    <button class="user-menu-btn" onclick="toggleUserDropdown()">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="userName">Account</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#" onclick="showApplications(); return false;">
+                            <i class="fas fa-tasks"></i> My Applications
+                        </a>
+                        <a href="#" onclick="showSchedule(); return false;">
+                            <i class="fas fa-calendar-alt"></i> My Schedule
+                        </a>
+                        <a href="#" onclick="showProfile(); return false;">
+                            <i class="fas fa-user"></i> Profile
+                        </a>
+                        <button onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+                
                 <div class="theme-toggle" id="themeToggle" title="Toggle theme">
                     <i class="fas fa-moon" id="themeIcon"></i>
                 </div>
@@ -763,8 +1072,7 @@
                         <li><i class="fas fa-circle-check"></i> Budgeting, saving & investment basics</li>
                         <li><i class="fas fa-circle-check"></i> Purchasing Behaviour Management</li>
                         <li><i class="fas fa-circle-check"></i> Financial Partnership Counselling</li>
-                        <li><i class="fas fa-circle-check"></i> Monthly Financial Assesment</li>
-
+                        <li><i class="fas fa-circle-check"></i> Monthly Financial Assessment</li>
                     </ul>
                     <button class="apply-btn" onclick="openPackageModal('financial')">
                         <i class="fas fa-paper-plane"></i> apply for this package
@@ -798,315 +1106,702 @@
         </div>
     </section>
 
-    <!-- Footer (same as main) -->
-    <footer class="footer">
-        <p>© 2026 I AM MUGERA — Afrika Milele. All rights reserved.</p>
-        <p style="margin-top: 1rem;">
-            <a href="mugera.html">About</a> · 
-            <a href="Afrika.html">Campaigns</a> · 
-            <a href="eye-of-mugera.html">Eye of Mugera</a> ·
-            <a href="shop.html">Shop</a> · 
-            <a href="#" onclick="showMessage('inspired.me — dream, aspire, inspire', 'info'); return false;">inspired.me</a>
-        </p>
-    </footer>
-</main>
-
-<!-- APPLICATION MODAL (elegant glassmorphism) -->
-<div class="modal-overlay" id="packageModal">
-    <div class="inspired-modal">
-        <button class="modal-close" onclick="closeModal()">&times;</button>
-        <h2 class="modal-title" id="modalTitle">Personal Development</h2>
-        <div class="modal-package-badge" id="modalPackage">package one</div>
-        
-        <!-- Form Container -->
-        <div id="formContainer">
-            <form class="inspired-form" id="applicationForm" onsubmit="event.preventDefault(); submitApplication();">
-                <input type="hidden" id="selectedPackage" value="personal">
-                
-                <div class="form-group">
-                    <label class="form-label"><i class="fas fa-user"></i> full name *</label>
-                    <input type="text" class="form-input" id="fullName" placeholder="e.g., Wanjiku Njoroge">
-                    <div class="form-error" id="errorName">Please enter your full name</div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label"><i class="fas fa-envelope"></i> email address *</label>
-                    <input type="email" class="form-input" id="email" placeholder="you@example.com">
-                    <div class="form-error" id="errorEmail">Valid email required</div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label"><i class="fas fa-phone-alt"></i> phone number *</label>
-                    <input type="tel" class="form-input" id="phone" placeholder="+254 ...">
-                    <div class="form-error" id="errorPhone">Phone number required</div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label"><i class="fas fa-map-pin"></i> your location</label>
-                    <input type="text" class="form-input" id="location" placeholder="city, county, country">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label"><i class="fas fa-bullhorn"></i> how did you hear about us?</label>
-                    <select class="form-select" id="referral">
-                        <option value="">select an option</option>
-                        <option value="social media">social media</option>
-                        <option value="friend">friend or colleague</option>
-                        <option value="website">website</option>
-                        <option value="event">event or conference</option>
-                        <option value="other">other</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label"><i class="fas fa-comment"></i> what interests you about this package?</label>
-                    <textarea class="form-textarea" id="message" placeholder="share briefly..."></textarea>
-                </div>
-                
-                <button type="submit" class="form-submit-btn" id="submitBtn">
-                    <i class="fas fa-paper-plane"></i> submit application
-                </button>
-            </form>
+    <!-- Applications & Schedule Section (visible when logged in) -->
+    <section class="applications-section" id="applicationsSection" style="display: none;">
+        <div class="section-header">
+            <h2>my journey</h2>
+            <p>track your applications and scheduled sessions</p>
         </div>
         
-        <!-- Success Message -->
-        <div id="successContainer" style="display: none;" class="success-message">
-            <i class="fas fa-check-circle"></i>
-            <h3>thank you</h3>
-            <p>your application has been received. we'll contact you within two working days.</p>
-            <button class="apply-btn" onclick="closeModal()" style="width: auto; padding: 0.8rem 2.5rem;">close</button>
+        <div id="applicationsContainer"></div>
+    </section>
+
+    <!-- AUTH MODAL -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-content">
+            <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')" id="loginTab">Login</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')" id="registerTab">Register</button>
+            </div>
+            
+            <div class="auth-form active" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="loginEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password">
+                </div>
+                <button class="form-submit-btn" onclick="login()">Login</button>
+            </div>
+            
+            <div class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" id="registerName" placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="registerEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input type="tel" class="form-input" id="registerPhone" placeholder="Enter your phone number">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="registerPassword" placeholder="Create a password">
+                </div>
+                <button class="form-submit-btn" onclick="register()">Register</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Toast Message (same as main) -->
-<div id="elegantToast" class="message-toast">
-    <i class="fas fa-check-circle"></i>
-    <span id="toastMessage">message</span>
-</div>
+    <!-- APPLICATION MODAL (elegant glassmorphism) -->
+    <div class="modal-overlay" id="packageModal">
+        <div class="inspired-modal">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2 class="modal-title" id="modalTitle">Personal Development</h2>
+            <div class="modal-package-badge" id="modalPackage">package one</div>
+            
+            <!-- Form Container -->
+            <div id="formContainer">
+                <form class="inspired-form" id="applicationForm" onsubmit="event.preventDefault(); submitApplication();">
+                    <input type="hidden" id="selectedPackage" value="personal">
+                    
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-user"></i> full name *</label>
+                        <input type="text" class="form-input" id="fullName" placeholder="e.g., Wanjiku Njoroge">
+                        <div class="form-error" id="errorName">Please enter your full name</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-envelope"></i> email address *</label>
+                        <input type="email" class="form-input" id="email" placeholder="you@example.com">
+                        <div class="form-error" id="errorEmail">Valid email required</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-phone-alt"></i> phone number *</label>
+                        <input type="tel" class="form-input" id="phone" placeholder="+254 ...">
+                        <div class="form-error" id="errorPhone">Phone number required</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-map-pin"></i> your location</label>
+                        <input type="text" class="form-input" id="location" placeholder="city, county, country">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-calendar-alt"></i> preferred session day</label>
+                        <select class="form-select" id="preferredDay">
+                            <option value="">select preferred day</option>
+                            <option value="monday">Monday</option>
+                            <option value="tuesday">Tuesday</option>
+                            <option value="wednesday">Wednesday</option>
+                            <option value="thursday">Thursday</option>
+                            <option value="friday">Friday</option>
+                            <option value="saturday">Saturday</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-clock"></i> preferred session time</label>
+                        <select class="form-select" id="preferredTime">
+                            <option value="">select preferred time</option>
+                            <option value="morning">Morning (9 AM - 12 PM)</option>
+                            <option value="afternoon">Afternoon (2 PM - 5 PM)</option>
+                            <option value="evening">Evening (6 PM - 8 PM)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-bullhorn"></i> how did you hear about us?</label>
+                        <select class="form-select" id="referral">
+                            <option value="">select an option</option>
+                            <option value="social media">social media</option>
+                            <option value="friend">friend or colleague</option>
+                            <option value="website">website</option>
+                            <option value="event">event or conference</option>
+                            <option value="other">other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label"><i class="fas fa-comment"></i> what interests you about this package?</label>
+                        <textarea class="form-textarea" id="message" placeholder="share briefly..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="form-submit-btn" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i> submit application
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Success Message -->
+            <div id="successContainer" style="display: none;" class="success-message">
+                <i class="fas fa-check-circle"></i>
+                <h3>thank you</h3>
+                <p>your application has been received. we'll contact you within two working days to schedule your sessions.</p>
+                <button class="apply-btn" onclick="closeModal()" style="width: auto; padding: 0.8rem 2.5rem;">close</button>
+            </div>
+        </div>
+    </div>
 
-<!-- Firebase & functionality -->
-<script>
-    // Firebase Config (same as main)
-    const firebaseConfig = {
-        apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
-        authDomain: "mugera-e51cc.firebaseapp.com",
-        databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "mugera-e51cc",
-        storageBucket: "mugera-e51cc.firebasestorage.app",
-        messagingSenderId: "1024868637509",
-        appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    <!-- Toast Message (same as main) -->
+    <div id="elegantToast" class="message-toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">message</span>
+    </div>
+
+    <!-- Firebase & functionality -->
+    <script>
+        // Firebase Config (same as main)
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
     };
 
-    let database;
-    try {
-        firebase.initializeApp(firebaseConfig);
-        database = firebase.database();
-        console.log('Firebase ready (inspired.me)');
-    } catch (error) {
-        console.error('Firebase error:', error);
-    }
+        let database;
+        let auth;
+        let currentUser = null;
+        let userApplications = [];
 
-    // Loading animation (same style)
-    (function() {
-        const overlay = document.getElementById('loadingOverlay');
-        const animatedSpan = document.getElementById('animatedText');
-        const mainContent = document.querySelector('.page-content');
-        const fullText = "inspired.me";
-        let index = 0;
-        animatedSpan.textContent = '';
+        try {
+            firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            auth = firebase.auth();
+            console.log('Firebase ready (inspired.me)');
+            
+            // Listen for auth state changes
+            auth.onAuthStateChanged(handleAuthStateChange);
+        } catch (error) {
+            console.error('Firebase error:', error);
+        }
 
-        function typeNext() {
-            if (index < fullText.length) {
-                animatedSpan.textContent += fullText.charAt(index);
-                index++;
-                let delay = fullText.charAt(index-1) === ' ' ? 280 : 120;
-                setTimeout(typeNext, delay);
-            } else {
-                setTimeout(() => {
+        // Loading animation (same style)
+        (function() {
+            const overlay = document.getElementById('loadingOverlay');
+            const animatedSpan = document.getElementById('animatedText');
+            const mainContent = document.querySelector('.page-content');
+            const fullText = "inspired.me";
+            let index = 0;
+            animatedSpan.textContent = '';
+
+            function typeNext() {
+                if (index < fullText.length) {
+                    animatedSpan.textContent += fullText.charAt(index);
+                    index++;
+                    let delay = fullText.charAt(index-1) === ' ' ? 280 : 120;
+                    setTimeout(typeNext, delay);
+                } else {
+                    setTimeout(() => {
+                        overlay.classList.add('hidden');
+                        mainContent.classList.add('visible');
+                    }, 1000);
+                }
+            }
+            setTimeout(typeNext, 400);
+            setTimeout(() => {
+                if (!overlay.classList.contains('hidden')) {
                     overlay.classList.add('hidden');
                     mainContent.classList.add('visible');
-                }, 1000);
+                }
+            }, 5000);
+        })();
+
+        // Handle auth state change
+        function handleAuthStateChange(user) {
+            currentUser = user;
+            
+            if (user) {
+                // User is logged in
+                document.getElementById('authButtons').style.display = 'none';
+                document.getElementById('userMenu').style.display = 'block';
+                
+                // Load user data
+                database.ref('users/' + user.uid).once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        document.getElementById('userName').textContent = userData.name || user.email.split('@')[0];
+                    } else {
+                        // Create user record
+                        const userData = {
+                            email: user.email,
+                            name: user.displayName || user.email.split('@')[0],
+                            createdAt: new Date().toISOString(),
+                            uid: user.uid
+                        };
+                        database.ref('users/' + user.uid).set(userData);
+                        document.getElementById('userName').textContent = userData.name;
+                    }
+                });
+                
+                // Load user's applications
+                loadUserApplications();
+                
+                showMessage(`Welcome back, ${user.email.split('@')[0]}!`, 'success');
+            } else {
+                // User is logged out
+                document.getElementById('authButtons').style.display = 'flex';
+                document.getElementById('userMenu').style.display = 'none';
+                document.getElementById('applicationsSection').style.display = 'none';
             }
         }
-        setTimeout(typeNext, 400);
-        setTimeout(() => {
-            if (!overlay.classList.contains('hidden')) {
-                overlay.classList.add('hidden');
-                mainContent.classList.add('visible');
+
+        // Auth functions
+        function openAuthModal(tab) {
+            document.getElementById('authModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            switchAuthTab(tab);
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function switchAuthTab(tab) {
+            if (tab === 'login') {
+                document.getElementById('loginTab').classList.add('active');
+                document.getElementById('registerTab').classList.remove('active');
+                document.getElementById('loginForm').classList.add('active');
+                document.getElementById('registerForm').classList.remove('active');
+            } else {
+                document.getElementById('registerTab').classList.add('active');
+                document.getElementById('loginTab').classList.remove('active');
+                document.getElementById('registerForm').classList.add('active');
+                document.getElementById('loginForm').classList.remove('active');
             }
-        }, 5000);
-    })();
+        }
 
-    // Theme toggle (identical to main)
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = document.getElementById('themeIcon');
-    const body = document.body;
-    const metaThemeColor = document.getElementById('themeColor');
+        async function register() {
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const phone = document.getElementById('registerPhone').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            
+            if (!name || !email || !phone || !password) {
+                showMessage('Please fill in all fields', 'info');
+                return;
+            }
+            
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Save user data
+                const userData = {
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    createdAt: new Date().toISOString(),
+                    uid: user.uid,
+                    preferences: {
+                        emailNotifications: true
+                    }
+                };
+                
+                await database.ref('users/' + user.uid).set(userData);
+                
+                closeAuthModal();
+                showMessage('Registration successful!', 'success');
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                showMessage(error.message, 'info');
+            }
+        }
 
-    const savedTheme = localStorage.getItem('siteTheme');
-    if (savedTheme === 'light') {
-        body.classList.add('light-theme');
-        themeIcon.classList.remove('fa-moon');
-        themeIcon.classList.add('fa-sun');
-        metaThemeColor?.setAttribute('content', '#f8f5f0');
-    } else {
-        body.classList.remove('light-theme');
-        themeIcon.classList.remove('fa-sun');
-        themeIcon.classList.add('fa-moon');
-        metaThemeColor?.setAttribute('content', '#ca8a04');
-    }
+        async function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showMessage('Please enter email and password', 'info');
+                return;
+            }
+            
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                closeAuthModal();
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage(error.message, 'info');
+            }
+        }
 
-    themeToggle.addEventListener('click', () => {
-        if (body.classList.contains('light-theme')) {
-            body.classList.remove('light-theme');
-            themeIcon.classList.remove('fa-sun');
-            themeIcon.classList.add('fa-moon');
-            localStorage.setItem('siteTheme', 'dark');
-            metaThemeColor?.setAttribute('content', '#ca8a04');
-        } else {
+        function logout() {
+            auth.signOut();
+            toggleUserDropdown();
+            showMessage('Logged out successfully', 'success');
+        }
+
+        function toggleUserDropdown() {
+            document.getElementById('userDropdown').classList.toggle('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const menuBtn = document.querySelector('.user-menu-btn');
+            if (!menuBtn?.contains(event.target) && !dropdown?.contains(event.target)) {
+                dropdown?.classList.remove('active');
+            }
+        });
+
+        // Theme toggle (identical to main)
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const body = document.body;
+        const metaThemeColor = document.getElementById('themeColor');
+
+        const savedTheme = localStorage.getItem('siteTheme');
+        if (savedTheme === 'light') {
             body.classList.add('light-theme');
             themeIcon.classList.remove('fa-moon');
             themeIcon.classList.add('fa-sun');
-            localStorage.setItem('siteTheme', 'light');
             metaThemeColor?.setAttribute('content', '#f8f5f0');
-        }
-    });
-
-    // Toast function
-    function showMessage(text, type = 'info') {
-        const toast = document.getElementById('elegantToast');
-        const msgSpan = document.getElementById('toastMessage');
-        msgSpan.textContent = text;
-        toast.className = 'message-toast ' + type;
-        toast.querySelector('i').className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-info-circle';
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 3500);
-    }
-
-    // Scroll to packages
-    window.scrollToPackages = function() {
-        document.getElementById('packages').scrollIntoView({ behavior: 'smooth' });
-    };
-
-    // Modal logic
-    const modal = document.getElementById('packageModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalPackage = document.getElementById('modalPackage');
-    const hiddenPackage = document.getElementById('selectedPackage');
-    const formContainer = document.getElementById('formContainer');
-    const successContainer = document.getElementById('successContainer');
-
-    window.openPackageModal = function(packageId) {
-        let title = '', badge = '';
-        if (packageId === 'personal') {
-            title = 'Personal Development';
-            badge = 'package one';
-        } else if (packageId === 'financial') {
-            title = 'Financial Development';
-            badge = 'package two';
         } else {
-            title = 'Entrepreneurship Coaching';
-            badge = 'package three';
+            body.classList.remove('light-theme');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+            metaThemeColor?.setAttribute('content', '#ca8a04');
         }
-        modalTitle.textContent = title;
-        modalPackage.textContent = badge;
-        hiddenPackage.value = packageId;
-        
-        // Reset form
-        document.getElementById('applicationForm').reset();
-        document.querySelectorAll('.form-error').forEach(el => el.classList.remove('show'));
-        formContainer.style.display = 'block';
-        successContainer.style.display = 'none';
-        
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    };
 
-    window.closeModal = function() {
-        modal.classList.remove('active');
-        document.body.style.overflow = '';
-    };
-
-    // Close on overlay click
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-    });
-
-    // Form validation
-    function validateForm() {
-        let isValid = true;
-        document.querySelectorAll('.form-error').forEach(el => el.classList.remove('show'));
-        
-        const name = document.getElementById('fullName').value.trim();
-        if (!name) {
-            document.getElementById('errorName').classList.add('show');
-            isValid = false;
-        }
-        
-        const email = document.getElementById('email').value.trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email || !emailRegex.test(email)) {
-            document.getElementById('errorEmail').classList.add('show');
-            isValid = false;
-        }
-        
-        const phone = document.getElementById('phone').value.trim();
-        if (!phone) {
-            document.getElementById('errorPhone').classList.add('show');
-            isValid = false;
-        }
-        
-        return isValid;
-    }
-
-    // Submit to Firebase
-    window.submitApplication = async function() {
-        if (!validateForm()) return;
-        
-        const submitBtn = document.getElementById('submitBtn');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> submitting...';
-        
-        const applicationData = {
-            package: hiddenPackage.value,
-            packageTitle: modalTitle.textContent,
-            fullName: document.getElementById('fullName').value.trim(),
-            email: document.getElementById('email').value.trim(),
-            phone: document.getElementById('phone').value.trim(),
-            location: document.getElementById('location').value.trim(),
-            referral: document.getElementById('referral').value,
-            message: document.getElementById('message').value.trim(),
-            timestamp: new Date().toISOString(),
-            source: 'inspired.me'
-        };
-        
-        try {
-            if (database) {
-                const appId = 'inspired_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
-                await database.ref('inspiredApplications/' + appId).set(applicationData);
+        themeToggle.addEventListener('click', () => {
+            if (body.classList.contains('light-theme')) {
+                body.classList.remove('light-theme');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                localStorage.setItem('siteTheme', 'dark');
+                metaThemeColor?.setAttribute('content', '#ca8a04');
+            } else {
+                body.classList.add('light-theme');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                localStorage.setItem('siteTheme', 'light');
+                metaThemeColor?.setAttribute('content', '#f8f5f0');
             }
-            // Simulate delay for UX
-            await new Promise(r => setTimeout(r, 800));
-            
-            formContainer.style.display = 'none';
-            successContainer.style.display = 'block';
-            showMessage('application received!', 'success');
-        } catch (error) {
-            console.error(error);
-            showMessage('error, please try again', 'info');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> submit application';
-        }
-    };
+        });
 
-    // Keyboard close
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.classList.contains('active')) {
-            closeModal();
+        // Toast function
+        function showMessage(text, type = 'info') {
+            const toast = document.getElementById('elegantToast');
+            const msgSpan = document.getElementById('toastMessage');
+            msgSpan.textContent = text;
+            toast.className = 'message-toast ' + type;
+            toast.querySelector('i').className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-info-circle';
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3500);
         }
-    });
-</script>
+
+        // Scroll to packages
+        window.scrollToPackages = function() {
+            document.getElementById('packages').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        // Modal logic
+        const modal = document.getElementById('packageModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalPackage = document.getElementById('modalPackage');
+        const hiddenPackage = document.getElementById('selectedPackage');
+        const formContainer = document.getElementById('formContainer');
+        const successContainer = document.getElementById('successContainer');
+
+        window.openPackageModal = function(packageId) {
+            if (!currentUser) {
+                openAuthModal('login');
+                showMessage('Please login to apply', 'info');
+                return;
+            }
+            
+            let title = '', badge = '';
+            if (packageId === 'personal') {
+                title = 'Personal Development';
+                badge = 'package one';
+            } else if (packageId === 'financial') {
+                title = 'Financial Development';
+                badge = 'package two';
+            } else {
+                title = 'Entrepreneurship Coaching';
+                badge = 'package three';
+            }
+            modalTitle.textContent = title;
+            modalPackage.textContent = badge;
+            hiddenPackage.value = packageId;
+            
+            // Pre-fill with user data
+            database.ref('users/' + currentUser.uid).once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    document.getElementById('fullName').value = userData.name || '';
+                    document.getElementById('email').value = userData.email || '';
+                    document.getElementById('phone').value = userData.phone || '';
+                    document.getElementById('location').value = userData.location || '';
+                }
+            });
+            
+            // Reset form
+            document.getElementById('applicationForm').reset();
+            document.querySelectorAll('.form-error').forEach(el => el.classList.remove('show'));
+            formContainer.style.display = 'block';
+            successContainer.style.display = 'none';
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.closeModal = function() {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        };
+
+        // Close on overlay click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Form validation
+        function validateForm() {
+            let isValid = true;
+            document.querySelectorAll('.form-error').forEach(el => el.classList.remove('show'));
+            
+            const name = document.getElementById('fullName').value.trim();
+            if (!name) {
+                document.getElementById('errorName').classList.add('show');
+                isValid = false;
+            }
+            
+            const email = document.getElementById('email').value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email || !emailRegex.test(email)) {
+                document.getElementById('errorEmail').classList.add('show');
+                isValid = false;
+            }
+            
+            const phone = document.getElementById('phone').value.trim();
+            if (!phone) {
+                document.getElementById('errorPhone').classList.add('show');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+
+        // Submit to Firebase
+        window.submitApplication = async function() {
+            if (!currentUser) {
+                closeModal();
+                openAuthModal('login');
+                return;
+            }
+            
+            if (!validateForm()) return;
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> submitting...';
+            
+            const applicationData = {
+                package: hiddenPackage.value,
+                packageTitle: modalTitle.textContent,
+                fullName: document.getElementById('fullName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                location: document.getElementById('location').value.trim(),
+                preferredDay: document.getElementById('preferredDay').value,
+                preferredTime: document.getElementById('preferredTime').value,
+                referral: document.getElementById('referral').value,
+                message: document.getElementById('message').value.trim(),
+                timestamp: new Date().toISOString(),
+                source: 'inspired.me',
+                userId: currentUser.uid,
+                status: 'pending',
+                schedule: null
+            };
+            
+            try {
+                if (database) {
+                    const appId = 'inspired_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+                    await database.ref('inspiredApplications/' + appId).set(applicationData);
+                    
+                    // Save to user's applications
+                    await database.ref('users/' + currentUser.uid + '/applications/' + appId).set({
+                        applicationId: appId,
+                        package: hiddenPackage.value,
+                        packageTitle: modalTitle.textContent,
+                        timestamp: applicationData.timestamp,
+                        status: 'pending'
+                    });
+                }
+                
+                // Simulate delay for UX
+                await new Promise(r => setTimeout(r, 800));
+                
+                formContainer.style.display = 'none';
+                successContainer.style.display = 'block';
+                showMessage('application received!', 'success');
+                
+                // Reload applications if section is visible
+                if (document.getElementById('applicationsSection').style.display !== 'none') {
+                    loadUserApplications();
+                }
+                
+            } catch (error) {
+                console.error(error);
+                showMessage('error, please try again', 'info');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> submit application';
+            }
+        };
+
+        // Load user applications
+        async function loadUserApplications() {
+            if (!currentUser) return;
+            
+            try {
+                const snapshot = await database.ref('inspiredApplications').once('value');
+                
+                if (snapshot.exists()) {
+                    const allApps = snapshot.val();
+                    userApplications = [];
+                    
+                    // Filter applications by user email
+                    Object.keys(allApps).forEach(key => {
+                        const app = allApps[key];
+                        if (app.email === currentUser.email) {
+                            userApplications.push({
+                                id: key,
+                                ...app
+                            });
+                        }
+                    });
+                    
+                    // Sort by date (newest first)
+                    userApplications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    
+                    displayApplications(userApplications);
+                }
+                
+            } catch (error) {
+                console.error('Error loading applications:', error);
+            }
+        }
+
+        // Display applications
+        function displayApplications(applications) {
+            const container = document.getElementById('applicationsContainer');
+            
+            if (applications.length === 0) {
+                container.innerHTML = `
+                    <div class="no-applications">
+                        <i class="fas fa-paper-plane"></i>
+                        <h3>No applications yet</h3>
+                        <p>Apply for a package to begin your journey</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '<div class="applications-grid">';
+            
+            applications.forEach(app => {
+                const date = new Date(app.timestamp).toLocaleDateString();
+                const statusClass = `application-status status-${app.status || 'pending'}`;
+                
+                let scheduleHtml = '';
+                if (app.schedule) {
+                    scheduleHtml = `
+                        <div class="application-schedule">
+                            <div class="schedule-item">
+                                <i class="fas fa-calendar-day"></i>
+                                <span>${app.schedule.day || 'TBD'}</span>
+                            </div>
+                            <div class="schedule-item">
+                                <i class="fas fa-clock"></i>
+                                <span>${app.schedule.time || 'TBD'}</span>
+                            </div>
+                            ${app.schedule.sessionLink ? `
+                            <div class="schedule-item">
+                                <i class="fas fa-video"></i>
+                                <a href="${app.schedule.sessionLink}" target="_blank" style="color: var(--gold);">Join Session</a>
+                            </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+                
+                html += `
+                    <div class="application-card">
+                        <div class="application-header">
+                            <span class="application-package">${app.packageTitle}</span>
+                            <span class="${statusClass}">${app.status || 'pending'}</span>
+                        </div>
+                        <div class="application-date">Applied: ${date}</div>
+                        ${scheduleHtml}
+                        ${app.status === 'scheduled' ? `
+                        <button class="apply-btn" style="margin-top: 1rem;" onclick="viewApplicationDetails('${app.id}')">
+                            <i class="fas fa-eye"></i> view details
+                        </button>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Show applications section
+        function showApplications() {
+            document.getElementById('applicationsSection').style.display = 'block';
+            document.getElementById('applicationsSection').scrollIntoView({ behavior: 'smooth' });
+            loadUserApplications();
+            toggleUserDropdown();
+        }
+
+        // Show schedule (filter scheduled applications)
+        function showSchedule() {
+            document.getElementById('applicationsSection').style.display = 'block';
+            document.getElementById('applicationsSection').scrollIntoView({ behavior: 'smooth' });
+            
+            const scheduledApps = userApplications.filter(app => app.status === 'scheduled');
+            displayApplications(scheduledApps);
+            toggleUserDropdown();
+        }
+
+        // Show profile (placeholder - can be expanded)
+        function showProfile() {
+            showMessage('Profile settings coming soon', 'info');
+            toggleUserDropdown();
+        }
+
+        // View application details
+        function viewApplicationDetails(appId) {
+            const app = userApplications.find(a => a.id === appId);
+            if (!app) return;
+            
+            // You can expand this to show more details in a modal
+            showMessage(`Application for ${app.packageTitle} - Status: ${app.status}`, 'info');
+        }
+
+        // Keyboard close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (modal.classList.contains('active')) closeModal();
+                if (document.getElementById('authModal').classList.contains('active')) closeAuthModal();
+            }
+        });
+    </script>
 </body>
 </html>
