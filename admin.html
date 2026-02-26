@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>I AM MUGERA · Master Admin Portal</title>
+    <title>I AM MUGERA · Master Admin Portal + Program Panel</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/66rJN5PW/signature(1).png">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -36,6 +36,7 @@
             --teal: #14b8a6;
             --pink: #ec4899;
             --orange: #f97316;
+            --program-accent: #a855f7; /* vibrant purple for program panel */
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             --radius-xl: 20px;
@@ -204,7 +205,7 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* activity cards */
+        /* activity cards (with live challenge count) */
         .activity-grid {
             display: grid;
             grid-template-columns: repeat(4,1fr);
@@ -237,10 +238,10 @@
             line-height: 1.2;
         }
 
-        /* PANELS GRID – ORDER STRICTLY */
+        /* PANELS GRID – ORDER STRICTLY (now 8 cards) */
         .admin-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
             margin: 3rem 0;
         }
@@ -275,7 +276,7 @@
             background: rgba(202,138,4,0.15);
             color: var(--gold);
         }
-        /* custom gradients per panel (order) */
+        /* custom gradients per panel (including new program panel) */
         .admin-card.webpage .card-icon { background: #3b82f620; color: #3b82f6; }
         .admin-card.finance .card-icon { background: #10b98120; color: #10b981; }
         .admin-card.newsletter .card-icon { background: #f9731620; color: #f97316; }
@@ -283,6 +284,7 @@
         .admin-card.events .card-icon { background: #8b5cf620; color: #8b5cf6; }
         .admin-card.user-analytics .card-icon { background: #14b8a620; color: #14b8a6; }
         .admin-card.author .card-icon { background: #ca8a0420; color: #ca8a04; }
+        .admin-card.program .card-icon { background: #a855f720; color: #a855f7; } /* program panel distinct */
 
         .card-title {
             font-size: 1.8rem;
@@ -308,6 +310,18 @@
         }
         .admin-card:hover .card-access i {
             transform: translateX(6px);
+        }
+        .live-badge {
+            background: var(--success);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.25rem 0.75rem;
+            border-radius: 40px;
+            margin-left: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
         }
 
         .footer {
@@ -371,7 +385,7 @@
     <div id="loginPage" class="login-container">
         <div class="login-card">
             <div class="login-logo">
-                <img src="https://i.postimg.cc/Kzsb3tX6/I_AM_MUGERA.png" alt="I AM MUGERA">
+                <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="I AM MUGERA">
                 <h2 style="margin-top:1rem; color:white;">Master Admin</h2>
                 <p style="color:rgba(255,255,255,0.7);">secure portal</p>
             </div>
@@ -395,7 +409,7 @@
         <header class="master-header">
             <div class="header-content">
                 <div class="brand">
-                    <img src="https://i.postimg.cc/Kzsb3tX6/I_AM_MUGERA.png" alt="logo">
+                    <img src="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png" alt="logo">
                     <div class="brand-text">
                         <h1>I AM MUGERA</h1>
                         <p style="opacity:0.8;">master admin · unified console</p>
@@ -417,18 +431,19 @@
         <main class="main-content">
             <div class="welcome-section">
                 <h1 class="welcome-title">master admin portal</h1>
-                <p style="max-width:600px; margin:0 auto; color:#ccc;">seven specialized panels · full control · authenticated session</p>
+                <p style="max-width:600px; margin:0 auto; color:#ccc;">eight specialized panels · full control · live challenge members shown</p>
             </div>
 
-            <!-- activity overview -->
+            <!-- activity overview with live challenge count -->
             <div class="activity-grid">
                 <div class="activity-item"><div class="activity-icon"><i class="fas fa-users"></i></div><div><div class="activity-value" id="totalRegistrations">0</div><div>registrations</div></div></div>
                 <div class="activity-item"><div class="activity-icon"><i class="fas fa-shopping-cart"></i></div><div><div class="activity-value" id="totalOrders">0</div><div>orders</div></div></div>
                 <div class="activity-item"><div class="activity-icon"><i class="fas fa-calendar"></i></div><div><div class="activity-value" id="upcomingEvents">0</div><div>events</div></div></div>
-                <div class="activity-item"><div class="activity-icon"><i class="fas fa-user-clock"></i></div><div><div class="activity-value" id="activeUsers">0</div><div>active users</div></div></div>
+                <!-- CHALLENGE PARTICIPANTS LIVE -->
+                <div class="activity-item"><div class="activity-icon"><i class="fas fa-flag-africa"></i></div><div><div class="activity-value" id="challengeParticipants">0</div><div>challenge members</div></div></div>
             </div>
 
-            <!-- 7 PANELS IN EXACT ORDER -->
+            <!-- 8 PANELS IN ORDER – INCLUDING NEW PROGRAM ADMIN CARD -->
             <div class="admin-grid">
                 <!-- 1. Webpage Admin -->
                 <a href="webpage-admin.html" class="admin-card webpage" data-panel="webpage">
@@ -465,7 +480,7 @@
                     <p class="card-description">conference, talk series, registrations</p>
                     <div class="card-access"><span>open panel</span> <i class="fas fa-arrow-right"></i></div>
                 </a>
-                <!-- 6. User + Analytics (combined) -->
+                <!-- 6. User + Analytics -->
                 <a href="user-analytics.html" class="admin-card user-analytics" data-panel="useranalytics">
                     <div class="card-icon"><i class="fas fa-chart-pie"></i></div>
                     <h3 class="card-title">User & Analytics</h3>
@@ -479,17 +494,27 @@
                     <p class="card-description">books, articles, publications, library</p>
                     <div class="card-access"><span>open panel</span> <i class="fas fa-arrow-right"></i></div>
                 </a>
+                <!-- 8. NEW: Program Admin (Inspired / Daima Challenge) with live badge -->
+                <a href="program-admin.html" class="admin-card program" data-panel="program" id="programAdminCard">
+                    <div class="card-icon"><i class="fas fa-rocket"></i></div>
+                    <h3 class="card-title">Program Admin <span class="live-badge" id="programLiveBadge">live</span></h3>
+                    <p class="card-description">Inspired.Me, Daima Challenge, participants & progress</p>
+                    <div class="card-access">
+                        <span><i class="fas fa-users" style="margin-right:5px;"></i> <span id="programParticipantCount">0</span> members</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </a>
             </div>
 
             <!-- additional info -->
             <div style="background: rgba(0,0,0,0.3); border-radius: 40px; padding: 2rem; margin-top: 2rem; text-align: center; border: 1px solid #ca8a0420;">
                 <i class="fas fa-fingerprint" style="color:var(--gold); margin-right:8px;"></i>
-                <span style="color:#ccc;">authenticated session active · token stored · each panel shares master auth</span>
+                <span style="color:#ccc;">authenticated session active · token stored · live challenge members: <strong id="footerChallengeCount">0</strong></span>
             </div>
         </main>
 
         <footer class="footer">
-            <p>© 2026 I AM MUGERA · master admin v3.0 · all panels integrated</p>
+            <p>© 2026 I AM MUGERA · master admin v4.0 · program panel integrated</p>
         </footer>
     </div>
 
@@ -524,6 +549,8 @@
         } catch (e) { console.warn("firebase init issue", e); }
 
         let currentUser = null;
+        let challengeCount = 0;
+        let programRegistrationCount = 0; // for inspired.me etc
 
         // helper UI
         const showLoading = (msg='Loading...') => {
@@ -552,7 +579,7 @@
                 localStorage.setItem('adminEmail', email);
                 localStorage.setItem('adminName', email.split('@')[0]);
 
-                await loadDashboardData();
+                await loadDashboardData();  // this now includes challenge count
 
                 document.getElementById('loginPage').style.display = 'none';
                 document.getElementById('masterDashboard').style.display = 'block';
@@ -568,27 +595,54 @@
 
         async function loadDashboardData() {
             try {
-                const [regSnap, orderSnap, usersSnap] = await Promise.all([
+                // Fetch all necessary counts
+                const [regSnap, orderSnap, usersSnap, challengeSnap, programSnap] = await Promise.all([
                     database.ref('registrations').once('value'),
                     database.ref('orders').once('value'),
-                    database.ref('users').once('value')
+                    database.ref('users').once('value'),
+                    database.ref('challenge_registrations').once('value'),   // live challenge participants
+                    database.ref('registrations').once('value') // we'll reuse for program regs
                 ]);
+
                 const regs = regSnap.val() ? Object.keys(regSnap.val()).length : 0;
                 const orders = orderSnap.val() ? Object.keys(orderSnap.val()).length : 0;
                 const users = usersSnap.val() ? Object.keys(usersSnap.val()).length : 0;
+                challengeCount = challengeSnap.val() ? Object.keys(challengeSnap.val()).length : 0;
+
+                // Count program registrations (Inspired.Me etc) from registrations with eventType containing 'Inspired' or 'Program'
+                let progRegs = 0;
+                if (regSnap.val()) {
+                    const regsVal = regSnap.val();
+                    progRegs = Object.values(regsVal).filter(r => 
+                        r.eventType && (r.eventType.toLowerCase().includes('inspired') || r.eventType.toLowerCase().includes('program'))
+                    ).length;
+                }
+                programRegistrationCount = progRegs;
+
+                // Update DOM elements
                 document.getElementById('totalRegistrations').innerText = regs;
                 document.getElementById('totalOrders').innerText = orders;
                 document.getElementById('activeUsers').innerText = users;
+                document.getElementById('challengeParticipants').innerText = challengeCount;
+                document.getElementById('footerChallengeCount').innerText = challengeCount;
 
-                // mock upcoming events count (from registrations that have eventType)
+                // Update program card participant count (combine challenge + program registrations)
+                const totalProgramParticipants = challengeCount + programRegistrationCount;
+                document.getElementById('programParticipantCount').innerText = totalProgramParticipants;
+
+                // upcoming events (still a mock but we can count events with future dates)
                 let evCount = 0;
                 if (regSnap.val()) {
                     const regsVal = regSnap.val();
                     evCount = Object.values(regsVal).filter(r => r.eventType && r.eventType !== '').length;
                 }
                 document.getElementById('upcomingEvents').innerText = evCount;
+
             } catch (e) {
                 console.warn("stats partial", e);
+                // fallback to zero
+                document.getElementById('challengeParticipants').innerText = '0';
+                document.getElementById('programParticipantCount').innerText = '0';
             }
         }
 
@@ -611,7 +665,7 @@
             showNotification('logged out', 'see you soon', 'info');
         }
 
-        // preserve auth on panel links
+        // preserve auth on panel links (including new program-admin.html)
         function attachPanelLinks() {
             document.querySelectorAll('.admin-card[href]').forEach(link => {
                 link.addEventListener('click', (e) => {
@@ -624,7 +678,6 @@
                         return;
                     }
                     const href = link.getAttribute('href');
-                    // store redirect and token (can be retrieved by panel)
                     localStorage.setItem('redirectTo', href);
                     window.location.href = `${href}?token=${encodeURIComponent(token)}`;
                 });
