@@ -451,6 +451,12 @@
             color: var(--warning);
         }
         
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning);
+            color: var(--warning);
+        }
+        
         .subscription-details {
             display: flex;
             align-items: center;
@@ -583,6 +589,11 @@
         
         .premium-badge {
             background: var(--gold);
+            color: black;
+        }
+        
+        .pending-badge {
+            background: var(--warning);
             color: black;
         }
         
@@ -1139,6 +1150,23 @@
             display: none;
         }
         
+        /* Payment Pending Banner */
+        .payment-pending-banner {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--warning);
+        }
+        
+        .payment-pending-banner i {
+            font-size: 1.5rem;
+        }
+        
         /* Responsive breakpoints - updated for mobile-first navigation */
         @media (max-width: 768px) {
             /* Hide desktop elements on mobile */
@@ -1427,7 +1455,7 @@
     <!-- CTA Banner -->
     <div class="payment-cta-banner">
         <span class="payment-cta-text"><i class="fas fa-envelope-open-text" style="color: var(--gold);"></i> Ready to receive the weekly issue?</span>
-        <a href="#" class="payment-cta-link" onclick="showAuthModal(event)">
+        <a href="partnership.html" class="payment-cta-link">
             <i class="fas fa-arrow-right"></i> Subscribe Now
         </a>
         <span style="color: var(--text-muted); font-size: 0.9rem;">KES 100 / month · $1 USD</span>
@@ -1536,13 +1564,13 @@
     <p>© 2026 I AM MUGERA — Afrika Milele. All rights reserved.</p>
     <p style="margin-top: 1rem;">
         <a href="index.html">Home</a> · 
-        <a href="#" onclick="showAuthModal(event)">Subscribe</a> · 
+        <a href="partnership.html">Subscribe</a> · 
         <a href="partnership.html">Partner</a> · 
         <a href="#feature">Get Featured</a>
     </p>
 </footer>
 
-<!-- Firebase SDK (original) -->
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -1564,7 +1592,7 @@
     const auth = firebase.auth();
     const database = firebase.database();
 
-    // State (original)
+    // State
     let currentUser = null;
     let userSubscription = null;
     let newsletters = [];
@@ -1728,9 +1756,10 @@
         }
     });
 
-    // Check User Subscription Status (original - unchanged)
+    // ENHANCED: Check User Subscription Status across ALL nodes
     async function checkUserSubscription(userId, userEmail) {
         try {
+            // Check 1: Subscriptions node
             const subsSnapshot = await database.ref('subscriptions').once('value');
             const subscriptions = subsSnapshot.val() || {};
             
@@ -1758,6 +1787,7 @@
                 }
             }
             
+            // Check 2: Readers node
             const readerSnapshot = await database.ref(`readers/${userId}`).once('value');
             const readerData = readerSnapshot.val();
             
@@ -1783,6 +1813,83 @@
                 }
             }
             
+            // Check 3: Subscribers node
+            const subscribersSnapshot = await database.ref('subscribers').once('value');
+            const subscribers = subscribersSnapshot.val() || {};
+            
+            for (const [key, subscriber] of Object.entries(subscribers)) {
+                if (subscriber.personalInfo?.email === userEmail || subscriber.email === userEmail) {
+                    if (subscriber.subscription?.status === 'active') {
+                        userSubscription = {
+                            tier: subscriber.subscription.tier || 'monthly',
+                            status: 'active',
+                            source: 'subscriber'
+                        };
+                        return;
+                    }
+                    
+                    // Check for pending verification
+                    if (subscriber.subscription?.status === 'pending' || 
+                        subscriber.paymentVerification?.status === 'pending') {
+                        userSubscription = {
+                            status: 'pending',
+                            tier: subscriber.subscription?.tier || 'monthly',
+                            source: 'pending'
+                        };
+                        return;
+                    }
+                }
+            }
+            
+            // Check 4: Subscribers pending node
+            const pendingSnapshot = await database.ref('subscribers_pending').once('value');
+            const pending = pendingSnapshot.val() || {};
+            
+            for (const [key, pend] of Object.entries(pending)) {
+                if (pend.email === userEmail) {
+                    userSubscription = {
+                        status: 'pending_verification',
+                        amount: pend.amount,
+                        paymentMethod: pend.paymentMethod,
+                        source: 'pending'
+                    };
+                    return;
+                }
+            }
+            
+            // Check 5: Recent confirmed partnerships
+            const partnershipsSnapshot = await database.ref('partnerships').once('value');
+            const partnerships = partnershipsSnapshot.val() || {};
+            
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+            
+            for (const [key, partnership] of Object.entries(partnerships)) {
+                if (partnership.email === userEmail && partnership.status === 'confirmed' && partnership.newsletterSubscription) {
+                    const paymentDate = new Date(partnership.timestamp);
+                    if (paymentDate > oneMonthAgo) {
+                        userSubscription = {
+                            status: 'active',
+                            tier: 'monthly',
+                            source: 'partnership',
+                            expiryDate: new Date(paymentDate.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
+                        };
+                        return;
+                    }
+                }
+                
+                // Check for pending partnerships
+                if (partnership.email === userEmail && partnership.status === 'pending' && partnership.newsletterSubscription) {
+                    userSubscription = {
+                        status: 'pending_verification',
+                        amount: partnership.amount,
+                        paymentMethod: partnership.paymentMethod,
+                        source: 'partnership_pending'
+                    };
+                    return;
+                }
+            }
+            
             userSubscription = null;
         } catch (error) {
             console.error('Error checking subscription:', error);
@@ -1790,7 +1897,7 @@
         }
     }
 
-    // Update Subscription Status Banner (original - unchanged)
+    // Update Subscription Status Banner (enhanced)
     function updateSubscriptionBanner() {
         const banner = document.getElementById('subscriptionStatusBanner');
         
@@ -1810,7 +1917,7 @@
                         <i class="fas fa-info-circle"></i>
                         Subscribe to access premium content
                     </span>
-                    <a href="#" class="renew-btn" onclick="showAuthModal(event)">
+                    <a href="partnership.html" class="renew-btn">
                         <i class="fas fa-crown"></i> Subscribe Now
                     </a>
                 </div>
@@ -1819,13 +1926,35 @@
             return;
         }
         
+        // Handle pending verification
+        if (userSubscription.status === 'pending' || userSubscription.status === 'pending_verification') {
+            banner.innerHTML = `
+                <div class="status-badge status-pending">
+                    <i class="fas fa-clock"></i>
+                    <span>Payment Pending Verification</span>
+                </div>
+                <div class="subscription-details">
+                    <span class="detail-item">
+                        <i class="fas fa-info-circle"></i>
+                        Your payment is being verified (up to 24 hours)
+                    </span>
+                    <span class="detail-item">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Amount: KES ${userSubscription.amount || '100'}
+                    </span>
+                </div>
+            `;
+            banner.style.display = 'flex';
+            return;
+        }
+        
         if (userSubscription.status === 'active') {
-            const expiryDate = new Date(userSubscription.expiryDate);
-            const formattedDate = expiryDate.toLocaleDateString('en-US', { 
+            const expiryDate = userSubscription.expiryDate ? new Date(userSubscription.expiryDate) : null;
+            const formattedDate = expiryDate ? expiryDate.toLocaleDateString('en-US', { 
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric' 
-            });
+            }) : 'N/A';
             
             banner.innerHTML = `
                 <div class="status-badge status-active">
@@ -1833,13 +1962,15 @@
                     <span>Active Subscription</span>
                 </div>
                 <div class="subscription-details">
+                    ${expiryDate ? `
                     <span class="detail-item">
                         <i class="fas fa-calendar-alt"></i>
                         Renews: ${formattedDate}
                     </span>
+                    ` : ''}
                     <span class="detail-item">
                         <i class="fas fa-tag"></i>
-                        ${userSubscription.tier.charAt(0).toUpperCase() + userSubscription.tier.slice(1)} Plan
+                        ${(userSubscription.tier || 'Premium').charAt(0).toUpperCase() + (userSubscription.tier || 'Premium').slice(1)} Plan
                     </span>
                 </div>
             `;
@@ -1978,7 +2109,7 @@
         }
     }
 
-    // Logout (original - updated to handle both desktop and mobile)
+    // Logout
     document.getElementById('logoutBtn').addEventListener('click', async () => {
         try {
             await auth.signOut();
@@ -1988,7 +2119,7 @@
         }
     });
 
-    // Load Newsletters from Firebase (original - unchanged)
+    // Load Newsletters from Firebase
     async function loadNewsletters() {
         const loadingEl = document.getElementById('loadingNewsletters');
         const errorEl = document.getElementById('newsletterError');
@@ -2031,7 +2162,7 @@
         }
     }
 
-    // Render Newsletters (original - unchanged)
+    // Render Newsletters with enhanced access logic
     function renderNewsletters() {
         const gridEl = document.getElementById('newsletterGrid');
         
@@ -2058,9 +2189,19 @@
                 badgeText = 'FREE';
                 badgeClass = 'free-badge';
             } else if (currentUser && userSubscription) {
-                canAccess = true;
-                badgeText = 'PREMIUM';
-                badgeClass = 'premium-badge';
+                if (userSubscription.status === 'active') {
+                    canAccess = true;
+                    badgeText = 'PREMIUM';
+                    badgeClass = 'premium-badge';
+                } else if (userSubscription.status === 'pending' || userSubscription.status === 'pending_verification') {
+                    canAccess = false;
+                    badgeText = 'PENDING';
+                    badgeClass = 'pending-badge';
+                } else {
+                    canAccess = false;
+                    badgeText = 'SUBSCRIBE';
+                    badgeClass = 'premium-badge';
+                }
             } else if (currentUser && !userSubscription) {
                 canAccess = false;
                 badgeText = 'SUBSCRIBE';
@@ -2090,7 +2231,7 @@
                         <p class="card-description">${description}</p>
                         <div class="card-footer">
                             <span class="read-more">
-                                ${canAccess ? 'Read Issue' : badgeText === 'FREE' ? 'Read Issue' : 'Unlock Issue'} 
+                                ${canAccess ? 'Read Issue' : badgeText === 'FREE' ? 'Read Issue' : badgeText === 'PENDING' ? 'Payment Pending' : 'Unlock Issue'} 
                                 <i class="${canAccess ? 'fas fa-arrow-right' : 'fas fa-lock lock-icon'}"></i>
                             </span>
                             <span class="issue-number">
@@ -2103,7 +2244,7 @@
         }).join('');
     }
 
-    // Handle Newsletter Card Click (original - unchanged)
+    // Handle Newsletter Card Click (enhanced)
     function handleNewsletterClick(newsletterId, canAccess) {
         if (canAccess) {
             const newsletter = newsletters.find(n => n.id === newsletterId);
@@ -2114,6 +2255,9 @@
             }
         } else if (!currentUser) {
             showAuthModal();
+        } else if (userSubscription && (userSubscription.status === 'pending' || userSubscription.status === 'pending_verification')) {
+            // Show pending message
+            alert('Your payment is pending verification. Please wait for admin confirmation (usually within 24 hours).');
         } else {
             window.location.href = 'partnership.html';
         }
@@ -2172,7 +2316,7 @@
         });
     }
 
-    // Make functions globally available (original)
+    // Make functions globally available
     window.showAuthModal = showAuthModal;
     window.closeAuthModal = closeAuthModal;
     window.switchAuthTab = switchAuthTab;
@@ -2180,7 +2324,7 @@
     window.handleSignup = handleSignup;
     window.handleNewsletterClick = handleNewsletterClick;
 
-    // Load newsletters when page loads (original)
+    // Load newsletters when page loads
     document.addEventListener('DOMContentLoaded', loadNewsletters);
 </script>
 </body>
