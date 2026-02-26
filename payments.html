@@ -33,6 +33,7 @@
             --success-light: #d1fae5;
             --info: #0284c7;
             --info-light: #e0f2fe;
+            --danger: #dc2626;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
@@ -177,7 +178,7 @@
             height: 100%;
         }
 
-        /* LOGO - UPDATED to match home page signature (I AM MUGERA logo) */
+        /* LOGO */
         .brand-logo {
             height: 55px;
             width: auto;
@@ -570,7 +571,7 @@
         }
 
         .form-error {
-            color: #dc2626;
+            color: var(--danger);
             font-size: 0.85rem;
             margin-top: 0.25rem;
             display: none;
@@ -625,7 +626,7 @@
             margin-bottom: 0.5rem;
         }
 
-        /* PAYMENT METHODS - now 3 columns */
+        /* PAYMENT METHODS */
         .payment-methods {
             background: var(--white);
             border-radius: var(--radius-xl);
@@ -1141,6 +1142,43 @@
             color: var(--black);
         }
 
+        /* SUCCESS TOAST */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 10000;
+            animation: slideIn 0.3s ease-out;
+            font-weight: 500;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+        }
+
         /* RESPONSIVE */
         @media (max-width: 992px) {
             .mobile-menu-toggle {
@@ -1207,20 +1245,15 @@
         .animate-fade-in {
             animation: fadeIn 0.6s ease-out;
         }
-
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(10px); }
-        }
     </style>
 </head>
 <body>
-    <!-- Header with updated brand logo (I AM MUGERA) -->
+    <!-- Header -->
     <header id="mainHeader">
         <div class="header-container">
             <div class="brand-container">
                 <a href="index.html">
-                    <img src="https://i.postimg.cc/tCBgVcTd/animal(1).png" alt="I AM MUGERA" class="brand-logo">
+                    <img src="https://i.postimg.cc/tCBgVcTd/animal-1.png" alt="I AM MUGERA" class="brand-logo">
                 </a>
             </div>
 
@@ -1249,7 +1282,7 @@
     <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
         <div class="mobile-menu-header">
-            <img src="https://i.postimg.cc/tCBgVcTd/animal(1).png" alt="I AM MUGERA" class="brand-logo" style="height: 45px;">
+            <img src="https://i.postimg.cc/tCBgVcTd/animal-1.png" alt="I AM MUGERA" class="brand-logo" style="height: 45px;">
         </div>
         <ul class="mobile-nav">
             <li class="mobile-nav-item"><a href="index.html" class="mobile-nav-link"><i class="fas fa-home"></i> Home</a></li>
@@ -1309,7 +1342,7 @@
                     <p>Complete the form below to initiate your partnership</p>
                 </div>
 
-                <form class="partnership-form" id="partnershipForm" onsubmit="submitPartnership(event)">
+                <form class="partnership-form" id="partnershipForm">
                     <div class="form-row">
                         <div class="form-group">
                             <label class="form-label"><i class="fas fa-user"></i> Full Name *</label>
@@ -1368,7 +1401,7 @@
 
                     <button type="submit" class="form-submit" id="submitBtn">
                         <i class="fas fa-handshake"></i>
-                        <span>Proceed to Payment Instructions</span>
+                        <span>Submit Partnership Request</span>
                     </button>
                 </form>
 
@@ -1379,7 +1412,7 @@
                 </div>
             </section>
 
-            <!-- Payment Methods (UPDATED with PayPal) -->
+            <!-- Payment Methods -->
             <section class="payment-methods">
                 <h2 class="cinzel-font">Payment <span class="highlight">Options</span></h2>
                 <div class="payment-options">
@@ -1483,7 +1516,7 @@
     <footer>
         <div class="footer-container">
             <div class="footer-column">
-                <img src="https://i.postimg.cc/tCBgVcTd/animal(1).png" alt="I AM MUGERA" class="footer-logo">
+                <img src="https://i.postimg.cc/tCBgVcTd/animal-1.png" alt="I AM MUGERA" class="footer-logo">
                 <div class="footer-tagline">Transformative Partnerships • Impactful Growth</div>
                 <p>Your partnership enables transformative content, impactful communities, and life-changing programs.</p>
                 <div class="social-links">
@@ -1536,8 +1569,11 @@
         };
 
         let database;
+        let app;
+
         try {
-            firebase.initializeApp(firebaseConfig);
+            // Initialize Firebase
+            app = firebase.initializeApp(firebaseConfig);
             database = firebase.database();
             console.log("Firebase initialized successfully");
         } catch (error) {
@@ -1548,7 +1584,18 @@
             initMobileMenu();
             initSmoothScrolling();
             initHeaderScroll();
-            checkExistingSubscription();
+            
+            // Initialize form submission
+            const partnershipForm = document.getElementById('partnershipForm');
+            if (partnershipForm) {
+                partnershipForm.addEventListener('submit', submitPartnership);
+            }
+            
+            // Check for existing subscription
+            const emailInput = document.getElementById('email');
+            if (emailInput) {
+                emailInput.addEventListener('blur', checkExistingSubscription);
+            }
         });
 
         function initMobileMenu() {
@@ -1607,21 +1654,10 @@
 
         function showToast(message) {
             const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background: var(--gold);
-                color: white;
-                padding: 12px 24px;
-                border-radius: var(--radius-md);
-                box-shadow: var(--shadow-lg);
-                z-index: 10000;
-                animation: fadeIn 0.3s ease-out;
-                font-weight: 500;
-            `;
+            toast.className = 'toast';
             toast.textContent = message;
             document.body.appendChild(toast);
+            
             setTimeout(() => {
                 toast.style.animation = 'fadeOut 0.3s ease-out';
                 setTimeout(() => document.body.removeChild(toast), 300);
@@ -1630,85 +1666,115 @@
 
         // Check if email already has subscription
         async function checkExistingSubscription() {
-            const emailInput = document.getElementById('email');
+            const email = document.getElementById('email').value.trim();
             const autoVerifyBadge = document.getElementById('autoVerifyBadge');
             
-            emailInput.addEventListener('blur', async function() {
-                const email = this.value.trim();
-                if (email && database) {
-                    try {
-                        // Check subscribers node
-                        const subscribersSnapshot = await database.ref('subscribers').once('value');
-                        const subscribers = subscribersSnapshot.val() || {};
-                        
-                        let hasSubscription = false;
-                        for (const [key, subscriber] of Object.entries(subscribers)) {
-                            if (subscriber.personalInfo?.email === email && 
-                                subscriber.subscription?.status === 'active') {
-                                hasSubscription = true;
-                                break;
-                            }
-                        }
-                        
-                        // Check readers node
-                        const readersSnapshot = await database.ref('readers').once('value');
-                        const readers = readersSnapshot.val() || {};
-                        
-                        for (const [key, reader] of Object.entries(readers)) {
-                            if (reader.email === email && 
-                                reader.subscription?.status === 'active') {
-                                hasSubscription = true;
-                                break;
-                            }
-                        }
-                        
-                        if (hasSubscription) {
-                            autoVerifyBadge.style.display = 'inline-flex';
-                            document.getElementById('newsletterSubscribe').checked = true;
-                            document.getElementById('newsletterSubscribe').disabled = true;
-                        } else {
-                            autoVerifyBadge.style.display = 'none';
-                            document.getElementById('newsletterSubscribe').disabled = false;
-                        }
-                    } catch (error) {
-                        console.error('Error checking subscription:', error);
+            if (!email || !database) return;
+            
+            try {
+                // Check subscribers node
+                const subscribersSnapshot = await database.ref('subscribers').once('value');
+                const subscribers = subscribersSnapshot.val() || {};
+                
+                let hasSubscription = false;
+                for (const [key, subscriber] of Object.entries(subscribers)) {
+                    if (subscriber.email === email && subscriber.subscription?.status === 'active') {
+                        hasSubscription = true;
+                        break;
                     }
                 }
-            });
+                
+                // Check readers node
+                const readersSnapshot = await database.ref('readers').once('value');
+                const readers = readersSnapshot.val() || {};
+                
+                for (const [key, reader] of Object.entries(readers)) {
+                    if (reader.email === email && reader.subscription?.status === 'active') {
+                        hasSubscription = true;
+                        break;
+                    }
+                }
+                
+                // Check partnerships for recent payments
+                const partnershipsSnapshot = await database.ref('partnerships').once('value');
+                const partnerships = partnershipsSnapshot.val() || {};
+                
+                const oneMonthAgo = new Date();
+                oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+                
+                for (const [key, partnership] of Object.entries(partnerships)) {
+                    if (partnership.email === email && partnership.status === 'confirmed') {
+                        const paymentDate = new Date(partnership.timestamp);
+                        if (paymentDate > oneMonthAgo) {
+                            hasSubscription = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (hasSubscription) {
+                    autoVerifyBadge.style.display = 'inline-flex';
+                    document.getElementById('newsletterSubscribe').checked = true;
+                    document.getElementById('newsletterSubscribe').disabled = true;
+                } else {
+                    autoVerifyBadge.style.display = 'none';
+                    document.getElementById('newsletterSubscribe').disabled = false;
+                }
+            } catch (error) {
+                console.error('Error checking subscription:', error);
+            }
         }
 
         function validatePartnershipForm() {
             let isValid = true;
             document.querySelectorAll('.form-error').forEach(el => el.classList.remove('show'));
 
-            if (!document.getElementById('fullName').value.trim()) {
-                document.getElementById('nameError').classList.add('show'); isValid = false;
+            const fullName = document.getElementById('fullName').value.trim();
+            if (!fullName) {
+                document.getElementById('nameError').classList.add('show');
+                isValid = false;
             }
+            
             const email = document.getElementById('email').value.trim();
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!email || !emailRegex.test(email)) {
-                document.getElementById('emailError').classList.add('show'); isValid = false;
+                document.getElementById('emailError').classList.add('show');
+                isValid = false;
             }
+            
             const phone = document.getElementById('phone').value.trim();
             if (!phone || phone.length < 8) {
-                document.getElementById('phoneError').classList.add('show'); isValid = false;
+                document.getElementById('phoneError').classList.add('show');
+                isValid = false;
             }
-            if (!document.getElementById('partnershipReason').value) {
-                document.getElementById('reasonError').classList.add('show'); isValid = false;
+            
+            const reason = document.getElementById('partnershipReason').value;
+            if (!reason) {
+                document.getElementById('reasonError').classList.add('show');
+                isValid = false;
             }
+            
             const amount = document.getElementById('amount').value;
             if (!amount || amount < 100) {
-                document.getElementById('amountError').classList.add('show'); isValid = false;
+                document.getElementById('amountError').classList.add('show');
+                isValid = false;
             }
-            if (!document.getElementById('paymentMethod').value) {
-                document.getElementById('methodError').classList.add('show'); isValid = false;
+            
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            if (!paymentMethod) {
+                document.getElementById('methodError').classList.add('show');
+                isValid = false;
             }
+            
             return isValid;
         }
 
         async function submitPartnership(event) {
             event.preventDefault();
-            if (!validatePartnershipForm()) return;
+            
+            if (!validatePartnershipForm()) {
+                return;
+            }
 
             const submitBtn = document.getElementById('submitBtn');
             const form = document.getElementById('partnershipForm');
@@ -1722,50 +1788,60 @@
                 reason: document.getElementById('partnershipReason').value,
                 amount: document.getElementById('amount').value,
                 paymentMethod: document.getElementById('paymentMethod').value,
-                timestamp: new Date().toISOString(),
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
                 status: 'pending',
                 source: 'partnership-page',
                 newsletterSubscription: subscribeToNewsletter,
-                autoVerify: subscribeToNewsletter
+                autoVerify: subscribeToNewsletter,
+                createdAt: new Date().toISOString()
             };
 
             try {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Processing...</span>';
 
-                const partnershipId = 'partner_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                if (database) {
-                    await database.ref('partnerships/' + partnershipId).set(partnershipData);
-                    
-                    // If newsletter subscription requested, create pending subscriber record
-                    if (subscribeToNewsletter) {
-                        const subscriberId = 'subscriber_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-                        await database.ref('subscribers_pending/' + subscriberId).set({
-                            email: partnershipData.email,
-                            name: partnershipData.fullName,
-                            partnershipId: partnershipId,
-                            amount: partnershipData.amount,
-                            paymentMethod: partnershipData.paymentMethod,
-                            timestamp: firebase.database.ServerValue.TIMESTAMP,
-                            status: 'pending_verification',
-                            autoVerify: true
-                        });
-                    }
+                if (!database) {
+                    throw new Error('Database not initialized');
                 }
 
+                // Generate unique ID for partnership
+                const partnershipId = 'partner_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                
+                // Save to partnerships node
+                await database.ref('partnerships/' + partnershipId).set(partnershipData);
+                console.log('Partnership saved successfully with ID:', partnershipId);
+                
+                // If newsletter subscription requested, create pending subscriber record
+                if (subscribeToNewsletter) {
+                    const subscriberId = 'subscriber_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+                    await database.ref('subscribers_pending/' + subscriberId).set({
+                        email: partnershipData.email,
+                        name: partnershipData.fullName,
+                        partnershipId: partnershipId,
+                        amount: partnershipData.amount,
+                        paymentMethod: partnershipData.paymentMethod,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP,
+                        status: 'pending_verification',
+                        autoVerify: true
+                    });
+                    console.log('Pending subscriber created:', subscriberId);
+                }
+
+                // Hide form and show success message
                 form.style.display = 'none';
                 successMsg.style.display = 'block';
+                
+                // Show confirmation modal with payment instructions
                 showConfirmationModal(partnershipData);
 
-                setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-handshake"></i><span>Proceed to Payment Instructions</span>';
-                }, 2000);
+                showToast('Partnership request submitted successfully!');
+
             } catch (error) {
                 console.error('Error submitting partnership details:', error);
-                alert('There was an error. Please try again or contact info.iammugera@gmail.com');
+                showToast('Error submitting form. Please try again.');
+                
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-handshake"></i><span>Proceed to Payment Instructions</span>';
+                submitBtn.innerHTML = '<i class="fas fa-handshake"></i><span>Submit Partnership Request</span>';
             }
         }
 
@@ -1774,6 +1850,8 @@
             const content = document.getElementById('confirmationContent');
 
             let methodDetails = '';
+            let instructions = '';
+            
             if (partnershipData.paymentMethod === 'safaricom-send-money') {
                 methodDetails = `
                     <h3 style="color: var(--gold); margin-bottom: 1rem;"><i class="fas fa-mobile-alt"></i> Safaricom Send Money</h3>
@@ -1782,6 +1860,13 @@
                         <p><strong>Name:</strong> MOSES MUGERA</p>
                         <p><strong>Amount:</strong> KES ${parseInt(partnershipData.amount).toLocaleString()}</p>
                     </div>
+                `;
+                instructions = `
+                    <li>Go to M-PESA → "Send Money"</li>
+                    <li>Enter phone: <strong>0727 211 191</strong></li>
+                    <li>Enter amount: KES ${parseInt(partnershipData.amount).toLocaleString()}</li>
+                    <li>Enter your PIN and complete</li>
+                    <li>Save the transaction confirmation message</li>
                 `;
             } else if (partnershipData.paymentMethod === 'lipa-na-mpesa') {
                 methodDetails = `
@@ -1792,6 +1877,13 @@
                         <p><strong>Amount:</strong> KES ${parseInt(partnershipData.amount).toLocaleString()}</p>
                     </div>
                 `;
+                instructions = `
+                    <li>Go to M-PESA → "Lipa na M-PESA" → "Buy Goods"</li>
+                    <li>Enter till: <strong>9442155</strong></li>
+                    <li>Enter amount: KES ${parseInt(partnershipData.amount).toLocaleString()}</li>
+                    <li>Enter your PIN and complete</li>
+                    <li>Save the transaction confirmation message</li>
+                `;
             } else {
                 methodDetails = `
                     <h3 style="color: var(--gold); margin-bottom: 1rem;"><i class="fab fa-paypal"></i> PayPal</h3>
@@ -1800,6 +1892,14 @@
                         <p><strong>Amount:</strong> $${(parseInt(partnershipData.amount) / 130).toFixed(2)} USD approx</p>
                         <p><em>Send via "Friends & Family"</em></p>
                     </div>
+                `;
+                instructions = `
+                    <li>Log in to PayPal</li>
+                    <li>Click "Send & Request" → "Send to a friend"</li>
+                    <li>Enter email: <strong>mosese.code@gmail.com</strong></li>
+                    <li>Enter amount: $${(parseInt(partnershipData.amount)/130).toFixed(2)} USD (approx)</li>
+                    <li>Select "Friends & Family" to avoid fees</li>
+                    <li>Complete the payment and save transaction ID</li>
                 `;
             }
 
@@ -1821,26 +1921,7 @@
                 ${methodDetails}
                 <p><i class="fas fa-info-circle"></i> <strong>Instructions:</strong></p>
                 <ol style="margin-left: 1.5rem; margin-bottom: 1.5rem;">
-                    ${partnershipData.paymentMethod === 'safaricom-send-money' ? `
-                        <li>Go to M-PESA → "Send Money"</li>
-                        <li>Enter phone: <strong>0727 211 191</strong></li>
-                        <li>Enter amount: KES ${parseInt(partnershipData.amount).toLocaleString()}</li>
-                        <li>Enter your PIN and complete</li>
-                        <li>Save the transaction confirmation message</li>
-                    ` : partnershipData.paymentMethod === 'lipa-na-mpesa' ? `
-                        <li>Go to M-PESA → "Lipa na M-PESA" → "Buy Goods"</li>
-                        <li>Enter till: <strong>9442155</strong></li>
-                        <li>Enter amount: KES ${parseInt(partnershipData.amount).toLocaleString()}</li>
-                        <li>Enter your PIN and complete</li>
-                        <li>Save the transaction confirmation message</li>
-                    ` : `
-                        <li>Log in to PayPal</li>
-                        <li>Click "Send & Request" → "Send to a friend"</li>
-                        <li>Enter email: <strong>mosese.code@gmail.com</strong></li>
-                        <li>Enter amount: $${(parseInt(partnershipData.amount)/130).toFixed(2)} USD (approx)</li>
-                        <li>Select "Friends & Family" to avoid fees</li>
-                        <li>Complete the payment and save transaction ID</li>
-                    `}
+                    ${instructions}
                 </ol>
                 <div style="background: rgba(5,150,105,0.1); padding:1rem; border-radius:var(--radius-md); margin-bottom:1.5rem;">
                     <p style="margin-bottom:0;"><strong>Confirmation will be sent to:</strong> ${partnershipData.email}</p>
@@ -1864,18 +1945,14 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') closeConfirmationModal();
         });
+        
         document.getElementById('confirmationModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('confirmationModal')) closeConfirmationModal();
         });
 
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeOut {
-                from { opacity: 1; transform: translateY(0); }
-                to { opacity: 0; transform: translateY(10px); }
-            }
-        `;
-        document.head.appendChild(style);
+        // Make functions globally available
+        window.copyToClipboard = copyToClipboard;
+        window.closeConfirmationModal = closeConfirmationModal;
     </script>
 </body>
 </html>
