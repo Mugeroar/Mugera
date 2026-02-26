@@ -16,7 +16,7 @@
     <meta name="msapplication-TileColor" content="#ca8a04">
     
     <!-- Version & Build -->
-    <meta name="version" content="5.12.0">
+    <meta name="version" content="5.13.0">
     <meta name="build-date" content="2025-02-27">
     
     <title>I AM MUGERA | Afrika Milele</title>
@@ -32,7 +32,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* ----- RESET & VARIABLES (full original + auth styles) ----- */
+        /* ----- RESET & VARIABLES (COMPLETE ORIGINAL STYLING PRESERVED) ----- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         :root {
@@ -40,14 +40,14 @@
             --gold-dark: #a16207;
             --gold-light: #fef3c7;
             --whatsapp: #25D366;
-            --sonGa: #d4a017;
+            --sonGa: #d4a017;      /* unified community color */
             --challenge: #b91c1c;
             --partners: #8B4513;
             --eye: #0284c7; 
-            --tour: #9f4e96;
-            --inspired: #2e7d32;
+            --tour: #9f4e96;        /* purple for world tour */
+            --inspired: #2e7d32;     /* deep green for Inspired.Me (whole person growth) */
             
-            /* Dark theme */
+            /* Dark theme (default) */
             --bg-primary: #0a0a0a;
             --bg-secondary: #111111;
             --bg-card: rgba(20,20,20,0.8);
@@ -65,11 +65,9 @@
             --toast-bg: rgba(20,20,20,0.95);
             --toast-border: var(--gold);
             --toast-text: #ffffff;
-            --modal-overlay: rgba(0,0,0,0.85);
-            --input-bg: rgba(255,255,255,0.06);
         }
 
-        /* Light theme */
+        /* Light theme class */
         body.light-theme {
             --bg-primary: #f8f5f0;
             --bg-secondary: #ffffff;
@@ -87,8 +85,6 @@
             --glass-shadow: 0 20px 50px rgba(0,0,0,0.2);
             --toast-bg: rgba(255,255,255,0.95);
             --toast-text: #1a1a1a;
-            --modal-overlay: rgba(255,255,255,0.92);
-            --input-bg: rgba(0,0,0,0.03);
             background-color: var(--bg-primary);
             color: var(--text-primary);
         }
@@ -102,7 +98,7 @@
             transition: background-color 0.3s ease, color 0.2s ease;
         }
         
-        /* ----- LOADING OVERLAY ----- */
+        /* ----- LOADING OVERLAY (ORIGINAL) ----- */
         .loading-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -150,7 +146,7 @@
         }
         @keyframes blinkCursor { 50% { border-color: transparent; } }
         
-        /* ========== WELCOME POPUP ========== */
+        /* ========== REDESIGNED WELCOME POPUP (ORIGINAL) ========== */
         .welcome-popup {
             position: fixed;
             top: 0;
@@ -247,7 +243,7 @@
             display: flex;
             flex-direction: column;
             gap: 0.8rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
         
         .popup-btn {
@@ -310,22 +306,6 @@
         .popup-btn.popup-login:hover,
         .popup-btn.popup-login:hover i { color: #9f4e96; }
         
-        .auth-divider {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            margin: 1.2rem 0 0.8rem;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-        .auth-divider::before,
-        .auth-divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border-light);
-        }
-        
         .popup-close {
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(202,138,4,0.3);
@@ -354,14 +334,523 @@
             transform: translateY(-2px);
         }
         
-        /* ========== PROFESSIONAL AUTH MODAL ========== */
+        /* ----- MAIN PAGE STYLES (ORIGINAL) ----- */
+        .page-content {
+            opacity: 0;
+            transition: opacity 1s ease;
+            min-height: 100vh;
+        }
+        .page-content.visible { opacity: 1; }
+        
+        .site-header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold);
+            z-index: 1000;
+            padding: 0.7rem 2rem;
+        }
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .site-logo {
+            height: 48px;
+            width: auto;
+            border-radius: 12px;
+            transition: transform 0.3s;
+            border: 2px solid var(--gold);
+            padding: 2px;
+            background: var(--bg-primary);
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .theme-toggle {
+            background: transparent;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.4rem;
+            transition: 0.3s;
+            flex-shrink: 0;
+        }
+        .theme-toggle:hover {
+            background: var(--gold);
+            color: var(--bg-primary);
+            transform: rotate(15deg);
+        }
+        
+        /* New user menu with logout */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(202,138,4,0.1);
+            border: 1px solid var(--gold);
+            border-radius: 40px;
+            padding: 0.3rem 0.3rem 0.3rem 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+        .user-name {
+            color: var(--gold);
+            font-weight: 500;
+            font-size: 0.9rem;
+            max-width: 120px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .user-avatar {
+            background: var(--gold);
+            color: #000;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .logout-dropdown {
+            position: absolute;
+            top: 120%;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            padding: 0.5rem;
+            min-width: 120px;
+            display: none;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            z-index: 1001;
+        }
+        .user-menu:hover .logout-dropdown {
+            display: block;
+        }
+        .logout-item {
+            padding: 0.7rem 1rem;
+            color: var(--text-primary);
+            border-radius: 15px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logout-item:hover {
+            background: rgba(202,138,4,0.2);
+            color: var(--gold);
+        }
+        
+        .hero-section {
+            min-height: 100vh;
+            background: linear-gradient(135deg, 
+                rgba(0,0,0,0.8) 0%, 
+                rgba(20,20,20,0.9) 100%), 
+                url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6rem 2rem 4rem;
+            position: relative;
+        }
+        body.light-theme .hero-section {
+            background: linear-gradient(135deg, 
+                rgba(255,245,235,0.92) 0%, 
+                rgba(255,255,255,0.95) 100%), 
+                url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover fixed;
+        }
+        .hero-container {
+            max-width: 1000px;
+            width: 100%;
+        }
+        .main-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(3.5rem, 10vw, 6rem);
+            color: var(--gold);
+            margin-bottom: 0.8rem;
+            text-shadow: 0 2px 20px var(--shadow-color);
+            letter-spacing: 2px;
+        }
+        .main-sub {
+            font-size: 1.6rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        .brand-purpose {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 2rem auto 0;
+            color: var(--text-muted);
+            line-height: 1.8;
+            border-left: 4px solid var(--gold);
+            padding-left: 2rem;
+            text-align: left;
+            background: rgba(202,138,4,0.02);
+            border-radius: 0 20px 20px 0;
+        }
+        
+        /* Activities Section (ORIGINAL) */
+        .activities-section {
+            max-width: 1200px;
+            margin: 5rem auto;
+            padding: 0 2rem;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .section-header h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        .section-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .activity-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .activity-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--gold);
+            box-shadow: 0 20px 40px var(--shadow-color);
+        }
+        .card-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-bottom: 2px solid var(--gold);
+            transition: transform 0.5s;
+        }
+        .activity-card:hover .card-image {
+            transform: scale(1.02);
+        }
+        .card-content {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-content h3 {
+            font-size: 1.2rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        .card-content p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.2rem;
+            flex: 1;
+        }
+        .card-link {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: gap 0.2s;
+            margin-top: auto;
+        }
+        .card-link i {
+            font-size: 0.9rem;
+        }
+        .card-link:hover {
+            gap: 0.8rem;
+        }
+
+        .feature-badge {
+            display: inline-block;
+            background: rgba(202,138,4,0.15);
+            color: var(--gold);
+            font-size: 0.7rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 30px;
+            margin-bottom: 0.75rem;
+            border: 1px solid var(--gold);
+        }
+        
+        .inspired-badge {
+            background: rgba(46,125,50,0.2);
+            color: #2e7d32;
+            border-color: #2e7d32;
+        }
+        
+        /* SonGa Section (ORIGINAL) */
+        .community-section {
+            max-width: 700px;
+            margin: 5rem auto;
+            padding: 0 2rem;
+        }
+        
+        .sonGa-spotlight {
+            background: var(--card-bg);
+            border-radius: 48px;
+            padding: 2.5rem 2rem;
+            border: 1px solid var(--sonGa);
+            box-shadow: 0 25px 50px -12px var(--sonGa);
+            text-align: center;
+        }
+        
+        .sonGa-spotlight h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            color: var(--sonGa);
+            margin-bottom: 0.5rem;
+        }
+        
+        .sonGa-tagline {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+        
+        .community-logo-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50px;
+            border: 3px solid var(--sonGa);
+            margin: 0.5rem auto 1.5rem;
+            object-fit: cover;
+        }
+        
+        .sonGa-stats-minimal {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0 2rem;
+        }
+        .stat-number-large {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--sonGa);
+        }
+        .stat-label-large {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+        
+        .sonGa-form {
+            max-width: 450px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--sonGa);
+            box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.2);
+        }
+        
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ca8a04' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.2rem;
+        }
+        
+        .join-btn-songa {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            background: var(--sonGa);
+            color: black;
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+        }
+        .join-btn-songa:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
+            gap: 1rem;
+        }
+        
+        /* Message Toast (ORIGINAL) */
+        .message-toast {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--toast-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--toast-border);
+            border-radius: 60px;
+            padding: 0.9rem 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(202,138,4,0.3);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: var(--toast-text);
+            font-weight: 500;
+            min-width: 280px;
+            justify-content: center;
+            letter-spacing: 0.5px;
+        }
+        
+        .message-toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .message-toast i {
+            font-size: 1.4rem;
+            color: var(--gold);
+        }
+        
+        .message-toast.info {
+            border-color: var(--eye);
+        }
+        .message-toast.success {
+            border-color: #25D366;
+        }
+        .message-toast.info i { color: var(--eye); }
+        .message-toast.success i { color: #25D366; }
+        
+        .footer {
+            background: var(--bg-secondary);
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border-light);
+        }
+        .footer p { color: var(--text-muted); }
+        .footer a { color: var(--gold); text-decoration: none; }
+        
+        .install-pwa {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--gold);
+            color: black;
+            border: none;
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(202,138,4,0.5);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .install-pwa.show { display: flex; }
+        
+        .quick-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 2000;
+        }
+        .nav-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+        .nav-btn:hover {
+            background: var(--gold);
+            color: black;
+            transform: scale(1.1);
+        }
+        
+        /* Auth Modal (kept but integrated with original style) */
         .auth-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--modal-overlay);
+            background: var(--modal-overlay, rgba(0,0,0,0.85));
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             z-index: 9500;
@@ -443,7 +932,7 @@
             margin-left: 0.5rem;
         }
         .auth-input-field {
-            background: var(--input-bg);
+            background: var(--input-bg, rgba(255,255,255,0.06));
             border: 1px solid var(--border-light);
             border-radius: 40px;
             padding: 1rem 1.5rem;
@@ -512,74 +1001,6 @@
             color: var(--gold);
             background: rgba(202,138,4,0.1);
         }
-        
-        /* User indicator in header */
-        .user-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(202,138,4,0.1);
-            padding: 0.3rem 1rem 0.3rem 0.8rem;
-            border-radius: 40px;
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
-        .user-indicator i {
-            font-size: 1rem;
-        }
-        .user-indicator span {
-            max-width: 120px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        /* ----- MAIN PAGE STYLES (abbreviated but functional) ----- */
-        .page-content { opacity: 0; transition: opacity 1s ease; min-height: 100vh; }
-        .page-content.visible { opacity: 1; }
-        .site-header { position: fixed; top: 0; width: 100%; background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--gold); z-index: 1000; padding: 0.7rem 2rem; }
-        .header-container { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-        .site-logo { height: 48px; width: auto; border-radius: 12px; border: 2px solid var(--gold); padding: 2px; background: var(--bg-primary); }
-        .header-right { display: flex; align-items: center; gap: 1rem; }
-        .theme-toggle { background: transparent; border: 2px solid var(--gold); color: var(--gold); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.4rem; transition: 0.3s; flex-shrink: 0; }
-        .theme-toggle:hover { background: var(--gold); color: var(--bg-primary); transform: rotate(15deg); }
-        .hero-section { min-height: 100vh; background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(20,20,20,0.9) 100%), url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover fixed; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6rem 2rem 4rem; }
-        .main-title { font-family: 'Cinzel', serif; font-size: clamp(3.5rem, 10vw, 6rem); color: var(--gold); margin-bottom: 0.8rem; text-shadow: 0 2px 20px var(--shadow-color); letter-spacing: 2px; }
-        .main-sub { font-size: 1.6rem; color: var(--text-secondary); margin-bottom: 2rem; font-weight: 300; letter-spacing: 2px; }
-        .brand-purpose { font-size: 1.2rem; max-width: 700px; margin: 2rem auto 0; color: var(--text-muted); line-height: 1.8; border-left: 4px solid var(--gold); padding-left: 2rem; text-align: left; background: rgba(202,138,4,0.02); border-radius: 0 20px 20px 0; }
-        
-        /* Activities Grid (simplified for answer length but fully functional) */
-        .activities-section { max-width: 1200px; margin: 5rem auto; padding: 0 2rem; }
-        .section-header { text-align: center; margin-bottom: 3rem; }
-        .section-header h2 { font-family: 'Cinzel', serif; font-size: 2.5rem; color: var(--gold); margin-bottom: 1rem; }
-        .activities-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2rem; margin-top: 2rem; }
-        .activity-card { background: var(--card-bg); border-radius: 24px; overflow: hidden; border: 1px solid var(--border-light); transition: all 0.3s ease; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); display: flex; flex-direction: column; height: 100%; }
-        .activity-card:hover { transform: translateY(-8px); border-color: var(--gold); box-shadow: 0 20px 40px var(--shadow-color); }
-        .card-image { width: 100%; height: 180px; object-fit: cover; border-bottom: 2px solid var(--gold); }
-        .card-content { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
-        .card-content h3 { font-size: 1.2rem; color: var(--gold); margin-bottom: 0.5rem; }
-        .card-content p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.2rem; flex: 1; }
-        .card-link { color: var(--gold); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 0.5rem; transition: gap 0.2s; margin-top: auto; }
-        
-        /* SonGa community (minimal) */
-        .community-section { max-width: 700px; margin: 5rem auto; padding: 0 2rem; }
-        .sonGa-spotlight { background: var(--card-bg); border-radius: 48px; padding: 2.5rem 2rem; border: 1px solid var(--sonGa); box-shadow: 0 25px 50px -12px var(--sonGa); text-align: center; }
-        .sonGa-spotlight h2 { font-family: 'Cinzel', serif; font-size: 3rem; color: var(--sonGa); margin-bottom: 0.5rem; }
-        .sonGa-tagline { font-size: 1.1rem; color: var(--text-muted); margin-bottom: 1.5rem; }
-        .community-logo-large { width: 100px; height: 100px; border-radius: 50px; border: 3px solid var(--sonGa); margin: 0.5rem auto 1.5rem; object-fit: cover; }
-        .sonGa-stats-minimal { display: flex; justify-content: center; gap: 2rem; margin: 1.5rem 0 2rem; }
-        .stat-number-large { font-size: 2rem; font-weight: 800; color: var(--sonGa); }
-        .form-input, .form-select { width: 100%; padding: 0.9rem 1.2rem; background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 16px; color: var(--text-primary); }
-        .join-btn-songa { width: 100%; padding: 1rem; border: none; border-radius: 50px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.8rem; background: var(--sonGa); color: black; margin-top: 1.5rem; }
-        .message-toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%) translateY(-20px); background: var(--toast-bg); backdrop-filter: blur(12px); border: 1px solid var(--toast-border); border-radius: 60px; padding: 0.9rem 2rem; box-shadow: 0 20px 40px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 1rem; z-index: 10000; opacity: 0; visibility: hidden; transition: all 0.4s; color: var(--toast-text); }
-        .message-toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
-        .footer { background: var(--bg-secondary); padding: 3rem 2rem; text-align: center; border-top: 1px solid var(--border-light); }
-        .install-pwa { position: fixed; bottom: 20px; right: 20px; background: var(--gold); color: black; border: none; border-radius: 50px; padding: 0.8rem 1.5rem; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(202,138,4,0.5); z-index: 3000; display: none; }
-        .install-pwa.show { display: flex; }
-        .quick-nav { position: fixed; bottom: 20px; left: 20px; display: flex; gap: 0.5rem; z-index: 2000; }
-        .nav-btn { background: var(--card-bg); border: 1px solid var(--gold); color: var(--gold); width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
     </style>
 </head>
 <body class="dark-theme">
@@ -591,22 +1012,42 @@
         <p>Where would you like to go today?</p>
         
         <div class="popup-buttons">
-            <button class="popup-btn popup-songa" onclick="navigateToSonGa()"><i class="fas fa-users"></i> SonGa Community</button>
-            <button class="popup-btn popup-challenge" onclick="navigateToDaimaChallenge()"><i class="fas fa-fire"></i> Daima Challenge</button>
-            <button class="popup-btn popup-eye" onclick="navigateToEyeOfMugera()"><i class="far fa-newspaper"></i> Eye of Mugera</button>
-            <button class="popup-btn popup-partners" onclick="navigateToPartnerships()"><i class="fas fa-handshake"></i> Partnerships</button>
-            <button class="popup-btn popup-inspired" onclick="navigateToInspiredMe()"><i class="fas fa-seedling"></i> Inspired.Me</button>
-            <button class="popup-btn popup-main" onclick="navigateToSection('activities')"><i class="fas fa-compass"></i> Explore</button>
+            <button class="popup-btn popup-songa" onclick="navigateToSonGa()">
+                <i class="fas fa-users"></i> SonGa Community (The Heart)
+            </button>
+            <button class="popup-btn popup-challenge" onclick="navigateToDaimaChallenge()">
+                <i class="fas fa-fire"></i> Daima Challenge
+            </button>
+            <button class="popup-btn popup-eye" onclick="navigateToEyeOfMugera()">
+                <i class="far fa-newspaper"></i> Eye of Mugera
+            </button>
+            <button class="popup-btn popup-partners" onclick="navigateToPartnerships()">
+                <i class="fas fa-handshake"></i> Partnerships / Subscribe
+            </button>
+            <button class="popup-btn popup-inspired" onclick="navigateToInspiredMe()">
+                <i class="fas fa-seedling"></i> Inspired.Me (Whole Person)
+            </button>
+            <button class="popup-btn popup-main" onclick="navigateToSection('activities')">
+                <i class="fas fa-compass"></i> Explore Activities
+            </button>
         </div>
         
-        <div class="auth-divider"><span>YOUR ACCOUNT</span></div>
-        <button class="popup-btn popup-login" onclick="openAuthModal()"><i class="fas fa-user-circle"></i> Login / Sign Up</button>
+        <div class="auth-divider" style="display: flex; align-items: center; gap: 0.8rem; margin: 1.2rem 0 0.8rem; color: var(--text-muted);">
+            <span style="flex: 1; height: 1px; background: var(--border-light);"></span>
+            <span>YOUR ACCOUNT</span>
+            <span style="flex: 1; height: 1px; background: var(--border-light);"></span>
+        </div>
+        <button class="popup-btn popup-login" onclick="openAuthModal()">
+            <i class="fas fa-user-circle"></i> Login / Sign Up
+        </button>
         
-        <button class="popup-close" onclick="closePopup()">Continue to Homepage</button>
+        <button class="popup-close" onclick="closePopup()">
+            Continue to Homepage
+        </button>
     </div>
 </div>
 
-<!-- PROFESSIONAL AUTH MODAL (Firebase real) -->
+<!-- PROFESSIONAL AUTH MODAL (Firebase) -->
 <div class="auth-modal hidden" id="authModal">
     <div class="auth-card">
         <button class="auth-close" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
@@ -630,7 +1071,9 @@
                 <input type="password" class="auth-input-field" placeholder="••••••••" id="loginPassword">
             </div>
             <button class="auth-submit" onclick="handleLogin()"><i class="fas fa-arrow-right-to-bracket"></i> Log In</button>
-            <div class="auth-footer"><span onclick="switchAuthTab('signup')">Create new account</span></div>
+            <div class="auth-footer">
+                <span onclick="switchAuthTab('signup')">Create new account</span>
+            </div>
         </div>
         
         <!-- Signup Form -->
@@ -645,87 +1088,231 @@
             </div>
             <div class="auth-input-group">
                 <label>Password</label>
-                <input type="password" class="auth-input-field" placeholder="min. 8 characters" id="signupPassword">
+                <input type="password" class="auth-input-field" placeholder="min. 6 characters" id="signupPassword">
             </div>
             <div class="auth-input-group">
                 <label>Confirm password</label>
                 <input type="password" class="auth-input-field" placeholder="••••••••" id="signupConfirm">
             </div>
             <button class="auth-submit" onclick="handleSignup()"><i class="fas fa-user-plus"></i> Create Account</button>
-            <div class="auth-footer"><span onclick="switchAuthTab('login')">Already have an account?</span></div>
+            <div class="auth-footer">
+                <span onclick="switchAuthTab('login')">Already have an account?</span>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- LOADING OVERLAY -->
+<!-- LOADING OVERLAY (ORIGINAL) -->
 <div class="loading-overlay" id="loadingOverlay">
-    <img src="https://i.postimg.cc/xCvsws8M/20260220-1245-Image-Generation-simple-compose-01khx700xgea3rpkfzhfvyzv5d-1-1.webp" alt="Afrika Milele" class="hero-image">
-    <div class="afrika-milele-container"><span class="afrika-milele" id="animatedText"></span></div>
+    <img src="https://i.postimg.cc/xCvsws8M/20260220-1245-Image-Generation-simple-compose-01khx700xgea3rpkfzhfvyzv5d-1-1.webp" 
+         alt="Afrika Milele" class="hero-image">
+    <div class="afrika-milele-container">
+        <span class="afrika-milele" id="animatedText"></span>
+    </div>
 </div>
 
-<!-- MAIN CONTENT -->
+<!-- MAIN PAGE CONTENT (FULLY RESTORED) -->
 <main id="mainContent" class="page-content">
     <header class="site-header">
         <div class="header-container">
             <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="I AM MUGERA" class="site-logo">
             <div class="header-right">
-                <!-- User indicator (dynamic) -->
-                <div id="userIndicator" class="user-indicator" style="display: none;" onclick="openAuthModal()">
-                    <i class="fas fa-user-circle"></i>
-                    <span id="userEmailDisplay">User</span>
+                <!-- User menu (initially hidden) -->
+                <div id="userMenu" class="user-menu" style="display: none;">
+                    <span class="user-name" id="userDisplayName"></span>
+                    <div class="user-avatar" id="userAvatar">M</div>
+                    <div class="logout-dropdown">
+                        <div class="logout-item" onclick="handleLogout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </div>
+                    </div>
                 </div>
-                <div class="theme-toggle" id="themeToggle"><i class="fas fa-moon" id="themeIcon"></i></div>
+                <!-- Login button (shown when logged out) -->
+                <div id="loginButton" class="theme-toggle" onclick="openAuthModal()" title="Login / Sign Up" style="width: auto; padding: 0 1.2rem; border-radius: 40px; gap: 0.5rem;">
+                    <i class="fas fa-user-circle"></i>
+                    <span style="font-size: 0.9rem;">Account</span>
+                </div>
+                <div class="theme-toggle" id="themeToggle" title="Toggle theme">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </div>
             </div>
         </div>
     </header>
 
+    <!-- Quick Navigation (ORIGINAL) -->
     <div class="quick-nav">
-        <div class="nav-btn" onclick="navigateToSection('activities')"><i class="fas fa-compass"></i></div>
-        <div class="nav-btn" onclick="document.getElementById('sonGaCommunity').scrollIntoView({behavior:'smooth'})"><i class="fas fa-users"></i></div>
-        <div class="nav-btn" onclick="showPopup()"><i class="fas fa-bars"></i></div>
+        <div class="nav-btn" onclick="navigateToSection('activities')" title="Activities">
+            <i class="fas fa-compass"></i>
+        </div>
+        <div class="nav-btn" onclick="document.getElementById('sonGaCommunity').scrollIntoView({behavior:'smooth'})" title="SonGa">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="nav-btn" onclick="showPopup()" title="Menu">
+            <i class="fas fa-bars"></i>
+        </div>
     </div>
 
+    <!-- Hero Section (ORIGINAL) -->
     <section class="hero-section">
         <div class="hero-container">
             <h1 class="main-title">I AM MUGERA</h1>
             <p class="main-sub">DREAM · ASPIRE · INSPIRE</p>
-            <div class="brand-purpose"><p>We exist to empower the African voice, celebrate heritage, and build a future where every child of this soil stands tall.</p></div>
-        </div>
-    </section>
-
-    <section class="activities-section" id="activities">
-        <div class="section-header"><h2>Explore the Camp</h2><p>Discover the pillars of I AM MUGERA.</p></div>
-        <div class="activities-grid">
-            <div class="activity-card"><img src="https://i.postimg.cc/W3pyZ0Wc/MUG(8).gif" class="card-image"><div class="card-content"><h3>The Voice Central</h3><p>Conversations fueling the African Renaissance.</p><a href="#" class="card-link">Visit <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/kGNc3Hg6/MUG(5).gif" class="card-image"><div class="card-content"><h3>Afrika Milele</h3><p>Grassroots movement for dignity and change.</p><a href="#" class="card-link">Join <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/Gm4hfHr4/AFRICA-ON-THE-RISE(2).gif" class="card-image"><div class="card-content"><span class="feature-badge">Newsletter</span><h3>Eye of Mugera</h3><p>Weekly insights from Africa's renaissance.</p><a href="#" class="card-link">Read <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/5yPXC5PZ/MUG(6).gif" class="card-image"><div class="card-content"><h3>Shop</h3><p>Books, merch, digital content.</p><a href="#" class="card-link">Browse <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/wTYpGgpC/MUG(9).gif" class="card-image"><div class="card-content"><span class="feature-badge">Coming Soon</span><h3>World Tour</h3><p>Explore cultures across Africa and world.</p><a href="#" onclick="showElegantMessage('Launching soon!', 'info');return false;" class="card-link">Notify <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/ZqkDY1bN/MUG(12).gif" class="card-image"><div class="card-content"><span class="feature-badge inspired-badge">Whole Person</span><h3>Inspired.Me</h3><p>Physical · Mental · Social · Financial</p><a href="#" class="card-link">Begin <i class="fas fa-arrow-right"></i></a></div></div>
-        </div>
-    </section>
-
-    <section class="community-section" id="sonGaCommunity">
-        <div class="sonGa-spotlight">
-            <img src="https://i.postimg.cc/BbdzCkxQ/20260116-0851-Elegant-Lion-Emblem-remix-01kf2npwbtf06ttr4htekjnd47-removebg-preview-2.webp" alt="SonGa" class="community-logo-large">
-            <h2>SonGa</h2>
-            <div class="sonGa-tagline">the heartbeat of mugera</div>
-            <div class="sonGa-stats-minimal"><div class="stat-item"><div class="stat-number-large" id="sonGaMemberCount">127</div><div class="stat-label-large">MEMBERS</div></div></div>
-            <div class="sonGa-form">
-                <div class="form-group"><input type="text" class="form-input" id="sonGaName" placeholder="Full name"></div>
-                <div class="form-group"><input type="email" class="form-input" id="sonGaEmail" placeholder="Email"></div>
-                <div class="form-group"><input type="tel" class="form-input" id="sonGaPhone" placeholder="Phone (WhatsApp)"></div>
-                <div class="form-group"><select class="form-select" id="sonGaLocation"><option value="Nairobi">Nairobi</option><option value="Uthiru">Uthiru</option><option value="Lavington">Lavington</option><option value="Satelite">Satelite</option></select></div>
-                <button class="join-btn-songa" onclick="joinSonGa()"><i class="fab fa-whatsapp"></i> Join SonGa</button>
+            <div class="brand-purpose">
+                <p>We exist to empower the African voice, celebrate heritage, and build a future where every child of this soil stands tall. Through speaking, campaigns, and community, we ignite the dreamer within.</p>
             </div>
         </div>
     </section>
 
-    <footer class="footer"><p>© 2026 I AM MUGERA — Afrika Milele. All rights reserved.</p></footer>
+    <!-- Activities Section (ORIGINAL) -->
+    <section class="activities-section" id="activities">
+        <div class="section-header">
+            <h2>Explore the Camp</h2>
+            <p>Discover the pillars of I AM MUGERA — each crafted to inspire and uplift.</p>
+        </div>
+        
+        <div class="activities-grid">
+            <!-- Card 1: I Am Mugera -->
+            <div class="activity-card">
+                <img src="https://i.postimg.cc/W3pyZ0Wc/MUG(8).gif" alt="Mugera" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <h3>The Voice Central</h3>
+                    <p>Conversations fueling the African Renaissance.</p>
+                    <a href="mugera.html" class="card-link">Visit page <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <!-- Card 2: Afrika Milele -->
+            <div class="activity-card">
+                <img src="https://i.postimg.cc/kGNc3Hg6/MUG(5).gif" alt="Campaigns" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <h3>Afrika Milele</h3>
+                    <p>A grassroots movement to promote dignity and drive change. Join campaigns that uplift communities.</p>
+                    <a href="Afrika.html" class="card-link">Get involved <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <!-- Card 3: Eye of Mugera -->
+            <div class="activity-card">
+                <img src="https://i.postimg.cc/Gm4hfHr4/AFRICA-ON-THE-RISE(2).gif" alt="Eye of Mugera" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <span class="feature-badge"><i class="far fa-newspaper"></i> Weekly Newsletter</span>
+                    <h3>Eye of Mugera</h3>
+                    <p>Weekly insights from the heart of Africa's renaissance. Read exclusive stories or get featured.</p>
+                    <a href="eye-of-mugera.html" class="card-link">Read & get featured <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <!-- Card 4: Shop -->
+            <div class="activity-card">
+                <img src="https://i.postimg.cc/5yPXC5PZ/MUG(6).gif" alt="Shop" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <h3>Shop</h3>
+                    <p>Books, merchandise, and digital content that carry the spirit of Afrika Milele. Wear the pride, read the wisdom.</p>
+                    <a href="shop.html" class="card-link">Browse store <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <!-- Card 5: World Tour Series (coming soon) -->
+            <div class="activity-card">
+                <img src="https://i.postimg.cc/wTYpGgpC/MUG(9).gif" alt="World Tour" class="card-image" loading="lazy" style="object-position: center 30%;">
+                <div class="card-content">
+                    <span class="feature-badge"><i class="fas fa-globe-africa"></i> Coming Soon</span>
+                    <h3>World Tour Series</h3>
+                    <p>Explore the cultures of all African countries and across the world. A journey through heritage, stories, and spirit.</p>
+                    <a href="#" onclick="showElegantMessage('🌍 World Tour Series is launching soon. Be the first to explore!', 'info'); return false;" class="card-link">Notify Me <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <!-- Card 6: Inspired.Me -->
+            <div class="activity-card">
+                <img src="https://i.postimg.cc/ZqkDY1bN/MUG(12).gif" alt="Inspired.Me" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <span class="feature-badge inspired-badge"><i class="fas fa-seedling"></i> Whole Person</span>
+                    <h3>Inspired.Me</h3>
+                    <p>Physical · Mental · Social · Financial — a holistic journey to transform every dimension of your life.</p>
+                    <a href="inspire-program.html" class="card-link">Begin transformation <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SonGa Community Section (ORIGINAL) -->
+    <section class="community-section" id="sonGaCommunity">
+        <div class="sonGa-spotlight">
+            <img src="https://i.postimg.cc/BbdzCkxQ/20260116-0851-Elegant-Lion-Emblem-remix-01kf2npwbtf06ttr4htekjnd47-removebg-preview-2.webp" 
+                 alt="SonGa" class="community-logo-large">
+            <h2>SonGa</h2>
+            <div class="sonGa-tagline">the heartbeat of mugera</div>
+            
+            <div class="sonGa-stats-minimal">
+                <div class="stat-item">
+                    <div class="stat-number-large" id="sonGaMemberCount">127</div>
+                    <div class="stat-label-large">MEMBERS</div>
+                </div>
+            </div>
+            
+            <div class="sonGa-form">
+                <div class="form-group">
+                    <label class="form-label">Full name</label>
+                    <input type="text" class="form-input" id="sonGaName" placeholder="e.g., Wanjiku Njoroge">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email address</label>
+                    <input type="email" class="form-input" id="sonGaEmail" placeholder="you@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Phone (WhatsApp)</label>
+                    <input type="tel" class="form-input" id="sonGaPhone" placeholder="+254 ...">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Your County / Location</label>
+                    <select class="form-select" id="sonGaLocation">
+                        <option value="Nairobi">Nairobi</option>
+                        <option value="Uthiru">Uthiru</option>
+                        <option value="Lavington">Lavington</option>
+                        <option value="Satelite">Satelite</option>
+                        <option value="Kisumu">Kisumu</option>
+                        <option value="Mombasa">Mombasa</option>
+                        <option value="Nakuru">Nakuru</option>
+                        <option value="Other">Other (specify in message)</option>
+                    </select>
+                </div>
+                
+                <button class="join-btn-songa" onclick="joinSonGa()">
+                    <i class="fab fa-whatsapp"></i> Join SonGa
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (ORIGINAL) -->
+    <footer class="footer">
+        <p>© 2026 I AM MUGERA — Afrika Milele. All rights reserved.</p>
+        <p style="margin-top: 1rem;">
+            <a href="mugera.html">About</a> · 
+            <a href="Afrika.html">Campaigns</a> · 
+            <a href="eye-of-mugera.html">Eye of Mugera</a> ·
+            <a href="shop.html">Shop</a> · 
+            <a href="payments.html">Partnerships</a> ·
+            <a href="inspire-program.html">Inspired.Me</a> ·
+            <a href="#" onclick="showElegantMessage('🌍 World Tour coming soon — prepare for the journey', 'info'); return false;">World Tour</a>
+        </p>
+    </footer>
 </main>
 
-<button class="install-pwa" id="installButton"><i class="fas fa-download"></i> Install App</button>
-<div id="elegantToast" class="message-toast"><i class="fas fa-globe-africa"></i><span id="toastMessage">Message</span></div>
+<!-- PWA Install Button (ORIGINAL) -->
+<button class="install-pwa" id="installButton">
+    <i class="fas fa-download"></i> Install App
+</button>
+
+<!-- Elegant on-screen message toast (ORIGINAL) -->
+<div id="elegantToast" class="message-toast">
+    <i class="fas fa-globe-africa"></i>
+    <span id="toastMessage">Coming soon</span>
+</div>
 
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -767,26 +1354,38 @@
         const fullText = "Afrika Milele";
         let index = 0;
         animatedSpan.textContent = '';
+
         function typeNext() {
             if (index < fullText.length) {
                 animatedSpan.textContent += fullText.charAt(index);
                 index++;
-                setTimeout(typeNext, fullText.charAt(index-1) === ' ' ? 280 : 120);
+                let delay = fullText.charAt(index-1) === ' ' ? 280 : 120;
+                setTimeout(typeNext, delay);
             } else {
-                setTimeout(() => { overlay.classList.add('hidden'); mainContent.classList.add('visible'); }, 1300);
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    mainContent.classList.add('visible');
+                    if (analytics) analytics.logEvent('page_view');
+                }, 1300);
             }
         }
         setTimeout(typeNext, 400);
+        setTimeout(() => {
+            if (!overlay.classList.contains('hidden')) {
+                overlay.classList.add('hidden');
+                mainContent.classList.add('visible');
+            }
+        }, 7000);
     })();
 
-    // Welcome popup
+    // Welcome Popup
     let popupShown = false;
-    window.onload = function() { 
-        if (!popupShown) { 
-            setTimeout(() => { 
-                document.getElementById('welcomePopup').classList.remove('hidden'); 
-                popupShown = true; 
-            }, 8000); 
+    window.onload = function() {
+        if (!popupShown) {
+            setTimeout(() => {
+                document.getElementById('welcomePopup').classList.remove('hidden');
+                popupShown = true;
+            }, 8000);
         }
         // Listen to auth state
         if (auth) {
@@ -794,45 +1393,87 @@
         }
     };
 
-    window.closePopup = function() { document.getElementById('welcomePopup').classList.add('hidden'); };
-    window.showPopup = function() { document.getElementById('welcomePopup').classList.remove('hidden'); };
+    window.closePopup = function() {
+        document.getElementById('welcomePopup').classList.add('hidden');
+    };
+
+    window.showPopup = function() {
+        document.getElementById('welcomePopup').classList.remove('hidden');
+    };
 
     // Elegant Toast
     function showElegantMessage(text, type = 'info') {
         const toast = document.getElementById('elegantToast');
-        document.getElementById('toastMessage').textContent = text;
+        const messageSpan = document.getElementById('toastMessage');
+        messageSpan.textContent = text;
         toast.className = 'message-toast ' + type;
+        if (type === 'info') {
+            toast.querySelector('i').className = 'fas fa-globe-africa';
+        } else if (type === 'success') {
+            toast.querySelector('i').className = 'fas fa-check-circle';
+        }
         toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 4000);
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 4000);
     }
 
-    // Navigation
-    window.navigateToSonGa = function() { closePopup(); document.getElementById('sonGaCommunity').scrollIntoView({ behavior: 'smooth' }); };
-    window.navigateToDaimaChallenge = function() { closePopup(); window.location.href = 'Afrika.html'; };
-    window.navigateToEyeOfMugera = function() { closePopup(); window.location.href = 'eye-of-mugera.html'; };
-    window.navigateToPartnerships = function() { closePopup(); window.location.href = 'payments.html'; };
-    window.navigateToInspiredMe = function() { closePopup(); window.location.href = 'inspire-program.html'; };
-    window.navigateToSection = function(section) { closePopup(); document.getElementById(section).scrollIntoView({ behavior: 'smooth' }); };
+    // Navigation functions
+    window.navigateToDaimaChallenge = function() {
+        closePopup();
+        window.location.href = 'Afrika.html';
+    };
 
-    // ========== PROFESSIONAL FIREBASE AUTH ==========
+    window.navigateToEyeOfMugera = function() {
+        closePopup();
+        window.location.href = 'eye-of-mugera.html';
+    };
+
+    window.navigateToPartnerships = function() {
+        closePopup();
+        window.location.href = 'payments.html';
+    };
+
+    window.navigateToSonGa = function() {
+        closePopup();
+        document.getElementById('sonGaCommunity').scrollIntoView({ behavior: 'smooth' });
+    };
+
+    window.navigateToInspiredMe = function() {
+        closePopup();
+        window.location.href = 'inspire-program.html';
+    };
+
+    window.navigateToSection = function(section) {
+        closePopup();
+        document.getElementById(section).scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // ========== AUTH FUNCTIONS ==========
     window.openAuthModal = function() {
         closePopup();
         document.getElementById('authModal').classList.remove('hidden');
     };
+
     window.closeAuthModal = function() {
         document.getElementById('authModal').classList.add('hidden');
     };
+
     window.switchAuthTab = function(tab) {
         const loginTab = document.getElementById('loginTab');
         const signupTab = document.getElementById('signupTab');
         const loginForm = document.getElementById('loginForm');
         const signupForm = document.getElementById('signupForm');
         if (tab === 'login') {
-            loginTab.classList.add('active'); signupTab.classList.remove('active');
-            loginForm.style.display = 'flex'; signupForm.style.display = 'none';
+            loginTab.classList.add('active');
+            signupTab.classList.remove('active');
+            loginForm.style.display = 'flex';
+            signupForm.style.display = 'none';
         } else {
-            signupTab.classList.add('active'); loginTab.classList.remove('active');
-            signupForm.style.display = 'flex'; loginForm.style.display = 'none';
+            signupTab.classList.add('active');
+            loginTab.classList.remove('active');
+            signupForm.style.display = 'flex';
+            loginForm.style.display = 'none';
         }
     };
 
@@ -840,7 +1481,10 @@
     window.handleLogin = async function() {
         const email = document.getElementById('loginEmail').value.trim();
         const password = document.getElementById('loginPassword').value;
-        if (!email || !password) { showElegantMessage('Please fill all fields', 'info'); return; }
+        if (!email || !password) {
+            showElegantMessage('Please fill all fields', 'info');
+            return;
+        }
         try {
             await auth.signInWithEmailAndPassword(email, password);
             showElegantMessage('Login successful!', 'success');
@@ -857,14 +1501,23 @@
         const email = document.getElementById('signupEmail').value.trim();
         const password = document.getElementById('signupPassword').value;
         const confirm = document.getElementById('signupConfirm').value;
-        if (!name || !email || !password || !confirm) { showElegantMessage('All fields required', 'info'); return; }
-        if (password !== confirm) { showElegantMessage('Passwords do not match', 'info'); return; }
-        if (password.length < 6) { showElegantMessage('Password must be at least 6 characters', 'info'); return; }
+        if (!name || !email || !password || !confirm) {
+            showElegantMessage('All fields required', 'info');
+            return;
+        }
+        if (password !== confirm) {
+            showElegantMessage('Passwords do not match', 'info');
+            return;
+        }
+        if (password.length < 6) {
+            showElegantMessage('Password must be at least 6 characters', 'info');
+            return;
+        }
         try {
             const userCredential = await auth.createUserWithEmailAndPassword(email, password);
             // Update profile with display name
             await userCredential.user.updateProfile({ displayName: name });
-            // Optionally save to database
+            // Save to database
             if (database) {
                 await database.ref('users/' + userCredential.user.uid).set({
                     name: name,
@@ -880,72 +1533,137 @@
         }
     };
 
-    // Update UI based on auth state
+    // Handle Logout
+    window.handleLogout = async function() {
+        try {
+            await auth.signOut();
+            showElegantMessage('Logged out successfully', 'success');
+        } catch (error) {
+            showElegantMessage(error.message, 'info');
+        }
+    };
+
+    // Update UI based on user state (shows NAME not email)
     function updateUIForUser(user) {
-        const indicator = document.getElementById('userIndicator');
-        const emailSpan = document.getElementById('userEmailDisplay');
+        const userMenu = document.getElementById('userMenu');
+        const loginButton = document.getElementById('loginButton');
+        const userNameSpan = document.getElementById('userDisplayName');
+        const userAvatar = document.getElementById('userAvatar');
+
         if (user) {
-            // User is signed in
-            const displayName = user.displayName || user.email.split('@')[0];
-            emailSpan.textContent = displayName;
-            indicator.style.display = 'flex';
-            // Optionally change login button in popup to "My Account"
-            // For simplicity, we just show indicator
+            // User is logged in - get display name or fallback to first part of email
+            let displayName = user.displayName;
+            if (!displayName && user.email) {
+                displayName = user.email.split('@')[0];
+            }
+            // Capitalize first letter
+            if (displayName) {
+                displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+            } else {
+                displayName = 'Mugera';
+            }
+            
+            userNameSpan.textContent = displayName;
+            userAvatar.textContent = displayName.charAt(0).toUpperCase();
+            
+            // Show user menu, hide login button
+            userMenu.style.display = 'flex';
+            loginButton.style.display = 'none';
         } else {
-            // No user
-            indicator.style.display = 'none';
+            // No user - show login button, hide user menu
+            userMenu.style.display = 'none';
+            loginButton.style.display = 'flex';
         }
     }
 
-    // Logout function (optional, can be added to indicator click)
-    window.logout = async function() {
-        if (auth) {
-            await auth.signOut();
-            showElegantMessage('Logged out', 'success');
-        }
-    };
-    // Make indicator also allow logout on long press? For now, clicking opens modal. Add logout option later.
-
     // SonGa Join
     window.joinSonGa = function() {
-        const name = document.getElementById('sonGaName')?.value.trim();
-        const email = document.getElementById('sonGaEmail')?.value.trim();
-        if (!name || !email) { showElegantMessage('Please fill name and email', 'info'); return; }
-        if (database) { database.ref('community_members/sonGa').push({ name, email, timestamp: Date.now() }); }
+        const name = document.getElementById('sonGaName').value.trim();
+        const email = document.getElementById('sonGaEmail').value.trim();
+        if (!name || !email) {
+            showElegantMessage('Please fill in name and email', 'info');
+            return;
+        }
+        
+        if (database) {
+            database.ref('community_members/sonGa').push({
+                name,
+                email,
+                timestamp: Date.now()
+            });
+        }
+        
         showElegantMessage('Karibu! Redirecting to SonGa WhatsApp...', 'success');
-        setTimeout(() => window.open(sonGaWhatsAppLink, '_blank'), 1500);
+        
+        setTimeout(() => {
+            window.open(sonGaWhatsAppLink, '_blank');
+        }, 1500);
     };
 
     // Load member count
     function loadSonGaStats() {
-        if (!database) { document.getElementById('sonGaMemberCount').textContent = '127'; return; }
+        if (!database) {
+            document.getElementById('sonGaMemberCount').textContent = '127';
+            return;
+        }
         database.ref('community_members/sonGa').on('value', (snapshot) => {
-            document.getElementById('sonGaMemberCount').textContent = snapshot.numChildren() || 127;
+            const count = snapshot.numChildren() || 127;
+            document.getElementById('sonGaMemberCount').textContent = count;
         });
     }
     loadSonGaStats();
 
-    // Theme Toggle
+    // PWA Install
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('installButton').classList.add('show');
+    });
+
+    document.getElementById('installButton').addEventListener('click', async () => {
+        const btn = document.getElementById('installButton');
+        btn.classList.remove('show');
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+        }
+    });
+
+    // Theme Toggle (fully restored)
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = document.getElementById('themeIcon');
     const body = document.body;
     const metaThemeColor = document.getElementById('themeColor');
-    const savedTheme = localStorage.getItem('siteTheme');
-    if (savedTheme === 'light') { body.classList.add('light-theme'); themeIcon.classList.replace('fa-moon','fa-sun'); metaThemeColor?.setAttribute('content','#f8f5f0'); }
-    themeToggle.addEventListener('click', () => {
-        body.classList.toggle('light-theme');
-        const isLight = body.classList.contains('light-theme');
-        themeIcon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
-        localStorage.setItem('siteTheme', isLight ? 'light' : 'dark');
-        metaThemeColor?.setAttribute('content', isLight ? '#f8f5f0' : '#ca8a04');
-    });
 
-    // PWA install
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('installButton').classList.add('show'); });
-    document.getElementById('installButton').addEventListener('click', async () => {
-        document.getElementById('installButton').classList.remove('show');
-        if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; }
+    const savedTheme = localStorage.getItem('siteTheme');
+    if (savedTheme === 'light') {
+        body.classList.add('light-theme');
+        themeIcon.classList.remove('fa-moon');
+        themeIcon.classList.add('fa-sun');
+        metaThemeColor?.setAttribute('content', '#f8f5f0');
+    } else {
+        body.classList.remove('light-theme');
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+        metaThemeColor?.setAttribute('content', '#ca8a04');
+    }
+
+    themeToggle.addEventListener('click', () => {
+        if (body.classList.contains('light-theme')) {
+            body.classList.remove('light-theme');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+            localStorage.setItem('siteTheme', 'dark');
+            metaThemeColor?.setAttribute('content', '#ca8a04');
+        } else {
+            body.classList.add('light-theme');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+            localStorage.setItem('siteTheme', 'light');
+            metaThemeColor?.setAttribute('content', '#f8f5f0');
+        }
     });
 </script>
 </body>
