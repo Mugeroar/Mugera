@@ -46,11 +46,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Umsaga:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDK (ADDED FOR AUTHENTICATION) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
     
     <!-- Service Worker Registration -->
     <script>
@@ -130,93 +129,6 @@
             }
         }
     </script>
-    
-    <!-- ADDED: Auth Protection Styles (preserves your existing styles) -->
-    <style>
-        /* Auth Protection Styles - Added without modifying your existing styles */
-        .auth-protection-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(10, 10, 10, 0.98);
-            backdrop-filter: blur(10px);
-            z-index: 999999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-        .auth-protection-overlay.hidden {
-            opacity: 0;
-            visibility: hidden;
-        }
-        .auth-protection-card {
-            max-width: 450px;
-            width: 100%;
-            background: #151515;
-            border-radius: 40px;
-            padding: 3rem 2.5rem;
-            text-align: center;
-            border: 2px solid #ca8a04;
-            box-shadow: 0 25px 50px rgba(202,138,4,0.25);
-        }
-        .auth-protection-card i {
-            font-size: 4rem;
-            color: #ca8a04;
-            margin-bottom: 1.5rem;
-        }
-        .auth-protection-card h2 {
-            font-family: 'Cinzel', serif;
-            font-size: 2.2rem;
-            color: #ca8a04;
-            margin-bottom: 1rem;
-        }
-        .auth-protection-card p {
-            color: #aaaaaa;
-            margin-bottom: 2rem;
-            font-size: 1rem;
-        }
-        .auth-protection-btn {
-            background: #ca8a04;
-            border: none;
-            border-radius: 40px;
-            padding: 1rem 2rem;
-            font-weight: 600;
-            color: #000;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 1rem;
-            text-decoration: none;
-        }
-        .auth-protection-btn:hover {
-            transform: translateY(-3px);
-            filter: brightness(1.1);
-            box-shadow: 0 10px 20px rgba(202,138,4,0.25);
-        }
-        .auth-protection-btn.outline {
-            background: transparent;
-            border: 2px solid #ca8a04;
-            color: #ca8a04;
-        }
-        .auth-protection-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-        }
-        @media (max-width: 768px) {
-            .auth-protection-buttons {
-                flex-direction: column;
-            }
-        }
-    </style>
-    
-    <!-- Your existing styles continue... -->
     <style>
         /* Add these new styles at the top of your existing CSS */
         
@@ -2490,23 +2402,6 @@
         </div>
     </div>
 
-    <!-- ADDED: Auth Protection Overlay (shows when not logged in) -->
-    <div id="authProtectionOverlay" class="auth-protection-overlay">
-        <div class="auth-protection-card">
-            <i class="fas fa-lock"></i>
-            <h2>Authentication Required</h2>
-            <p>Please log in or create an account to access this page.</p>
-            <div class="auth-protection-buttons">
-                <a href="index.html" class="auth-protection-btn">
-                    <i class="fas fa-home"></i> Back to Home
-                </a>
-                <a href="index.html" class="auth-protection-btn outline">
-                    <i class="fas fa-sign-in-alt"></i> Login / Sign Up
-                </a>
-            </div>
-        </div>
-    </div>
-
     <!-- Header (dynamically loaded) -->
     <header id="mainHeader"></header>
 
@@ -2774,57 +2669,27 @@
         // Initialize Firebase
         let database;
         let analytics;
-        let auth;
         let brandData = {};
         
         try {
             firebase.initializeApp(firebaseConfig);
             database = firebase.database();
             analytics = firebase.analytics();
-            auth = firebase.auth();
             console.log("Firebase initialized successfully");
         } catch (error) {
             console.error("Firebase initialization error:", error);
+            showError("Failed to connect to database. Please refresh the page.");
         }
-
-        // ADDED: Auth Protection Check
-        const authOverlay = document.getElementById('authProtectionOverlay');
-        
-        // Check authentication status
-        function checkAuth() {
-            if (!auth) {
-                // Firebase not initialized - still show auth required
-                authOverlay.style.display = 'flex';
-                document.querySelector('.loading-overlay').style.display = 'none';
-                return;
-            }
-
-            auth.onAuthStateChanged((user) => {
-                if (user) {
-                    // User is logged in - hide overlay and load content
-                    console.log('User authenticated:', user.email);
-                    authOverlay.style.display = 'none';
-                    // Hide loading overlay and start content loading
-                    setTimeout(() => {
-                        document.getElementById('loadingOverlay').style.opacity = '0';
-                        document.getElementById('loadingOverlay').style.visibility = 'hidden';
-                        startTypingAnimation();
-                    }, 500);
-                } else {
-                    // User not logged in - show auth overlay
-                    console.log('User not authenticated');
-                    authOverlay.style.display = 'flex';
-                    document.querySelector('.loading-overlay').style.display = 'none';
-                }
-            });
-        }
-
-        // Call auth check immediately
-        checkAuth();
 
         // Global state
         let currentProduct = null;
         let slideshowInterval;
+
+        // Initialize everything when DOM loads
+        document.addEventListener('DOMContentLoaded', function() {
+            startTypingAnimation();
+            trackVisitor();
+        });
 
         // Professional Typing Animation for the Quote
         function startTypingAnimation() {
