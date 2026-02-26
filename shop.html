@@ -20,6 +20,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     
     <style>
         /* ==================== COMPLETE CSS ==================== */
@@ -43,6 +44,13 @@
             --badge-new: #059669;
             --badge-limited: #f59e0b;
             --badge-outofstock: #6b7280;
+            
+            /* Order Status Colors */
+            --status-pending: #f59e0b;
+            --status-confirmed: #3b82f6;
+            --status-processing: #8b5cf6;
+            --status-delivered: #10b981;
+            --status-cancelled: #ef4444;
         }
 
         * {
@@ -160,6 +168,87 @@
             font-weight: 700;
         }
 
+        /* Auth Buttons */
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-auth {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--gold);
+            color: white;
+        }
+
+        .btn-auth:hover {
+            background: var(--gold-dark);
+        }
+
+        .user-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .user-menu-btn {
+            background: var(--gold);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-menu-btn i {
+            font-size: 1rem;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background: white;
+            border: 2px solid var(--gold);
+            border-radius: 0;
+            min-width: 200px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            z-index: 1001;
+        }
+
+        .user-dropdown.active {
+            display: block;
+        }
+
+        .user-dropdown a, .user-dropdown button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: var(--dark-gray);
+            width: 100%;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-align: left;
+            transition: 0.2s;
+        }
+
+        .user-dropdown a:hover, .user-dropdown button:hover {
+            background: var(--gold-light);
+        }
+
         /* Mobile Menu */
         .mobile-menu-btn {
             display: none;
@@ -252,6 +341,211 @@
             border-radius: 10px;
             font-size: 0.6rem;
             margin-left: 5px;
+        }
+
+        /* Auth Modal */
+        .auth-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-modal.active {
+            display: flex;
+        }
+
+        .auth-content {
+            background: white;
+            max-width: 450px;
+            width: 100%;
+            border-radius: 0;
+            padding: 40px;
+            border: 3px solid var(--gold);
+            position: relative;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .auth-tab.active {
+            color: var(--gold);
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        /* Profile Modal */
+        .profile-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .profile-modal.active {
+            display: flex;
+        }
+
+        .profile-content {
+            background: white;
+            max-width: 800px;
+            width: 100%;
+            border-radius: 0;
+            padding: 30px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 3px solid var(--gold);
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid var(--light-gray);
+            margin-bottom: 20px;
+        }
+
+        .profile-tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .profile-tab.active {
+            color: var(--gold);
+            border-bottom: 3px solid var(--gold);
+        }
+
+        .profile-section {
+            display: none;
+        }
+
+        .profile-section.active {
+            display: block;
+        }
+
+        /* Orders Table */
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .orders-table th {
+            text-align: left;
+            padding: 12px;
+            background: var(--light-gray);
+            font-weight: 600;
+        }
+
+        .orders-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .order-status {
+            padding: 4px 12px;
+            border-radius: 0;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #cce5ff; color: #004085; }
+        .status-processing { background: #e0d4fc; color: #5a3e8a; }
+        .status-delivered { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+
+        .order-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-view { background: var(--gold-light); color: var(--dark-gray); }
+        .btn-modify { background: var(--gold); color: white; }
+        .btn-cancel { background: #f8d7da; color: #721c24; }
+
+        /* Order Detail Modal */
+        .order-detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .order-detail-modal.active {
+            display: flex;
+        }
+
+        .order-detail-content {
+            background: white;
+            max-width: 700px;
+            width: 100%;
+            border-radius: 0;
+            padding: 30px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border: 3px solid var(--gold);
         }
 
         /* Hero Section */
@@ -511,7 +805,6 @@
             transform: scale(1.1);
         }
 
-        /* Product Badges - UPDATED for perfect display */
         .product-badge {
             position: absolute;
             top: 15px;
@@ -549,12 +842,6 @@
 
         .product-badge.outofstock {
             background: var(--badge-outofstock);
-        }
-
-        /* Right side badge option */
-        .product-badge.right {
-            left: auto;
-            right: 15px;
         }
 
         .product-info {
@@ -738,7 +1025,6 @@
             font-size: 1.2rem;
         }
 
-        /* Modal Badge - UPDATED */
         .modal-badge {
             display: inline-block;
             padding: 8px 20px;
@@ -1120,7 +1406,7 @@
         }
 
         @media (max-width: 768px) {
-            .nav, .nav-cart-btn {
+            .nav, .nav-cart-btn, .auth-buttons {
                 display: none;
             }
             
@@ -1213,6 +1499,28 @@
                 padding: 4px 10px;
                 font-size: 0.7rem;
             }
+            
+            .profile-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .profile-tab {
+                flex: 1;
+                padding: 8px;
+                font-size: 0.8rem;
+            }
+            
+            .orders-table {
+                font-size: 0.8rem;
+            }
+            
+            .orders-table th, .orders-table td {
+                padding: 8px 4px;
+            }
+            
+            .order-actions {
+                flex-direction: column;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1237,7 +1545,7 @@
                 font-size: 0.75rem;
             }
             
-            .cart-content, .order-content {
+            .cart-content, .order-content, .profile-content {
                 padding: 20px;
             }
             
@@ -1261,6 +1569,33 @@
                 <a href="#categories" class="nav-link">Categories</a>
             </nav>
 
+            <div class="auth-buttons" id="authButtons">
+                <button class="btn-auth" onclick="openAuthModal('login')">Login</button>
+                <button class="btn-auth" onclick="openAuthModal('register')">Register</button>
+            </div>
+
+            <div class="user-menu" id="userMenu" style="display: none;">
+                <button class="user-menu-btn" onclick="toggleUserDropdown()">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="userName">Account</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="#" onclick="openProfileModal(); return false;">
+                        <i class="fas fa-user"></i> My Profile
+                    </a>
+                    <a href="#" onclick="openProfileModal('orders'); return false;">
+                        <i class="fas fa-shopping-bag"></i> My Orders
+                    </a>
+                    <a href="#" onclick="openProfileModal('settings'); return false;">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                    <button onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
             <button class="nav-cart-btn" onclick="openCartModal()">
                 <i class="fas fa-shopping-cart"></i>
                 Cart <span class="cart-count" id="headerCartCount">0</span>
@@ -1277,6 +1612,15 @@
             <a href="#products" class="mobile-nav-link">Products</a>
             <a href="#categories" class="mobile-nav-link">Categories</a>
             <a href="#" class="mobile-nav-link" onclick="openCartModal()">Cart (<span id="mobileCartCount">0</span>)</a>
+            <div id="mobileAuthLinks">
+                <a href="#" class="mobile-nav-link" onclick="openAuthModal('login')">Login</a>
+                <a href="#" class="mobile-nav-link" onclick="openAuthModal('register')">Register</a>
+            </div>
+            <div id="mobileUserLinks" style="display: none;">
+                <a href="#" class="mobile-nav-link" onclick="openProfileModal()">My Profile</a>
+                <a href="#" class="mobile-nav-link" onclick="openProfileModal('orders')">My Orders</a>
+                <a href="#" class="mobile-nav-link" onclick="logout()">Logout</a>
+            </div>
         </nav>
     </header>
 
@@ -1346,6 +1690,125 @@
         </div>
     </section>
 
+    <!-- Auth Modal -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-content">
+            <button class="modal-close" onclick="closeAuthModal()">✕</button>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchAuthTab('login')" id="loginTab">Login</button>
+                <button class="auth-tab" onclick="switchAuthTab('register')" id="registerTab">Register</button>
+            </div>
+            
+            <div class="auth-form active" id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password">
+                </div>
+                <button class="btn" onclick="login()" style="width: 100%;">Login</button>
+            </div>
+            
+            <div class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="registerName" placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="registerEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input type="tel" class="form-control" id="registerPhone" placeholder="Enter your phone number">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" id="registerPassword" placeholder="Create a password">
+                </div>
+                <button class="btn" onclick="register()" style="width: 100%;">Register</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="profile-modal" id="profileModal">
+        <div class="profile-content">
+            <div class="profile-header">
+                <h2><i class="fas fa-user-circle"></i> My Account</h2>
+                <button class="cart-close" onclick="closeProfileModal()">&times;</button>
+            </div>
+            
+            <div class="profile-tabs">
+                <button class="profile-tab active" onclick="switchProfileTab('overview')">Overview</button>
+                <button class="profile-tab" onclick="switchProfileTab('orders')">My Orders</button>
+                <button class="profile-tab" onclick="switchProfileTab('settings')">Settings</button>
+            </div>
+            
+            <div class="profile-section active" id="profileOverview">
+                <div style="text-align: center; padding: 40px;">
+                    <i class="fas fa-user-circle" style="font-size: 5rem; color: var(--gold);"></i>
+                    <h3 id="profileDisplayName">Loading...</h3>
+                    <p id="profileDisplayEmail"></p>
+                    <p id="profileDisplayPhone"></p>
+                    <p><small>Member since: <span id="profileJoinDate"></span></small></p>
+                </div>
+            </div>
+            
+            <div class="profile-section" id="profileOrders">
+                <h3 style="margin-bottom: 20px;">My Orders</h3>
+                <div id="ordersList">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <p>Loading your orders...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-section" id="profileSettings">
+                <h3 style="margin-bottom: 20px;">Account Settings</h3>
+                
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="settingsName">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="settingsPhone">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Default Address</label>
+                    <input type="text" class="form-control" id="settingsAddress">
+                </div>
+                <button class="btn" onclick="updateProfile()">Update Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Detail Modal -->
+    <div class="order-detail-modal" id="orderDetailModal">
+        <div class="order-detail-content">
+            <div class="profile-header">
+                <h2>Order Details</h2>
+                <button class="cart-close" onclick="closeOrderDetailModal()">&times;</button>
+            </div>
+            
+            <div id="orderDetailContent"></div>
+            
+            <div style="margin-top: 30px; display: flex; gap: 15px;">
+                <button class="btn" onclick="modifyOrder()" id="modifyOrderBtn">
+                    <i class="fas fa-edit"></i> Modify Order
+                </button>
+                <button class="btn btn-outline" onclick="cancelOrder()" id="cancelOrderBtn">
+                    <i class="fas fa-times"></i> Cancel Order
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Product Detail Modal -->
     <div class="product-modal" id="productModal">
         <button class="modal-close" onclick="closeProductModal()">✕</button>
@@ -1404,7 +1867,7 @@
                     <span>Total:</span>
                     <span id="cartTotal">KSh 0</span>
                 </div>
-                <button class="btn checkout-btn" onclick="openOrderModal()">
+                <button class="btn checkout-btn" onclick="proceedToCheckout()">
                     <i class="fas fa-credit-card"></i> Proceed to Checkout
                 </button>
             </div>
@@ -1423,7 +1886,7 @@
                 <i class="fas fa-check-circle" style="font-size: 2rem;"></i>
                 <div>
                     <h4>Order Placed Successfully!</h4>
-                    <p>Thank you for your purchase. We'll contact you shortly.</p>
+                    <p>Thank you for your purchase. You can track your order in your profile.</p>
                 </div>
             </div>
             
@@ -1509,9 +1972,12 @@
 
         // Initialize Firebase
         let database;
+        let auth;
+        let currentUser = null;
         let allProducts = [];
         let cart = JSON.parse(localStorage.getItem('mugera_cart')) || [];
         let currentProduct = null;
+        let currentOrder = null;
         let lastScroll = 0;
         
         // Hero slideshow variables
@@ -1543,7 +2009,12 @@
             try {
                 firebase.initializeApp(firebaseConfig);
                 database = firebase.database();
+                auth = firebase.auth();
                 console.log("Firebase initialized");
+                
+                // Listen for auth state changes
+                auth.onAuthStateChanged(handleAuthStateChange);
+                
                 loadProducts();
             } catch (error) {
                 console.error("Firebase error:", error);
@@ -1606,8 +2077,521 @@
             tomorrow.setDate(tomorrow.getDate() + 1);
             document.getElementById('orderDeliveryDate').value = tomorrow.toISOString().split('T')[0];
 
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                const dropdown = document.getElementById('userDropdown');
+                const menuBtn = document.querySelector('.user-menu-btn');
+                if (!menuBtn?.contains(event.target) && !dropdown?.contains(event.target)) {
+                    dropdown?.classList.remove('active');
+                }
+            });
+
             updateCartBadge();
         });
+
+        // Handle auth state change
+        function handleAuthStateChange(user) {
+            currentUser = user;
+            
+            if (user) {
+                // User is logged in
+                document.getElementById('authButtons').style.display = 'none';
+                document.getElementById('userMenu').style.display = 'block';
+                document.getElementById('mobileAuthLinks').style.display = 'none';
+                document.getElementById('mobileUserLinks').style.display = 'block';
+                
+                // Load user data from database
+                database.ref('users/' + user.uid).once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        document.getElementById('userName').textContent = userData.name || user.email.split('@')[0];
+                    } else {
+                        // Create user record if it doesn't exist
+                        const userData = {
+                            email: user.email,
+                            name: user.displayName || user.email.split('@')[0],
+                            createdAt: new Date().toISOString(),
+                            uid: user.uid
+                        };
+                        database.ref('users/' + user.uid).set(userData);
+                        document.getElementById('userName').textContent = userData.name;
+                    }
+                });
+                
+                // Update profile modal with user data
+                updateProfileDisplay();
+                
+                showNotification(`Welcome back, ${user.email.split('@')[0]}!`);
+            } else {
+                // User is logged out
+                document.getElementById('authButtons').style.display = 'flex';
+                document.getElementById('userMenu').style.display = 'none';
+                document.getElementById('mobileAuthLinks').style.display = 'block';
+                document.getElementById('mobileUserLinks').style.display = 'none';
+            }
+        }
+
+        // Auth functions
+        function openAuthModal(tab) {
+            document.getElementById('authModal').classList.add('active');
+            document.body.classList.add('modal-open');
+            switchAuthTab(tab);
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        function switchAuthTab(tab) {
+            if (tab === 'login') {
+                document.getElementById('loginTab').classList.add('active');
+                document.getElementById('registerTab').classList.remove('active');
+                document.getElementById('loginForm').classList.add('active');
+                document.getElementById('registerForm').classList.remove('active');
+            } else {
+                document.getElementById('registerTab').classList.add('active');
+                document.getElementById('loginTab').classList.remove('active');
+                document.getElementById('registerForm').classList.add('active');
+                document.getElementById('loginForm').classList.remove('active');
+            }
+        }
+
+        async function register() {
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const phone = document.getElementById('registerPhone').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            
+            if (!name || !email || !phone || !password) {
+                showNotification('Please fill in all fields');
+                return;
+            }
+            
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Save additional user data to database
+                const userData = {
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    createdAt: new Date().toISOString(),
+                    uid: user.uid,
+                    preferences: {
+                        emailNotifications: true
+                    }
+                };
+                
+                await database.ref('users/' + user.uid).set(userData);
+                await database.ref('registrations/reg_' + Date.now()).set({
+                    fullName: name,
+                    email: email,
+                    phone: phone,
+                    source: 'store_registration',
+                    timestamp: new Date().toISOString(),
+                    status: 'confirmed'
+                });
+                
+                closeAuthModal();
+                showNotification('Registration successful!');
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                showNotification(error.message);
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showNotification('Please enter email and password');
+                return;
+            }
+            
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                closeAuthModal();
+            } catch (error) {
+                console.error('Login error:', error);
+                showNotification(error.message);
+            }
+        }
+
+        function logout() {
+            auth.signOut();
+            closeProfileModal();
+            closeOrderDetailModal();
+            toggleUserDropdown();
+            showNotification('Logged out successfully');
+        }
+
+        function toggleUserDropdown() {
+            document.getElementById('userDropdown').classList.toggle('active');
+        }
+
+        // Profile functions
+        function openProfileModal(tab = 'overview') {
+            if (!currentUser) {
+                openAuthModal('login');
+                return;
+            }
+            
+            document.getElementById('profileModal').classList.add('active');
+            document.body.classList.add('modal-open');
+            switchProfileTab(tab);
+            updateProfileDisplay();
+            if (tab === 'orders') {
+                loadUserOrders();
+            }
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        function switchProfileTab(tab) {
+            document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
+            
+            if (tab === 'overview') {
+                document.querySelector('.profile-tab').classList.add('active');
+                document.getElementById('profileOverview').classList.add('active');
+            } else if (tab === 'orders') {
+                document.querySelectorAll('.profile-tab')[1].classList.add('active');
+                document.getElementById('profileOrders').classList.add('active');
+            } else if (tab === 'settings') {
+                document.querySelectorAll('.profile-tab')[2].classList.add('active');
+                document.getElementById('profileSettings').classList.add('active');
+                loadUserSettings();
+            }
+        }
+
+        function updateProfileDisplay() {
+            if (!currentUser) return;
+            
+            database.ref('users/' + currentUser.uid).once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    document.getElementById('profileDisplayName').textContent = userData.name || 'Not set';
+                    document.getElementById('profileDisplayEmail').textContent = userData.email;
+                    document.getElementById('profileDisplayPhone').textContent = userData.phone || 'Not set';
+                    
+                    if (userData.createdAt) {
+                        const date = new Date(userData.createdAt);
+                        document.getElementById('profileJoinDate').textContent = date.toLocaleDateString();
+                    }
+                    
+                    document.getElementById('settingsName').value = userData.name || '';
+                    document.getElementById('settingsPhone').value = userData.phone || '';
+                    document.getElementById('settingsAddress').value = userData.address || '';
+                }
+            });
+        }
+
+        function loadUserSettings() {
+            if (!currentUser) return;
+            
+            database.ref('users/' + currentUser.uid).once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    document.getElementById('settingsName').value = userData.name || '';
+                    document.getElementById('settingsPhone').value = userData.phone || '';
+                    document.getElementById('settingsAddress').value = userData.address || '';
+                }
+            });
+        }
+
+        async function updateProfile() {
+            if (!currentUser) return;
+            
+            const name = document.getElementById('settingsName').value.trim();
+            const phone = document.getElementById('settingsPhone').value.trim();
+            const address = document.getElementById('settingsAddress').value.trim();
+            
+            try {
+                await database.ref('users/' + currentUser.uid).update({
+                    name: name,
+                    phone: phone,
+                    address: address,
+                    lastActive: new Date().toISOString()
+                });
+                
+                showNotification('Profile updated successfully');
+                updateProfileDisplay();
+                document.getElementById('userName').textContent = name || currentUser.email.split('@')[0];
+                
+            } catch (error) {
+                console.error('Update error:', error);
+                showNotification('Failed to update profile');
+            }
+        }
+
+        // Order functions
+        async function loadUserOrders() {
+            if (!currentUser) return;
+            
+            const ordersList = document.getElementById('ordersList');
+            ordersList.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading your orders...</p></div>';
+            
+            try {
+                const snapshot = await database.ref('orders').once('value');
+                
+                if (snapshot.exists()) {
+                    const allOrders = snapshot.val();
+                    const userOrders = [];
+                    
+                    // Filter orders by user email
+                    Object.keys(allOrders).forEach(key => {
+                        const order = allOrders[key];
+                        if (order.email === currentUser.email) {
+                            userOrders.push({
+                                id: key,
+                                ...order
+                            });
+                        }
+                    });
+                    
+                    // Sort by date (newest first)
+                    userOrders.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    
+                    if (userOrders.length > 0) {
+                        displayUserOrders(userOrders);
+                    } else {
+                        ordersList.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc;"></i><p style="margin-top: 20px;">You haven\'t placed any orders yet.</p><button class="btn" onclick="closeProfileModal(); window.location.href=\'#products\';">Start Shopping</button></div>';
+                    }
+                } else {
+                    ordersList.innerHTML = '<div style="text-align: center; padding: 40px;"><i class="fas fa-shopping-bag" style="font-size: 3rem; color: #ccc;"></i><p style="margin-top: 20px;">No orders found.</p></div>';
+                }
+                
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                ordersList.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc2626;">Failed to load orders. Please try again.</div>';
+            }
+        }
+
+        function displayUserOrders(orders) {
+            let html = '<table class="orders-table"><thead><tr><th>Order ID</th><th>Date</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+            
+            orders.forEach(order => {
+                const date = new Date(order.timestamp).toLocaleDateString();
+                const statusClass = `order-status status-${order.status || 'pending'}`;
+                
+                html += `
+                    <tr>
+                        <td>#${order.id.substr(-8)}</td>
+                        <td>${date}</td>
+                        <td>KSh ${(order.total || 0).toLocaleString()}</td>
+                        <td><span class="${statusClass}">${order.status || 'pending'}</span></td>
+                        <td>
+                            <div class="order-actions">
+                                <button class="btn-small btn-view" onclick="viewOrderDetails('${order.id}')">View</button>
+                                ${order.status === 'pending' ? `
+                                    <button class="btn-small btn-modify" onclick="modifyOrder('${order.id}')">Modify</button>
+                                    <button class="btn-small btn-cancel" onclick="cancelOrder('${order.id}')">Cancel</button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            
+            // For mobile, add a message
+            if (window.innerWidth <= 768) {
+                html += '<p style="margin-top: 20px; color: #666;"><i class="fas fa-info-circle"></i> Tap View to see order details</p>';
+            }
+            
+            document.getElementById('ordersList').innerHTML = html;
+        }
+
+        async function viewOrderDetails(orderId) {
+            try {
+                const snapshot = await database.ref('orders/' + orderId).once('value');
+                
+                if (snapshot.exists()) {
+                    currentOrder = {
+                        id: orderId,
+                        ...snapshot.val()
+                    };
+                    
+                    displayOrderDetails(currentOrder);
+                    document.getElementById('orderDetailModal').classList.add('active');
+                    document.body.classList.add('modal-open');
+                }
+            } catch (error) {
+                console.error('Error loading order:', error);
+                showNotification('Failed to load order details');
+            }
+        }
+
+        function displayOrderDetails(order) {
+            const container = document.getElementById('orderDetailContent');
+            const date = new Date(order.timestamp).toLocaleString();
+            
+            let itemsHtml = '';
+            let subtotal = 0;
+            
+            if (order.items) {
+                order.items.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    itemsHtml += `
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
+                            <div>
+                                <strong>${item.name}</strong> x${item.quantity}
+                            </div>
+                            <div>KSh ${itemTotal.toLocaleString()}</div>
+                        </div>
+                    `;
+                });
+            }
+            
+            const delivery = order.delivery || 150;
+            const total = order.total || (subtotal + delivery);
+            
+            const statusClass = `order-status status-${order.status || 'pending'}`;
+            
+            html = `
+                <div style="margin-bottom: 20px;">
+                    <p><strong>Order ID:</strong> #${order.id}</p>
+                    <p><strong>Date:</strong> ${date}</p>
+                    <p><strong>Status:</strong> <span class="${statusClass}">${order.status || 'pending'}</span></p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4>Customer Details</h4>
+                    <p><strong>Name:</strong> ${order.fullName}</p>
+                    <p><strong>Email:</strong> ${order.email}</p>
+                    <p><strong>Phone:</strong> ${order.phone}</p>
+                    <p><strong>Address:</strong> ${order.address}</p>
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4>Order Items</h4>
+                    ${itemsHtml || '<p>No items found</p>'}
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <h4>Payment Details</h4>
+                    <p><strong>Method:</strong> ${order.paymentMethod || 'Not specified'}</p>
+                    <p><strong>Subtotal:</strong> KSh ${subtotal.toLocaleString()}</p>
+                    <p><strong>Delivery:</strong> KSh ${delivery.toLocaleString()}</p>
+                    <p><strong>Total:</strong> KSh ${total.toLocaleString()}</p>
+                </div>
+                
+                ${order.instructions ? `
+                <div>
+                    <h4>Special Instructions</h4>
+                    <p>${order.instructions}</p>
+                </div>
+                ` : ''}
+            `;
+            
+            container.innerHTML = html;
+            
+            // Update modify/cancel buttons
+            const modifyBtn = document.getElementById('modifyOrderBtn');
+            const cancelBtn = document.getElementById('cancelOrderBtn');
+            
+            if (order.status === 'pending') {
+                modifyBtn.style.display = 'block';
+                cancelBtn.style.display = 'block';
+                modifyBtn.onclick = () => modifyOrder(order.id);
+                cancelBtn.onclick = () => cancelOrder(order.id);
+            } else {
+                modifyBtn.style.display = 'none';
+                cancelBtn.style.display = 'none';
+            }
+        }
+
+        function closeOrderDetailModal() {
+            document.getElementById('orderDetailModal').classList.remove('active');
+            document.body.classList.remove('modal-open');
+            currentOrder = null;
+        }
+
+        async function modifyOrder(orderId) {
+            closeOrderDetailModal();
+            
+            // Load the order into cart for modification
+            try {
+                const snapshot = await database.ref('orders/' + orderId).once('value');
+                
+                if (snapshot.exists()) {
+                    const order = snapshot.val();
+                    
+                    // Convert order items to cart items
+                    cart = order.items.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        image: item.image || '',
+                        quantity: item.quantity
+                    }));
+                    
+                    localStorage.setItem('mugera_cart', JSON.stringify(cart));
+                    updateCartBadge();
+                    
+                    // Open order modal with pre-filled data
+                    document.getElementById('orderName').value = order.fullName || '';
+                    document.getElementById('orderEmail').value = order.email || '';
+                    document.getElementById('orderPhone').value = order.phone || '';
+                    document.getElementById('orderAddress').value = order.address || '';
+                    document.getElementById('orderInstructions').value = order.instructions || '';
+                    
+                    if (order.paymentMethod) {
+                        document.getElementById('orderPayment').value = order.paymentMethod;
+                    }
+                    
+                    // Delete old order
+                    await database.ref('orders/' + orderId).remove();
+                    
+                    openOrderModal();
+                    showNotification('You can now modify your order');
+                }
+            } catch (error) {
+                console.error('Error loading order for modification:', error);
+                showNotification('Failed to load order');
+            }
+        }
+
+        async function cancelOrder(orderId) {
+            if (!confirm('Are you sure you want to cancel this order?')) {
+                return;
+            }
+            
+            try {
+                await database.ref('orders/' + orderId).update({
+                    status: 'cancelled'
+                });
+                
+                showNotification('Order cancelled successfully');
+                closeOrderDetailModal();
+                loadUserOrders(); // Refresh orders list
+                
+            } catch (error) {
+                console.error('Error cancelling order:', error);
+                showNotification('Failed to cancel order');
+            }
+        }
+
+        // Checkout function
+        function proceedToCheckout() {
+            if (!currentUser) {
+                closeCartModal();
+                openAuthModal('login');
+                showNotification('Please login to continue');
+                return;
+            }
+            
+            openOrderModal();
+        }
 
         // Initialize hero slideshow
         function initHeroSlideshow() {
@@ -1717,7 +2701,7 @@
             return parseFloat(numeric) || 0;
         }
 
-        // Display products - UPDATED with perfect badge display
+        // Display products
         function displayProducts(products) {
             const grid = document.getElementById('productsGrid');
             
@@ -1733,7 +2717,7 @@
                 const originalPrice = p.originalPrice;
                 const hasDiscount = originalPrice && originalPrice > price;
                 
-                // Determine badge type and text - PRIORITY: outofstock > badge > sale
+                // Determine badge type and text
                 let badgeClass = '';
                 let badgeText = '';
                 
@@ -1741,7 +2725,6 @@
                     badgeClass = 'outofstock';
                     badgeText = 'OUT OF STOCK';
                 } else if (p.badge) {
-                    // Use the badge value from Firebase directly
                     badgeClass = p.badge.toLowerCase();
                     badgeText = p.badge.toUpperCase();
                 } else if (hasDiscount) {
@@ -1855,7 +2838,7 @@
             });
         }
 
-        // Open product modal - UPDATED with proper badge display
+        // Open product modal
         function openProductModal(id) {
             const product = allProducts.find(p => p.id === id);
             if (!product) return;
@@ -1885,9 +2868,9 @@
                 document.getElementById('modalQuickBtn').disabled = false;
             }
             
-            // Set modal badge - UPDATED
+            // Set modal badge
             const badgeEl = document.getElementById('modalBadge');
-            badgeEl.className = 'modal-badge'; // Reset class
+            badgeEl.className = 'modal-badge';
             
             if (product.status === 'outofstock') {
                 badgeEl.textContent = 'OUT OF STOCK';
@@ -1997,7 +2980,13 @@
             localStorage.setItem('mugera_cart', JSON.stringify(cart));
             updateCartBadge();
             closeProductModal();
-            openOrderModal();
+            
+            if (!currentUser) {
+                openAuthModal('login');
+                showNotification('Please login to continue');
+            } else {
+                openOrderModal();
+            }
         }
 
         function quickOrderFromModal() {
@@ -2121,6 +3110,19 @@
                 return;
             }
             
+            // Pre-fill with user data if available
+            if (currentUser) {
+                database.ref('users/' + currentUser.uid).once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        document.getElementById('orderName').value = userData.name || '';
+                        document.getElementById('orderEmail').value = userData.email || '';
+                        document.getElementById('orderPhone').value = userData.phone || '';
+                        document.getElementById('orderAddress').value = userData.address || '';
+                    }
+                });
+            }
+            
             const modal = document.getElementById('orderModal');
             const itemsContainer = document.getElementById('orderItemsContainer');
             const totalSpan = document.getElementById('orderTotalAmount');
@@ -2198,6 +3200,13 @@
         }
 
         async function submitOrder() {
+            if (!currentUser) {
+                closeOrderModal();
+                openAuthModal('login');
+                showNotification('Please login to place order');
+                return;
+            }
+            
             if (!validateOrderForm()) {
                 showNotification('Please fill all required fields correctly');
                 return;
@@ -2227,7 +3236,8 @@
                     name: item.name,
                     price: Number(item.price) || 0,
                     quantity: item.quantity,
-                    total: (Number(item.price) || 0) * item.quantity
+                    total: (Number(item.price) || 0) * item.quantity,
+                    image: item.image
                 })),
                 subtotal: subtotal,
                 delivery: delivery,
@@ -2235,20 +3245,25 @@
                 timestamp: new Date().toISOString(),
                 status: 'pending',
                 type: 'cart_order',
-                source: 'store_page'
+                source: 'store_page',
+                userId: currentUser.uid
             };
             
             try {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<div class="spinner" style="width:24px;height:24px;margin:0 auto"></div> Processing...';
                 
-                if (database) {
-                    const orderId = 'order_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                    await database.ref('orders/' + orderId).set(orderData);
-                    console.log('Order saved to Firebase:', orderId);
-                }
+                const orderId = 'order_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                await database.ref('orders/' + orderId).set(orderData);
+                console.log('Order saved to Firebase:', orderId);
                 
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                // Save to user's order history
+                await database.ref('users/' + currentUser.uid + '/orders/' + orderId).set({
+                    orderId: orderId,
+                    timestamp: orderData.timestamp,
+                    total: total,
+                    status: 'pending'
+                });
                 
                 document.getElementById('orderForm').style.display = 'none';
                 document.getElementById('orderSuccessMessage').style.display = 'flex';
@@ -2296,11 +3311,27 @@
         window.removeFromCart = removeFromCart;
         window.openOrderModal = openOrderModal;
         window.closeOrderModal = closeOrderModal;
+        window.proceedToCheckout = proceedToCheckout;
         window.submitOrder = submitOrder;
         window.setActiveNav = setActiveNav;
         window.filterByCategory = filterByCategory;
         window.changeSlide = changeSlide;
         window.goToSlide = goToSlide;
+        window.openAuthModal = openAuthModal;
+        window.closeAuthModal = closeAuthModal;
+        window.switchAuthTab = switchAuthTab;
+        window.login = login;
+        window.register = register;
+        window.logout = logout;
+        window.toggleUserDropdown = toggleUserDropdown;
+        window.openProfileModal = openProfileModal;
+        window.closeProfileModal = closeProfileModal;
+        window.switchProfileTab = switchProfileTab;
+        window.updateProfile = updateProfile;
+        window.viewOrderDetails = viewOrderDetails;
+        window.modifyOrder = modifyOrder;
+        window.cancelOrder = cancelOrder;
+        window.closeOrderDetailModal = closeOrderDetailModal;
     </script>
 </body>
 </html>
