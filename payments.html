@@ -1509,6 +1509,17 @@
                     </div>
                 </div>
             </section>
+            
+            <!-- Newsletter Page Link -->
+            <div style="text-align: center; margin: 3rem 0;">
+                <a href="eye-of-mugera.html" class="cta-button" style="padding: 1rem 3rem;">
+                    <i class="fas fa-newspaper"></i>
+                    Go to Newsletter Page
+                </a>
+                <p style="margin-top: 1rem; color: var(--secondary);">
+                    After payment, visit the newsletter page to access premium content.
+                </p>
+            </div>
         </div>
     </main>
 
@@ -1556,6 +1567,11 @@
         </div>
     </footer>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
     <script>
         // Firebase Configuration
         const firebaseConfig = {
@@ -1568,11 +1584,11 @@
             appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
         };
 
+        // Initialize Firebase
         let database;
         let app;
 
         try {
-            // Initialize Firebase
             app = firebase.initializeApp(firebaseConfig);
             database = firebase.database();
             console.log("Firebase initialized successfully");
@@ -1765,6 +1781,11 @@
 
         async function submitPartnership() {
             if (!validatePartnershipForm()) {
+                // Scroll to first error
+                const firstError = document.querySelector('.form-error.show');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
                 return;
             }
 
@@ -1772,6 +1793,10 @@
             const form = document.getElementById('partnershipForm');
             const successMsg = document.getElementById('formSuccess');
             const subscribeToNewsletter = document.getElementById('newsletterSubscribe').checked;
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Processing...</span>';
 
             const partnershipData = {
                 fullName: document.getElementById('fullName').value.trim(),
@@ -1789,9 +1814,6 @@
             };
 
             try {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Processing...</span>';
-
                 if (!database) {
                     throw new Error('Database not initialized');
                 }
@@ -1817,6 +1839,26 @@
                         autoVerify: true
                     });
                     console.log('Pending subscriber created:', subscriberId);
+                    
+                    // Also create a record in subscribers node with pending status for newsletter page to check
+                    const subscriberMainId = 'sub_main_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+                    await database.ref('subscribers/' + subscriberMainId).set({
+                        personalInfo: {
+                            email: partnershipData.email,
+                            name: partnershipData.fullName,
+                            joinedAt: firebase.database.ServerValue.TIMESTAMP
+                        },
+                        subscription: {
+                            status: 'pending',
+                            tier: 'monthly'
+                        },
+                        paymentVerification: {
+                            status: 'pending',
+                            partnershipId: partnershipId,
+                            submittedAt: firebase.database.ServerValue.TIMESTAMP
+                        }
+                    });
+                    console.log('Main subscriber record created');
                 }
 
                 // Hide form and show success message
@@ -1832,6 +1874,7 @@
                 console.error('Error submitting partnership details:', error);
                 showToast('Error submitting form. Please try again.');
                 
+                // Re-enable button
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-handshake"></i><span>Submit Partnership Request</span>';
             }
@@ -1921,9 +1964,16 @@
                         '<p style="margin-top:0.5rem; margin-bottom:0;"><i class="fas fa-newspaper" style="color: var(--gold);"></i> Newsletter access will be activated upon payment verification.</p>' : 
                         ''}
                 </div>
-                <button class="cta-button" onclick="closeConfirmationModal()" style="width:100%;">
-                    <i class="fas fa-check"></i> Got It, I'll Complete Payment
-                </button>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="cta-button" onclick="window.location.href='eye-of-mugera.html'" style="flex: 1;">
+                        <i class="fas fa-newspaper"></i>
+                        Go to Newsletter
+                    </button>
+                    <button class="cta-button outline" onclick="closeConfirmationModal()" style="flex: 1;">
+                        <i class="fas fa-check"></i>
+                        Got It
+                    </button>
+                </div>
             `;
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
