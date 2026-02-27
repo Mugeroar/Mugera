@@ -1,3 +1,5 @@
+On this admin page, ensure  everything works perfectly including the edit newsletter functionality
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1149,19 +1151,6 @@
             color: var(--gold);
             font-size: 0.75rem;
             font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .tag-remove {
-            cursor: pointer;
-            color: var(--error);
-            font-size: 0.7rem;
-        }
-
-        .tag-remove:hover {
-            color: #ff6b6b;
         }
 
         .tag-add {
@@ -1175,6 +1164,12 @@
             color: var(--gold);
             font-size: 0.75rem;
             cursor: pointer;
+        }
+
+        .tag-remove {
+            margin-left: 0.25rem;
+            cursor: pointer;
+            color: var(--error);
         }
 
         /* Loading */
@@ -2454,7 +2449,7 @@
                 card.className = 'newsletter-card';
                 card.innerHTML = `
                     <div class="newsletter-card-header">
-                        <h3 class="newsletter-card-title">${escapeHtml(newsletter.title)}</h3>
+                        <h3 class="newsletter-card-title">${newsletter.title}</h3>
                         <span class="newsletter-card-badge">Issue ${newsletter.issueNumber}</span>
                     </div>
                     <div class="newsletter-card-meta">
@@ -2467,7 +2462,7 @@
                             <span>${newsletter.access?.is_public ? 'Public' : newsletter.access?.minimum_tier || 'Subscriber Only'}</span>
                         </div>
                     </div>
-                    <p class="newsletter-card-description">${escapeHtml(newsletter.description)}</p>
+                    <p class="newsletter-card-description">${newsletter.description}</p>
                     <div class="newsletter-stats">
                         <div class="newsletter-stat-item">
                             <div class="newsletter-stat-value">${newsletter.statistics?.views || 0}</div>
@@ -2514,9 +2509,9 @@
             recent.forEach(sub => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><strong>${escapeHtml(sub.name || 'Anonymous')}</strong></td>
-                    <td>${escapeHtml(sub.email)}</td>
-                    <td>${escapeHtml(sub.source || 'website')}</td>
+                    <td><strong>${sub.name || 'Anonymous'}</strong></td>
+                    <td>${sub.email}</td>
+                    <td>${sub.source || 'website'}</td>
                     <td>${new Date(sub.subscribedAt).toLocaleDateString()}</td>
                     <td><span class="status-badge ${sub.verified ? 'status-active' : 'status-pending'}">${sub.verified ? 'Verified' : 'Pending'}</span></td>
                 `;
@@ -2551,8 +2546,8 @@
                 
                 const tags = newsletter.tags || [];
                 const tagsHtml = tags.length > 0 ? 
-                    `<div style="display: flex; gap: 0.25rem; margin-top: 0.5rem; flex-wrap: wrap;">
-                        ${tags.slice(0, 3).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
+                    `<div style="display: flex; gap: 0.25rem; margin-top: 0.5rem;">
+                        ${tags.slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('')}
                         ${tags.length > 3 ? `<span class="tag">+${tags.length - 3}</span>` : ''}
                     </div>` : '';
                 
@@ -2562,7 +2557,7 @@
                 
                 card.innerHTML = `
                     <div class="newsletter-card-header">
-                        <h3 class="newsletter-card-title">${escapeHtml(newsletter.title)}</h3>
+                        <h3 class="newsletter-card-title">${newsletter.title}</h3>
                         <span class="newsletter-card-badge">#${newsletter.issueNumber}</span>
                     </div>
                     <div class="newsletter-card-meta">
@@ -2579,7 +2574,7 @@
                             <span>${isGoogleDrive ? 'Google Drive' : 'PDF'}</span>
                         </div>
                     </div>
-                    <p class="newsletter-card-description">${escapeHtml(newsletter.description)}</p>
+                    <p class="newsletter-card-description">${newsletter.description}</p>
                     ${tagsHtml}
                     <div class="newsletter-stats">
                         <div class="newsletter-stat-item">
@@ -2637,9 +2632,9 @@
             filteredSubscribers.forEach(sub => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><strong>${escapeHtml(sub.name || 'Anonymous')}</strong></td>
-                    <td>${escapeHtml(sub.email)}</td>
-                    <td>${escapeHtml(sub.source || 'website')}</td>
+                    <td><strong>${sub.name || 'Anonymous'}</strong></td>
+                    <td>${sub.email}</td>
+                    <td>${sub.source || 'website'}</td>
                     <td>${new Date(sub.subscribedAt).toLocaleDateString()}</td>
                     <td><span class="status-badge ${sub.verified ? 'status-active' : 'status-pending'}">${sub.verified ? 'Verified' : 'Pending'}</span></td>
                     <td>
@@ -2662,8 +2657,6 @@
 
         function updateYearFilter() {
             const select = document.getElementById('newsletterYearFilter');
-            select.innerHTML = '<option value="all">All Years</option>';
-            
             const years = [...new Set(newsletters.map(n => new Date(n.publishedAt).getFullYear()))];
             
             years.sort((a, b) => b - a);
@@ -2776,7 +2769,7 @@
                 const engagement = views > 0 ? Math.round((downloads / views) * 100) : 0;
                 
                 row.innerHTML = `
-                    <td>${escapeHtml(n.title)}</td>
+                    <td>${n.title}</td>
                     <td>${n.date || new Date(n.publishedAt).toLocaleDateString()}</td>
                     <td>${views}</td>
                     <td>${downloads}</td>
@@ -2837,8 +2830,8 @@
                 const tagEl = document.createElement('span');
                 tagEl.className = 'tag';
                 tagEl.innerHTML = `
-                    ${escapeHtml(tag)}
-                    <span class="tag-remove" onclick="removeTag('${escapeHtml(tag)}')">
+                    ${tag}
+                    <span class="tag-remove" onclick="removeTag('${tag}')">
                         <i class="fas fa-times"></i>
                     </span>
                 `;
@@ -2999,30 +2992,30 @@
                 <div style="line-height: 1.8; color: var(--white);">
                     <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
                         ${newsletter.coverImage ? `
-                        <img src="${escapeHtml(newsletter.coverImage)}" alt="Cover" style="width: 120px; height: auto; border-radius: var(--radius-md);">
+                        <img src="${newsletter.coverImage}" alt="Cover" style="width: 120px; height: auto; border-radius: var(--radius-md);">
                         ` : ''}
                         <div>
-                            <h4 style="margin-bottom: 0.5rem;">${escapeHtml(newsletter.title)} ${driveBadge}</h4>
+                            <h4 style="margin-bottom: 0.5rem;">${newsletter.title} ${driveBadge}</h4>
                             <p style="color: var(--gold);">Issue #${newsletter.issueNumber} | Vol. ${newsletter.volume}</p>
                             <p style="color: rgba(255, 255, 255, 0.8);">${newsletter.date}</p>
                         </div>
                     </div>
                     
                     <div style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-lg);">
-                        <p style="margin-bottom: 1rem;">${escapeHtml(newsletter.description)}</p>
+                        <p style="margin-bottom: 1rem;">${newsletter.description}</p>
                         
                         ${newsletter.featuredVoice ? `
                         <div style="margin-bottom: 1rem;">
                             <strong>Featured Voice:</strong><br>
-                            ${escapeHtml(newsletter.featuredVoice)}
+                            ${newsletter.featuredVoice}
                         </div>
                         ` : ''}
                         
                         ${newsletter.tags?.length > 0 ? `
                         <div style="margin-bottom: 1rem;">
                             <strong>Tags:</strong><br>
-                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
-                                ${newsletter.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
+                            <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                ${newsletter.tags.map(t => `<span class="tag">${t}</span>`).join('')}
                             </div>
                         </div>
                         ` : ''}
@@ -3044,8 +3037,8 @@
                         
                         <div style="margin-bottom: 1rem;">
                             <strong>PDF File:</strong><br>
-                            <a href="${escapeHtml(newsletter.pdfFile?.url)}" target="_blank" style="color: var(--gold);">
-                                ${escapeHtml(newsletter.pdfFile?.filename || 'Open PDF')}
+                            <a href="${newsletter.pdfFile?.url}" target="_blank" style="color: var(--gold);">
+                                ${newsletter.pdfFile?.filename || 'Open PDF'}
                             </a>
                             ${newsletter.pdfFile?.source === 'google_drive' ? 
                                 '<br><small><i class="fab fa-google-drive" style="color: #0F9D58;"></i> Hosted on Google Drive</small>' : ''}
@@ -3075,25 +3068,20 @@
             document.getElementById('newsletterModal').classList.add('active');
         }
 
-        // Enhanced editNewsletter function
         function editNewsletter(newsletterId) {
             const newsletter = newsletters.find(n => n.id === newsletterId);
-            if (!newsletter) {
-                showNotification("Newsletter not found", "error");
-                return;
-            }
+            if (!newsletter) return;
             
-            tags = newsletter.tags ? [...newsletter.tags] : [];
+            tags = newsletter.tags || [];
             
             const isGoogleDrive = newsletter.pdfFile?.url?.includes('drive.google.com');
-            const currentDriveLink = isGoogleDrive ? newsletter.pdfFile?.url : '';
             
             const form = `
                 <form id="editNewsletterForm" onsubmit="updateNewsletter(event, '${newsletterId}')">
                     <div class="form-grid">
                         <div class="form-group" style="grid-column: span 2;">
                             <label class="form-label">Title *</label>
-                            <input type="text" class="form-input" id="editTitle" value="${escapeHtml(newsletter.title)}" required>
+                            <input type="text" class="form-input" id="editTitle" value="${newsletter.title.replace(/"/g, '&quot;')}" required>
                         </div>
                         
                         <div class="form-group">
@@ -3106,14 +3094,9 @@
                             <input type="number" class="form-input" id="editVolume" value="${newsletter.volume || 1}">
                         </div>
                         
-                        <div class="form-group">
-                            <label class="form-label">Publication Date</label>
-                            <input type="date" class="form-input" id="editDate" value="${newsletter.date || ''}">
-                        </div>
-                        
                         <div class="form-group" style="grid-column: span 2;">
                             <label class="form-label">Description *</label>
-                            <textarea class="form-input" id="editDescription" rows="3" required>${escapeHtml(newsletter.description || '')}</textarea>
+                            <textarea class="form-input" id="editDescription" rows="3" required>${newsletter.description || ''}</textarea>
                         </div>
                         
                         <div class="form-group">
@@ -3129,12 +3112,12 @@
                         
                         <div class="form-group">
                             <label class="form-label">Featured Voice</label>
-                            <input type="text" class="form-input" id="editFeaturedVoice" value="${escapeHtml(newsletter.featuredVoice || '')}">
+                            <input type="text" class="form-input" id="editFeaturedVoice" value="${newsletter.featuredVoice || ''}">
                         </div>
                         
                         <div class="form-group">
                             <label class="form-label">Cover Image URL</label>
-                            <input type="url" class="form-input" id="editCoverImage" value="${escapeHtml(newsletter.coverImage || '')}">
+                            <input type="url" class="form-input" id="editCoverImage" value="${newsletter.coverImage || ''}">
                         </div>
                         
                         <div class="form-group">
@@ -3146,25 +3129,15 @@
                             </select>
                         </div>
                         
+                        ${isGoogleDrive ? `
                         <div class="form-group" style="grid-column: span 2;">
                             <label class="form-label">
                                 <i class="fab fa-google-drive" style="color: #0F9D58;"></i>
                                 Google Drive PDF Link
                             </label>
-                            <input type="url" class="form-input" id="editDriveLink" value="${escapeHtml(currentDriveLink)}" placeholder="https://drive.google.com/file/d/...">
-                            <div style="margin-top: 0.5rem; font-size: 0.875rem; color: rgba(255, 255, 255, 0.7);">
-                                <i class="fas fa-info-circle"></i>
-                                Update the Google Drive link if needed
-                            </div>
+                            <input type="url" class="form-input" id="editDriveLink" value="${newsletter.pdfFile?.url || ''}">
                         </div>
-                        
-                        <div class="form-group" style="grid-column: span 2;">
-                            <label class="form-label">
-                                <i class="fas fa-file-pdf"></i>
-                                PDF Filename
-                            </label>
-                            <input type="text" class="form-input" id="editFilename" value="${escapeHtml(newsletter.pdfFile?.filename || '')}">
-                        </div>
+                        ` : ''}
                     </div>
                     
                     <div class="form-actions">
@@ -3196,8 +3169,8 @@
                 const tagEl = document.createElement('span');
                 tagEl.className = 'tag';
                 tagEl.innerHTML = `
-                    ${escapeHtml(tag)}
-                    <span class="tag-remove" onclick="removeEditTag('${escapeHtml(tag)}')">
+                    ${tag}
+                    <span class="tag-remove" onclick="removeEditTag('${tag}')">
                         <i class="fas fa-times"></i>
                     </span>
                 `;
@@ -3237,9 +3210,6 @@
                 
                 const newsletter = newsletters.find(n => n.id === newsletterId);
                 const accessLevel = document.getElementById('editAccessLevel').value;
-                const date = document.getElementById('editDate').value;
-                const driveLink = document.getElementById('editDriveLink').value.trim();
-                const filename = document.getElementById('editFilename').value.trim();
                 
                 // Build updates
                 const updates = {
@@ -3254,36 +3224,20 @@
                     'access/minimum_tier': accessLevel === 'public' ? null : accessLevel
                 };
                 
-                // Only update date if provided
-                if (date) {
-                    updates['metadata/date'] = date;
-                }
-                
                 // Update Google Drive link if present
-                if (driveLink && driveLink.includes('drive.google.com')) {
-                    const directLink = convertToDirectDriveLink(driveLink);
+                const driveLink = document.getElementById('editDriveLink');
+                if (driveLink && driveLink.value) {
+                    const directLink = convertToDirectDriveLink(driveLink.value);
                     updates['pdf_file/url'] = directLink;
-                    
-                    const fileId = extractDriveFileId(driveLink);
-                    updates['pdf_file/storage_path'] = `googledrive:${fileId || 'unknown'}`;
-                    updates['pdf_file/source'] = 'google_drive';
-                }
-                
-                // Update filename if provided
-                if (filename) {
-                    updates['pdf_file/filename'] = filename;
                 }
                 
                 await database.ref(`newsletters/${newsletterId}`).update(updates);
                 
-                if (date) {
-                    const year = new Date(date).getFullYear();
-                    await database.ref(`newsletters_by_year/${year}/${newsletterId}`).update({
-                        title: title,
-                        date: date,
-                        cover_image: document.getElementById('editCoverImage').value || ''
-                    });
-                }
+                const year = new Date(newsletter.date).getFullYear();
+                await database.ref(`newsletters_by_year/${year}/${newsletterId}`).update({
+                    title: title,
+                    cover_image: document.getElementById('editCoverImage').value || ''
+                });
                 
                 await loadNewsletters();
                 
@@ -3293,7 +3247,6 @@
                 
                 updateAllNewsletters();
                 updateDashboardStats();
-                updateAnalyticsStats();
                 
             } catch (error) {
                 console.error("Error updating newsletter:", error);
@@ -3368,15 +3321,15 @@
                     <div style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-lg);">
                         <div style="margin-bottom: 1rem;">
                             <strong>Name:</strong><br>
-                            ${escapeHtml(sub.name || 'Anonymous')}
+                            ${sub.name || 'Anonymous'}
                         </div>
                         <div style="margin-bottom: 1rem;">
                             <strong>Email:</strong><br>
-                            ${escapeHtml(sub.email)}
+                            ${sub.email}
                         </div>
                         <div style="margin-bottom: 1rem;">
                             <strong>Source:</strong><br>
-                            ${escapeHtml(sub.source || 'website')}
+                            ${sub.source || 'website'}
                         </div>
                         <div style="margin-bottom: 1rem;">
                             <strong>Subscribed:</strong><br>
@@ -3415,17 +3368,17 @@
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">Name</label>
-                            <input type="text" class="form-input" id="editSubName" value="${escapeHtml(sub.name || '')}">
+                            <input type="text" class="form-input" id="editSubName" value="${sub.name || ''}">
                         </div>
                         
                         <div class="form-group">
                             <label class="form-label">Email *</label>
-                            <input type="email" class="form-input" id="editSubEmail" value="${escapeHtml(sub.email)}" required>
+                            <input type="email" class="form-input" id="editSubEmail" value="${sub.email}" required>
                         </div>
                         
                         <div class="form-group">
                             <label class="form-label">Source</label>
-                            <input type="text" class="form-input" id="editSubSource" value="${escapeHtml(sub.source || '')}">
+                            <input type="text" class="form-input" id="editSubSource" value="${sub.source || ''}">
                         </div>
                         
                         <div class="form-group">
@@ -3666,17 +3619,6 @@
 
         function hideSubscriberModal() {
             document.getElementById('subscriberModal').classList.remove('active');
-        }
-
-        // Escape HTML to prevent XSS
-        function escapeHtml(unsafe) {
-            if (!unsafe) return '';
-            return unsafe
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
         }
 
         // Event Listeners
