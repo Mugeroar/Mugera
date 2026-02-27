@@ -254,7 +254,7 @@
             border: 2px solid var(--gold);
             border-radius: 20px;
             min-width: 220px;
-            box-shadow: var(--glass-shadow);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
             display: none;
             z-index: 1001;
             overflow: hidden;
@@ -482,7 +482,7 @@
             font-size: 0.95rem;
         }
         
-        /* Challenge Steps (original challenge) */
+        /* Challenge Steps */
         .challenge-steps-list {
             max-width: 800px;
             margin: 3rem auto 2rem;
@@ -681,7 +681,7 @@
             font-size: 0.9rem;
         }
         
-        /* Community Feed - Enhanced */
+        /* Community Feed */
         .community-feed {
             display: grid;
             gap: 2rem;
@@ -694,7 +694,6 @@
             padding: 1.5rem;
             border: 1px solid var(--border-light);
             transition: 0.2s;
-            cursor: pointer;
         }
         
         .feed-card:hover {
@@ -708,6 +707,7 @@
             align-items: center;
             gap: 1rem;
             margin-bottom: 1rem;
+            cursor: pointer;
         }
         
         .feed-avatar {
@@ -965,11 +965,18 @@
             transition: 0.2s;
             font-weight: 600;
             margin-top: 1rem;
+            width: 100%;
         }
         
         .member-connect:hover {
             background: var(--gold);
             color: var(--bg-primary);
+        }
+        
+        .member-connect.connected {
+            background: var(--gold);
+            color: var(--bg-primary);
+            cursor: default;
         }
         
         /* Profile Modal */
@@ -1109,8 +1116,15 @@
             font-weight: 600;
         }
         
-        .circle-join:hover {
+        .circle-join:hover:not(.joined) {
             background: var(--gold-dark);
+        }
+        
+        .circle-join.joined {
+            background: var(--bg-primary);
+            color: var(--gold);
+            border: 2px solid var(--gold);
+            cursor: default;
         }
         
         /* Projects Section */
@@ -1151,6 +1165,14 @@
             background: var(--gold);
             border-radius: 4px;
             transition: width 0.3s;
+        }
+        
+        .project-supporters {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
         }
         
         /* Create Post Section */
@@ -1215,7 +1237,7 @@
             color: var(--gold);
         }
         
-        /* SonGa Section (unchanged) */
+        /* SonGa Section */
         .songa-join-section {
             background: linear-gradient(145deg, rgba(212, 160, 23, 0.1), rgba(212, 160, 23, 0.05));
             border: 2px solid var(--sonGa);
@@ -1481,7 +1503,7 @@
             color: var(--text-muted);
         }
         
-        .form-input {
+        .form-input, .form-select {
             width: 100%;
             padding: 1rem;
             background: var(--bg-primary);
@@ -1491,9 +1513,13 @@
             font-family: inherit;
         }
         
-        .form-input:focus {
+        .form-input:focus, .form-select:focus {
             outline: none;
             border-color: var(--gold);
+        }
+        
+        .form-select {
+            cursor: pointer;
         }
         
         .form-submit {
@@ -1540,6 +1566,28 @@
             z-index: 2000; display: none; align-items: center; gap: 0.5rem;
         }
         .install-pwa.show { display: flex; }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--gold);
+            color: var(--bg-primary);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            z-index: 10001;
+            opacity: 0;
+            transition: 0.3s;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
         
         /* Responsive */
         @media (max-width: 800px) {
@@ -1595,14 +1643,17 @@
                         <a href="#" onclick="showMyProfile(); return false;">
                             <i class="fas fa-id-card"></i> My Profile
                         </a>
-                        <a href="#" onclick="showMyActivity(); return false;">
-                            <i class="fas fa-chart-line"></i> My Activity
+                        <a href="#" onclick="showMyConnections(); return false;">
+                            <i class="fas fa-handshake"></i> My Connections (<span id="connectionCount">0</span>)
                         </a>
-                        <a href="#" onclick="showConnections(); return false;">
-                            <i class="fas fa-handshake"></i> My Connections
+                        <a href="#" onclick="showMyCircles(); return false;">
+                            <i class="fas fa-users"></i> My Circles
                         </a>
-                        <a href="#" onclick="showSaved(); return false;">
-                            <i class="fas fa-bookmark"></i> Saved
+                        <a href="#" onclick="showMyProjects(); return false;">
+                            <i class="fas fa-tree"></i> My Projects
+                        </a>
+                        <a href="#" onclick="showSavedPosts(); return false;">
+                            <i class="fas fa-bookmark"></i> Saved Posts
                         </a>
                         <a href="#" onclick="showSettings(); return false;">
                             <i class="fas fa-cog"></i> Settings
@@ -1620,29 +1671,29 @@
         </div>
     </header>
 
-    <!-- Hero Section - Now Program Focused -->
+    <!-- Hero Section -->
     <section class="program-hero">
         <div class="hero-content">
             <h1>AFRIKA MILELE</h1>
             <div class="hero-tagline">UNITY PROGRAM</div>
             <p class="hero-description">A continental community of peace-builders, changemakers, and cultural ambassadors. Join thousands across Africa and the diaspora.</p>
             
-            <!-- Program Stats Bar -->
+            <!-- Program Stats Bar - Live from Firebase -->
             <div class="program-stats-bar">
                 <div class="stat-item">
-                    <div class="stat-number" id="totalMembers">2,847</div>
+                    <div class="stat-number" id="totalMembers">0</div>
                     <div class="stat-label">Ambassadors</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number" id="totalProjects">143</div>
+                    <div class="stat-number" id="totalProjects">0</div>
                     <div class="stat-label">Active Projects</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number" id="totalImpact">12.5k</div>
-                    <div class="stat-label">Impact Actions</div>
+                    <div class="stat-number" id="totalPosts">0</div>
+                    <div class="stat-label">Posts</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number" id="totalCountries">37</div>
+                    <div class="stat-number" id="totalCountries">0</div>
                     <div class="stat-label">Countries</div>
                 </div>
             </div>
@@ -1663,7 +1714,7 @@
                         <span>Rank: #<span id="userRank">0</span></span>
                     </div>
                     <div class="stat-row">
-                        <span>Impact Updates: <span id="userUpdates">0</span></span>
+                        <span>Posts: <span id="userPosts">0</span></span>
                         <span>Connections: <span id="userConnections">0</span></span>
                     </div>
                     <div class="progress-bar-container">
@@ -1680,11 +1731,11 @@
                 <button class="btn-primary" onclick="showPostForm()">
                     <i class="fas fa-plus"></i> Share Update
                 </button>
-                <button class="btn-primary" onclick="showCircles()">
+                <button class="btn-primary" onclick="switchProgramTab('circles')">
                     <i class="fas fa-users"></i> Join Circle
                 </button>
-                <button class="btn-primary" onclick="findConnections()">
-                    <i class="fas fa-user-plus"></i> Connect
+                <button class="btn-primary" onclick="switchProgramTab('members')">
+                    <i class="fas fa-user-plus"></i> Find Connections
                 </button>
             </div>
         </div>
@@ -1710,14 +1761,13 @@
                         <i class="fas fa-paper-plane"></i> Post Update
                     </button>
                     <button class="create-post-media" onclick="addMedia()">
-                        <i class="fas fa-image"></i> Add Photo/Video
+                        <i class="fas fa-image"></i> Add Photo
                     </button>
                 </div>
             </div>
             
             <!-- Community Feed -->
             <div class="community-feed" id="communityFeed">
-                <!-- Feed items will be loaded here -->
                 <div class="loading-spinner"></div>
             </div>
         </div>
@@ -1725,47 +1775,42 @@
         <!-- MEMBERS TAB -->
         <div class="tab-content" id="members-tab">
             <div class="members-grid" id="membersGrid">
-                <!-- Member cards will be loaded here -->
                 <div class="loading-spinner"></div>
             </div>
         </div>
 
-        <!-- CHALLENGE TAB (original challenge) -->
+        <!-- CHALLENGE TAB -->
         <div class="tab-content" id="challenge-tab">
             <h2 class="section-title">The Daima Challenge</h2>
             <p class="section-subtitle">Complete these steps to earn your Ambassador badge and join our community of changemakers.</p>
             
             <div class="challenge-steps-list">
-                <!-- step 1 -->
                 <div class="step-item">
                     <div class="step-item-number">1</div>
                     <div class="step-item-content">
                         <div class="step-item-title">Record your daily pride</div>
-                        <div class="step-item-desc">Film yourself doing what you love — your job, craft, or everyday African moment. Show the world your authentic self.</div>
+                        <div class="step-item-desc">Film yourself doing what you love — your job, craft, or everyday African moment.</div>
                     </div>
                 </div>
-                <!-- step 2 -->
                 <div class="step-item">
                     <div class="step-item-number">2</div>
                     <div class="step-item-content">
                         <div class="step-item-title">Share two reasons</div>
-                        <div class="step-item-desc">Look at the camera and tell us two things you love about being African. It could be the culture, resilience, food, nature — your truth.</div>
+                        <div class="step-item-desc">Tell us two things you love about being African.</div>
                     </div>
                 </div>
-                <!-- step 3 -->
                 <div class="step-item">
                     <div class="step-item-number">3</div>
                     <div class="step-item-content">
                         <div class="step-item-title">Recite the mantra</div>
-                        <div class="step-item-desc">Clearly say: <strong style="color:var(--gold);">DAIMA, MILELE, PAMOJA</strong>. Let the words resonate.</div>
+                        <div class="step-item-desc">Say: <strong style="color:var(--gold);">DAIMA, MILELE, PAMOJA</strong></div>
                     </div>
                 </div>
-                <!-- step 4 -->
                 <div class="step-item">
                     <div class="step-item-number">4</div>
                     <div class="step-item-content">
                         <div class="step-item-title">Post & Tag us</div>
-                        <div class="step-item-desc">Upload to all your platforms. Make sure to tag all handles:</div>
+                        <div class="step-item-desc">Tag all handles:</div>
                         <div class="tag-social">
                             <span><i class="fab fa-instagram"></i> @am_mugera</span>
                             <span><i class="fab fa-x-twitter"></i> @iam__mugera</span>
@@ -1774,20 +1819,18 @@
                         </div>
                     </div>
                 </div>
-                <!-- step 5 -->
                 <div class="step-item">
-                    <div class="step-item-number"><i class="fab fa-whatsapp" style="font-size:1.3rem;"></i></div>
+                    <div class="step-item-number"><i class="fab fa-whatsapp"></i></div>
                     <div class="step-item-content">
-                        <div class="step-item-title">Join SonGa on WhatsApp <span class="whatsapp-optional"><i class="fab fa-whatsapp"></i> required</span></div>
-                        <div class="step-item-desc">Complete your registration by joining our SonGa community on WhatsApp for updates, features, and community support.</div>
+                        <div class="step-item-title">Join SonGa on WhatsApp</div>
+                        <div class="step-item-desc">Join our SonGa community for updates.</div>
                     </div>
                 </div>
-                <!-- step 6 -->
                 <div class="step-item">
                     <div class="step-item-number">6</div>
                     <div class="step-item-content">
                         <div class="step-item-title">Keep enjoying being African</div>
-                        <div class="step-item-desc">Pride doesn't stop. Continue living, sharing, and celebrating Afrika Milele.</div>
+                        <div class="step-item-desc">Continue celebrating Afrika Milele.</div>
                     </div>
                 </div>
             </div>
@@ -1795,164 +1838,45 @@
             <!-- SonGa WhatsApp Channel Integration -->
             <div class="songa-join-section" id="songaJoinSection">
                 <img src="https://i.postimg.cc/BbdzCkxQ/20260116-0851-Elegant-Lion-Emblem-remix-01kf2npwbtf06ttr4htekjnd47-removebg-preview-2.webp" 
-                     alt="SonGa Community" class="songa-logo" id="songaLogo">
+                     alt="SonGa Community" class="songa-logo">
                 <h3>Join SonGa Community</h3>
-                <p>Complete your challenge registration by joining our WhatsApp channel. Get daily inspiration, connect with fellow ambassadors, and receive updates on events and features.</p>
+                <p>Complete your registration by joining our WhatsApp channel.</p>
                 
                 <div id="songaRegistrationForm" class="songa-form-container">
                     <input type="text" class="form-input" id="songaName" placeholder="Your full name">
-                    <input type="email" class="form-input" id="songaEmail" placeholder="Your email address">
+                    <input type="email" class="form-input" id="songaEmail" placeholder="Your email">
                     <input type="tel" class="form-input" id="songaPhone" placeholder="WhatsApp number">
-                    
                     <button class="songa-btn" onclick="registerAndJoinSonGa()">
-                        <i class="fab fa-whatsapp"></i> Register & Join WhatsApp
+                        <i class="fab fa-whatsapp"></i> Register & Join
                     </button>
                 </div>
                 
                 <div id="songaSuccess" class="songa-success">
                     <i class="fas fa-check-circle"></i>
                     <h3>Registration Complete!</h3>
-                    <p style="margin-bottom: 2rem;">You'll be redirected to SonGa WhatsApp channel in a moment...</p>
+                    <p>Redirecting to WhatsApp...</p>
                     <div class="loading-spinner"></div>
                 </div>
-            </div>
-            
-            <div class="after-register-box" id="afterRegisterHint" style="display: none;">
-                <h4>✅ You're registered, ambassador!</h4>
-                <p style="margin-bottom:0.5rem;"><i class="fas fa-check-circle" style="color:var(--gold);"></i> Follow the 6 steps above.</p>
-                <p><i class="fas fa-tag"></i> Tag all handles: <strong>@am_mugera</strong> (IG), <strong>@iam__mugera</strong> (X), <strong>@iam_mugera</strong> (TikTok), <strong>MUGERA</strong> (FB)</p>
-                <p><i class="fab fa-whatsapp"></i> Join SonGa: <strong>https://whatsapp.com/channel/0029VbBQKpAJJhzWClgEGF2P</strong></p>
             </div>
         </div>
 
         <!-- WISDOM CIRCLES TAB -->
         <div class="tab-content" id="circles-tab">
             <h2 class="section-title">Wisdom Circles</h2>
-            <p class="section-subtitle">Join deep conversations with fellow ambassadors. Share wisdom, learn from elders, and grow together.</p>
+            <p class="section-subtitle">Join deep conversations with fellow ambassadors.</p>
             
             <div class="circles-grid" id="circlesGrid">
-                <!-- Sample circles - will be populated by JS -->
-                <div class="circle-card">
-                    <h3 class="circle-title">Elders Circle</h3>
-                    <div class="circle-host">
-                        <i class="fas fa-user-circle"></i>
-                        <span>Hosted by Baba Jomo</span>
-                    </div>
-                    <p class="circle-description">A space for intergenerational wisdom sharing. Discuss traditional values and their place in modern Africa.</p>
-                    <div class="circle-meta">
-                        <span><i class="fas fa-users"></i> 87 members</span>
-                        <span><i class="fas fa-clock"></i> Next: Tomorrow 7PM GMT</span>
-                    </div>
-                    <button class="circle-join" onclick="joinCircle('elders')">Request to Join</button>
-                </div>
-                
-                <div class="circle-card">
-                    <h3 class="circle-title">Young Innovators</h3>
-                    <div class="circle-host">
-                        <i class="fas fa-user-circle"></i>
-                        <span>Hosted by Amara Okafor</span>
-                    </div>
-                    <p class="circle-description">Young changemakers discussing innovation, entrepreneurship, and creating impact in their communities.</p>
-                    <div class="circle-meta">
-                        <span><i class="fas fa-users"></i> 234 members</span>
-                        <span><i class="fas fa-clock"></i> Weekly meetups</span>
-                    </div>
-                    <button class="circle-join" onclick="joinCircle('innovators')">Join Circle</button>
-                </div>
-                
-                <div class="circle-card">
-                    <h3 class="circle-title">Diaspora Connect</h3>
-                    <div class="circle-host">
-                        <i class="fas fa-user-circle"></i>
-                        <span>Hosted by Kwame Asante</span>
-                    </div>
-                    <p class="circle-description">For Africans in the diaspora and those interested in connecting across borders. Share experiences and build bridges.</p>
-                    <div class="circle-meta">
-                        <span><i class="fas fa-users"></i> 156 members</span>
-                        <span><i class="fas fa-clock"></i> Bi-weekly calls</span>
-                    </div>
-                    <button class="circle-join" onclick="joinCircle('diaspora')">Join Circle</button>
-                </div>
-                
-                <div class="circle-card">
-                    <h3 class="circle-title">Peace Builders</h3>
-                    <div class="circle-host">
-                        <i class="fas fa-user-circle"></i>
-                        <span>Hosted by Fatima Diallo</span>
-                    </div>
-                    <p class="circle-description">Focusing on conflict resolution, community mediation, and building peaceful societies.</p>
-                    <div class="circle-meta">
-                        <span><i class="fas fa-users"></i> 112 members</span>
-                        <span><i class="fas fa-clock"></i> Monthly workshops</span>
-                    </div>
-                    <button class="circle-join" onclick="joinCircle('peace')">Join Circle</button>
-                </div>
+                <div class="loading-spinner"></div>
             </div>
         </div>
 
         <!-- MILELE PROJECTS TAB -->
         <div class="tab-content" id="projects-tab">
             <h2 class="section-title">Milele Projects</h2>
-            <p class="section-subtitle">Community-led initiatives making lasting impact across the continent.</p>
+            <p class="section-subtitle">Community-led initiatives making lasting impact.</p>
             
             <div class="projects-grid" id="projectsGrid">
-                <!-- Sample projects - will be populated by JS -->
-                <div class="project-card">
-                    <h3 class="circle-title">Tree of Life</h3>
-                    <p class="project-description">Planting 10,000 trees across 5 African countries. Community nurseries and environmental education.</p>
-                    <div class="project-progress">
-                        <div class="project-progress-bar">
-                            <div class="project-progress-fill" style="width: 45%"></div>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.9rem;">
-                            <span>45% complete</span>
-                            <span>4,532/10,000 trees</span>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 1rem; margin-top: 1rem; color: var(--text-muted);">
-                        <span><i class="fas fa-users"></i> 87 contributors</span>
-                        <span><i class="fas fa-map-marker-alt"></i> 5 countries</span>
-                    </div>
-                    <button class="circle-join" style="margin-top: 1rem;" onclick="joinProject('trees')">Support Project</button>
-                </div>
-                
-                <div class="project-card">
-                    <h3 class="circle-title">Skills for All</h3>
-                    <p class="project-description">Free vocational training centers teaching coding, craftsmanship, and entrepreneurship to youth.</p>
-                    <div class="project-progress">
-                        <div class="project-progress-bar">
-                            <div class="project-progress-fill" style="width: 60%"></div>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.9rem;">
-                            <span>60% complete</span>
-                            <span>3 centers opened</span>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 1rem; margin-top: 1rem; color: var(--text-muted);">
-                        <span><i class="fas fa-users"></i> 124 contributors</span>
-                        <span><i class="fas fa-graduation-cap"></i> 450 students</span>
-                    </div>
-                    <button class="circle-join" style="margin-top: 1rem;" onclick="joinProject('skills')">Support Project</button>
-                </div>
-                
-                <div class="project-card">
-                    <h3 class="circle-title">Heritage Keepers</h3>
-                    <p class="project-description">Documenting and preserving indigenous languages, stories, and cultural practices.</p>
-                    <div class="project-progress">
-                        <div class="project-progress-bar">
-                            <div class="project-progress-fill" style="width: 25%"></div>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.9rem;">
-                            <span>25% complete</span>
-                            <span>12 languages documented</span>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 1rem; margin-top: 1rem; color: var(--text-muted);">
-                        <span><i class="fas fa-users"></i> 56 contributors</span>
-                        <span><i class="fas fa-book"></i> 34 stories collected</span>
-                    </div>
-                    <button class="circle-join" style="margin-top: 1rem;" onclick="joinProject('heritage')">Support Project</button>
-                </div>
+                <div class="loading-spinner"></div>
             </div>
         </div>
     </div>
@@ -1965,19 +1889,16 @@
             <a href="#" onclick="switchProgramTab('challenge'); return false;">The Challenge</a>
             <a href="#" onclick="switchProgramTab('circles'); return false;">Wisdom Circles</a>
             <a href="#" onclick="switchProgramTab('projects'); return false;">Projects</a>
-            <a href="#" onclick="document.getElementById('songaName').focus(); return false;">Join SonGa</a>
         </div>
         <p>© 2026 Afrika Milele — DAIMA | MILELE | PAMOJA Unity Program</p>
     </footer>
 </main>
 
-<!-- Profile Modal (for viewing other members) -->
+<!-- Profile Modal -->
 <div class="profile-modal" id="profileModal">
     <div class="profile-content">
         <button class="modal-close" onclick="closeProfileModal()">&times;</button>
-        <div id="profileContent">
-            <!-- Profile content will be loaded here -->
-        </div>
+        <div id="profileContent"></div>
     </div>
 </div>
 
@@ -2014,15 +1935,26 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Phone</label>
-                <input type="tel" class="form-input" id="registerPhone" placeholder="Enter your phone number">
+                <input type="tel" class="form-input" id="registerPhone" placeholder="WhatsApp number">
             </div>
             <div class="form-group">
                 <label class="form-label">Country</label>
-                <input type="text" class="form-input" id="registerCountry" placeholder="Your country">
+                <select class="form-select" id="registerCountry">
+                    <option value="">Select your country</option>
+                    <option value="Nigeria">Nigeria</option>
+                    <option value="Ghana">Ghana</option>
+                    <option value="Kenya">Kenya</option>
+                    <option value="South Africa">South Africa</option>
+                    <option value="Senegal">Senegal</option>
+                    <option value="Ethiopia">Ethiopia</option>
+                    <option value="Tanzania">Tanzania</option>
+                    <option value="Uganda">Uganda</option>
+                    <option value="Other">Other</option>
+                </select>
             </div>
             <div class="form-group">
-                <label class="form-label">Bio (tell us about yourself)</label>
-                <textarea class="form-input" id="registerBio" rows="3" placeholder="What brings you to Afrika Milele?"></textarea>
+                <label class="form-label">Bio (optional)</label>
+                <textarea class="form-input" id="registerBio" rows="3" placeholder="Tell us about yourself"></textarea>
             </div>
             <div class="form-group">
                 <label class="form-label">Password</label>
@@ -2038,6 +1970,9 @@
     <i class="fas fa-download"></i> Install App
 </button>
 
+<!-- Toast Notification -->
+<div class="toast" id="toast"></div>
+
 <!-- Core Script -->
 <script>
     // Firebase Config
@@ -2052,12 +1987,15 @@
     };
 
     // Initialize Firebase
-    let database, analytics, auth, storage;
+    let database, analytics, auth;
     let currentUser = null;
     let currentUserData = null;
     let feedPosts = [];
     let membersList = [];
-    let currentProfileView = null;
+    let circlesList = [];
+    let projectsList = [];
+    let connectionsList = [];
+    let savedPostsList = [];
 
     // Badge thresholds
     const BADGE_THRESHOLDS = {
@@ -2078,17 +2016,20 @@
         legend: "Legendary Ambassador"
     };
 
+    // Initialize Firebase
     try {
         firebase.initializeApp(firebaseConfig);
         database = firebase.database();
         auth = firebase.auth();
         analytics = firebase.analytics();
-        storage = firebase.storage();
         console.log('Firebase ready');
         
         // Listen for auth state changes
         auth.onAuthStateChanged(handleAuthStateChange);
-    } catch (e) { console.warn('Firebase init failed:', e); }
+    } catch (e) { 
+        console.warn('Firebase init failed:', e);
+        showToast('Firebase connection issue. Please refresh.');
+    }
 
     // SonGa WhatsApp channel link
     const SONGA_WHATSAPP_LINK = "https://whatsapp.com/channel/0029VbBQKpAJJhzWClgEGF2P";
@@ -2114,10 +2055,12 @@
                     mainContent.classList.add('visible');
                     if (analytics) analytics.logEvent('page_view', { page_title: 'Program' });
                     
-                    // Load initial data
+                    // Load all data
                     loadProgramStats();
                     loadFeed();
                     loadMembers();
+                    loadCircles();
+                    loadProjects();
                 }, 1300);
             }
         }
@@ -2129,6 +2072,16 @@
             }
         }, 7000);
     })();
+
+    // Show toast notification
+    function showToast(message, duration = 3000) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, duration);
+    }
 
     // Handle auth state change
     function handleAuthStateChange(user) {
@@ -2143,6 +2096,8 @@
             
             // Load user data
             loadUserData(user.uid);
+            loadUserConnections(user.uid);
+            loadUserSavedPosts(user.uid);
             
             if (analytics) {
                 analytics.logEvent('login', { method: 'email' });
@@ -2160,12 +2115,11 @@
     async function loadProgramStats() {
         try {
             const usersSnapshot = await database.ref('users').once('value');
+            const postsSnapshot = await database.ref('feed_posts').once('value');
             const projectsSnapshot = await database.ref('projects').once('value');
-            const impactSnapshot = await database.ref('impact_updates').once('value');
             
             const totalMembers = usersSnapshot.numChildren();
-            const totalProjects = projectsSnapshot.numChildren() || 143;
-            const totalImpact = impactSnapshot.numChildren() || 12500;
+            const totalPosts = postsSnapshot.numChildren();
             
             // Count unique countries
             const countries = new Set();
@@ -2173,14 +2127,69 @@
                 if (child.val().country) countries.add(child.val().country);
             });
             
-            document.getElementById('totalMembers').textContent = totalMembers || 2847;
-            document.getElementById('totalProjects').textContent = totalProjects;
-            document.getElementById('totalImpact').textContent = (totalImpact > 1000) ? (totalImpact/1000).toFixed(1) + 'k' : totalImpact;
-            document.getElementById('totalCountries').textContent = countries.size || 37;
+            document.getElementById('totalMembers').textContent = totalMembers || 0;
+            document.getElementById('totalPosts').textContent = totalPosts || 0;
+            document.getElementById('totalCountries').textContent = countries.size || 0;
+            
+            // Load projects count
+            if (projectsSnapshot.exists()) {
+                document.getElementById('totalProjects').textContent = projectsSnapshot.numChildren();
+            } else {
+                // Initialize default projects if none exist
+                initializeDefaultProjects();
+            }
             
         } catch (error) {
             console.error('Error loading stats:', error);
         }
+    }
+
+    // Initialize default projects
+    async function initializeDefaultProjects() {
+        const defaultProjects = [
+            {
+                id: 'tree_of_life',
+                title: 'Tree of Life',
+                description: 'Planting trees across African countries. Community nurseries and environmental education.',
+                hostName: 'Afrika Milele',
+                hostId: 'system',
+                goal: 10000,
+                current: 4532,
+                supporters: 87,
+                countries: ['Kenya', 'Ghana', 'Senegal'],
+                category: 'environment'
+            },
+            {
+                id: 'skills_for_all',
+                title: 'Skills for All',
+                description: 'Free vocational training centers teaching coding, craftsmanship, and entrepreneurship.',
+                hostName: 'Afrika Milele',
+                hostId: 'system',
+                goal: 5000,
+                current: 2450,
+                supporters: 124,
+                countries: ['Nigeria', 'South Africa'],
+                category: 'education'
+            },
+            {
+                id: 'heritage_keepers',
+                title: 'Heritage Keepers',
+                description: 'Documenting and preserving indigenous languages, stories, and cultural practices.',
+                hostName: 'Afrika Milele',
+                hostId: 'system',
+                goal: 50,
+                current: 12,
+                supporters: 56,
+                countries: ['Multiple'],
+                category: 'culture'
+            }
+        ];
+        
+        for (const project of defaultProjects) {
+            await database.ref('projects/' + project.id).set(project);
+        }
+        
+        loadProjects();
     }
 
     // Load user data
@@ -2197,10 +2206,9 @@
                 // Calculate user stats
                 const stats = currentUserData.stats || {
                     points: 0,
-                    impactUpdates: 0,
-                    daysActive: 0,
-                    badge: 'bronze',
-                    connections: 0
+                    posts: 0,
+                    connections: 0,
+                    badge: 'bronze'
                 };
                 
                 updateUserProgress(stats);
@@ -2209,19 +2217,21 @@
                 const badgeLevel = document.getElementById('userBadgeLevel');
                 badgeLevel.textContent = BADGE_NAMES[stats.badge] || 'Bronze Ambassador';
                 badgeLevel.style.background = getBadgeColor(stats.badge);
+                
+                // Update connection count
+                document.getElementById('connectionCount').textContent = stats.connections || 0;
             } else {
                 // Create new user data
                 const newUserData = {
-                    name: user.displayName || user.email.split('@')[0],
-                    email: user.email,
+                    name: currentUser.displayName || currentUser.email.split('@')[0],
+                    email: currentUser.email,
                     createdAt: new Date().toISOString(),
                     uid: uid,
                     stats: {
-                        points: 0,
-                        impactUpdates: 0,
-                        daysActive: 1,
-                        badge: 'bronze',
+                        points: 10,
+                        posts: 0,
                         connections: 0,
+                        badge: 'bronze',
                         lastActive: new Date().toISOString()
                     },
                     bio: "",
@@ -2235,6 +2245,41 @@
             
         } catch (error) {
             console.error('Error loading user data:', error);
+        }
+    }
+
+    // Load user connections
+    async function loadUserConnections(uid) {
+        try {
+            const snapshot = await database.ref('connections').orderByChild('userId').equalTo(uid).once('value');
+            
+            if (snapshot.exists()) {
+                connectionsList = [];
+                snapshot.forEach(child => {
+                    connectionsList.push({
+                        id: child.key,
+                        ...child.val()
+                    });
+                });
+            }
+        } catch (error) {
+            console.error('Error loading connections:', error);
+        }
+    }
+
+    // Load user saved posts
+    async function loadUserSavedPosts(uid) {
+        try {
+            const snapshot = await database.ref('saved_posts/' + uid).once('value');
+            
+            if (snapshot.exists()) {
+                savedPostsList = [];
+                snapshot.forEach(child => {
+                    savedPostsList.push(child.key);
+                });
+            }
+        } catch (error) {
+            console.error('Error loading saved posts:', error);
         }
     }
 
@@ -2253,7 +2298,7 @@
         
         document.getElementById('currentBadgeName').textContent = BADGE_NAMES[badge];
         document.getElementById('userPoints').textContent = points;
-        document.getElementById('userUpdates').textContent = stats.impactUpdates || 0;
+        document.getElementById('userPosts').textContent = stats.posts || 0;
         document.getElementById('userConnections').textContent = stats.connections || 0;
         document.getElementById('progressBar').style.width = Math.min(progress, 100) + '%';
         document.getElementById('nextBadgeInfo').textContent = `Next: ${BADGE_NAMES[nextBadge]} (${pointsToNext} more points)`;
@@ -2308,7 +2353,7 @@
     // Load feed posts
     async function loadFeed() {
         try {
-            const snapshot = await database.ref('feed_posts').orderByChild('timestamp').limitToLast(20).once('value');
+            const snapshot = await database.ref('feed_posts').orderByChild('timestamp').limitToLast(50).once('value');
             
             if (snapshot.exists()) {
                 const posts = [];
@@ -2323,13 +2368,14 @@
                 feedPosts = posts.sort((a, b) => b.timestamp - a.timestamp);
                 displayFeed();
             } else {
-                // Sample feed for demo
-                displaySampleFeed();
+                document.getElementById('communityFeed').innerHTML = 
+                    '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No posts yet. Be the first to share!</div>';
             }
             
         } catch (error) {
             console.error('Error loading feed:', error);
-            displaySampleFeed();
+            document.getElementById('communityFeed').innerHTML = 
+                '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">Error loading feed. Please refresh.</div>';
         }
     }
 
@@ -2337,7 +2383,7 @@
     function displayFeed() {
         const feed = document.getElementById('communityFeed');
         
-        if (feedPosts.length === 0) {
+        if (!feedPosts || feedPosts.length === 0) {
             feed.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No posts yet. Be the first to share!</div>';
             return;
         }
@@ -2349,10 +2395,11 @@
             const timeAgo = getTimeAgo(post.timestamp);
             const userBadge = calculateBadge(post.userPoints || 0);
             const hasLiked = currentUser && post.likedBy && post.likedBy[currentUser.uid];
+            const isSaved = currentUser && savedPostsList.includes(post.id);
             
             html += `
-                <div class="feed-card" onclick="viewPost('${post.id}')">
-                    <div class="feed-header" onclick="event.stopPropagation(); viewMemberProfile('${post.userId}')">
+                <div class="feed-card" id="post-${post.id}">
+                    <div class="feed-header" onclick="viewMemberProfile('${post.userId}')">
                         <div class="feed-avatar">${post.userName ? post.userName.charAt(0).toUpperCase() : 'A'}</div>
                         <div class="feed-user-info">
                             <div>
@@ -2372,393 +2419,101 @@
                     
                     ${post.image ? `
                         <div class="feed-media">
-                            <img src="${post.image}" alt="Post image" onclick="event.stopPropagation()">
+                            <img src="${post.image}" alt="Post image">
                         </div>
                     ` : ''}
                     
                     <div class="feed-actions">
-                        <span class="feed-action" onclick="event.stopPropagation(); likePost('${post.id}')">
+                        <span class="feed-action" onclick="likePost('${post.id}')">
                             <i class="fas fa-heart ${hasLiked ? 'liked' : ''}"></i>
-                            <span>${post.likes || 0}</span>
+                            <span id="likes-${post.id}">${post.likes || 0}</span>
                         </span>
-                        <span class="feed-action" onclick="event.stopPropagation(); toggleComments('${post.id}')">
+                        <span class="feed-action" onclick="toggleComments('${post.id}')">
                             <i class="fas fa-comment"></i>
-                            <span>${post.comments || 0}</span>
+                            <span>${post.commentCount || 0}</span>
                         </span>
-                        <span class="feed-action" onclick="event.stopPropagation(); sharePost('${post.id}')">
+                        <span class="feed-action" onclick="savePost('${post.id}')">
+                            <i class="fas fa-bookmark ${isSaved ? 'liked' : ''}"></i>
+                        </span>
+                        <span class="feed-action" onclick="sharePost('${post.id}')">
                             <i class="fas fa-share"></i>
-                        </span>
-                        <span class="feed-action" onclick="event.stopPropagation(); savePost('${post.id}')">
-                            <i class="fas fa-bookmark"></i>
                         </span>
                     </div>
                     
                     <div class="feed-comments" id="comments-${post.id}" style="display: none;">
-                        <!-- Comments will be loaded here -->
-                        <div class="comment-input">
-                            <input type="text" id="comment-input-${post.id}" placeholder="Write a comment...">
-                            <button onclick="addComment('${post.id}')">Post</button>
-                        </div>
+                        <div id="comments-list-${post.id}"></div>
+                        ${currentUser ? `
+                            <div class="comment-input">
+                                <input type="text" id="comment-input-${post.id}" placeholder="Write a comment...">
+                                <button onclick="addComment('${post.id}')">Post</button>
+                            </div>
+                        ` : ''}
                     </div>
                 </div>
             `;
         });
         
         feed.innerHTML = html;
-    }
-
-    // Display sample feed for demo
-    function displaySampleFeed() {
-        const feed = document.getElementById('communityFeed');
         
-        const samplePosts = [
-            {
-                userName: "Amara Okafor",
-                userBadge: "gold",
-                content: "Just finished teaching a coding workshop to 30 young women in Lagos. The future is bright! 🚀 #MileleProjects #WomenInTech",
-                likes: 45,
-                comments: 12,
-                timeAgo: "2 hours ago",
-                location: "Lagos, Nigeria"
-            },
-            {
-                userName: "Kwame Asante",
-                userBadge: "silver",
-                content: "Today we planted 200 trees in our community. The kids were so excited to learn about environmental conservation. Small actions, big impact! 🌳",
-                likes: 78,
-                comments: 23,
-                timeAgo: "5 hours ago",
-                location: "Accra, Ghana"
-            },
-            {
-                userName: "Fatima Diallo",
-                userBadge: "platinum",
-                content: "Just returned from a peace mediation workshop in Dakar. So inspired by the young leaders committed to building bridges across communities. Pamoja! ✊🏾",
-                likes: 112,
-                comments: 34,
-                timeAgo: "1 day ago",
-                location: "Dakar, Senegal"
+        // Load comments for each post
+        feedPosts.forEach(post => {
+            if (post.commentCount > 0) {
+                loadComments(post.id);
             }
-        ];
-        
-        let html = '';
-        
-        samplePosts.forEach(post => {
-            html += `
-                <div class="feed-card">
-                    <div class="feed-header">
-                        <div class="feed-avatar">${post.userName.charAt(0)}</div>
-                        <div class="feed-user-info">
-                            <div>
-                                <span class="feed-user-name">${post.userName}</span>
-                                <span class="feed-user-badge">${post.userBadge} Ambassador</span>
-                            </div>
-                            <div class="feed-meta">
-                                <span>${post.timeAgo}</span>
-                                <span>${post.location}</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="feed-content">
-                        ${post.content}
-                    </div>
-                    
-                    <div class="feed-actions">
-                        <span class="feed-action">
-                            <i class="fas fa-heart"></i>
-                            <span>${post.likes}</span>
-                        </span>
-                        <span class="feed-action">
-                            <i class="fas fa-comment"></i>
-                            <span>${post.comments}</span>
-                        </span>
-                        <span class="feed-action">
-                            <i class="fas fa-share"></i>
-                        </span>
-                    </div>
-                </div>
-            `;
         });
-        
-        feed.innerHTML = html;
     }
 
-    // Load members
-    async function loadMembers() {
+    // Load comments for a post
+    async function loadComments(postId) {
         try {
-            const snapshot = await database.ref('users').limitToFirst(20).once('value');
+            const snapshot = await database.ref('comments').orderByChild('postId').equalTo(postId).limitToLast(10).once('value');
             
             if (snapshot.exists()) {
-                const members = [];
+                const comments = [];
                 snapshot.forEach(child => {
-                    const user = child.val();
-                    members.push({
-                        uid: child.key,
-                        name: user.name || user.email?.split('@')[0] || 'Ambassador',
-                        badge: calculateBadge(user.stats?.points || 0),
-                        points: user.stats?.points || 0,
-                        impactUpdates: user.stats?.impactUpdates || 0,
-                        connections: user.stats?.connections || 0,
-                        bio: user.bio || "Passionate about building peace and unity across Afrika.",
-                        country: user.country || "Africa",
-                        interests: user.interests || []
+                    comments.push({
+                        id: child.key,
+                        ...child.val()
                     });
                 });
                 
-                membersList = members;
-                displayMembers();
-            } else {
-                displaySampleMembers();
+                displayComments(postId, comments);
             }
-            
         } catch (error) {
-            console.error('Error loading members:', error);
-            displaySampleMembers();
+            console.error('Error loading comments:', error);
         }
     }
 
-    // Display members grid
-    function displayMembers() {
-        const grid = document.getElementById('membersGrid');
-        
-        if (membersList.length === 0) {
-            grid.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No members yet</div>';
-            return;
-        }
+    // Display comments
+    function displayComments(postId, comments) {
+        const commentsDiv = document.getElementById(`comments-list-${postId}`);
+        if (!commentsDiv) return;
         
         let html = '';
-        
-        membersList.forEach(member => {
+        comments.sort((a, b) => a.timestamp - b.timestamp).forEach(comment => {
             html += `
-                <div class="member-card" onclick="viewMemberProfile('${member.uid}')">
-                    <div class="member-avatar">${member.name.charAt(0).toUpperCase()}</div>
-                    <div class="member-name">${member.name}</div>
-                    <span class="member-badge">${BADGE_NAMES[member.badge]}</span>
-                    
-                    <div class="member-stats">
-                        <div class="member-stat">
-                            <div class="member-stat-number">${member.points}</div>
-                            <div>points</div>
-                        </div>
-                        <div class="member-stat">
-                            <div class="member-stat-number">${member.impactUpdates}</div>
-                            <div>updates</div>
-                        </div>
-                        <div class="member-stat">
-                            <div class="member-stat-number">${member.connections}</div>
-                            <div>connections</div>
-                        </div>
+                <div class="comment-item">
+                    <div class="comment-avatar">${comment.userName ? comment.userName.charAt(0).toUpperCase() : 'A'}</div>
+                    <div class="comment-content">
+                        <span class="comment-name">${comment.userName || 'Ambassador'}</span>
+                        <span class="comment-text">${comment.text}</span>
                     </div>
-                    
-                    <div class="member-bio">${member.bio.substring(0, 100)}${member.bio.length > 100 ? '...' : ''}</div>
-                    
-                    <button class="member-connect" onclick="event.stopPropagation(); connectWithMember('${member.uid}')">
-                        <i class="fas fa-handshake"></i> Connect
-                    </button>
                 </div>
             `;
         });
         
-        grid.innerHTML = html;
+        commentsDiv.innerHTML = html;
     }
 
-    // Display sample members for demo
-    function displaySampleMembers() {
-        const grid = document.getElementById('membersGrid');
+    // Get time ago string
+    function getTimeAgo(timestamp) {
+        const seconds = Math.floor((Date.now() - timestamp) / 1000);
         
-        const sampleMembers = [
-            {
-                name: "Amara Okafor",
-                badge: "gold",
-                points: 1250,
-                updates: 34,
-                connections: 89,
-                bio: "Tech educator passionate about bridging the digital divide. Founder of Code4All initiative.",
-                country: "Nigeria"
-            },
-            {
-                name: "Kwame Asante",
-                badge: "silver",
-                points: 450,
-                updates: 23,
-                connections: 56,
-                bio: "Environmental activist organizing tree planting campaigns across West Africa.",
-                country: "Ghana"
-            },
-            {
-                name: "Fatima Diallo",
-                badge: "platinum",
-                points: 1850,
-                updates: 67,
-                connections: 134,
-                bio: "Peace mediator working with youth groups in conflict zones. Believer in dialogue over division.",
-                country: "Senegal"
-            },
-            {
-                name: "Baba Jomo",
-                badge: "legend",
-                points: 3450,
-                updates: 156,
-                connections: 278,
-                bio: "Elder and wisdom keeper sharing traditional knowledge with younger generations.",
-                country: "Kenya"
-            },
-            {
-                name: "Zola Mbeki",
-                badge: "diamond",
-                points: 2200,
-                updates: 89,
-                connections: 167,
-                bio: "Social entrepreneur creating economic opportunities for rural women.",
-                country: "South Africa"
-            },
-            {
-                name: "Idriss Ahmed",
-                badge: "gold",
-                points: 980,
-                updates: 42,
-                connections: 73,
-                bio: "Youth advocate focused on education access in the Sahel region.",
-                country: "Mali"
-            }
-        ];
-        
-        let html = '';
-        
-        sampleMembers.forEach(member => {
-            html += `
-                <div class="member-card">
-                    <div class="member-avatar">${member.name.charAt(0)}</div>
-                    <div class="member-name">${member.name}</div>
-                    <span class="member-badge">${member.badge} Ambassador</span>
-                    
-                    <div class="member-stats">
-                        <div class="member-stat">
-                            <div class="member-stat-number">${member.points}</div>
-                            <div>points</div>
-                        </div>
-                        <div class="member-stat">
-                            <div class="member-stat-number">${member.updates}</div>
-                            <div>updates</div>
-                        </div>
-                        <div class="member-stat">
-                            <div class="member-stat-number">${member.connections}</div>
-                            <div>connections</div>
-                        </div>
-                    </div>
-                    
-                    <div class="member-bio">${member.bio}</div>
-                    
-                    <button class="member-connect" onclick="connectWithMember('sample')">
-                        <i class="fas fa-handshake"></i> Connect
-                    </button>
-                </div>
-            `;
-        });
-        
-        grid.innerHTML = html;
-    }
-
-    // View member profile
-    function viewMemberProfile(uid) {
-        // In a real app, load member data from Firebase
-        // For demo, show sample profile
-        const modal = document.getElementById('profileModal');
-        const content = document.getElementById('profileContent');
-        
-        content.innerHTML = `
-            <div style="text-align: center;">
-                <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--gold); margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">A</div>
-                <h2 style="color: var(--gold); margin-bottom: 0.5rem;">Amara Okafor</h2>
-                <span class="member-badge" style="margin-bottom: 1rem;">Gold Ambassador</span>
-                
-                <div style="display: flex; justify-content: center; gap: 2rem; margin: 1.5rem 0;">
-                    <div>
-                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--gold);">1,250</div>
-                        <div style="color: var(--text-muted);">Points</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--gold);">34</div>
-                        <div style="color: var(--text-muted);">Updates</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--gold);">89</div>
-                        <div style="color: var(--text-muted);">Connections</div>
-                    </div>
-                </div>
-                
-                <div style="text-align: left; margin-top: 2rem;">
-                    <h3 style="color: var(--gold); margin-bottom: 1rem;">About</h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Tech educator passionate about bridging the digital divide. Founder of Code4All initiative teaching coding to young women across Nigeria.</p>
-                    
-                    <h3 style="color: var(--gold); margin-bottom: 1rem;">Recent Activity</h3>
-                    
-                    <div class="activity-card">
-                        <div class="activity-header">
-                            <span>Posted an update</span>
-                            <span>2 hours ago</span>
-                        </div>
-                        <div class="activity-content">Just finished teaching a coding workshop to 30 young women in Lagos. The future is bright! 🚀</div>
-                    </div>
-                    
-                    <div class="activity-card">
-                        <div class="activity-header">
-                            <span>Joined Wisdom Circle</span>
-                            <span>3 days ago</span>
-                        </div>
-                        <div class="activity-content">Young Innovators Circle</div>
-                    </div>
-                    
-                    <div class="activity-card">
-                        <div class="activity-header">
-                            <span>Supported Project</span>
-                            <span>1 week ago</span>
-                        </div>
-                        <div class="activity-content">Skills for All - contributed mentorship hours</div>
-                    </div>
-                </div>
-                
-                <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                    <button class="member-connect" style="flex: 1;" onclick="connectWithMember()">
-                        <i class="fas fa-handshake"></i> Connect
-                    </button>
-                    <button class="member-connect" style="flex: 1;" onclick="messageMember()">
-                        <i class="fas fa-envelope"></i> Message
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-
-    // Close profile modal
-    function closeProfileModal() {
-        document.getElementById('profileModal').classList.remove('active');
-        document.body.style.overflow = '';
-    }
-
-    // Connect with member
-    function connectWithMember(uid) {
-        if (!currentUser) {
-            openAuthModal('login');
-            return;
-        }
-        
-        alert('Connection request sent!');
-        // In a real app, this would send a connection request to Firebase
-    }
-
-    // Message member
-    function messageMember() {
-        if (!currentUser) {
-            openAuthModal('login');
-            return;
-        }
-        
-        alert('Messaging feature coming soon!');
+        if (seconds < 60) return 'just now';
+        if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+        if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+        if (seconds < 604800) return Math.floor(seconds / 86400) + 'd ago';
+        return new Date(timestamp).toLocaleDateString();
     }
 
     // Create post
@@ -2771,9 +2526,11 @@
         const content = document.getElementById('postContent').value.trim();
         
         if (!content) {
-            alert('Please write something to share');
+            showToast('Please write something to share');
             return;
         }
+        
+        const postId = 'post_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
         
         const postData = {
             userId: currentUser.uid,
@@ -2782,19 +2539,18 @@
             content: content,
             timestamp: Date.now(),
             likes: 0,
-            comments: 0,
+            commentCount: 0,
             likedBy: {},
             location: currentUserData?.country || ""
         };
         
         try {
-            const postId = 'post_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
             await database.ref('feed_posts/' + postId).set(postData);
             
-            // Give points for posting
-            const stats = currentUserData?.stats || { points: 0, impactUpdates: 0, daysActive: 1, badge: 'bronze' };
-            stats.points = (stats.points || 0) + 5; // 5 points per post
-            stats.impactUpdates = (stats.impactUpdates || 0) + 1;
+            // Update user stats
+            const stats = currentUserData?.stats || { points: 0, posts: 0, connections: 0 };
+            stats.points = (stats.points || 0) + 10;
+            stats.posts = (stats.posts || 0) + 1;
             
             await database.ref('users/' + currentUser.uid + '/stats').set(stats);
             
@@ -2805,13 +2561,15 @@
             await loadUserData(currentUser.uid);
             await loadFeed();
             
+            showToast('Post shared successfully! +10 points');
+            
             if (analytics) {
                 analytics.logEvent('create_post');
             }
             
         } catch (error) {
             console.error('Error creating post:', error);
-            alert('Failed to create post. Please try again.');
+            showToast('Failed to create post. Please try again.');
         }
     }
 
@@ -2832,40 +2590,45 @@
                 // Unlike
                 await database.ref('feed_posts/' + postId + '/likes').transaction(likes => (likes || 1) - 1);
                 await database.ref('feed_posts/' + postId + '/likedBy/' + currentUser.uid).remove();
+                
+                // Update local data
+                if (post.likedBy) delete post.likedBy[currentUser.uid];
+                post.likes = (post.likes || 1) - 1;
             } else {
                 // Like
                 await database.ref('feed_posts/' + postId + '/likes').transaction(likes => (likes || 0) + 1);
                 await database.ref('feed_posts/' + postId + '/likedBy/' + currentUser.uid).set(true);
                 
+                // Update local data
+                if (!post.likedBy) post.likedBy = {};
+                post.likedBy[currentUser.uid] = true;
+                post.likes = (post.likes || 0) + 1;
+                
                 // Give points for engagement
-                const stats = currentUserData?.stats || { points: 0, impactUpdates: 0, daysActive: 1, badge: 'bronze' };
+                const stats = currentUserData?.stats || { points: 0, posts: 0, connections: 0 };
                 stats.points = (stats.points || 0) + 1;
                 await database.ref('users/' + currentUser.uid + '/stats').set(stats);
                 await loadUserData(currentUser.uid);
             }
             
-            await loadFeed();
+            // Update UI
+            const likesSpan = document.getElementById(`likes-${postId}`);
+            if (likesSpan) {
+                likesSpan.textContent = post.likes;
+            }
+            
+            const heartIcon = document.querySelector(`#post-${postId} .fa-heart`);
+            if (heartIcon) {
+                if (hasLiked) {
+                    heartIcon.classList.remove('liked');
+                } else {
+                    heartIcon.classList.add('liked');
+                }
+            }
             
         } catch (error) {
             console.error('Error liking post:', error);
-        }
-    }
-
-    // Get time ago string
-    function getTimeAgo(timestamp) {
-        const seconds = Math.floor((Date.now() - timestamp) / 1000);
-        
-        if (seconds < 60) return 'just now';
-        if (seconds < 3600) return Math.floor(seconds / 60) + ' minutes ago';
-        if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
-        return Math.floor(seconds / 86400) + ' days ago';
-    }
-
-    // Toggle comments
-    function toggleComments(postId) {
-        const commentsDiv = document.getElementById(`comments-${postId}`);
-        if (commentsDiv) {
-            commentsDiv.style.display = commentsDiv.style.display === 'none' ? 'block' : 'none';
+            showToast('Failed to like post');
         }
     }
 
@@ -2877,80 +2640,649 @@
         }
         
         const input = document.getElementById(`comment-input-${postId}`);
-        const comment = input.value.trim();
+        const text = input.value.trim();
         
-        if (!comment) return;
+        if (!text) return;
         
-        // In a real app, save to Firebase
-        alert('Comment feature coming soon!');
-        input.value = '';
-    }
-
-    // Share post
-    function sharePost(postId) {
-        if (navigator.share) {
-            navigator.share({
-                title: 'Afrika Milele',
-                text: 'Check out this post from the Afrika Milele community',
-                url: window.location.href,
-            });
-        } else {
-            alert('Share link copied to clipboard!');
+        const commentId = 'comment_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+        
+        const commentData = {
+            postId: postId,
+            userId: currentUser.uid,
+            userName: currentUserData?.name || currentUser.email.split('@')[0],
+            text: text,
+            timestamp: Date.now()
+        };
+        
+        try {
+            await database.ref('comments/' + commentId).set(commentData);
+            
+            // Update post comment count
+            await database.ref('feed_posts/' + postId + '/commentCount').transaction(count => (count || 0) + 1);
+            
+            // Give points
+            const stats = currentUserData?.stats || { points: 0, posts: 0, connections: 0 };
+            stats.points = (stats.points || 0) + 2;
+            await database.ref('users/' + currentUser.uid + '/stats').set(stats);
+            
+            input.value = '';
+            
+            // Reload comments
+            await loadComments(postId);
+            await loadFeed(); // Refresh to update comment count
+            
+            showToast('Comment added! +2 points');
+            
+        } catch (error) {
+            console.error('Error adding comment:', error);
+            showToast('Failed to add comment');
         }
     }
 
     // Save post
-    function savePost(postId) {
+    async function savePost(postId) {
         if (!currentUser) {
             openAuthModal('login');
             return;
         }
         
-        alert('Post saved!');
+        const isSaved = savedPostsList.includes(postId);
+        
+        try {
+            if (isSaved) {
+                await database.ref('saved_posts/' + currentUser.uid + '/' + postId).remove();
+                savedPostsList = savedPostsList.filter(id => id !== postId);
+                showToast('Post removed from saved');
+            } else {
+                await database.ref('saved_posts/' + currentUser.uid + '/' + postId).set(true);
+                savedPostsList.push(postId);
+                showToast('Post saved!');
+            }
+            
+            // Update bookmark icon
+            const bookmarkIcon = document.querySelector(`#post-${postId} .fa-bookmark`);
+            if (bookmarkIcon) {
+                if (isSaved) {
+                    bookmarkIcon.classList.remove('liked');
+                } else {
+                    bookmarkIcon.classList.add('liked');
+                }
+            }
+            
+        } catch (error) {
+            console.error('Error saving post:', error);
+            showToast('Failed to save post');
+        }
     }
 
-    // View post
-    function viewPost(postId) {
-        // In a real app, open post detail view
-        console.log('View post:', postId);
+    // Share post
+    function sharePost(postId) {
+        const post = feedPosts.find(p => p.id === postId);
+        if (!post) return;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: 'Afrika Milele',
+                text: post.content,
+                url: window.location.href,
+            }).catch(() => {
+                copyToClipboard(window.location.href);
+            });
+        } else {
+            copyToClipboard(window.location.href);
+            showToast('Link copied to clipboard!');
+        }
+    }
+
+    // Copy to clipboard
+    function copyToClipboard(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+    }
+
+    // Toggle comments
+    function toggleComments(postId) {
+        const commentsDiv = document.getElementById(`comments-${postId}`);
+        if (commentsDiv) {
+            if (commentsDiv.style.display === 'none') {
+                commentsDiv.style.display = 'block';
+                loadComments(postId);
+            } else {
+                commentsDiv.style.display = 'none';
+            }
+        }
+    }
+
+    // Load members
+    async function loadMembers() {
+        try {
+            const snapshot = await database.ref('users').limitToFirst(50).once('value');
+            
+            if (snapshot.exists()) {
+                const members = [];
+                snapshot.forEach(child => {
+                    const user = child.val();
+                    if (user.uid !== currentUser?.uid) { // Don't show current user
+                        members.push({
+                            uid: child.key,
+                            name: user.name || user.email?.split('@')[0] || 'Ambassador',
+                            badge: calculateBadge(user.stats?.points || 0),
+                            points: user.stats?.points || 0,
+                            posts: user.stats?.posts || 0,
+                            connections: user.stats?.connections || 0,
+                            bio: user.bio || "Passionate about building peace and unity across Afrika.",
+                            country: user.country || "Africa",
+                            interests: user.interests || []
+                        });
+                    }
+                });
+                
+                membersList = members;
+                displayMembers();
+            }
+            
+        } catch (error) {
+            console.error('Error loading members:', error);
+        }
+    }
+
+    // Display members
+    function displayMembers() {
+        const grid = document.getElementById('membersGrid');
+        
+        if (!membersList || membersList.length === 0) {
+            grid.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No other members yet</div>';
+            return;
+        }
+        
+        let html = '';
+        
+        membersList.forEach(member => {
+            const isConnected = connectionsList.some(c => c.connectedId === member.uid);
+            
+            html += `
+                <div class="member-card" onclick="viewMemberProfile('${member.uid}')">
+                    <div class="member-avatar">${member.name.charAt(0).toUpperCase()}</div>
+                    <div class="member-name">${member.name}</div>
+                    <span class="member-badge">${BADGE_NAMES[member.badge]}</span>
+                    
+                    <div class="member-stats">
+                        <div class="member-stat">
+                            <div class="member-stat-number">${member.points}</div>
+                            <div>points</div>
+                        </div>
+                        <div class="member-stat">
+                            <div class="member-stat-number">${member.posts}</div>
+                            <div>posts</div>
+                        </div>
+                        <div class="member-stat">
+                            <div class="member-stat-number">${member.connections}</div>
+                            <div>conn</div>
+                        </div>
+                    </div>
+                    
+                    <div class="member-bio">${member.bio.substring(0, 80)}${member.bio.length > 80 ? '...' : ''}</div>
+                    
+                    <button class="member-connect ${isConnected ? 'connected' : ''}" 
+                            onclick="event.stopPropagation(); ${isConnected ? 'return false;' : `connectWithMember('${member.uid}', '${member.name}')`}">
+                        ${isConnected ? 'Connected ✓' : 'Connect'}
+                    </button>
+                </div>
+            `;
+        });
+        
+        grid.innerHTML = html;
+    }
+
+    // Load circles
+    async function loadCircles() {
+        try {
+            const snapshot = await database.ref('circles').once('value');
+            
+            if (snapshot.exists()) {
+                const circles = [];
+                snapshot.forEach(child => {
+                    circles.push({
+                        id: child.key,
+                        ...child.val()
+                    });
+                });
+                
+                circlesList = circles;
+                displayCircles();
+            } else {
+                // Initialize default circles
+                initializeDefaultCircles();
+            }
+            
+        } catch (error) {
+            console.error('Error loading circles:', error);
+        }
+    }
+
+    // Initialize default circles
+    async function initializeDefaultCircles() {
+        const defaultCircles = [
+            {
+                id: 'elders_circle',
+                title: 'Elders Circle',
+                hostName: 'Baba Jomo',
+                hostId: 'system',
+                description: 'Intergenerational wisdom sharing. Discuss traditional values and their place in modern Africa.',
+                memberCount: 87,
+                nextMeeting: 'Tomorrow 7PM GMT',
+                category: 'wisdom'
+            },
+            {
+                id: 'young_innovators',
+                title: 'Young Innovators',
+                hostName: 'Amara Okafor',
+                hostId: 'system',
+                description: 'Young changemakers discussing innovation, entrepreneurship, and creating impact.',
+                memberCount: 234,
+                nextMeeting: 'Weekly meetups',
+                category: 'innovation'
+            },
+            {
+                id: 'diaspora_connect',
+                title: 'Diaspora Connect',
+                hostName: 'Kwame Asante',
+                hostId: 'system',
+                description: 'For Africans in the diaspora and those interested in connecting across borders.',
+                memberCount: 156,
+                nextMeeting: 'Bi-weekly calls',
+                category: 'diaspora'
+            },
+            {
+                id: 'peace_builders',
+                title: 'Peace Builders',
+                hostName: 'Fatima Diallo',
+                hostId: 'system',
+                description: 'Focusing on conflict resolution, community mediation, and building peaceful societies.',
+                memberCount: 112,
+                nextMeeting: 'Monthly workshops',
+                category: 'peace'
+            }
+        ];
+        
+        for (const circle of defaultCircles) {
+            await database.ref('circles/' + circle.id).set(circle);
+        }
+        
+        loadCircles();
+    }
+
+    // Display circles
+    function displayCircles() {
+        const grid = document.getElementById('circlesGrid');
+        
+        if (!circlesList || circlesList.length === 0) {
+            grid.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No circles yet</div>';
+            return;
+        }
+        
+        let html = '';
+        
+        circlesList.forEach(circle => {
+            html += `
+                <div class="circle-card">
+                    <h3 class="circle-title">${circle.title}</h3>
+                    <div class="circle-host">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Hosted by ${circle.hostName}</span>
+                    </div>
+                    <p class="circle-description">${circle.description}</p>
+                    <div class="circle-meta">
+                        <span><i class="fas fa-users"></i> ${circle.memberCount} members</span>
+                        <span><i class="fas fa-clock"></i> ${circle.nextMeeting}</span>
+                    </div>
+                    <button class="circle-join" onclick="joinCircle('${circle.id}')">Request to Join</button>
+                </div>
+            `;
+        });
+        
+        grid.innerHTML = html;
+    }
+
+    // Join circle
+    async function joinCircle(circleId) {
+        if (!currentUser) {
+            openAuthModal('login');
+            return;
+        }
+        
+        try {
+            // Check if already joined
+            const snapshot = await database.ref('circle_members/' + circleId + '/' + currentUser.uid).once('value');
+            
+            if (snapshot.exists()) {
+                showToast('You are already a member of this circle');
+                return;
+            }
+            
+            // Add to circle
+            await database.ref('circle_members/' + circleId + '/' + currentUser.uid).set({
+                joinedAt: Date.now(),
+                status: 'pending'
+            });
+            
+            // Update member count
+            await database.ref('circles/' + circleId + '/memberCount').transaction(count => (count || 0) + 1);
+            
+            showToast('Request sent to join circle!');
+            
+            if (analytics) {
+                analytics.logEvent('join_circle', { circle: circleId });
+            }
+            
+        } catch (error) {
+            console.error('Error joining circle:', error);
+            showToast('Failed to join circle');
+        }
+    }
+
+    // Load projects
+    async function loadProjects() {
+        try {
+            const snapshot = await database.ref('projects').once('value');
+            
+            if (snapshot.exists()) {
+                const projects = [];
+                snapshot.forEach(child => {
+                    projects.push({
+                        id: child.key,
+                        ...child.val()
+                    });
+                });
+                
+                projectsList = projects;
+                displayProjects();
+                document.getElementById('totalProjects').textContent = projects.length;
+            }
+            
+        } catch (error) {
+            console.error('Error loading projects:', error);
+        }
+    }
+
+    // Display projects
+    function displayProjects() {
+        const grid = document.getElementById('projectsGrid');
+        
+        if (!projectsList || projectsList.length === 0) {
+            grid.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No projects yet</div>';
+            return;
+        }
+        
+        let html = '';
+        
+        projectsList.forEach(project => {
+            const progress = (project.current / project.goal) * 100;
+            
+            html += `
+                <div class="project-card">
+                    <h3 class="circle-title">${project.title}</h3>
+                    <p class="circle-description">${project.description}</p>
+                    
+                    <div class="project-progress">
+                        <div class="project-progress-bar">
+                            <div class="project-progress-fill" style="width: ${progress}%"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.9rem;">
+                            <span>${Math.round(progress)}% complete</span>
+                            <span>${project.current.toLocaleString()}/${project.goal.toLocaleString()}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="project-supporters">
+                        <i class="fas fa-users"></i>
+                        <span>${project.supporters || 0} supporters</span>
+                        <span style="margin-left: auto;"><i class="fas fa-map-marker-alt"></i> ${project.countries?.join(', ') || 'Multiple'}</span>
+                    </div>
+                    
+                    <button class="circle-join" style="margin-top: 1rem;" onclick="supportProject('${project.id}')">
+                        Support This Project
+                    </button>
+                </div>
+            `;
+        });
+        
+        grid.innerHTML = html;
+    }
+
+    // Support project
+    async function supportProject(projectId) {
+        if (!currentUser) {
+            openAuthModal('login');
+            return;
+        }
+        
+        try {
+            // Check if already supporting
+            const snapshot = await database.ref('project_supporters/' + projectId + '/' + currentUser.uid).once('value');
+            
+            if (snapshot.exists()) {
+                showToast('You are already supporting this project');
+                return;
+            }
+            
+            // Add supporter
+            await database.ref('project_supporters/' + projectId + '/' + currentUser.uid).set({
+                supportedAt: Date.now()
+            });
+            
+            // Update supporter count
+            await database.ref('projects/' + projectId + '/supporters').transaction(count => (count || 0) + 1);
+            
+            // Give points
+            const stats = currentUserData?.stats || { points: 0, posts: 0, connections: 0 };
+            stats.points = (stats.points || 0) + 20;
+            await database.ref('users/' + currentUser.uid + '/stats').set(stats);
+            await loadUserData(currentUser.uid);
+            
+            showToast('Thank you for supporting this project! +20 points');
+            
+            if (analytics) {
+                analytics.logEvent('support_project', { project: projectId });
+            }
+            
+        } catch (error) {
+            console.error('Error supporting project:', error);
+            showToast('Failed to support project');
+        }
+    }
+
+    // View member profile
+    async function viewMemberProfile(uid) {
+        try {
+            const snapshot = await database.ref('users/' + uid).once('value');
+            
+            if (!snapshot.exists()) {
+                showToast('User not found');
+                return;
+            }
+            
+            const user = snapshot.val();
+            const badge = calculateBadge(user.stats?.points || 0);
+            
+            // Get user's recent posts
+            const postsSnapshot = await database.ref('feed_posts').orderByChild('userId').equalTo(uid).limitToLast(5).once('value');
+            const userPosts = [];
+            if (postsSnapshot.exists()) {
+                postsSnapshot.forEach(child => {
+                    userPosts.push({
+                        id: child.key,
+                        ...child.val()
+                    });
+                });
+            }
+            
+            const modal = document.getElementById('profileModal');
+            const content = document.getElementById('profileContent');
+            
+            let postsHtml = '';
+            userPosts.sort((a, b) => b.timestamp - a.timestamp).forEach(post => {
+                postsHtml += `
+                    <div class="activity-card">
+                        <div class="activity-header">
+                            <span>Posted</span>
+                            <span>${getTimeAgo(post.timestamp)}</span>
+                        </div>
+                        <div class="activity-content">${post.content}</div>
+                    </div>
+                `;
+            });
+            
+            const isCurrentUser = currentUser && currentUser.uid === uid;
+            const isConnected = connectionsList.some(c => c.connectedId === uid);
+            
+            content.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--gold); margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">
+                        ${user.name ? user.name.charAt(0).toUpperCase() : 'A'}
+                    </div>
+                    <h2 style="color: var(--gold); margin-bottom: 0.5rem;">${user.name || 'Ambassador'}</h2>
+                    <span class="member-badge" style="margin-bottom: 1rem;">${BADGE_NAMES[badge]}</span>
+                    
+                    <div style="display: flex; justify-content: center; gap: 2rem; margin: 1.5rem 0;">
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--gold);">${user.stats?.points || 0}</div>
+                            <div style="color: var(--text-muted);">Points</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--gold);">${user.stats?.posts || 0}</div>
+                            <div style="color: var(--text-muted);">Posts</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--gold);">${user.stats?.connections || 0}</div>
+                            <div style="color: var(--text-muted);">Connections</div>
+                        </div>
+                    </div>
+                    
+                    ${user.country ? `
+                        <div style="margin: 1rem 0; color: var(--text-muted);">
+                            <i class="fas fa-map-marker-alt"></i> ${user.country}
+                        </div>
+                    ` : ''}
+                    
+                    ${user.bio ? `
+                        <div style="text-align: left; margin-top: 2rem;">
+                            <h3 style="color: var(--gold); margin-bottom: 1rem;">About</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">${user.bio}</p>
+                        </div>
+                    ` : ''}
+                    
+                    ${postsHtml ? `
+                        <div style="text-align: left; margin-top: 2rem;">
+                            <h3 style="color: var(--gold); margin-bottom: 1rem;">Recent Activity</h3>
+                            ${postsHtml}
+                        </div>
+                    ` : ''}
+                    
+                    ${!isCurrentUser && currentUser ? `
+                        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                            <button class="member-connect ${isConnected ? 'connected' : ''}" 
+                                    style="flex: 1;" 
+                                    onclick="${isConnected ? 'return false;' : `connectWithMember('${uid}', '${user.name}')`}">
+                                ${isConnected ? 'Connected ✓' : 'Connect'}
+                            </button>
+                            <button class="member-connect" style="flex: 1;" onclick="messageMember('${uid}')">
+                                <i class="fas fa-envelope"></i> Message
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+        } catch (error) {
+            console.error('Error loading profile:', error);
+            showToast('Failed to load profile');
+        }
+    }
+
+    // Close profile modal
+    function closeProfileModal() {
+        document.getElementById('profileModal').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Connect with member
+    async function connectWithMember(uid, name) {
+        if (!currentUser) {
+            openAuthModal('login');
+            return;
+        }
+        
+        try {
+            // Create connection
+            const connectionId = 'conn_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+            
+            await database.ref('connections/' + connectionId).set({
+                userId: currentUser.uid,
+                connectedId: uid,
+                connectedName: name,
+                timestamp: Date.now(),
+                status: 'pending'
+            });
+            
+            // Update connection counts
+            const userStats = currentUserData?.stats || { points: 0, posts: 0, connections: 0 };
+            userStats.connections = (userStats.connections || 0) + 1;
+            userStats.points = (userStats.points || 0) + 5;
+            
+            await database.ref('users/' + currentUser.uid + '/stats').set(userStats);
+            
+            // Update other user's connection count
+            const otherUserSnapshot = await database.ref('users/' + uid + '/stats/connections').once('value');
+            const otherConnections = otherUserSnapshot.val() || 0;
+            await database.ref('users/' + uid + '/stats/connections').set(otherConnections + 1);
+            
+            // Reload data
+            await loadUserData(currentUser.uid);
+            await loadUserConnections(currentUser.uid);
+            
+            // Update UI
+            const connectButtons = document.querySelectorAll('.member-connect');
+            connectButtons.forEach(btn => {
+                if (btn.textContent.includes('Connect')) {
+                    btn.textContent = 'Connected ✓';
+                    btn.classList.add('connected');
+                }
+            });
+            
+            closeProfileModal();
+            showToast(`Connection request sent to ${name}! +5 points`);
+            
+            if (analytics) {
+                analytics.logEvent('connect', { connectedUid: uid });
+            }
+            
+        } catch (error) {
+            console.error('Error connecting:', error);
+            showToast('Failed to send connection request');
+        }
+    }
+
+    // Message member
+    function messageMember(uid) {
+        if (!currentUser) {
+            openAuthModal('login');
+            return;
+        }
+        
+        showToast('Messaging feature coming soon!');
     }
 
     // Add media to post
     function addMedia() {
-        alert('Media upload coming soon!');
-    }
-
-    // Join circle
-    function joinCircle(circleId) {
-        if (!currentUser) {
-            openAuthModal('login');
-            return;
-        }
-        
-        alert('You have joined the circle! You will receive notifications about upcoming meetings.');
-        
-        if (analytics) {
-            analytics.logEvent('join_circle', { circle: circleId });
-        }
-    }
-
-    // Join project
-    function joinProject(projectId) {
-        if (!currentUser) {
-            openAuthModal('login');
-            return;
-        }
-        
-        alert('Thank you for supporting this project! You will receive updates on its progress.');
-        
-        if (analytics) {
-            analytics.logEvent('support_project', { project: projectId });
-        }
-    }
-
-    // Find connections
-    function findConnections() {
-        switchProgramTab('members');
+        showToast('Media upload coming soon!');
     }
 
     // Show post form
@@ -2959,23 +3291,7 @@
         switchProgramTab('feed');
     }
 
-    // Show circles
-    function showCircles() {
-        switchProgramTab('circles');
-    }
-
-    // Switch program tabs
-    function switchProgramTab(tab) {
-        // Update tab buttons
-        document.querySelectorAll('.program-tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(`tab-${tab}`).classList.add('active');
-        
-        // Update tab content
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.getElementById(`${tab}-tab`).classList.add('active');
-    }
-
-    // My profile functions
+    // Show my profile
     function showMyProfile() {
         if (!currentUser) {
             openAuthModal('login');
@@ -2985,24 +3301,82 @@
         toggleUserDropdown();
     }
 
-    function showMyActivity() {
-        alert('Your activity feed coming soon!');
+    // Show my connections
+    function showMyConnections() {
+        if (!currentUser) {
+            openAuthModal('login');
+            return;
+        }
+        showToast('Your connections will appear here');
         toggleUserDropdown();
     }
 
-    function showConnections() {
-        alert('Your connections coming soon!');
+    // Show my circles
+    function showMyCircles() {
+        if (!currentUser) {
+            openAuthModal('login');
+            return;
+        }
+        switchProgramTab('circles');
+        toggleUserDropdown();
+        showToast('Browse circles to join');
+    }
+
+    // Show my projects
+    function showMyProjects() {
+        if (!currentUser) {
+            openAuthModal('login');
+            return;
+        }
+        switchProgramTab('projects');
+        toggleUserDropdown();
+        showToast('Browse projects to support');
+    }
+
+    // Show saved posts
+    async function showSavedPosts() {
+        if (!currentUser) {
+            openAuthModal('login');
+            return;
+        }
+        
+        if (savedPostsList.length === 0) {
+            showToast('You have no saved posts');
+            toggleUserDropdown();
+            return;
+        }
+        
+        // Filter feed to show only saved posts
+        const savedPosts = feedPosts.filter(post => savedPostsList.includes(post.id));
+        
+        if (savedPosts.length > 0) {
+            feedPosts = savedPosts;
+            displayFeed();
+            switchProgramTab('feed');
+        }
+        
         toggleUserDropdown();
     }
 
-    function showSaved() {
-        alert('Your saved items coming soon!');
-        toggleUserDropdown();
-    }
-
+    // Show settings
     function showSettings() {
-        alert('Settings coming soon!');
+        showToast('Settings coming soon!');
         toggleUserDropdown();
+    }
+
+    // Switch program tabs
+    function switchProgramTab(tab) {
+        document.querySelectorAll('.program-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(`${tab}-tab`).classList.add('active');
+        
+        // Refresh data if needed
+        if (tab === 'feed') loadFeed();
+        if (tab === 'members') loadMembers();
+        if (tab === 'circles') loadCircles();
+        if (tab === 'projects') loadProjects();
     }
 
     // Auth functions
@@ -3035,12 +3409,12 @@
         const name = document.getElementById('registerName').value.trim();
         const email = document.getElementById('registerEmail').value.trim();
         const phone = document.getElementById('registerPhone').value.trim();
-        const country = document.getElementById('registerCountry').value.trim();
+        const country = document.getElementById('registerCountry').value;
         const bio = document.getElementById('registerBio').value.trim();
         const password = document.getElementById('registerPassword').value;
         
         if (!name || !email || !phone || !password) {
-            alert('Please fill in all required fields');
+            showToast('Please fill in all required fields');
             return;
         }
         
@@ -3058,11 +3432,10 @@
                 createdAt: new Date().toISOString(),
                 uid: user.uid,
                 stats: {
-                    points: 10, // Starting points
-                    impactUpdates: 0,
-                    daysActive: 1,
-                    badge: 'bronze',
+                    points: 10,
+                    posts: 0,
                     connections: 0,
+                    badge: 'bronze',
                     lastActive: new Date().toISOString()
                 },
                 interests: [],
@@ -3074,13 +3447,15 @@
             await database.ref('users/' + user.uid).set(userData);
             
             closeAuthModal();
+            showToast('Welcome to Afrika Milele! +10 points');
+            
             if (analytics) {
                 analytics.logEvent('sign_up', { method: 'email' });
             }
             
         } catch (error) {
             console.error('Registration error:', error);
-            alert(error.message);
+            showToast(error.message);
         }
     }
 
@@ -3089,22 +3464,24 @@
         const password = document.getElementById('loginPassword').value;
         
         if (!email || !password) {
-            alert('Please enter email and password');
+            showToast('Please enter email and password');
             return;
         }
         
         try {
             await auth.signInWithEmailAndPassword(email, password);
             closeAuthModal();
+            showToast('Welcome back!');
         } catch (error) {
             console.error('Login error:', error);
-            alert(error.message);
+            showToast(error.message);
         }
     }
 
     function logout() {
         auth.signOut();
         toggleUserDropdown();
+        showToast('Logged out successfully');
     }
 
     function toggleUserDropdown() {
@@ -3166,7 +3543,7 @@
         const phone = document.getElementById('songaPhone').value.trim();
         
         if (!name || !email || !phone) {
-            alert('Please fill in all fields to join SonGa and complete your registration');
+            showToast('Please fill in all fields');
             return;
         }
         
@@ -3203,16 +3580,6 @@
             window.open(SONGA_WHATSAPP_LINK, '_blank');
         }, 3000);
     };
-
-    // Track visitor
-    if (database) {
-        const visitorId = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
-        database.ref('visitors/' + visitorId).set({
-            timestamp: new Date().toISOString(),
-            userAgent: navigator.userAgent,
-            page: 'program'
-        }).catch(() => {});
-    }
 
     // PWA install
     let deferredPrompt;
