@@ -990,6 +990,17 @@
             background: rgba(16, 185, 129, 0.3);
         }
 
+        .action-btn.verify {
+            background: rgba(202, 138, 4, 0.2);
+            color: var(--gold);
+            border: 1px solid rgba(202, 138, 4, 0.3);
+            font-weight: 700;
+        }
+
+        .action-btn.verify:hover {
+            background: rgba(202, 138, 4, 0.4);
+        }
+
         .action-btn.ship {
             background: rgba(139, 92, 246, 0.2);
             color: var(--purple);
@@ -1410,6 +1421,25 @@
             color: var(--gold);
         }
 
+        /* Pending Subscribers Section */
+        .pending-highlight {
+            background: rgba(245, 158, 11, 0.15);
+            border-left: 4px solid var(--warning);
+        }
+
+        .verify-btn {
+            background: rgba(202, 138, 4, 0.3);
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+        }
+
+        .verify-btn:hover {
+            background: var(--gold);
+            color: var(--black);
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .sidebar {
@@ -1592,6 +1622,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="pending">
+                        <i class="fas fa-clock nav-icon"></i>
+                        <span>Pending Verifications</span>
+                        <span class="nav-badge" id="pendingCount">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="#" class="nav-link" data-page="analytics">
                         <i class="fas fa-chart-bar nav-icon"></i>
                         <span>Financial Analytics</span>
@@ -1659,7 +1696,7 @@
                         </div>
                     </div>
                     
-                    <div class="stat-card" onclick="showPage('orders')">
+                    <div class="stat-card" onclick="showPage('pending')">
                         <div class="stat-icon">
                             <i class="fas fa-clock"></i>
                         </div>
@@ -1727,32 +1764,38 @@
 
                 <div class="content-section">
                     <div class="section-header">
-                        <h2 class="section-title">Quick Summary</h2>
+                        <h2 class="section-title">Pending Verifications</h2>
                         <div class="section-tools">
-                            <button class="btn btn-sm" onclick="showPage('analytics')">
-                                <i class="fas fa-chart-pie"></i>
-                                View Analytics
+                            <button class="btn btn-sm" onclick="showPage('pending')">
+                                <i class="fas fa-eye"></i>
+                                View All Pending
                             </button>
                         </div>
                     </div>
                     
-                    <div class="summary-grid">
-                        <div class="summary-card">
-                            <div class="summary-value" id="confirmedCount">0</div>
-                            <div class="summary-label">Confirmed</div>
-                        </div>
-                        <div class="summary-card">
-                            <div class="summary-value" id="mpesaCount">0</div>
-                            <div class="summary-label">M-Pesa Payments</div>
-                        </div>
-                        <div class="summary-card">
-                            <div class="summary-value" id="deliveredCount">0</div>
-                            <div class="summary-label">Delivered</div>
-                        </div>
-                        <div class="summary-card">
-                            <div class="summary-value" id="cartOrders">0</div>
-                            <div class="summary-label">Cart Orders</div>
-                        </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentPendingTable">
+                                <!-- Recent pending will be loaded here -->
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                                        <i class="fas fa-clock" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                                        <p>Loading pending verifications...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -1877,8 +1920,8 @@
                             <select id="partnershipPaymentFilter" class="filter-select" onchange="filterPartnerships()">
                                 <option value="all">All Methods</option>
                                 <option value="lipa-na-mpesa">Lipa Na M-Pesa</option>
-                                <option value="bank-transfer">Bank Transfer</option>
-                                <option value="cash">Cash</option>
+                                <option value="safaricom-send-money">Send Money</option>
+                                <option value="paypal">PayPal</option>
                             </select>
                         </div>
                         
@@ -1911,6 +1954,51 @@
                                 <!-- Dynamic content -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Verifications Page -->
+            <div id="pendingPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Pending Verifications</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="loadAllPending()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="verifyAllPending()">
+                                <i class="fas fa-check-double"></i>
+                                Verify All
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label class="filter-label">Source</label>
+                            <select id="pendingSourceFilter" class="filter-select" onchange="filterPending()">
+                                <option value="all">All Sources</option>
+                                <option value="partnership">Partnerships</option>
+                                <option value="subscriber">Subscribers</option>
+                                <option value="pending">Subscribers Pending</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Date Range</label>
+                            <select id="pendingDateFilter" class="filter-select" onchange="filterPending()">
+                                <option value="all">All Time</option>
+                                <option value="today">Today</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="cards-grid" id="pendingCardsGrid">
+                        <!-- Pending cards will be loaded here -->
                     </div>
                 </div>
             </div>
@@ -2020,6 +2108,19 @@
         </div>
     </div>
 
+    <!-- Verification Modal -->
+    <div class="modal-overlay" id="verificationModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="verificationModalTitle">Verify Payment</h3>
+                <button class="modal-close" onclick="hideVerificationModal()">&times;</button>
+            </div>
+            <div id="verificationModalContent">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
     <script>
         // Firebase Configuration
         const firebaseConfig = {
@@ -2051,6 +2152,8 @@
         let currentUser = null;
         let allPartnerships = [];
         let allOrders = [];
+        let allSubscribers = [];
+        let allPendingSubscribers = [];
         let filteredPartnerships = [];
         let filteredOrders = [];
 
@@ -2124,7 +2227,10 @@
                 'M-Pesa': 'payment-mpesa',
                 'Bank Transfer': 'payment-bank',
                 'Cash on Delivery': 'payment-cash',
-                'Card': 'payment-bank'
+                'Card': 'payment-bank',
+                'lipa-na-mpesa': 'payment-mpesa',
+                'safaricom-send-money': 'payment-mpesa',
+                'paypal': 'payment-bank'
             };
             return classes[method] || 'payment-cash';
         }
@@ -2257,15 +2363,18 @@
             try {
                 showLoading("Loading payments data...");
                 
-                // Load partnerships and orders
+                // Load all data sources
                 await Promise.all([
                     loadPartnerships(),
-                    loadOrders()
+                    loadOrders(),
+                    loadSubscribers(),
+                    loadPendingSubscribers()
                 ]);
                 
                 // Update dashboard
                 updateDashboardStats();
                 updateAnalyticsStats();
+                updatePendingCount();
                 
                 hideLoading();
                 showNotification("Data loaded successfully", "success");
@@ -2294,7 +2403,9 @@
                         reason: partner.reason || '',
                         source: partner.source || '',
                         status: partner.status || 'pending',
-                        timestamp: partner.timestamp ? new Date(partner.timestamp) : new Date()
+                        newsletterSubscription: partner.newsletterSubscription || false,
+                        timestamp: partner.timestamp ? new Date(partner.timestamp) : new Date(),
+                        createdAt: partner.createdAt || ''
                     }));
                     
                     // Sort by timestamp (newest first)
@@ -2374,6 +2485,63 @@
             }
         }
 
+        async function loadSubscribers() {
+            try {
+                const snapshot = await database.ref('subscribers').once('value');
+                const data = snapshot.val();
+                
+                allSubscribers = [];
+                
+                if (data) {
+                    Object.entries(data).forEach(([id, subscriber]) => {
+                        allSubscribers.push({
+                            id: id,
+                            email: subscriber.personalInfo?.email || subscriber.email || '',
+                            name: subscriber.personalInfo?.name || subscriber.name || '',
+                            status: subscriber.subscription?.status || 'pending',
+                            tier: subscriber.subscription?.tier || 'monthly',
+                            paymentVerification: subscriber.paymentVerification || {},
+                            timestamp: subscriber.personalInfo?.joinedAt ? new Date(subscriber.personalInfo.joinedAt) : new Date()
+                        });
+                    });
+                }
+                
+                return allSubscribers;
+            } catch (error) {
+                console.error("Error loading subscribers:", error);
+                return [];
+            }
+        }
+
+        async function loadPendingSubscribers() {
+            try {
+                const snapshot = await database.ref('subscribers_pending').once('value');
+                const data = snapshot.val();
+                
+                allPendingSubscribers = [];
+                
+                if (data) {
+                    Object.entries(data).forEach(([id, pending]) => {
+                        allPendingSubscribers.push({
+                            id: id,
+                            email: pending.email || '',
+                            name: pending.name || '',
+                            amount: pending.amount || '0',
+                            paymentMethod: pending.paymentMethod || '',
+                            partnershipId: pending.partnershipId || '',
+                            status: pending.status || 'pending_verification',
+                            timestamp: pending.timestamp ? new Date(pending.timestamp) : new Date()
+                        });
+                    });
+                }
+                
+                return allPendingSubscribers;
+            } catch (error) {
+                console.error("Error loading pending subscribers:", error);
+                return [];
+            }
+        }
+
         function updateDashboardStats() {
             // Total revenue
             let totalRevenue = 0;
@@ -2399,7 +2567,7 @@
             // Total orders
             document.getElementById('totalOrders').textContent = allOrders.length;
             
-            // Pending orders
+            // Pending orders (from all sources)
             const pendingOrders = allOrders.filter(order => order.status === 'pending').length;
             document.getElementById('pendingOrders').textContent = pendingOrders;
             
@@ -2429,6 +2597,9 @@
             
             // Update recent orders table
             updateRecentOrdersTable();
+            
+            // Update recent pending table
+            updateRecentPendingTable();
         }
 
         function updateAnalyticsStats() {
@@ -2510,6 +2681,131 @@
             
             // Update analytics content
             updateAnalyticsContent();
+        }
+
+        function updatePendingCount() {
+            const pendingPartnerships = allPartnerships.filter(p => p.status === 'pending' && p.newsletterSubscription).length;
+            const pendingSubscribers = allSubscribers.filter(s => s.status === 'pending').length;
+            const pendingPending = allPendingSubscribers.length;
+            
+            const totalPending = pendingPartnerships + pendingSubscribers + pendingPending;
+            document.getElementById('pendingCount').textContent = totalPending;
+        }
+
+        function updateRecentPendingTable() {
+            const tableBody = document.getElementById('recentPendingTable');
+            
+            // Combine all pending items
+            const pendingItems = [
+                ...allPartnerships.filter(p => p.status === 'pending' && p.newsletterSubscription).map(p => ({
+                    name: p.fullName,
+                    email: p.email,
+                    amount: p.amount,
+                    type: 'Partnership',
+                    date: p.timestamp,
+                    status: 'pending',
+                    id: p.id,
+                    source: 'partnership',
+                    data: p
+                })),
+                ...allSubscribers.filter(s => s.status === 'pending').map(s => ({
+                    name: s.name,
+                    email: s.email,
+                    amount: s.paymentVerification?.amount || '0',
+                    type: 'Subscriber',
+                    date: s.timestamp,
+                    status: 'pending',
+                    id: s.id,
+                    source: 'subscriber',
+                    data: s
+                })),
+                ...allPendingSubscribers.map(p => ({
+                    name: p.name,
+                    email: p.email,
+                    amount: p.amount,
+                    type: 'Pending Entry',
+                    date: p.timestamp,
+                    status: 'pending_verification',
+                    id: p.id,
+                    source: 'pending',
+                    data: p
+                }))
+            ].sort((a, b) => b.date - a.date).slice(0, 5);
+            
+            if (pendingItems.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-check-circle" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No pending verifications</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tableBody.innerHTML = pendingItems.map(item => `
+                <tr class="pending-highlight">
+                    <td><strong>${item.name || 'N/A'}</strong></td>
+                    <td>${item.email || 'N/A'}</td>
+                    <td class="amount-cell">${formatCurrency(parseFloat(item.amount) || 0)}</td>
+                    <td><span class="type-badge type-partnership">${item.type}</span></td>
+                    <td>${item.date.toLocaleDateString()}</td>
+                    <td><span class="status-badge status-pending">${item.status}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn verify" onclick="showVerificationModal('${item.id}', '${item.source}')">
+                                <i class="fas fa-check-circle"></i>
+                                Verify
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateRecentOrdersTable() {
+            const tableBody = document.getElementById('recentOrdersTable');
+            
+            const recentOrders = allOrders.slice(0, 5);
+            
+            if (recentOrders.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-shopping-cart" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No recent orders found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            recentOrders.forEach(order => {
+                let itemsText = '';
+                if (order.type === 'cart_order' && order.items) {
+                    itemsText = `${order.totalItems || 0} items`;
+                } else {
+                    itemsText = order.productName || 'N/A';
+                }
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${order.fullName || 'N/A'}</strong><br><small style="color: rgba(255, 255, 255, 0.7);">${order.phone || ''}</small></td>
+                    <td><span class="${getOrderTypeClass(order.type)}">${getOrderTypeText(order.type)}</span></td>
+                    <td>${itemsText}</td>
+                    <td class="amount-cell">${order.type === 'cart_order' ? formatCurrency(order.totalAmount || 0) : order.productPrice || 'KSh 0'}</td>
+                    <td>${order.timestamp.toLocaleDateString()}</td>
+                    <td><span class="status-badge status-${order.status || 'pending'}">${order.status || 'pending'}</span></td>
+                    <td>
+                        <button class="action-btn view" onclick="viewOrder('${order.id}')">
+                            <i class="fas fa-eye"></i>
+                            View
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
         }
 
         function updateAnalyticsContent() {
@@ -2629,51 +2925,6 @@
             return html;
         }
 
-        function updateRecentOrdersTable() {
-            const tableBody = document.getElementById('recentOrdersTable');
-            tableBody.innerHTML = '';
-            
-            const recentOrders = allOrders.slice(0, 5);
-            
-            if (recentOrders.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
-                            <i class="fas fa-shopping-cart" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
-                            <p>No recent orders found</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            recentOrders.forEach(order => {
-                let itemsText = '';
-                if (order.type === 'cart_order' && order.items) {
-                    itemsText = `${order.totalItems || 0} items`;
-                } else {
-                    itemsText = order.productName || 'N/A';
-                }
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><strong>${order.fullName || 'N/A'}</strong><br><small style="color: rgba(255, 255, 255, 0.7);">${order.phone || ''}</small></td>
-                    <td><span class="${getOrderTypeClass(order.type)}">${getOrderTypeText(order.type)}</span></td>
-                    <td>${itemsText}</td>
-                    <td class="amount-cell">${order.type === 'cart_order' ? formatCurrency(order.totalAmount || 0) : order.productPrice || 'KSh 0'}</td>
-                    <td>${order.timestamp.toLocaleDateString()}</td>
-                    <td><span class="status-badge status-${order.status || 'pending'}">${order.status || 'pending'}</span></td>
-                    <td>
-                        <button class="action-btn view" onclick="viewOrder('${order.id}')">
-                            <i class="fas fa-eye"></i>
-                            View
-                        </button>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
         // Page Management
         function showPage(pageId) {
             // Hide all pages
@@ -2691,6 +2942,7 @@
                     'dashboard': 'Payments Dashboard',
                     'orders': 'Order Management',
                     'partnerships': 'Partnership Management',
+                    'pending': 'Pending Verifications',
                     'analytics': 'Financial Analytics'
                 };
                 
@@ -2698,6 +2950,7 @@
                     'dashboard': 'Complete Order & Payment Management System',
                     'orders': 'Manage all product orders and payments',
                     'partnerships': 'Manage partnership payments',
+                    'pending': 'Verify pending payments and subscriptions',
                     'analytics': 'Analytics and financial insights'
                 };
                 
@@ -2711,6 +2964,9 @@
                         break;
                     case 'partnerships':
                         updatePartnershipsTable();
+                        break;
+                    case 'pending':
+                        loadPendingCards();
                         break;
                     case 'analytics':
                         updateAnalyticsStats();
@@ -2877,9 +3133,10 @@
             }
             
             filteredPartnerships.forEach(partner => {
-                const paymentClass = partner.paymentMethod === 'lipa-na-mpesa' ? 'payment-mpesa' : 'payment-bank';
-                const paymentText = partner.paymentMethod === 'lipa-na-mpesa' ? 'M-Pesa' : 
-                                  partner.paymentMethod === 'bank-transfer' ? 'Bank Transfer' : 'Cash';
+                const paymentClass = getPaymentClass(partner.paymentMethod);
+                const paymentText = partner.paymentMethod === 'lipa-na-mpesa' ? 'M-Pesa Till' : 
+                                  partner.paymentMethod === 'safaricom-send-money' ? 'Send Money' :
+                                  partner.paymentMethod === 'paypal' ? 'PayPal' : partner.paymentMethod;
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -2889,7 +3146,7 @@
                         <div style="color: rgba(255, 255, 255, 0.7); font-size: 0.875rem;">${partner.phone || ''}</div>
                     </td>
                     <td class="amount-cell">${formatCurrency(parseFloat(partner.amount || 0))}</td>
-                    <td><span class="type-badge type-partnership">${partner.reason === 'content-creation' ? 'Content Creation' : partner.reason === 'event-registration' ? 'Event Registration' : 'General Support'}</span></td>
+                    <td><span class="type-badge type-partnership">${partner.reason || 'General'}</span></td>
                     <td><span class="${paymentClass}">${paymentText}</span></td>
                     <td>
                         <div style="color: var(--white);">${partner.timestamp.toLocaleDateString()}</div>
@@ -2904,9 +3161,10 @@
                             <button class="action-btn edit" onclick="editPartnership('${partner.id}')">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            ${partner.status === 'pending' ? `
-                            <button class="action-btn approve" onclick="updatePartnershipStatus('${partner.id}', 'confirmed')">
-                                <i class="fas fa-check"></i>
+                            ${partner.status === 'pending' && partner.newsletterSubscription ? `
+                            <button class="action-btn verify" onclick="showVerificationModal('${partner.id}', 'partnership')">
+                                <i class="fas fa-check-circle"></i>
+                                Verify
                             </button>
                             ` : ''}
                         </div>
@@ -2943,7 +3201,384 @@
             updatePartnershipsTable();
         }
 
+        // Pending Verifications Functions
+        async function loadPendingCards() {
+            const grid = document.getElementById('pendingCardsGrid');
+            
+            // Combine all pending items
+            const pendingItems = [
+                ...allPartnerships.filter(p => p.status === 'pending' && p.newsletterSubscription).map(p => ({
+                    id: p.id,
+                    source: 'partnership',
+                    name: p.fullName,
+                    email: p.email,
+                    amount: p.amount,
+                    paymentMethod: p.paymentMethod,
+                    date: p.timestamp,
+                    reason: p.reason,
+                    data: p
+                })),
+                ...allSubscribers.filter(s => s.status === 'pending').map(s => ({
+                    id: s.id,
+                    source: 'subscriber',
+                    name: s.name,
+                    email: s.email,
+                    amount: s.paymentVerification?.amount || '0',
+                    paymentMethod: s.paymentVerification?.paymentMethod || 'Unknown',
+                    date: s.timestamp,
+                    reason: 'Subscription',
+                    data: s
+                })),
+                ...allPendingSubscribers.map(p => ({
+                    id: p.id,
+                    source: 'pending',
+                    name: p.name,
+                    email: p.email,
+                    amount: p.amount,
+                    paymentMethod: p.paymentMethod,
+                    date: p.timestamp,
+                    reason: 'Pending Entry',
+                    data: p
+                }))
+            ].sort((a, b) => b.date - a.date);
+            
+            if (pendingItems.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3 class="empty-state-title">No Pending Verifications</h3>
+                        <p class="empty-state-text">All payments have been verified. Great job!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = pendingItems.map(item => `
+                <div class="payment-card pending-highlight">
+                    <div class="payment-card-header">
+                        <h3 class="payment-card-title">${item.name || 'Unknown'}</h3>
+                        <span class="payment-card-badge">${item.source}</span>
+                    </div>
+                    <div class="payment-card-meta">
+                        <div class="payment-card-meta-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>${item.email || 'No email'}</span>
+                        </div>
+                        <div class="payment-card-meta-item">
+                            <i class="fas fa-tag"></i>
+                            <span>${item.reason || 'General'}</span>
+                        </div>
+                        <div class="payment-card-meta-item">
+                            <i class="fas fa-credit-card"></i>
+                            <span class="${getPaymentClass(item.paymentMethod)}">${item.paymentMethod || 'Unknown'}</span>
+                        </div>
+                        <div class="payment-card-meta-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>${item.date.toLocaleDateString()} ${item.date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        </div>
+                    </div>
+                    <div class="amount-display">${formatCurrency(parseFloat(item.amount) || 0)}</div>
+                    <div class="payment-card-footer">
+                        <span class="status-badge status-pending">Pending</span>
+                        <div class="action-buttons">
+                            <button class="action-btn view" onclick="viewPendingDetails('${item.id}', '${item.source}')">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="action-btn verify" onclick="showVerificationModal('${item.id}', '${item.source}')">
+                                <i class="fas fa-check-circle"></i> Verify Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterPending() {
+            const sourceFilter = document.getElementById('pendingSourceFilter').value;
+            const dateFilter = document.getElementById('pendingDateFilter').value;
+            
+            // Reload cards with filters (simplified - just reload all for now)
+            loadPendingCards();
+        }
+
+        function viewPendingDetails(id, source) {
+            let item = null;
+            
+            if (source === 'partnership') {
+                item = allPartnerships.find(p => p.id === id);
+                if (item) viewPartnership(id);
+            } else if (source === 'subscriber') {
+                item = allSubscribers.find(s => s.id === id);
+                if (item) {
+                    showNotification(`Subscriber: ${item.name}`, 'info');
+                }
+            } else if (source === 'pending') {
+                item = allPendingSubscribers.find(p => p.id === id);
+                if (item) {
+                    showNotification(`Pending: ${item.name}`, 'info');
+                }
+            }
+        }
+
+        // CRITICAL: Verification Function - Updates ALL necessary nodes
+        async function verifyPayment(id, source, options = {}) {
+            showLoading("Verifying payment and activating subscription...");
+            
+            try {
+                let email = '';
+                let name = '';
+                let amount = 0;
+                let paymentMethod = '';
+                let partnershipId = null;
+                
+                // Get data based on source
+                if (source === 'partnership') {
+                    const partnership = allPartnerships.find(p => p.id === id);
+                    if (!partnership) throw new Error('Partnership not found');
+                    
+                    email = partnership.email;
+                    name = partnership.fullName;
+                    amount = parseFloat(partnership.amount) || 0;
+                    paymentMethod = partnership.paymentMethod;
+                    partnershipId = id;
+                    
+                    // 1. Update partnership status
+                    await database.ref(`partnerships/${id}`).update({
+                        status: 'confirmed',
+                        verifiedAt: firebase.database.ServerValue.TIMESTAMP,
+                        verifiedBy: currentUser?.email || 'admin'
+                    });
+                    
+                } else if (source === 'subscriber') {
+                    const subscriber = allSubscribers.find(s => s.id === id);
+                    if (!subscriber) throw new Error('Subscriber not found');
+                    
+                    email = subscriber.email;
+                    name = subscriber.name;
+                    amount = parseFloat(subscriber.paymentVerification?.amount) || 100;
+                    paymentMethod = subscriber.paymentVerification?.paymentMethod || 'M-Pesa';
+                    
+                } else if (source === 'pending') {
+                    const pending = allPendingSubscribers.find(p => p.id === id);
+                    if (!pending) throw new Error('Pending record not found');
+                    
+                    email = pending.email;
+                    name = pending.name;
+                    amount = parseFloat(pending.amount) || 0;
+                    paymentMethod = pending.paymentMethod;
+                    partnershipId = pending.partnershipId;
+                    
+                    // If this is linked to a partnership, update that too
+                    if (partnershipId) {
+                        await database.ref(`partnerships/${partnershipId}`).update({
+                            status: 'confirmed',
+                            verifiedAt: firebase.database.ServerValue.TIMESTAMP
+                        });
+                    }
+                    
+                    // 1. Remove from subscribers_pending
+                    await database.ref(`subscribers_pending/${id}`).remove();
+                }
+                
+                if (!email) throw new Error('No email found for verification');
+                
+                // 2. Generate unique IDs
+                const subscriberId = 'sub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+                const subscriptionId = 'sub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+                
+                const now = new Date();
+                const expiryDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
+                
+                // 3. Create/Update in subscribers node
+                await database.ref(`subscribers/${subscriberId}`).set({
+                    personalInfo: {
+                        email: email,
+                        name: name || email.split('@')[0],
+                        joinedAt: firebase.database.ServerValue.TIMESTAMP
+                    },
+                    subscription: {
+                        status: 'active',
+                        tier: 'monthly',
+                        startDate: now.toISOString(),
+                        expires: expiryDate.toISOString()
+                    },
+                    paymentVerification: {
+                        status: 'verified',
+                        amount: amount,
+                        paymentMethod: paymentMethod,
+                        partnershipId: partnershipId,
+                        verifiedAt: firebase.database.ServerValue.TIMESTAMP,
+                        verifiedBy: currentUser?.email || 'admin'
+                    },
+                    verified: true
+                });
+                
+                // 4. Create in subscriptions node
+                await database.ref(`subscriptions/${subscriptionId}`).set({
+                    email: email,
+                    status: 'active',
+                    tier: 'monthly',
+                    amount: amount,
+                    currency: 'KSh',
+                    startDate: now.toISOString(),
+                    currentPeriodEnd: expiryDate.toISOString(),
+                    autoRenew: true,
+                    source: source,
+                    partnershipId: partnershipId
+                });
+                
+                // 5. Find and update any readers record
+                const readersSnapshot = await database.ref('readers')
+                    .orderByChild('email')
+                    .equalTo(email)
+                    .once('value');
+                
+                const readerUpdates = [];
+                readersSnapshot.forEach((child) => {
+                    readerUpdates.push(
+                        child.ref.update({
+                            'subscription/status': 'active',
+                            'subscription/tier': 'monthly',
+                            'subscription/startDate': now.toISOString(),
+                            'subscription/expires': expiryDate.toISOString()
+                        })
+                    );
+                });
+                
+                await Promise.all(readerUpdates);
+                
+                // 6. If this was from a subscriber record that existed, remove/update it
+                if (source === 'subscriber' && id) {
+                    try {
+                        await database.ref(`subscribers/${id}`).update({
+                            'subscription/status': 'active',
+                            verified: true
+                        });
+                    } catch (e) {
+                        console.log('Subscriber record might not exist in that format');
+                    }
+                }
+                
+                // 7. Check for any pending partnerships with this email and mark them verified
+                const pendingPartnerships = allPartnerships.filter(p => 
+                    p.email === email && p.status === 'pending' && p.id !== partnershipId
+                );
+                
+                for (const p of pendingPartnerships) {
+                    await database.ref(`partnerships/${p.id}`).update({
+                        status: 'confirmed',
+                        verifiedAt: firebase.database.ServerValue.TIMESTAMP,
+                        notes: 'Auto-verified during another payment verification'
+                    });
+                }
+                
+                // Reload all data
+                await loadInitialData();
+                
+                // Update UI based on current page
+                if (document.getElementById('pendingPage').style.display !== 'none') {
+                    await loadPendingCards();
+                }
+                if (document.getElementById('partnershipsPage').style.display !== 'none') {
+                    updatePartnershipsTable();
+                }
+                if (document.getElementById('dashboardPage').style.display !== 'none') {
+                    updateDashboardStats();
+                }
+                
+                hideVerificationModal();
+                hideLoading();
+                
+                showNotification(`✅ Payment verified! Subscription activated for ${email}`, 'success');
+                
+                // Optional: Send email notification (would need backend)
+                console.log(`Subscription activated for:`, { email, name, amount, expiryDate });
+                
+            } catch (error) {
+                console.error('Error verifying payment:', error);
+                hideLoading();
+                showNotification(`Verification failed: ${error.message}`, 'error');
+            }
+        }
+
         // Modal Functions
+        function showVerificationModal(id, source) {
+            let item = null;
+            let details = '';
+            
+            if (source === 'partnership') {
+                item = allPartnerships.find(p => p.id === id);
+                if (!item) return;
+                
+                details = `
+                    <div style="background: rgba(202, 138, 4, 0.1); padding: 1.5rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem;">
+                        <h4 style="color: var(--gold); margin-bottom: 1rem;">Partnership Details</h4>
+                        <p><strong>Name:</strong> ${item.fullName}</p>
+                        <p><strong>Email:</strong> ${item.email}</p>
+                        <p><strong>Phone:</strong> ${item.phone || 'N/A'}</p>
+                        <p><strong>Amount:</strong> ${formatCurrency(parseFloat(item.amount) || 0)}</p>
+                        <p><strong>Payment Method:</strong> ${item.paymentMethod}</p>
+                        <p><strong>Reason:</strong> ${item.reason}</p>
+                        <p><strong>Date:</strong> ${item.timestamp.toLocaleString()}</p>
+                        <p><strong>Newsletter Subscription:</strong> ${item.newsletterSubscription ? '✅ Yes' : '❌ No'}</p>
+                    </div>
+                `;
+            } else if (source === 'pending') {
+                item = allPendingSubscribers.find(p => p.id === id);
+                if (!item) return;
+                
+                details = `
+                    <div style="background: rgba(202, 138, 4, 0.1); padding: 1.5rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem;">
+                        <h4 style="color: var(--gold); margin-bottom: 1rem;">Pending Subscription</h4>
+                        <p><strong>Name:</strong> ${item.name}</p>
+                        <p><strong>Email:</strong> ${item.email}</p>
+                        <p><strong>Amount:</strong> ${formatCurrency(parseFloat(item.amount) || 0)}</p>
+                        <p><strong>Payment Method:</strong> ${item.paymentMethod}</p>
+                        <p><strong>Partnership ID:</strong> ${item.partnershipId || 'N/A'}</p>
+                        <p><strong>Date:</strong> ${item.timestamp.toLocaleString()}</p>
+                    </div>
+                `;
+            } else {
+                return;
+            }
+            
+            const modalContent = document.getElementById('verificationModalContent');
+            modalContent.innerHTML = `
+                ${details}
+                <div style="background: var(--success-light); padding: 1rem; border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+                    <p style="color: var(--success); margin: 0;">
+                        <i class="fas fa-info-circle"></i> 
+                        <strong>Verification will:</strong>
+                    </p>
+                    <ul style="margin-top: 0.5rem; margin-left: 1.5rem; color: var(--success);">
+                        <li>Update partnership status to "confirmed"</li>
+                        <li>Create active subscriber record</li>
+                        <li>Create subscription record with 30-day expiry</li>
+                        <li>Update reader profile (if exists)</li>
+                        <li>Remove from pending queue</li>
+                    </ul>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-outline" onclick="hideVerificationModal()">
+                        Cancel
+                    </button>
+                    <button class="btn" onclick="verifyPayment('${id}', '${source}')">
+                        <i class="fas fa-check-circle"></i>
+                        Confirm Verification
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('verificationModalTitle').textContent = `Verify Payment - ${item.name}`;
+            document.getElementById('verificationModal').classList.add('active');
+        }
+
+        function hideVerificationModal() {
+            document.getElementById('verificationModal').classList.remove('active');
+        }
+
         function hideModal() {
             document.getElementById('orderModal').classList.remove('active');
         }
@@ -3200,11 +3835,10 @@
                 return;
             }
             
-            const reasonText = partner.reason === 'content-creation' ? 'Content Creation' :
-                             partner.reason === 'event-registration' ? 'Event Registration' : 'General Support';
-            
+            const reasonText = partner.reason || 'General';
             const paymentText = partner.paymentMethod === 'lipa-na-mpesa' ? 'Lipa Na M-Pesa' : 
-                              partner.paymentMethod === 'bank-transfer' ? 'Bank Transfer' : 'Cash';
+                              partner.paymentMethod === 'safaricom-send-money' ? 'Send Money' :
+                              partner.paymentMethod === 'paypal' ? 'PayPal' : partner.paymentMethod;
             
             const sourceText = partner.source === 'partnership-page' ? 'Partnership Page' : 'Other';
             
@@ -3216,6 +3850,8 @@
                             <div class="amount-display" style="font-size: 2rem;">${formatCurrency(parseFloat(partner.amount || 0))}</div>
                             <div style="margin-top: 0.5rem;">
                                 <span class="status-badge status-${partner.status}">${partner.status}</span>
+                                ${partner.newsletterSubscription ? 
+                                    '<span class="status-badge status-active" style="margin-left: 0.5rem;">📰 Newsletter</span>' : ''}
                             </div>
                         </div>
                         
@@ -3223,7 +3859,7 @@
                             <div><strong>Full Name:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${partner.fullName || 'N/A'}</span></div>
                             <div><strong>Email:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${partner.email || 'N/A'}</span></div>
                             <div><strong>Phone:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${partner.phone || 'N/A'}</span></div>
-                            <div><strong>Payment Method:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${paymentText}</span></div>
+                            <div><strong>Payment Method:</strong><br><span class="${getPaymentClass(partner.paymentMethod)}">${paymentText}</span></div>
                             <div><strong>Reason:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${reasonText}</span></div>
                             <div><strong>Source:</strong><br><span style="color: rgba(255, 255, 255, 0.9);">${sourceText}</span></div>
                         </div>
@@ -3244,7 +3880,13 @@
                         <i class="fas fa-edit"></i>
                         Edit Partnership
                     </button>
-                    <button type="button" class="btn" onclick="hidePartnershipModal()">
+                    ${partner.status === 'pending' && partner.newsletterSubscription ? `
+                    <button type="button" class="btn" onclick="showVerificationModal('${partner.id}', 'partnership')">
+                        <i class="fas fa-check-circle"></i>
+                        Verify Payment
+                    </button>
+                    ` : ''}
+                    <button type="button" class="btn btn-outline" onclick="hidePartnershipModal()">
                         Close
                     </button>
                 </div>
@@ -3282,8 +3924,8 @@
                             <label class="form-label">Payment Method</label>
                             <select class="form-input" name="paymentMethod" required>
                                 <option value="lipa-na-mpesa" ${partner.paymentMethod === 'lipa-na-mpesa' ? 'selected' : ''}>Lipa Na M-Pesa</option>
-                                <option value="bank-transfer" ${partner.paymentMethod === 'bank-transfer' ? 'selected' : ''}>Bank Transfer</option>
-                                <option value="cash" ${partner.paymentMethod === 'cash' ? 'selected' : ''}>Cash</option>
+                                <option value="safaricom-send-money" ${partner.paymentMethod === 'safaricom-send-money' ? 'selected' : ''}>Send Money</option>
+                                <option value="paypal" ${partner.paymentMethod === 'paypal' ? 'selected' : ''}>PayPal</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -3371,34 +4013,6 @@
             }
         }
 
-        async function updatePartnershipStatus(partnershipId, status) {
-            showLoading(`Updating partnership status to ${status}...`);
-            
-            try {
-                await database.ref(`partnerships/${partnershipId}/status`).set(status);
-                
-                // Reload data
-                await loadPartnerships();
-                
-                // Update current view
-                if (document.getElementById('partnershipsPage').style.display !== 'none') {
-                    updatePartnershipsTable();
-                }
-                if (document.getElementById('dashboardPage').style.display !== 'none') {
-                    updateDashboardStats();
-                    updateAnalyticsStats();
-                }
-                
-                hideLoading();
-                showNotification(`Partnership status updated to ${status} successfully!`, "success");
-                
-            } catch (error) {
-                console.error("Error updating partnership status:", error);
-                hideLoading();
-                showNotification("Failed to update partnership status: " + error.message, "error");
-            }
-        }
-
         // Manual Entry Functions
         function addManualPartnership() {
             const form = `
@@ -3424,8 +4038,8 @@
                             <label class="form-label">Payment Method</label>
                             <select class="form-input" name="paymentMethod" required>
                                 <option value="lipa-na-mpesa">Lipa Na M-Pesa</option>
-                                <option value="bank-transfer">Bank Transfer</option>
-                                <option value="cash">Cash</option>
+                                <option value="safaricom-send-money">Send Money</option>
+                                <option value="paypal">PayPal</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -3437,19 +4051,17 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Status</label>
-                            <select class="form-input" name="status" required>
-                                <option value="pending">Pending</option>
-                                <option value="confirmed" selected>Confirmed</option>
-                                <option value="completed">Completed</option>
+                            <label class="form-label">Newsletter Subscription</label>
+                            <select class="form-input" name="newsletterSubscription" required>
+                                <option value="true">Yes - Include Newsletter</option>
+                                <option value="false">No - Just Partnership</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Source</label>
-                            <select class="form-input" name="source" required>
-                                <option value="manual-entry" selected>Manual Entry</option>
-                                <option value="direct">Direct</option>
-                                <option value="other">Other</option>
+                            <label class="form-label">Status</label>
+                            <select class="form-input" name="status" required>
+                                <option value="confirmed" selected>Confirmed (Instant)</option>
+                                <option value="pending">Pending</option>
                             </select>
                         </div>
                     </div>
@@ -3474,6 +4086,9 @@
             try {
                 const form = e.target;
                 const formData = new FormData(form);
+                const newsletterSubscription = formData.get('newsletterSubscription') === 'true';
+                const status = formData.get('status');
+                
                 const partnerData = {
                     fullName: formData.get('fullName'),
                     email: formData.get('email'),
@@ -3481,15 +4096,22 @@
                     amount: formData.get('amount'),
                     paymentMethod: formData.get('paymentMethod'),
                     reason: formData.get('reason'),
-                    status: formData.get('status'),
-                    source: formData.get('source'),
-                    timestamp: new Date().toISOString()
+                    status: status,
+                    source: 'manual-entry',
+                    newsletterSubscription: newsletterSubscription,
+                    timestamp: new Date().toISOString(),
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
                 };
                 
-                const partnerId = 'partner_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                await database.ref(`partnerships/${partnerId}`).set(partnerData);
+                const partnershipId = 'partner_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                await database.ref(`partnerships/${partnershipId}`).set(partnerData);
                 
-                await loadPartnerships();
+                // If status is confirmed and newsletter subscription, auto-verify
+                if (status === 'confirmed' && newsletterSubscription) {
+                    await verifyPayment(partnershipId, 'partnership');
+                } else {
+                    await loadPartnerships();
+                }
                 
                 hidePartnershipModal();
                 hideLoading();
@@ -3504,17 +4126,64 @@
             }
         }
 
+        // Verify All Pending
+        async function verifyAllPending() {
+            if (!confirm('Are you sure you want to verify ALL pending items? This will activate all subscriptions.')) {
+                return;
+            }
+            
+            showLoading("Verifying all pending items...");
+            
+            try {
+                const pendingPartnerships = allPartnerships.filter(p => p.status === 'pending' && p.newsletterSubscription);
+                const pendingSubscribers = allPendingSubscribers;
+                
+                let verifiedCount = 0;
+                
+                // Verify each partnership
+                for (const partnership of pendingPartnerships) {
+                    await verifyPayment(partnership.id, 'partnership');
+                    verifiedCount++;
+                }
+                
+                // Verify each pending subscriber
+                for (const pending of pendingSubscribers) {
+                    await verifyPayment(pending.id, 'pending');
+                    verifiedCount++;
+                }
+                
+                // Reload all data
+                await loadInitialData();
+                
+                // Update UI
+                if (document.getElementById('pendingPage').style.display !== 'none') {
+                    await loadPendingCards();
+                }
+                
+                hideLoading();
+                showNotification(`✅ Verified ${verifiedCount} items successfully!`, 'success');
+                
+            } catch (error) {
+                console.error('Error verifying all:', error);
+                hideLoading();
+                showNotification('Error verifying all items', 'error');
+            }
+        }
+
         // Utility Functions
         async function refreshAllData() {
             showLoading("Refreshing all data...");
             await Promise.all([
                 loadPartnerships(),
-                loadOrders()
+                loadOrders(),
+                loadSubscribers(),
+                loadPendingSubscribers()
             ]);
             
             // Update all views
             updateDashboardStats();
             updateAnalyticsStats();
+            updatePendingCount();
             
             if (document.getElementById('ordersPage').style.display !== 'none') {
                 updateOrdersTable();
@@ -3522,8 +4191,12 @@
             if (document.getElementById('partnershipsPage').style.display !== 'none') {
                 updatePartnershipsTable();
             }
+            if (document.getElementById('pendingPage').style.display !== 'none') {
+                await loadPendingCards();
+            }
             if (document.getElementById('dashboardPage').style.display !== 'none') {
                 updateRecentOrdersTable();
+                updateRecentPendingTable();
             }
             
             hideLoading();
@@ -3630,6 +4303,14 @@
                         </div>
                     </div>
                     
+                    <div style="margin-top: 1.5rem;">
+                        <h5 style="margin-bottom: 0.5rem; color: var(--white);">Active Subscribers</h5>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <span class="status-badge status-active">Active: ${allSubscribers.filter(s => s.status === 'active').length}</span>
+                            <span class="status-badge status-pending">Pending: ${allSubscribers.filter(s => s.status === 'pending').length + allPendingSubscribers.length}</span>
+                        </div>
+                    </div>
+                    
                     <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
                         <small style="color: rgba(255, 255, 255, 0.7);">Report generated on ${new Date().toLocaleString()}</small>
                     </div>
@@ -3687,11 +4368,18 @@
                 }
             });
             
+            document.getElementById('verificationModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('verificationModal')) {
+                    hideVerificationModal();
+                }
+            });
+            
             // Close modal on ESC
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     hideModal();
                     hidePartnershipModal();
+                    hideVerificationModal();
                 }
             });
         }
@@ -3709,18 +4397,24 @@
         window.showPage = showPage;
         window.hideModal = hideModal;
         window.hidePartnershipModal = hidePartnershipModal;
+        window.hideVerificationModal = hideVerificationModal;
         window.refreshAllData = refreshAllData;
         window.exportOrders = exportOrders;
         window.generateReport = generateReport;
         window.filterOrders = filterOrders;
         window.filterPartnerships = filterPartnerships;
+        window.filterPending = filterPending;
         window.viewOrder = viewOrder;
         window.editOrder = editOrder;
         window.viewPartnership = viewPartnership;
         window.editPartnership = editPartnership;
         window.updateOrderStatus = updateOrderStatus;
-        window.updatePartnershipStatus = updatePartnershipStatus;
         window.addManualPartnership = addManualPartnership;
+        window.showVerificationModal = showVerificationModal;
+        window.verifyPayment = verifyPayment;
+        window.verifyAllPending = verifyAllPending;
+        window.viewPendingDetails = viewPendingDetails;
+        window.loadPendingCards = loadPendingCards;
     </script>
 </body>
 </html>
