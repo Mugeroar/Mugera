@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#ca8a04" id="themeColor">
     <meta name="background-color" content="#0a0a0a" id="bgColorMeta">
@@ -15,15 +16,14 @@
     <meta name="msapplication-TileColor" content="#ca8a04">
     
     <!-- Version & Build -->
-    <meta name="version" content="6.0.0">
+    <meta name="version" content="7.0.0">
     <meta name="build-date" content="2025-02-27">
     
     <title>Afrika Milele | Unity Program</title>
+    
+    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
-    
-    <!-- PWA manifest -->
-    <link rel="manifest" href="/manifest.json">
     
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -37,13 +37,16 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
             --gold: #ca8a04;
             --gold-dark: #a16207;
             --gold-light: #fef3c7;
-            --gold-gradient: linear-gradient(135deg, #f5e7c8, #ca8a04, #f5e7c8);
             --whatsapp: #25D366;
             --sonGa: #d4a017;
             --online: #4CAF50;
@@ -71,6 +74,7 @@
             --glass-bg: rgba(30,30,30,0.8);
             --message-out: #ca8a04;
             --message-in: #2a2a2a;
+            --bottom-nav-bg: rgba(26, 26, 26, 0.9);
         }
 
         body.light-theme {
@@ -87,6 +91,7 @@
             --glass-bg: rgba(255,255,255,0.8);
             --message-out: #ca8a04;
             --message-in: #f0f0f0;
+            --bottom-nav-bg: rgba(255, 255, 255, 0.9);
         }
 
         body {
@@ -97,26 +102,31 @@
             overflow-x: hidden;
             transition: background-color 0.3s, color 0.2s;
             scroll-behavior: smooth;
+            padding-bottom: 70px; /* Space for bottom nav */
         }
-        
+
         /* Loading overlay */
         .loading-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: #0a0a0a;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 10000;
-            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
+            transition: opacity 0.6s, visibility 0.6s;
             padding: 1.5rem;
         }
+
         .loading-overlay.hidden {
             opacity: 0;
             visibility: hidden;
         }
-        
+
         .hero-image {
             max-width: min(85%, 700px);
             max-height: 45vh;
@@ -127,20 +137,18 @@
             object-fit: cover;
             animation: float 6s ease-in-out infinite;
         }
-        
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-        
-        .afrika-milele-container {
-            text-align: center;
-            margin-top: 1rem;
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
-        
+
         .afrika-milele {
             font-family: 'Cinzel', serif;
             font-size: clamp(2.5rem, 8vw, 4.5rem);
             font-weight: 800;
             letter-spacing: 6px;
-            background: var(--gold-gradient);
+            background: linear-gradient(135deg, #f5e7c8, #ca8a04, #f5e7c8);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -151,24 +159,34 @@
             overflow: hidden;
             animation: blink 0.8s step-end infinite;
         }
-        
-        @keyframes blink { 50% { border-color: transparent; } }
-        
-        .page-content { opacity: 0; transition: opacity 0.8s ease; min-height: 100vh; }
-        .page-content.visible { opacity: 1; }
-        
+
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+
+        .page-content {
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            min-height: 100vh;
+        }
+
+        .page-content.visible {
+            opacity: 1;
+        }
+
         /* Header */
         .site-header {
             position: fixed;
-            top: 0; width: 100%;
+            top: 0;
+            width: 100%;
             background: var(--nav-bg);
             backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(202,138,4,0.3);
             z-index: 1000;
-            padding: 0.5rem 2rem;
+            padding: 0.5rem 1rem;
             transition: 0.3s;
         }
-        
+
         .header-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -176,24 +194,39 @@
             align-items: center;
             justify-content: space-between;
         }
-        
+
         .site-logo {
             height: 48px;
             width: auto;
             border-radius: 12px;
             transition: transform 0.3s;
         }
-        
-        .site-logo:hover { transform: scale(1.05); }
-        
+
+        .site-logo:hover {
+            transform: scale(1.05);
+        }
+
         .header-right {
             display: flex;
             align-items: center;
-            gap: 1.2rem;
+            gap: 0.8rem;
         }
-        
-        /* Message Button with Badge */
-        .message-btn {
+
+        /* Desktop Menu */
+        .desktop-menu {
+            display: none;
+        }
+
+        @media (min-width: 769px) {
+            .desktop-menu {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+        }
+
+        /* Hamburger Menu Button */
+        .hamburger-btn {
             background: transparent;
             border: 2px solid var(--gold);
             color: var(--gold);
@@ -206,608 +239,385 @@
             cursor: pointer;
             font-size: 1.2rem;
             transition: 0.3s;
-            position: relative;
         }
-        
-        .message-btn:hover {
-            background: var(--gold);
-            color: var(--bg-primary);
-            transform: scale(1.1);
-        }
-        
-        .message-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #ff4444;
-            color: white;
-            font-size: 0.7rem;
-            font-weight: 600;
-            min-width: 18px;
-            height: 18px;
-            border-radius: 9px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 4px;
-        }
-        
-        /* Auth Buttons */
-        .auth-buttons {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        
-        .btn-auth {
-            padding: 0.5rem 1.2rem;
-            border: 2px solid var(--gold);
-            background: transparent;
-            color: var(--gold);
-            border-radius: 30px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 0.9rem;
-        }
-        
-        .btn-auth:hover {
+
+        .hamburger-btn:hover {
             background: var(--gold);
             color: var(--bg-primary);
         }
-        
-        .btn-auth.primary {
-            background: var(--gold);
-            color: var(--bg-primary);
+
+        @media (min-width: 769px) {
+            .hamburger-btn {
+                display: none;
+            }
         }
-        
-        .btn-auth.primary:hover {
-            background: transparent;
-            color: var(--gold);
+
+        /* Side Menu */
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-left: 2px solid var(--gold);
+            z-index: 2000;
+            transition: right 0.3s ease;
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
         }
-        
-        /* User Menu */
-        .user-menu {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .user-menu-btn {
-            background: var(--gold);
-            color: var(--bg-primary);
-            border: none;
-            border-radius: 30px;
-            padding: 0.5rem 1.2rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-        
-        .user-menu-btn i {
-            font-size: 1rem;
-        }
-        
-        .user-badge-indicator {
-            background: var(--bg-primary);
-            color: var(--gold);
-            border-radius: 20px;
-            padding: 0.2rem 0.6rem;
-            font-size: 0.7rem;
-            margin-left: 0.3rem;
-        }
-        
-        .user-dropdown {
-            position: absolute;
-            top: 45px;
+
+        .side-menu.active {
             right: 0;
-            background: var(--card-bg);
-            border: 2px solid var(--gold);
-            border-radius: 20px;
-            min-width: 220px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            display: none;
-            z-index: 1001;
-            overflow: hidden;
         }
-        
-        .user-dropdown.active {
-            display: block;
+
+        .side-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
         }
-        
-        .user-dropdown a, .user-dropdown button {
+
+        .side-menu-header h3 {
+            color: var(--gold);
+            font-size: 1.5rem;
+        }
+
+        .close-menu {
+            background: none;
+            border: none;
+            color: var(--gold);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .side-menu-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            text-decoration: none;
+            gap: 1rem;
+            padding: 1rem;
             color: var(--text-primary);
-            width: 100%;
-            border: none;
-            background: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-            text-align: left;
+            text-decoration: none;
+            border-radius: 12px;
             transition: 0.2s;
+            margin-bottom: 0.5rem;
         }
-        
-        .user-dropdown a:hover, .user-dropdown button:hover {
+
+        .side-menu-item:hover {
             background: rgba(202,138,4,0.1);
         }
-        
-        .unread-badge {
-            background: var(--gold);
-            color: var(--bg-primary);
-            border-radius: 12px;
-            padding: 0.2rem 0.6rem;
-            font-size: 0.7rem;
-            margin-left: auto;
-        }
-        
-        .theme-toggle {
-            background: transparent;
-            border: 2px solid var(--gold);
+
+        .side-menu-item i {
+            width: 24px;
             color: var(--gold);
-            width: 45px; height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.4rem;
-            transition: 0.3s;
         }
-        
-        .theme-toggle:hover {
-            background: var(--gold);
-            color: var(--bg-primary);
-            transform: rotate(15deg) scale(1.1);
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1999;
+            display: none;
         }
-        
-        /* MAIN CONTENT WRAPPER - Visible by default */
-        #mainContentWrapper {
+
+        .menu-overlay.active {
             display: block;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--bottom-nav-bg);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(202,138,4,0.3);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0.5rem 0;
+            z-index: 900;
+            transition: transform 0.3s ease;
+        }
+
+        .bottom-nav.hidden {
+            transform: translateY(100%);
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.2rem;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: 0.2s;
+            border-radius: 12px;
+        }
+
+        .nav-item i {
+            font-size: 1.3rem;
+        }
+
+        .nav-item.active {
+            color: var(--gold);
+        }
+
+        .nav-item:hover {
+            background: rgba(202,138,4,0.1);
+        }
+
+        .nav-badge {
+            background: #ff4444;
+            color: white;
+            font-size: 0.6rem;
+            padding: 0.1rem 0.3rem;
+            border-radius: 10px;
+            position: absolute;
+            top: 0;
+            right: 25%;
+        }
+
+        @media (min-width: 769px) {
+            .bottom-nav {
+                display: none;
+            }
+            
+            body {
+                padding-bottom: 0;
+            }
+        }
+
+        /* Main Content Wrapper */
+        #mainContentWrapper {
             margin-top: 70px;
             min-height: calc(100vh - 70px);
         }
-        
+
         /* Hero Section */
         .program-hero {
-            min-height: 85vh;
+            min-height: 60vh;
             background: linear-gradient(135deg, rgba(0,0,0,0.8), rgba(0,0,0,0.7)), 
                         url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover fixed;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 8rem 2rem 4rem;
+            padding: 6rem 1.5rem 3rem;
         }
-        
+
         body.light-theme .program-hero {
             background: linear-gradient(135deg, rgba(255,245,235,0.9), rgba(255,255,255,0.9)), 
                         url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover fixed;
         }
-        
-        .hero-content { max-width: 1000px; }
-        
+
+        .hero-content {
+            max-width: 1000px;
+        }
+
         .hero-content h1 {
             font-family: 'Cinzel', serif;
-            font-size: clamp(3.5rem, 10vw, 6rem);
-            background: var(--gold-gradient);
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            background: linear-gradient(135deg, #f5e7c8, #ca8a04, #f5e7c8);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
             margin-bottom: 0.5rem;
-            letter-spacing: 2px;
         }
-        
+
         .hero-tagline {
-            font-size: clamp(1.5rem, 4vw, 2.2rem);
+            font-size: clamp(1rem, 4vw, 1.8rem);
             font-weight: 600;
-            letter-spacing: 8px;
+            letter-spacing: 4px;
             color: var(--text-secondary);
             margin: 1rem 0;
         }
-        
-        .hero-description {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            max-width: 700px;
-            margin: 2rem auto 0;
-        }
-        
+
         /* Program Stats Bar */
         .program-stats-bar {
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
             border-radius: 60px;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            gap: 1.5rem;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
             margin: 2rem auto;
-            max-width: 1000px;
+            max-width: 600px;
             border: 1px solid var(--gold);
         }
-        
+
+        @media (min-width: 640px) {
+            .program-stats-bar {
+                grid-template-columns: repeat(4, 1fr);
+                padding: 1rem 2rem;
+            }
+        }
+
         .stat-item {
             text-align: center;
         }
-        
+
         .stat-number {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 800;
             color: var(--gold);
             line-height: 1.2;
         }
-        
+
         .stat-label {
-            font-size: 0.9rem;
+            font-size: 0.7rem;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        
+
+        @media (min-width: 640px) {
+            .stat-number {
+                font-size: 2rem;
+            }
+            .stat-label {
+                font-size: 0.8rem;
+            }
+        }
+
         /* Sections */
         .section {
-            padding: 6rem 2rem;
+            padding: 3rem 1rem;
             max-width: 1400px;
             margin: 0 auto;
         }
-        
+
+        @media (min-width: 768px) {
+            .section {
+                padding: 4rem 2rem;
+            }
+        }
+
         .section-title {
             font-family: 'Cinzel', serif;
-            font-size: 2.8rem;
+            font-size: 2rem;
             color: var(--gold);
             text-align: center;
             margin-bottom: 1rem;
-            position: relative;
-            display: inline-block;
-            left: 50%;
-            transform: translateX(-50%);
         }
-        
-        .section-title::after {
-            content: '';
-            display: block;
-            width: 80px;
-            height: 4px;
-            background: var(--gold);
-            margin: 1rem auto 0;
-            border-radius: 4px;
+
+        @media (min-width: 768px) {
+            .section-title {
+                font-size: 2.5rem;
+            }
         }
-        
-        .section-subtitle {
-            text-align: center;
-            color: var(--text-muted);
-            margin-bottom: 4rem;
-            font-size: 1.2rem;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        /* Program Navigation Tabs */
+
+        /* Program Tabs - Mobile Scrollable */
         .program-tabs {
             display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin: 2rem 0 3rem;
-            flex-wrap: wrap;
+            overflow-x: auto;
+            gap: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
         }
-        
+
+        .program-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
         .program-tab {
-            padding: 0.8rem 2rem;
+            flex: 0 0 auto;
+            padding: 0.6rem 1.2rem;
             background: var(--bg-secondary);
             border: 1px solid var(--border-light);
-            border-radius: 40px;
+            border-radius: 30px;
             color: var(--text-muted);
             cursor: pointer;
             transition: 0.2s;
-            font-weight: 500;
+            font-size: 0.9rem;
+            white-space: nowrap;
         }
-        
-        .program-tab:hover {
-            border-color: var(--gold);
-            color: var(--gold);
-        }
-        
+
         .program-tab.active {
             background: var(--gold);
             color: var(--bg-primary);
             border-color: var(--gold);
         }
-        
-        /* Tab Content */
-        .tab-content {
-            display: none;
+
+        @media (min-width: 768px) {
+            .program-tabs {
+                justify-content: center;
+                overflow-x: visible;
+                flex-wrap: wrap;
+            }
+            .program-tab {
+                font-size: 1rem;
+            }
         }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        /* Pillars */
-        .pillars-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-            margin: 2rem 0 3rem;
-        }
-        
-        .pillar-item {
-            text-align: center;
-            padding: 2rem 1.5rem;
-            border-radius: 28px;
-            background: rgba(202,138,4,0.05);
-            border: 1px solid var(--border-light);
-            transition: 0.3s;
-        }
-        
-        .pillar-item:hover {
-            transform: translateY(-5px);
-            border-color: var(--gold);
-            box-shadow: 0 15px 25px var(--shadow-color);
-        }
-        
-        .pillar-icon {
-            font-size: 2.5rem;
-            color: var(--gold);
-            margin-bottom: 1.2rem;
-        }
-        
-        .pillar-item h3 {
-            font-size: 2rem;
-            font-family: 'Cinzel', serif;
-            margin-bottom: 0.8rem;
-            color: var(--gold);
-        }
-        
-        .pillar-item p { 
-            color: var(--text-muted); 
-            line-height: 1.6; 
-            font-size: 0.95rem;
-        }
-        
-        /* Challenge Steps */
-        .challenge-steps-list {
-            max-width: 800px;
-            margin: 3rem auto 2rem;
-            background: var(--bg-secondary);
-            border-radius: 40px;
-            padding: 2rem 1.5rem;
-            border: 1px solid rgba(202,138,4,0.3);
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.3), 0 10px 20px var(--shadow-color);
-        }
-        
-        .step-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 1.5rem;
-            padding: 1.2rem 0.5rem;
-            border-bottom: 1px dashed var(--border-light);
-        }
-        
-        .step-item:last-child {
-            border-bottom: none;
-        }
-        
-        .step-item-number {
-            background: var(--gold);
-            color: black;
-            width: 48px;
-            height: 48px;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1.5rem;
-            flex-shrink: 0;
-            box-shadow: 0 4px 10px var(--shadow-color);
-        }
-        
-        .step-item-content {
-            flex: 1;
-        }
-        
-        .step-item-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--gold);
-            margin-bottom: 0.3rem;
-        }
-        
-        .step-item-desc {
-            color: var(--text-muted);
-            font-size: 1rem;
-            line-height: 1.5;
-        }
-        
-        .tag-social {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 0.8rem 1.2rem;
-            background: rgba(202,138,4,0.15);
-            padding: 0.6rem 1.2rem;
-            border-radius: 40px;
-            margin-top: 0.6rem;
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            font-weight: 500;
-        }
-        
-        /* User Progress Section */
-        .user-progress-section {
-            background: var(--bg-secondary);
-            border-radius: 40px;
-            padding: 2rem;
-            margin: 2rem 0;
-            border: 2px solid var(--gold);
-        }
-        
-        .badge-display {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-        
-        .current-badge {
-            text-align: center;
-        }
-        
-        .badge-icon {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            border: 3px solid;
-        }
-        
-        .badge-icon.bronze {
-            background: linear-gradient(135deg, #cd7f32, #8b5a2b);
-            border-color: var(--badge-bronze);
-            color: #fff;
-        }
-        
-        .badge-icon.silver {
-            background: linear-gradient(135deg, #c0c0c0, #808080);
-            border-color: var(--badge-silver);
-            color: #fff;
-        }
-        
-        .badge-icon.gold {
-            background: linear-gradient(135deg, #ffd700, #b8860b);
-            border-color: var(--badge-gold);
-            color: #fff;
-        }
-        
-        .badge-icon.platinum {
-            background: linear-gradient(135deg, #e5e4e2, #a9a9a9);
-            border-color: var(--badge-platinum);
-            color: #000;
-        }
-        
-        .badge-icon.diamond {
-            background: linear-gradient(135deg, #b9f2ff, #40e0d0);
-            border-color: var(--badge-diamond);
-            color: #000;
-        }
-        
-        .badge-icon.legend {
-            background: linear-gradient(135deg, #8a2be2, #4b0082);
-            border-color: var(--badge-legend);
-            color: #fff;
-        }
-        
-        .badge-name {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--gold);
-        }
-        
-        .progress-stats {
-            flex: 1;
-        }
-        
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-            color: var(--text-muted);
-        }
-        
-        .progress-bar-container {
-            width: 100%;
-            height: 20px;
-            background: var(--bg-primary);
-            border-radius: 10px;
-            margin: 1rem 0;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--gold), var(--gold-light));
-            border-radius: 10px;
-            transition: width 0.3s ease;
-            position: relative;
-        }
-        
-        .progress-bar-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, 
-                rgba(255,255,255,0.1) 0%, 
-                rgba(255,255,255,0.3) 50%, 
-                rgba(255,255,255,0.1) 100%);
-            animation: shimmer 2s infinite;
-        }
-        
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-        
-        .next-badge-info {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-        
+
         /* Members Grid */
         .members-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
+            grid-template-columns: 1fr;
+            gap: 1rem;
         }
-        
+
+        @media (min-width: 480px) {
+            .members-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .members-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.5rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .members-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
         .member-card {
             background: var(--card-bg);
-            border-radius: 24px;
-            padding: 1.5rem;
+            border-radius: 20px;
+            padding: 1.2rem;
             border: 1px solid var(--border-light);
             transition: 0.2s;
             cursor: pointer;
-            text-align: center;
         }
-        
+
         .member-card:hover {
             border-color: var(--gold);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px var(--shadow-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px var(--shadow-color);
         }
-        
+
         .member-avatar {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             background: var(--gold);
             margin: 0 auto 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
+            font-size: 2rem;
             color: var(--bg-primary);
             border: 3px solid var(--gold);
             position: relative;
         }
-        
+
         .online-indicator {
             position: absolute;
             bottom: 5px;
@@ -818,150 +628,131 @@
             background: var(--online);
             border: 2px solid var(--bg-primary);
         }
-        
+
         .member-name {
-            font-size: 1.3rem;
-            font-weight: 700;
+            font-size: 1.2rem;
+            font-weight: 600;
             color: var(--gold);
+            text-align: center;
             margin-bottom: 0.3rem;
         }
-        
+
         .member-badge {
             display: inline-block;
             background: var(--gold);
             color: var(--bg-primary);
-            padding: 0.2rem 1rem;
+            padding: 0.2rem 0.8rem;
             border-radius: 20px;
-            font-size: 0.8rem;
-            margin-bottom: 1rem;
+            font-size: 0.7rem;
+            margin: 0 auto 1rem;
+            width: fit-content;
         }
-        
+
         .member-stats {
             display: flex;
             justify-content: center;
-            gap: 1.5rem;
+            gap: 1rem;
             margin: 1rem 0;
-            color: var(--text-muted);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
-        
+
         .member-stat {
             text-align: center;
         }
-        
+
         .member-stat-number {
             font-weight: 700;
             color: var(--gold);
-            font-size: 1.1rem;
         }
-        
+
         .member-bio {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin: 1rem 0;
-            line-height: 1.5;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0.5rem 0;
+            line-height: 1.4;
+            text-align: center;
         }
-        
-        .member-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-        
+
         .member-message {
-            flex: 1;
+            width: 100%;
             background: var(--gold);
             color: var(--bg-primary);
             border: none;
-            padding: 0.5rem;
+            padding: 0.6rem;
             border-radius: 30px;
             cursor: pointer;
-            transition: 0.2s;
             font-weight: 600;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.3rem;
+            margin-top: 0.5rem;
         }
-        
-        .member-message:hover {
-            background: var(--gold-dark);
-        }
-        
-        .member-connect {
-            flex: 1;
-            background: transparent;
-            border: 2px solid var(--gold);
-            color: var(--gold);
-            padding: 0.5rem;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: 0.2s;
-            font-weight: 600;
-        }
-        
-        .member-connect:hover:not(.connected) {
-            background: var(--gold);
-            color: var(--bg-primary);
-        }
-        
-        .member-connect.connected {
-            background: var(--gold);
-            color: var(--bg-primary);
-            cursor: default;
-        }
-        
-        /* Messaging Container - Hidden by default */
+
+        /* Messaging Container */
         .messaging-container {
             position: fixed;
             top: 70px;
             left: 0;
             right: 0;
-            bottom: 0;
+            bottom: 70px;
             background: var(--bg-primary);
-            z-index: 900;
-            display: none;  /* CRITICAL: Hidden by default */
+            z-index: 800;
+            display: none;
         }
-        
+
         .messaging-container.active {
-            display: block;  /* Shown when active */
+            display: block;
         }
-        
+
+        @media (min-width: 769px) {
+            .messaging-container {
+                bottom: 0;
+            }
+        }
+
         .messaging-layout {
             display: flex;
             height: 100%;
         }
-        
+
         .conversations-sidebar {
-            width: 350px;
+            width: 100%;
             background: var(--bg-secondary);
-            border-right: 1px solid var(--border-light);
             display: flex;
             flex-direction: column;
             overflow-y: auto;
         }
-        
+
+        @media (min-width: 768px) {
+            .conversations-sidebar {
+                width: 350px;
+                border-right: 1px solid var(--border-light);
+            }
+        }
+
         .conversations-header {
-            padding: 1.5rem;
+            padding: 1rem;
             border-bottom: 1px solid var(--border-light);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .conversations-header h2 {
             color: var(--gold);
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
-        
+
         .close-messaging {
             background: none;
             border: none;
             color: var(--gold);
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             cursor: pointer;
             width: 40px;
             height: 40px;
@@ -970,53 +761,26 @@
             align-items: center;
             justify-content: center;
         }
-        
-        .close-messaging:hover {
-            background: rgba(202,138,4,0.1);
-        }
-        
-        .conversations-search {
-            padding: 1rem;
-        }
-        
-        .conversations-search input {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-light);
-            border-radius: 30px;
-            color: var(--text-primary);
-        }
-        
-        .conversations-search input:focus {
-            outline: none;
-            border-color: var(--gold);
-        }
-        
+
         .conversations-list {
             flex: 1;
             overflow-y: auto;
         }
-        
+
         .conversation-item {
             display: flex;
             align-items: center;
             gap: 1rem;
-            padding: 1rem 1.5rem;
+            padding: 1rem;
             cursor: pointer;
             transition: 0.2s;
             border-bottom: 1px solid var(--border-light);
         }
-        
+
         .conversation-item:hover {
             background: rgba(202,138,4,0.1);
         }
-        
-        .conversation-item.active {
-            background: rgba(202,138,4,0.15);
-            border-left: 3px solid var(--gold);
-        }
-        
+
         .conversation-avatar {
             width: 50px;
             height: 50px;
@@ -1030,189 +794,118 @@
             position: relative;
             flex-shrink: 0;
         }
-        
-        .conversation-info {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .conversation-name {
-            font-weight: 600;
-            color: var(--gold);
-            margin-bottom: 0.2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .conversation-last-message {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .conversation-time {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            white-space: nowrap;
-        }
-        
-        .conversation-unread {
-            background: var(--gold);
-            color: var(--bg-primary);
-            min-width: 20px;
-            height: 20px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-top: 0.2rem;
-        }
-        
+
         .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: var(--bg-primary);
+            display: none;
         }
-        
+
+        @media (min-width: 768px) {
+            .chat-area {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                background: var(--bg-primary);
+            }
+        }
+
         .chat-header {
-            padding: 1rem 2rem;
+            padding: 1rem;
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-light);
             display: flex;
             align-items: center;
             gap: 1rem;
         }
-        
+
         .back-to-sidebar {
-            display: none;
             background: none;
             border: none;
             color: var(--gold);
             font-size: 1.2rem;
             cursor: pointer;
         }
-        
-        .chat-header-info {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+
+        @media (min-width: 768px) {
+            .back-to-sidebar {
+                display: none;
+            }
         }
-        
-        .chat-header-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            color: var(--bg-primary);
-            position: relative;
-        }
-        
-        .chat-header-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--gold);
-        }
-        
-        .chat-header-status {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-        
-        .chat-header-status.online {
-            color: var(--online);
-        }
-        
+
         .chat-messages {
             flex: 1;
             overflow-y: auto;
-            padding: 2rem;
+            padding: 1rem;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.8rem;
         }
-        
+
         .message-wrapper {
             display: flex;
-            margin-bottom: 0.5rem;
         }
-        
+
         .message-wrapper.outgoing {
             justify-content: flex-end;
         }
-        
-        .message-wrapper.incoming {
-            justify-content: flex-start;
-        }
-        
+
         .message-bubble {
-            max-width: 60%;
-            padding: 0.8rem 1.2rem;
-            border-radius: 20px;
-            position: relative;
+            max-width: 80%;
+            padding: 0.6rem 1rem;
+            border-radius: 18px;
             word-wrap: break-word;
+            font-size: 0.9rem;
         }
-        
+
         .outgoing .message-bubble {
             background: var(--message-out);
             color: var(--bg-primary);
             border-bottom-right-radius: 4px;
         }
-        
+
         .incoming .message-bubble {
             background: var(--message-in);
             color: var(--text-primary);
             border-bottom-left-radius: 4px;
         }
-        
+
         .message-time {
             font-size: 0.6rem;
             color: var(--text-muted);
             margin-top: 0.2rem;
             text-align: right;
         }
-        
+
         .chat-input-area {
-            padding: 1.5rem 2rem;
+            padding: 1rem;
             background: var(--bg-secondary);
             border-top: 1px solid var(--border-light);
         }
-        
+
         .chat-input-wrapper {
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
             align-items: flex-end;
         }
-        
+
         .chat-input {
             flex: 1;
             background: var(--bg-primary);
             border: 1px solid var(--border-light);
-            border-radius: 30px;
-            padding: 0.8rem 1.2rem;
+            border-radius: 24px;
+            padding: 0.8rem 1rem;
             color: var(--text-primary);
             font-family: inherit;
             resize: none;
-            max-height: 120px;
+            max-height: 100px;
             min-height: 45px;
-            line-height: 1.4;
+            font-size: 0.9rem;
         }
-        
+
         .chat-input:focus {
             outline: none;
             border-color: var(--gold);
         }
-        
+
         .chat-send-btn {
             background: var(--gold);
             color: var(--bg-primary);
@@ -1224,70 +917,44 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: 0.2s;
         }
-        
-        .chat-send-btn:hover:not(:disabled) {
-            background: var(--gold-dark);
-            transform: scale(1.05);
-        }
-        
-        .chat-send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .empty-chat {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            text-align: center;
-            padding: 2rem;
-        }
-        
-        .empty-chat i {
-            font-size: 4rem;
-            color: var(--gold);
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-        
+
         /* Profile Modal */
         .profile-modal {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
             backdrop-filter: blur(12px);
-            z-index: 9500;
+            z-index: 3000;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1.5rem;
+            padding: 1rem;
             opacity: 0;
             visibility: hidden;
-            transition: 0.4s;
+            transition: 0.3s;
         }
-        
+
         .profile-modal.active {
             opacity: 1;
             visibility: visible;
         }
-        
+
         .profile-content {
             max-width: 500px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
             background: var(--card-bg);
-            border-radius: 40px;
-            padding: 2rem;
+            border-radius: 30px;
+            padding: 1.5rem;
             border: 2px solid var(--gold);
             position: relative;
         }
-        
+
         .modal-close {
             position: absolute;
             top: 1rem;
@@ -1295,7 +962,7 @@
             background: none;
             border: none;
             color: var(--gold);
-            font-size: 2rem;
+            font-size: 1.5rem;
             cursor: pointer;
             width: 40px;
             height: 40px;
@@ -1304,110 +971,198 @@
             justify-content: center;
             border-radius: 50%;
         }
-        
-        .modal-close:hover {
-            background: rgba(202,138,4,0.1);
-        }
-        
+
         /* Auth Modal */
         .auth-modal {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
             backdrop-filter: blur(12px);
-            z-index: 9500;
+            z-index: 3000;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1.5rem;
+            padding: 1rem;
             opacity: 0;
             visibility: hidden;
-            transition: 0.4s;
+            transition: 0.3s;
         }
-        
+
         .auth-modal.active {
             opacity: 1;
             visibility: visible;
         }
-        
+
         .auth-content {
             max-width: 450px;
             width: 100%;
             background: var(--bg-secondary);
-            border-radius: 40px;
-            padding: 2.5rem 2rem;
+            border-radius: 30px;
+            padding: 2rem 1.5rem;
             border: 2px solid var(--gold);
-            position: relative;
         }
-        
+
+        .auth-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.8rem;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+
+        .auth-tab.active {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.3rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .form-submit {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--gold);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        /* Challenge Steps */
+        .challenge-steps-list {
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .step-item:last-child {
+            border-bottom: none;
+        }
+
+        .step-item-number {
+            width: 40px;
+            height: 40px;
+            background: var(--gold);
+            color: black;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
         /* SonGa Section */
         .songa-join-section {
-            background: linear-gradient(145deg, rgba(212, 160, 23, 0.1), rgba(212, 160, 23, 0.05));
+            background: linear-gradient(145deg, rgba(212,160,23,0.1), rgba(212,160,23,0.05));
             border: 2px solid var(--sonGa);
-            border-radius: 40px;
-            padding: 2.5rem;
-            margin: 3rem 0;
+            border-radius: 30px;
+            padding: 2rem 1.5rem;
             text-align: center;
+            margin: 2rem 0;
         }
-        
+
         .songa-logo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50px;
-            margin: 0 auto 1.5rem;
+            width: 80px;
+            height: 80px;
+            border-radius: 40px;
+            margin: 0 auto 1rem;
             border: 3px solid var(--sonGa);
             object-fit: cover;
         }
-        
+
         .songa-btn {
             background: var(--sonGa);
             color: black;
             border: none;
-            padding: 1.2rem 3rem;
-            border-radius: 60px;
-            font-size: 1.3rem;
+            padding: 1rem 2rem;
+            border-radius: 40px;
+            font-size: 1.1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
             display: inline-flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.5rem;
+            width: 100%;
+            justify-content: center;
         }
-        
-        .songa-btn:hover {
-            background: #b3860f;
-            transform: translateY(-3px);
-        }
-        
-        /* Footer */
-        .footer {
-            background: var(--bg-secondary);
-            padding: 4rem 2rem;
-            text-align: center;
-            border-top: 1px solid var(--border-light);
-        }
-        
-        /* Toast Notification */
+
+        /* Toast */
         .toast {
             position: fixed;
-            bottom: 30px;
+            bottom: 80px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
             background: var(--gold);
             color: var(--bg-primary);
-            padding: 1rem 2rem;
-            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
             font-weight: 600;
-            z-index: 10001;
+            z-index: 4000;
             opacity: 0;
             transition: 0.3s;
+            font-size: 0.9rem;
         }
-        
+
         .toast.show {
             transform: translateX(-50%) translateY(0);
             opacity: 1;
         }
-        
+
         /* Loading Spinner */
         .loading-spinner {
             width: 40px;
@@ -1418,63 +1173,23 @@
             animation: spin 1s linear infinite;
             margin: 2rem auto;
         }
-        
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
-        /* Install PWA Button */
-        .install-pwa {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            background: var(--gold);
-            color: black;
-            border: none;
-            border-radius: 50px;
-            padding: 0.9rem 1.8rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 5px 20px rgba(202,138,4,0.6);
-            z-index: 2000;
-            display: none;
-            align-items: center;
-            gap: 0.5rem;
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
         }
-        
-        .install-pwa.show {
-            display: flex;
-        }
-        
-        /* Responsive */
-        @media (max-width: 800px) {
-            .pillars-grid { grid-template-columns: 1fr; }
-            .section { padding: 4rem 1.5rem; }
-            .program-stats-bar { flex-direction: column; align-items: center; }
-            
-            .conversations-sidebar {
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                z-index: 10;
-                display: none;
-            }
-            
-            .conversations-sidebar.active {
-                display: flex;
-            }
-            
-            .chat-area {
-                width: 100%;
-            }
-            
-            .back-to-sidebar {
-                display: block;
-            }
-            
-            .message-bubble {
-                max-width: 80%;
-            }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gold);
+            opacity: 0.5;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
@@ -1484,8 +1199,8 @@
 <div class="loading-overlay" id="loadingOverlay">
     <img src="https://i.postimg.cc/xCvsws8M/20260220-1245-Image-Generation-simple-compose-01khx700xgea3rpkfzhfvyzv5d-1-1.webp" 
          alt="Afrika Milele" class="hero-image">
-    <div class="afrika-milele-container">
-        <span class="afrika-milele" id="animatedText"></span>
+    <div class="afrika-milele">
+        <span id="animatedText"></span>
     </div>
 </div>
 
@@ -1496,48 +1211,44 @@
     <header class="site-header">
         <div class="header-container">
             <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="Afrika Milele" class="site-logo">
+            
             <div class="header-right">
-                <!-- Message Button -->
-                <div class="message-btn" id="messageBtn" onclick="toggleMessaging()" style="display: none;">
-                    <i class="fas fa-comment-dots"></i>
-                    <span class="message-badge" id="unreadMessagesBadge" style="display: none;">0</span>
-                </div>
-                
-                <!-- Auth Buttons -->
-                <div class="auth-buttons" id="authButtons">
-                    <button class="btn-auth" onclick="openAuthModal('login')">Login</button>
-                    <button class="btn-auth primary" onclick="openAuthModal('register')">Register</button>
-                </div>
-                
-                <!-- User Menu -->
-                <div class="user-menu" id="userMenu" style="display: none;">
-                    <button class="user-menu-btn" onclick="toggleUserDropdown()">
-                        <i class="fas fa-user-circle"></i>
-                        <span id="userName">Account</span>
-                        <span class="user-badge-indicator" id="userBadgeLevel">Bronze</span>
-                    </button>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="#" onclick="viewMemberProfile(currentUser?.uid); return false;">
-                            <i class="fas fa-id-card"></i> My Profile
-                        </a>
-                        <a href="#" onclick="toggleMessaging(); toggleUserDropdown(); return false;">
-                            <i class="fas fa-comment"></i> Messages
-                            <span class="unread-badge" id="dropdownUnreadBadge" style="display: none;">0</span>
-                        </a>
-                        <a href="#" onclick="showMyConnections(); return false;">
-                            <i class="fas fa-handshake"></i> Connections
-                        </a>
-                        <a href="#" onclick="showMyCircles(); return false;">
-                            <i class="fas fa-users"></i> My Circles
-                        </a>
-                        <a href="#" onclick="showMyProjects(); return false;">
-                            <i class="fas fa-tree"></i> My Projects
-                        </a>
-                        <button onclick="logout()">
-                            <i class="fas fa-sign-out-alt"></i> Logout
+                <!-- Desktop Menu -->
+                <div class="desktop-menu">
+                    <div class="message-btn" id="desktopMessageBtn" onclick="toggleMessaging()" style="display: none;">
+                        <i class="fas fa-comment-dots"></i>
+                        <span class="message-badge" id="desktopUnreadBadge" style="display: none;">0</span>
+                    </div>
+                    
+                    <div class="auth-buttons" id="authButtons">
+                        <button class="btn-auth" onclick="openAuthModal('login')">Login</button>
+                        <button class="btn-auth primary" onclick="openAuthModal('register')">Register</button>
+                    </div>
+                    
+                    <div class="user-menu" id="userMenu" style="display: none;">
+                        <button class="user-menu-btn" onclick="toggleUserDropdown()">
+                            <i class="fas fa-user-circle"></i>
+                            <span id="userName">Account</span>
                         </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="#" onclick="viewMyProfile(); return false;">
+                                <i class="fas fa-id-card"></i> My Profile
+                            </a>
+                            <a href="#" onclick="toggleMessaging(); return false;">
+                                <i class="fas fa-comment"></i> Messages
+                                <span class="unread-badge" id="dropdownUnreadBadge" style="display: none;">0</span>
+                            </a>
+                            <a href="#" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Hamburger Menu Button (mobile) -->
+                <button class="hamburger-btn" onclick="toggleSideMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
                 
                 <div class="theme-toggle" id="themeToggle">
                     <i class="fas fa-moon" id="themeIcon"></i>
@@ -1546,14 +1257,65 @@
         </div>
     </header>
 
-    <!-- MAIN CONTENT WRAPPER - This contains all your original page content -->
+    <!-- Side Menu (mobile) -->
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleSideMenu()"></div>
+    <div class="side-menu" id="sideMenu">
+        <div class="side-menu-header">
+            <h3>Menu</h3>
+            <button class="close-menu" onclick="toggleSideMenu()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="side-menu-item" onclick="navigateTo('feed'); toggleSideMenu()">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </div>
+        
+        <div class="side-menu-item" onclick="navigateTo('profile'); toggleSideMenu()">
+            <i class="fas fa-user"></i>
+            <span>My Profile</span>
+        </div>
+        
+        <div class="side-menu-item" onclick="toggleMessaging(); toggleSideMenu()">
+            <i class="fas fa-comment"></i>
+            <span>Messages</span>
+            <span class="unread-badge" id="sideMenuUnreadBadge" style="display: none;">0</span>
+        </div>
+        
+        <div class="side-menu-item" onclick="navigateTo('challenge'); toggleSideMenu()">
+            <i class="fas fa-trophy"></i>
+            <span>The Challenge</span>
+        </div>
+        
+        <div class="side-menu-item" onclick="navigateTo('circles'); toggleSideMenu()">
+            <i class="fas fa-users"></i>
+            <span>Wisdom Circles</span>
+        </div>
+        
+        <div class="side-menu-item" onclick="navigateTo('projects'); toggleSideMenu()">
+            <i class="fas fa-tree"></i>
+            <span>Projects</span>
+        </div>
+        
+        <div class="side-menu-item" onclick="openSonGa(); toggleSideMenu()">
+            <i class="fab fa-whatsapp"></i>
+            <span>Join SonGa</span>
+        </div>
+        
+        <div class="side-menu-item" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT WRAPPER -->
     <div id="mainContentWrapper">
         <!-- Hero Section -->
         <section class="program-hero">
             <div class="hero-content">
                 <h1>AFRIKA MILELE</h1>
-                <div class="hero-tagline">UNITY PROGRAM</div>
-                <p class="hero-description">A continental community of peace-builders, changemakers, and cultural ambassadors.</p>
+                <div class="hero-tagline">DAIMA · MILELE · PAMOJA</div>
                 
                 <div class="program-stats-bar">
                     <div class="stat-item">
@@ -1562,7 +1324,7 @@
                     </div>
                     <div class="stat-item">
                         <div class="stat-number" id="totalProjects">0</div>
-                        <div class="stat-label">Active Projects</div>
+                        <div class="stat-label">Projects</div>
                     </div>
                     <div class="stat-item">
                         <div class="stat-number" id="totalPosts">0</div>
@@ -1587,65 +1349,67 @@
                     <div class="progress-stats">
                         <div class="stat-row">
                             <span>Points: <span id="userPoints">0</span></span>
-                            <span>Rank: #<span id="userRank">0</span></span>
-                        </div>
-                        <div class="stat-row">
                             <span>Posts: <span id="userPosts">0</span></span>
-                            <span>Connections: <span id="userConnections">0</span></span>
                         </div>
                         <div class="progress-bar-container">
                             <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
                         </div>
                         <div class="next-badge-info" id="nextBadgeInfo">
-                            Next: Silver Ambassador (100 more points)
+                            Next: Silver Ambassador
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Program Navigation Tabs -->
-        <div class="section" style="padding-top: 0;">
-            <div class="program-tabs">
-                <span class="program-tab active" onclick="switchProgramTab('feed')" id="tab-feed">Community Feed</span>
-                <span class="program-tab" onclick="switchProgramTab('members')" id="tab-members">Ambassadors</span>
-                <span class="program-tab" onclick="switchProgramTab('challenge')" id="tab-challenge">The Challenge</span>
-                <span class="program-tab" onclick="switchProgramTab('circles')" id="tab-circles">Wisdom Circles</span>
-                <span class="program-tab" onclick="switchProgramTab('projects')" id="tab-projects">Milele Projects</span>
-            </div>
+        <!-- Program Tabs -->
+        <div class="program-tabs">
+            <span class="program-tab active" onclick="switchProgramTab('feed')" id="tab-feed">Feed</span>
+            <span class="program-tab" onclick="switchProgramTab('members')" id="tab-members">Ambassadors</span>
+            <span class="program-tab" onclick="switchProgramTab('challenge')" id="tab-challenge">Challenge</span>
+            <span class="program-tab" onclick="switchProgramTab('circles')" id="tab-circles">Circles</span>
+            <span class="program-tab" onclick="switchProgramTab('projects')" id="tab-projects">Projects</span>
+        </div>
 
-            <!-- FEED TAB -->
-            <div class="tab-content active" id="feed-tab">
-                <div class="community-feed" id="communityFeed">
-                    <div class="loading-spinner"></div>
+        <!-- FEED TAB -->
+        <div class="tab-content active" id="feed-tab">
+            <div class="section">
+                <div class="feed-container" id="communityFeed">
+                    <div class="empty-state">
+                        <i class="fas fa-newspaper"></i>
+                        <h3>Welcome to Afrika Milele</h3>
+                        <p>Share your journey and connect with others</p>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- MEMBERS TAB - This is where ambassadors are displayed -->
-            <div class="tab-content" id="members-tab">
+        <!-- MEMBERS TAB -->
+        <div class="tab-content" id="members-tab">
+            <div class="section">
                 <div class="members-grid" id="membersGrid">
                     <div class="loading-spinner"></div>
                 </div>
             </div>
+        </div>
 
-            <!-- CHALLENGE TAB -->
-            <div class="tab-content" id="challenge-tab">
+        <!-- CHALLENGE TAB -->
+        <div class="tab-content" id="challenge-tab">
+            <div class="section">
                 <h2 class="section-title">The Daima Challenge</h2>
-                <p class="section-subtitle">Complete these steps to earn your Ambassador badge.</p>
-                
                 <div class="challenge-steps-list">
                     <div class="step-item">
                         <div class="step-item-number">1</div>
                         <div class="step-item-content">
                             <div class="step-item-title">Record your daily pride</div>
-                            <div class="step-item-desc">Film yourself doing what you love.</div>
+                            <div class="step-item-desc">Share your authentic African moment</div>
                         </div>
                     </div>
                     <div class="step-item">
                         <div class="step-item-number">2</div>
                         <div class="step-item-content">
                             <div class="step-item-title">Share two reasons</div>
-                            <div class="step-item-desc">Tell us what you love about being African.</div>
+                            <div class="step-item-desc">Tell us what you love about being African</div>
                         </div>
                     </div>
                     <div class="step-item">
@@ -1655,29 +1419,32 @@
                             <div class="step-item-desc">DAIMA, MILELE, PAMOJA</div>
                         </div>
                     </div>
-                    <div class="step-item">
-                        <div class="step-item-number">4</div>
-                        <div class="step-item-content">
-                            <div class="step-item-title">Post & Tag us</div>
-                            <div class="step-item-desc">Tag @am_mugera on all platforms.</div>
-                        </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CIRCLES TAB -->
+        <div class="tab-content" id="circles-tab">
+            <div class="section">
+                <h2 class="section-title">Wisdom Circles</h2>
+                <div class="circles-grid" id="circlesGrid">
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <p>Join a circle to connect with like-minded ambassadors</p>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- CIRCLES TAB -->
-            <div class="tab-content" id="circles-tab">
-                <h2 class="section-title">Wisdom Circles</h2>
-                <div class="circles-grid" id="circlesGrid">
-                    <div class="loading-spinner"></div>
-                </div>
-            </div>
-
-            <!-- PROJECTS TAB -->
-            <div class="tab-content" id="projects-tab">
+        <!-- PROJECTS TAB -->
+        <div class="tab-content" id="projects-tab">
+            <div class="section">
                 <h2 class="section-title">Milele Projects</h2>
                 <div class="projects-grid" id="projectsGrid">
-                    <div class="loading-spinner"></div>
+                    <div class="empty-state">
+                        <i class="fas fa-tree"></i>
+                        <p>Support community projects making a difference</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1688,21 +1455,15 @@
                 <img src="https://i.postimg.cc/BbdzCkxQ/20260116-0851-Elegant-Lion-Emblem-remix-01kf2npwbtf06ttr4htekjnd47-removebg-preview-2.webp" 
                      alt="SonGa" class="songa-logo">
                 <h3>Join SonGa Community</h3>
-                <p>Connect on WhatsApp for daily inspiration and updates.</p>
-                <button class="songa-btn" onclick="window.open('https://whatsapp.com/channel/0029VbBQKpAJJhzWClgEGF2P', '_blank')">
+                <p>Connect on WhatsApp for daily inspiration</p>
+                <button class="songa-btn" onclick="openSonGa()">
                     <i class="fab fa-whatsapp"></i> Join Now
                 </button>
             </div>
         </section>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="Afrika Milele" style="height: 60px; margin-bottom: 1.5rem; border-radius: 16px;">
-            <p>© 2026 Afrika Milele — DAIMA | MILELE | PAMOJA</p>
-        </footer>
     </div>
 
-    <!-- Messaging Container - HIDDEN by default (display: none in CSS) -->
+    <!-- Messaging Container -->
     <div class="messaging-container" id="messagingContainer">
         <div class="messaging-layout">
             <!-- Conversations Sidebar -->
@@ -1713,9 +1474,6 @@
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="conversations-search">
-                    <input type="text" id="conversationSearch" placeholder="Search conversations..." onkeyup="searchConversations()">
-                </div>
                 <div class="conversations-list" id="conversationsList">
                     <div class="loading-spinner"></div>
                 </div>
@@ -1724,23 +1482,21 @@
             <!-- Chat Area -->
             <div class="chat-area" id="chatArea">
                 <div class="chat-header">
-                    <button class="back-to-sidebar" onclick="showSidebar()">
+                    <button class="back-to-sidebar" onclick="showConversationsList()">
                         <i class="fas fa-arrow-left"></i>
                     </button>
                     <div class="chat-header-info" id="chatHeaderInfo" style="display: none;">
                         <div class="chat-header-avatar" id="chatAvatar">A</div>
                         <div>
                             <div class="chat-header-name" id="chatName">Select a conversation</div>
-                            <div class="chat-header-status" id="chatStatus"></div>
                         </div>
                     </div>
                 </div>
 
                 <div class="chat-messages" id="chatMessages">
-                    <div class="empty-chat" id="emptyChat">
+                    <div class="empty-state" id="emptyChat">
                         <i class="fas fa-comments"></i>
-                        <h3>Your Messages</h3>
-                        <p>Click "Message" on any ambassador's profile to start a conversation</p>
+                        <p>Select a conversation to start chatting</p>
                     </div>
                 </div>
 
@@ -1751,14 +1507,34 @@
                             id="chatInput" 
                             placeholder="Type a message..."
                             rows="1"
-                            onkeydown="handleMessageKeydown(event)"
                         ></textarea>
-                        <button class="chat-send-btn" id="sendMessageBtn" onclick="sendMessage()" disabled>
+                        <button class="chat-send-btn" id="sendMessageBtn" onclick="sendMessage()">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation (mobile) -->
+    <div class="bottom-nav" id="bottomNav">
+        <div class="nav-item active" onclick="navigateTo('feed')">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" onclick="navigateTo('messages')">
+            <i class="fas fa-comment"></i>
+            <span>Messages</span>
+            <span class="nav-badge" id="mobileUnreadBadge" style="display: none;">0</span>
+        </div>
+        <div class="nav-item" onclick="navigateTo('challenge')">
+            <i class="fas fa-trophy"></i>
+            <span>Challenge</span>
+        </div>
+        <div class="nav-item" onclick="navigateTo('profile')">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
         </div>
     </div>
 </main>
@@ -1784,11 +1560,11 @@
         <div class="auth-form active" id="loginForm">
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" class="form-input" id="loginEmail">
+                <input type="email" class="form-input" id="loginEmail" placeholder="Enter your email">
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" class="form-input" id="loginPassword">
+                <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password">
             </div>
             <button class="form-submit" onclick="login()">Login</button>
         </div>
@@ -1796,25 +1572,35 @@
         <div class="auth-form" id="registerForm">
             <div class="form-group">
                 <label>Full Name</label>
-                <input type="text" class="form-input" id="registerName">
+                <input type="text" class="form-input" id="registerName" placeholder="Enter your full name">
             </div>
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" class="form-input" id="registerEmail">
+                <input type="email" class="form-input" id="registerEmail" placeholder="Enter your email">
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" class="form-input" id="registerPassword">
+                <input type="password" class="form-input" id="registerPassword" placeholder="Create a password">
             </div>
-            <button class="form-submit" onclick="register()">Register</button>
+            <div class="form-group">
+                <label>Country</label>
+                <select class="form-input" id="registerCountry">
+                    <option value="">Select your country</option>
+                    <option value="Nigeria">Nigeria</option>
+                    <option value="Ghana">Ghana</option>
+                    <option value="Kenya">Kenya</option>
+                    <option value="South Africa">South Africa</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Bio</label>
+                <textarea class="form-input" id="registerBio" rows="3" placeholder="Tell us about yourself"></textarea>
+            </div>
+            <button class="form-submit" onclick="register()">Join the Program</button>
         </div>
     </div>
 </div>
-
-<!-- PWA Install Button -->
-<button class="install-pwa" id="installButton">
-    <i class="fas fa-download"></i> Install App
-</button>
 
 <!-- Toast Notification -->
 <div class="toast" id="toast"></div>
@@ -1832,35 +1618,17 @@
     };
 
     // Initialize Firebase
-    let database, auth, analytics;
+    let database, auth;
     let currentUser = null;
     let currentUserData = null;
     let conversations = [];
     let currentChatId = null;
     let messagesListener = null;
     let onlineUsers = {};
+    let lastScrollTop = 0;
+    let bottomNavTimeout;
 
-    try {
-        firebase.initializeApp(firebaseConfig);
-        database = firebase.database();
-        auth = firebase.auth();
-        analytics = firebase.analytics();
-        
-        auth.onAuthStateChanged(handleAuthStateChange);
-    } catch (e) { 
-        console.warn('Firebase init failed:', e);
-    }
-
-    // Badge thresholds
-    const BADGE_THRESHOLDS = {
-        bronze: 0,
-        silver: 100,
-        gold: 300,
-        platinum: 600,
-        diamond: 1000,
-        legend: 2000
-    };
-
+    // Badge definitions
     const BADGE_NAMES = {
         bronze: "Bronze Ambassador",
         silver: "Silver Ambassador",
@@ -1869,6 +1637,16 @@
         diamond: "Diamond Ambassador",
         legend: "Legendary Ambassador"
     };
+
+    try {
+        firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+        auth = firebase.auth();
+        
+        auth.onAuthStateChanged(handleAuthStateChange);
+    } catch (e) {
+        console.error('Firebase init failed:', e);
+    }
 
     // Loading animation
     (function() {
@@ -1888,11 +1666,36 @@
                     overlay.classList.add('hidden');
                     mainContent.classList.add('visible');
                     loadInitialData();
-                }, 1300);
+                }, 800);
             }
         }
-        setTimeout(typeNext, 400);
+        typeNext();
     })();
+
+    // Scroll handler for bottom nav
+    window.addEventListener('scroll', () => {
+        const bottomNav = document.getElementById('bottomNav');
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        clearTimeout(bottomNavTimeout);
+        
+        if (scrollTop > lastScrollTop && scrollTop > 100) {
+            // Scrolling down - hide nav
+            bottomNav.classList.add('hidden');
+        } else {
+            // Scrolling up - show nav
+            bottomNav.classList.remove('hidden');
+            
+            // Auto hide after 3 seconds of no scroll
+            bottomNavTimeout = setTimeout(() => {
+                if (window.pageYOffset > 100) {
+                    bottomNav.classList.add('hidden');
+                }
+            }, 3000);
+        }
+        
+        lastScrollTop = scrollTop;
+    });
 
     // Load initial data
     function loadInitialData() {
@@ -1900,33 +1703,26 @@
         loadMembers();
     }
 
-    // Handle auth state change
+    // Handle auth state
     function handleAuthStateChange(user) {
         currentUser = user;
         
         if (user) {
             document.getElementById('authButtons').style.display = 'none';
             document.getElementById('userMenu').style.display = 'block';
-            document.getElementById('messageBtn').style.display = 'flex';
             document.getElementById('userProgressSection').style.display = 'block';
             
             loadUserData(user.uid);
             loadConversations(user.uid);
             setupPresence(user.uid);
-            setupUnreadListener(user.uid);
         } else {
             document.getElementById('authButtons').style.display = 'flex';
             document.getElementById('userMenu').style.display = 'none';
-            document.getElementById('messageBtn').style.display = 'none';
             document.getElementById('userProgressSection').style.display = 'none';
-            
-            if (messagesListener) {
-                messagesListener.off();
-            }
         }
     }
 
-    // Setup user presence
+    // Setup presence
     function setupPresence(uid) {
         const userStatusRef = database.ref('status/' + uid);
         const connectedRef = database.ref('.info/connected');
@@ -1947,7 +1743,6 @@
         
         database.ref('status').on('value', (snapshot) => {
             onlineUsers = snapshot.val() || {};
-            updateOnlineStatuses();
         });
     }
 
@@ -1958,83 +1753,37 @@
             
             if (snapshot.exists()) {
                 currentUserData = snapshot.val();
-                document.getElementById('userName').textContent = currentUserData.name || currentUser.email.split('@')[0];
+                document.getElementById('userName').textContent = currentUserData.name || 'User';
                 
-                const stats = currentUserData.stats || { points: 0, posts: 0, connections: 0 };
-                updateUserProgress(stats);
-                
-                const badge = calculateBadge(stats.points);
-                document.getElementById('userBadgeLevel').textContent = BADGE_NAMES[badge];
-            } else {
-                // Create new user
-                const newUserData = {
-                    name: currentUser.email.split('@')[0],
-                    email: currentUser.email,
-                    createdAt: Date.now(),
-                    stats: { points: 10, posts: 0, connections: 0 },
-                    bio: '',
-                    country: ''
-                };
-                await database.ref('users/' + uid).set(newUserData);
-                currentUserData = newUserData;
-                loadUserData(uid);
+                const points = currentUserData.stats?.points || 0;
+                document.getElementById('userPoints').textContent = points;
+                document.getElementById('userPosts').textContent = currentUserData.stats?.posts || 0;
             }
         } catch (error) {
             console.error('Error loading user data:', error);
         }
     }
 
-    // Update user progress
-    function updateUserProgress(stats) {
-        const points = stats.points || 0;
-        const badge = calculateBadge(points);
-        
-        document.getElementById('userPoints').textContent = points;
-        document.getElementById('userPosts').textContent = stats.posts || 0;
-        document.getElementById('userConnections').textContent = stats.connections || 0;
-        
-        const nextBadge = getNextBadge(badge);
-        const pointsToNext = BADGE_THRESHOLDS[nextBadge] - points;
-        document.getElementById('nextBadgeInfo').textContent = `Next: ${BADGE_NAMES[nextBadge]} (${pointsToNext} points)`;
-    }
-
-    // Calculate badge
-    function calculateBadge(points) {
-        if (points >= BADGE_THRESHOLDS.legend) return 'legend';
-        if (points >= BADGE_THRESHOLDS.diamond) return 'diamond';
-        if (points >= BADGE_THRESHOLDS.platinum) return 'platinum';
-        if (points >= BADGE_THRESHOLDS.gold) return 'gold';
-        if (points >= BADGE_THRESHOLDS.silver) return 'silver';
-        return 'bronze';
-    }
-
-    // Get next badge
-    function getNextBadge(currentBadge) {
-        const badges = ['bronze', 'silver', 'gold', 'platinum', 'diamond', 'legend'];
-        const index = badges.indexOf(currentBadge);
-        return badges[Math.min(index + 1, badges.length - 1)];
-    }
-
     // Load program stats
     async function loadProgramStats() {
         try {
             const usersSnapshot = await database.ref('users').once('value');
-            const postsSnapshot = await database.ref('feed_posts').once('value');
             
+            document.getElementById('totalMembers').textContent = usersSnapshot.numChildren() || 0;
+            
+            // Count countries
             const countries = new Set();
             usersSnapshot.forEach(child => {
                 if (child.val().country) countries.add(child.val().country);
             });
-            
-            document.getElementById('totalMembers').textContent = usersSnapshot.numChildren() || 0;
-            document.getElementById('totalPosts').textContent = postsSnapshot.numChildren() || 0;
             document.getElementById('totalCountries').textContent = countries.size || 0;
+            
         } catch (error) {
             console.error('Error loading stats:', error);
         }
     }
 
-    // Load members (ambassadors)
+    // Load members
     async function loadMembers() {
         try {
             const snapshot = await database.ref('users').once('value');
@@ -2056,19 +1805,19 @@
         }
     }
 
-    // Display members with message buttons
+    // Display members
     function displayMembers(members) {
         const grid = document.getElementById('membersGrid');
         
         if (!members || members.length === 0) {
-            grid.innerHTML = '<div style="text-align: center; padding: 2rem;">No members yet</div>';
+            grid.innerHTML = '<div class="empty-state">No members yet</div>';
             return;
         }
         
         let html = '';
-        
-        members.forEach(member => {
-            const badge = calculateBadge(member.stats?.points || 0);
+        members.slice(0, 10).forEach(member => {
+            const points = member.stats?.points || 0;
+            const badge = getBadgeLevel(points);
             const isOnline = onlineUsers[member.uid]?.state === 'online';
             
             html += `
@@ -2079,31 +1828,18 @@
                     </div>
                     <div class="member-name">${member.name || 'Ambassador'}</div>
                     <span class="member-badge">${BADGE_NAMES[badge]}</span>
-                    
                     <div class="member-stats">
                         <div class="member-stat">
-                            <div class="member-stat-number">${member.stats?.points || 0}</div>
+                            <span class="member-stat-number">${points}</span>
                             <div>points</div>
                         </div>
-                        <div class="member-stat">
-                            <div class="member-stat-number">${member.stats?.posts || 0}</div>
-                            <div>posts</div>
-                        </div>
                     </div>
-                    
-                    <div class="member-bio">${member.bio || 'Passionate about building unity in Afrika.'}</div>
-                    
-                    <div class="member-actions">
-                        ${currentUser ? `
-                            <button class="member-message" onclick="event.stopPropagation(); messageAmbassador('${member.uid}', '${member.name || 'Ambassador'}')">
-                                <i class="fas fa-comment"></i> Message
-                            </button>
-                        ` : `
-                            <button class="member-connect" onclick="event.stopPropagation(); openAuthModal('login')">
-                                Login to Message
-                            </button>
-                        `}
-                    </div>
+                    <div class="member-bio">${member.bio || 'Passionate about unity'}</div>
+                    ${currentUser ? `
+                        <button class="member-message" onclick="event.stopPropagation(); messageAmbassador('${member.uid}', '${member.name || 'Ambassador'}')">
+                            <i class="fas fa-comment"></i> Message
+                        </button>
+                    ` : ''}
                 </div>
             `;
         });
@@ -2111,149 +1847,40 @@
         grid.innerHTML = html;
     }
 
-    // Message ambassador function - THE BRIDGE BETWEEN VIEWS
+    // Get badge level
+    function getBadgeLevel(points) {
+        if (points >= 2000) return 'legend';
+        if (points >= 1000) return 'diamond';
+        if (points >= 600) return 'platinum';
+        if (points >= 300) return 'gold';
+        if (points >= 100) return 'silver';
+        return 'bronze';
+    }
+
+    // Message ambassador
     function messageAmbassador(uid, name) {
         if (!currentUser) {
             openAuthModal('login');
             return;
         }
         
-        // Close any open modals
         closeProfileModal();
-        
-        // Hide main content wrapper
         document.getElementById('mainContentWrapper').style.display = 'none';
-        
-        // Show messaging container
         document.getElementById('messagingContainer').classList.add('active');
         
-        // Check if conversation already exists
+        // Check for existing conversation
         const existingConv = conversations.find(c => c.otherUid === uid);
         
         if (existingConv) {
-            // Open existing conversation
             openConversation(existingConv.id, uid, name);
         } else {
-            // Create new conversation
             startNewConversation(uid, name);
         }
-        
-        // Show toast
-        showToast(`Starting conversation with ${name}`);
-    }
-
-    // Toggle messaging (from header button)
-    function toggleMessaging() {
-        const container = document.getElementById('messagingContainer');
-        const mainWrapper = document.getElementById('mainContentWrapper');
-        
-        if (container.classList.contains('active')) {
-            // Hide messaging, show main content
-            container.classList.remove('active');
-            mainWrapper.style.display = 'block';
-        } else {
-            // Show messaging, hide main content
-            container.classList.add('active');
-            mainWrapper.style.display = 'none';
-            
-            // Load conversations
-            if (currentUser) {
-                loadConversations(currentUser.uid);
-            }
-        }
-    }
-
-    // Load conversations
-    function loadConversations(uid) {
-        const conversationsRef = database.ref('conversations').orderByChild('participants/' + uid).equalTo(true);
-        
-        conversationsRef.on('value', (snapshot) => {
-            conversations = [];
-            
-            snapshot.forEach((child) => {
-                const conversation = {
-                    id: child.key,
-                    ...child.val()
-                };
-                
-                // Get other participant
-                const otherUid = Object.keys(conversation.participants).find(id => id !== uid);
-                if (otherUid) {
-                    conversation.otherUid = otherUid;
-                    
-                    // Get other user's info
-                    database.ref('users/' + otherUid).once('value').then(userSnap => {
-                        if (userSnap.exists()) {
-                            conversation.otherUser = userSnap.val();
-                        }
-                    });
-                    
-                    // Get last message
-                    database.ref('messages/' + conversation.id)
-                        .orderByChild('timestamp')
-                        .limitToLast(1)
-                        .once('value')
-                        .then(msgSnap => {
-                            msgSnap.forEach(msg => {
-                                conversation.lastMessage = msg.val();
-                            });
-                        });
-                }
-                
-                conversations.push(conversation);
-            });
-            
-            displayConversations();
-        });
-    }
-
-    // Display conversations
-    function displayConversations() {
-        const list = document.getElementById('conversationsList');
-        
-        if (!conversations || conversations.length === 0) {
-            list.innerHTML = `
-                <div style="text-align: center; padding: 2rem;">
-                    <i class="fas fa-comments" style="font-size: 3rem; opacity: 0.5;"></i>
-                    <p>No conversations yet</p>
-                    <p style="font-size: 0.9rem;">Go to Ambassadors tab to start messaging</p>
-                </div>
-            `;
-            return;
-        }
-        
-        let html = '';
-        
-        conversations.forEach(conv => {
-            const otherUser = conv.otherUser || { name: 'Ambassador' };
-            const lastMessage = conv.lastMessage || {};
-            const timeAgo = getTimeAgo(lastMessage.timestamp);
-            const isOnline = onlineUsers[conv.otherUid]?.state === 'online';
-            
-            html += `
-                <div class="conversation-item" onclick="openConversation('${conv.id}', '${conv.otherUid}', '${otherUser.name || 'Ambassador'}')">
-                    <div class="conversation-avatar">
-                        ${otherUser.name ? otherUser.name.charAt(0).toUpperCase() : 'A'}
-                        ${isOnline ? '<span class="online-indicator"></span>' : ''}
-                    </div>
-                    <div class="conversation-info">
-                        <div class="conversation-name">${otherUser.name || 'Ambassador'}</div>
-                        <div class="conversation-last-message">
-                            ${lastMessage.senderId === currentUser?.uid ? 'You: ' : ''}
-                            ${lastMessage.content || 'No messages yet'}
-                        </div>
-                    </div>
-                    <div class="conversation-time">${timeAgo}</div>
-                </div>
-            `;
-        });
-        
-        list.innerHTML = html;
     }
 
     // Start new conversation
     async function startNewConversation(otherUid, otherName) {
-        const conversationId = 'conv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+        const conversationId = 'conv_' + Date.now();
         
         const conversationData = {
             participants: {
@@ -2267,53 +1894,110 @@
             await database.ref('conversations/' + conversationId).set(conversationData);
             
             // Send welcome message
-            const welcomeMessage = {
+            await database.ref('messages/' + conversationId).push({
                 senderId: currentUser.uid,
                 content: `Hello ${otherName}! 👋`,
-                timestamp: Date.now(),
-                status: 'sent'
-            };
-            
-            await database.ref('messages/' + conversationId + '/welcome').set(welcomeMessage);
+                timestamp: Date.now()
+            });
             
             openConversation(conversationId, otherUid, otherName);
             
         } catch (error) {
-            console.error('Error creating conversation:', error);
+            console.error('Error starting conversation:', error);
             showToast('Failed to start conversation');
         }
+    }
+
+    // Load conversations
+    function loadConversations(uid) {
+        database.ref('conversations').orderByChild('participants/' + uid).equalTo(true).on('value', async (snapshot) => {
+            conversations = [];
+            
+            for (const child of Object.values(snapshot.val() || {})) {
+                const conversation = child;
+                const otherUid = Object.keys(conversation.participants).find(id => id !== uid);
+                
+                if (otherUid) {
+                    const userSnap = await database.ref('users/' + otherUid).once('value');
+                    const user = userSnap.val();
+                    
+                    // Get last message
+                    const messagesSnap = await database.ref('messages/' + child.key).orderByChild('timestamp').limitToLast(1).once('value');
+                    let lastMessage = null;
+                    messagesSnap.forEach(msg => {
+                        lastMessage = msg.val();
+                    });
+                    
+                    conversations.push({
+                        id: child.key,
+                        otherUid,
+                        otherUser: user,
+                        lastMessage
+                    });
+                }
+            }
+            
+            displayConversations();
+        });
+    }
+
+    // Display conversations
+    function displayConversations() {
+        const list = document.getElementById('conversationsList');
+        
+        if (conversations.length === 0) {
+            list.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-comments"></i>
+                    <p>No conversations yet</p>
+                    <p style="font-size: 0.8rem;">Go to Ambassadors to start messaging</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        conversations.forEach(conv => {
+            const otherUser = conv.otherUser || { name: 'Ambassador' };
+            const lastMsg = conv.lastMessage || {};
+            const time = lastMsg.timestamp ? new Date(lastMsg.timestamp).toLocaleTimeString() : '';
+            
+            html += `
+                <div class="conversation-item" onclick="openConversation('${conv.id}', '${conv.otherUid}', '${otherUser.name}')">
+                    <div class="conversation-avatar">
+                        ${otherUser.name ? otherUser.name.charAt(0).toUpperCase() : 'A'}
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: var(--gold);">${otherUser.name || 'Ambassador'}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">
+                            ${lastMsg.senderId === currentUser?.uid ? 'You: ' : ''}${lastMsg.content || 'No messages'}
+                        </div>
+                    </div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted);">${time}</div>
+                </div>
+            `;
+        });
+        
+        list.innerHTML = html;
     }
 
     // Open conversation
     function openConversation(conversationId, otherUid, otherName) {
         currentChatId = conversationId;
         
-        // Update UI
         document.getElementById('emptyChat').style.display = 'none';
         document.getElementById('chatHeaderInfo').style.display = 'flex';
         document.getElementById('chatInputArea').style.display = 'block';
-        document.getElementById('sendMessageBtn').disabled = false;
         
-        document.getElementById('chatName').textContent = otherName || 'Ambassador';
-        document.getElementById('chatAvatar').textContent = otherName ? otherName.charAt(0).toUpperCase() : 'A';
-        
-        const isOnline = onlineUsers[otherUid]?.state === 'online';
-        document.getElementById('chatStatus').textContent = isOnline ? '● Online' : '○ Offline';
-        document.getElementById('chatStatus').className = 'chat-header-status ' + (isOnline ? 'online' : '');
+        document.getElementById('chatName').textContent = otherName;
+        document.getElementById('chatAvatar').textContent = otherName.charAt(0).toUpperCase();
         
         // Load messages
-        loadMessages(conversationId);
-    }
-
-    // Load messages
-    function loadMessages(conversationId) {
         if (messagesListener) {
-            messagesListener.off();
+            database.ref('messages/' + conversationId).off('value', messagesListener);
         }
         
-        const messagesRef = database.ref('messages/' + conversationId).orderByChild('timestamp');
-        
-        messagesListener = messagesRef.on('value', (snapshot) => {
+        messagesListener = database.ref('messages/' + conversationId).orderByChild('timestamp').on('value', (snapshot) => {
             const messages = [];
             snapshot.forEach(child => {
                 messages.push({
@@ -2323,8 +2007,12 @@
             });
             
             displayMessages(messages);
-            scrollToBottom();
         });
+        
+        // On mobile, hide sidebar
+        if (window.innerWidth <= 768) {
+            document.getElementById('conversationsSidebar').style.display = 'none';
+        }
     }
 
     // Display messages
@@ -2332,7 +2020,6 @@
         const container = document.getElementById('chatMessages');
         
         let html = '';
-        
         messages.forEach(msg => {
             const isOutgoing = msg.senderId === currentUser?.uid;
             const time = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -2347,7 +2034,8 @@
             `;
         });
         
-        container.innerHTML = html;
+        container.innerHTML = html || '<div class="empty-state">No messages yet</div>';
+        container.scrollTop = container.scrollHeight;
     }
 
     // Send message
@@ -2355,27 +2043,24 @@
         const input = document.getElementById('chatInput');
         const content = input.value.trim();
         
-        if (!content || !currentChatId || !currentUser) return;
-        
-        const messageId = 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-        
-        const messageData = {
-            senderId: currentUser.uid,
-            content: content,
-            timestamp: Date.now(),
-            status: 'sent'
-        };
+        if (!content || !currentChatId) return;
         
         try {
-            await database.ref('messages/' + currentChatId + '/' + messageId).set(messageData);
+            await database.ref('messages/' + currentChatId).push({
+                senderId: currentUser.uid,
+                content: content,
+                timestamp: Date.now()
+            });
             
             input.value = '';
             input.style.height = 'auto';
             
-            // Update user stats
-            const stats = currentUserData?.stats || { points: 0 };
-            stats.points = (stats.points || 0) + 1;
-            await database.ref('users/' + currentUser.uid + '/stats').set(stats);
+            // Update points
+            if (currentUserData) {
+                currentUserData.stats = currentUserData.stats || { points: 0 };
+                currentUserData.stats.points = (currentUserData.stats.points || 0) + 1;
+                await database.ref('users/' + currentUser.uid + '/stats').set(currentUserData.stats);
+            }
             
         } catch (error) {
             console.error('Error sending message:', error);
@@ -2383,150 +2068,47 @@
         }
     }
 
-    // Handle message keydown
-    function handleMessageKeydown(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-        }
+    // Toggle messaging
+    function toggleMessaging() {
+        const container = document.getElementById('messagingContainer');
+        const mainWrapper = document.getElementById('mainContentWrapper');
         
-        // Auto-resize
-        const textarea = e.target;
-        textarea.style.height = 'auto';
-        textarea.style.height = textarea.scrollHeight + 'px';
+        if (container.classList.contains('active')) {
+            container.classList.remove('active');
+            mainWrapper.style.display = 'block';
+        } else {
+            container.classList.add('active');
+            mainWrapper.style.display = 'none';
+        }
     }
 
-    // Scroll to bottom
-    function scrollToBottom() {
-        const container = document.getElementById('chatMessages');
-        container.scrollTop = container.scrollHeight;
-    }
-
-    // Show sidebar on mobile
-    function showSidebar() {
+    // Show conversations list (mobile)
+    function showConversationsList() {
         document.getElementById('conversationsSidebar').style.display = 'flex';
-    }
-
-    // Search conversations
-    function searchConversations() {
-        const searchTerm = document.getElementById('conversationSearch').value.toLowerCase();
-        
-        const filtered = conversations.filter(conv => {
-            const otherName = conv.otherUser?.name?.toLowerCase() || '';
-            return otherName.includes(searchTerm);
-        });
-        
-        // Re-display filtered
-        displayFilteredConversations(filtered);
-    }
-
-    function displayFilteredConversations(filtered) {
-        const list = document.getElementById('conversationsList');
-        
-        if (filtered.length === 0) {
-            list.innerHTML = '<div style="text-align: center; padding: 2rem;">No conversations found</div>';
-            return;
-        }
-        
-        let html = '';
-        
-        filtered.forEach(conv => {
-            const otherUser = conv.otherUser || { name: 'Ambassador' };
-            const lastMessage = conv.lastMessage || {};
-            const timeAgo = getTimeAgo(lastMessage.timestamp);
-            
-            html += `
-                <div class="conversation-item" onclick="openConversation('${conv.id}', '${conv.otherUid}', '${otherUser.name}')">
-                    <div class="conversation-avatar">${otherUser.name ? otherUser.name.charAt(0).toUpperCase() : 'A'}</div>
-                    <div class="conversation-info">
-                        <div class="conversation-name">${otherUser.name || 'Ambassador'}</div>
-                        <div class="conversation-last-message">
-                            ${lastMessage.senderId === currentUser?.uid ? 'You: ' : ''}
-                            ${lastMessage.content || 'No messages yet'}
-                        </div>
-                    </div>
-                    <div class="conversation-time">${timeAgo}</div>
-                </div>
-            `;
-        });
-        
-        list.innerHTML = html;
-    }
-
-    // Setup unread listener
-    function setupUnreadListener(uid) {
-        // Simplified for brevity
-    }
-
-    // Update online statuses
-    function updateOnlineStatuses() {
-        // Update UI with online status
-        loadMembers();
-    }
-
-    // Get time ago
-    function getTimeAgo(timestamp) {
-        if (!timestamp) return '';
-        
-        const seconds = Math.floor((Date.now() - timestamp) / 1000);
-        
-        if (seconds < 60) return 'now';
-        if (seconds < 3600) return Math.floor(seconds / 60) + 'm';
-        if (seconds < 86400) return Math.floor(seconds / 3600) + 'h';
-        if (seconds < 604800) return Math.floor(seconds / 86400) + 'd';
-        return new Date(timestamp).toLocaleDateString();
     }
 
     // View member profile
     async function viewMemberProfile(uid) {
         try {
             const snapshot = await database.ref('users/' + uid).once('value');
-            
-            if (!snapshot.exists()) {
-                showToast('User not found');
-                return;
-            }
-            
             const user = snapshot.val();
-            const badge = calculateBadge(user.stats?.points || 0);
-            const isCurrentUser = currentUser && currentUser.uid === uid;
             
             const modal = document.getElementById('profileModal');
             const content = document.getElementById('profileContent');
+            const isCurrentUser = currentUser && currentUser.uid === uid;
             
             content.innerHTML = `
                 <div style="text-align: center;">
-                    <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--gold); margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">
+                    <div style="width: 100px; height: 100px; border-radius: 50%; background: var(--gold); margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">
                         ${user.name ? user.name.charAt(0).toUpperCase() : 'A'}
                     </div>
                     <h2 style="color: var(--gold);">${user.name || 'Ambassador'}</h2>
-                    <span class="member-badge">${BADGE_NAMES[badge]}</span>
-                    
-                    <div style="margin: 1.5rem 0;">
-                        <p>${user.bio || 'Passionate about building unity in Afrika.'}</p>
-                        ${user.country ? `<p><i class="fas fa-map-marker-alt"></i> ${user.country}</p>` : ''}
-                    </div>
-                    
-                    <div style="display: flex; justify-content: center; gap: 2rem; margin: 1.5rem 0;">
-                        <div>
-                            <div style="font-size: 1.5rem; color: var(--gold);">${user.stats?.points || 0}</div>
-                            <div>Points</div>
-                        </div>
-                        <div>
-                            <div style="font-size: 1.5rem; color: var(--gold);">${user.stats?.posts || 0}</div>
-                            <div>Posts</div>
-                        </div>
-                    </div>
+                    <p style="margin: 1rem 0;">${user.bio || 'Passionate about unity in Afrika.'}</p>
+                    ${user.country ? `<p><i class="fas fa-map-marker-alt"></i> ${user.country}</p>` : ''}
                     
                     ${!isCurrentUser && currentUser ? `
-                        <button class="member-message" style="width: 100%; padding: 1rem;" onclick="messageAmbassador('${uid}', '${user.name || 'Ambassador'}')">
+                        <button class="member-message" style="margin-top: 1rem;" onclick="messageAmbassador('${uid}', '${user.name}')">
                             <i class="fas fa-comment"></i> Send Message
-                        </button>
-                    ` : ''}
-                    
-                    ${!currentUser ? `
-                        <button class="member-connect" style="width: 100%; padding: 1rem;" onclick="openAuthModal('login')">
-                            Login to Message
                         </button>
                     ` : ''}
                 </div>
@@ -2539,9 +2121,40 @@
         }
     }
 
+    // View my profile
+    function viewMyProfile() {
+        if (currentUser) {
+            viewMemberProfile(currentUser.uid);
+        }
+        toggleSideMenu();
+    }
+
     // Close profile modal
     function closeProfileModal() {
         document.getElementById('profileModal').classList.remove('active');
+    }
+
+    // Navigate to section
+    function navigateTo(section) {
+        // Update bottom nav
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        event.currentTarget.classList.add('active');
+        
+        // Handle special sections
+        if (section === 'messages') {
+            toggleMessaging();
+            return;
+        }
+        
+        if (section === 'profile') {
+            viewMyProfile();
+            return;
+        }
+        
+        // Switch tab
+        switchProgramTab(section);
     }
 
     // Switch program tab
@@ -2552,21 +2165,28 @@
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.getElementById(`${tab}-tab`).classList.add('active');
         
-        // Load data for tab if needed
+        // Load data if needed
         if (tab === 'members') loadMembers();
     }
 
-    // Show toast
-    function showToast(message) {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 3000);
+    // Toggle side menu
+    function toggleSideMenu() {
+        const menu = document.getElementById('sideMenu');
+        const overlay = document.getElementById('menuOverlay');
+        
+        menu.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
+
+    // Open SonGa
+    function openSonGa() {
+        window.open('https://whatsapp.com/channel/0029VbBQKpAJJhzWClgEGF2P', '_blank');
     }
 
     // Auth functions
     function openAuthModal(tab) {
         document.getElementById('authModal').classList.add('active');
+        switchAuthTab(tab);
     }
 
     function closeAuthModal() {
@@ -2588,12 +2208,14 @@
     }
 
     async function register() {
+        const name = document.getElementById('registerName').value;
         const email = document.getElementById('registerEmail').value;
         const password = document.getElementById('registerPassword').value;
-        const name = document.getElementById('registerName').value;
+        const country = document.getElementById('registerCountry').value;
+        const bio = document.getElementById('registerBio').value;
         
-        if (!email || !password || !name) {
-            showToast('Please fill all fields');
+        if (!name || !email || !password) {
+            showToast('Please fill all required fields');
             return;
         }
         
@@ -2602,12 +2224,12 @@
             const user = userCredential.user;
             
             await database.ref('users/' + user.uid).set({
-                name: name,
-                email: email,
+                name,
+                email,
+                country,
+                bio,
                 createdAt: Date.now(),
-                stats: { points: 10, posts: 0, connections: 0 },
-                bio: '',
-                country: ''
+                stats: { points: 10, posts: 0 }
             });
             
             closeAuthModal();
@@ -2638,22 +2260,21 @@
 
     function logout() {
         auth.signOut();
-        toggleUserDropdown();
+        toggleSideMenu();
         showToast('Logged out');
-        
-        // Ensure main content is visible
-        document.getElementById('mainContentWrapper').style.display = 'block';
-        document.getElementById('messagingContainer').classList.remove('active');
     }
 
     function toggleUserDropdown() {
         document.getElementById('userDropdown').classList.toggle('active');
     }
 
-    // Placeholder functions
-    function showMyConnections() { showToast('Connections coming soon'); toggleUserDropdown(); }
-    function showMyCircles() { showToast('Circles coming soon'); toggleUserDropdown(); }
-    function showMyProjects() { showToast('Projects coming soon'); toggleUserDropdown(); }
+    // Show toast
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
 
     // Close dropdown on click outside
     document.addEventListener('click', (e) => {
@@ -2673,36 +2294,9 @@
         if (document.body.classList.contains('light-theme')) {
             themeIcon.classList.remove('fa-moon');
             themeIcon.classList.add('fa-sun');
-            localStorage.setItem('theme', 'light');
         } else {
             themeIcon.classList.remove('fa-sun');
             themeIcon.classList.add('fa-moon');
-            localStorage.setItem('theme', 'dark');
-        }
-    });
-
-    // Load saved theme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-        document.body.classList.add('light-theme');
-        themeIcon.classList.remove('fa-moon');
-        themeIcon.classList.add('fa-sun');
-    }
-
-    // PWA install
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById('installButton').classList.add('show');
-    });
-
-    document.getElementById('installButton').addEventListener('click', async () => {
-        document.getElementById('installButton').classList.remove('show');
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            await deferredPrompt.userChoice;
-            deferredPrompt = null;
         }
     });
 </script>
