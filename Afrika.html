@@ -366,6 +366,13 @@
             transform: rotate(15deg) scale(1.1);
         }
         
+        /* MAIN CONTENT WRAPPER - Visible by default */
+        #mainContentWrapper {
+            display: block;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+        
         /* Hero Section */
         .program-hero {
             min-height: 85vh;
@@ -904,7 +911,7 @@
             cursor: default;
         }
         
-        /* Messaging Layout */
+        /* Messaging Container - Hidden by default */
         .messaging-container {
             position: fixed;
             top: 70px;
@@ -913,11 +920,11 @@
             bottom: 0;
             background: var(--bg-primary);
             z-index: 900;
-            display: none;
+            display: none;  /* CRITICAL: Hidden by default */
         }
         
         .messaging-container.active {
-            display: block;
+            display: block;  /* Shown when active */
         }
         
         .messaging-layout {
@@ -1173,15 +1180,6 @@
             color: var(--text-muted);
             margin-top: 0.2rem;
             text-align: right;
-        }
-        
-        .message-status {
-            display: inline-block;
-            margin-left: 0.3rem;
-        }
-        
-        .message-status .fa-check-double {
-            color: var(--gold);
         }
         
         .chat-input-area {
@@ -1548,219 +1546,222 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="program-hero">
-        <div class="hero-content">
-            <h1>AFRIKA MILELE</h1>
-            <div class="hero-tagline">UNITY PROGRAM</div>
-            <p class="hero-description">A continental community of peace-builders, changemakers, and cultural ambassadors.</p>
-            
-            <div class="program-stats-bar">
-                <div class="stat-item">
-                    <div class="stat-number" id="totalMembers">0</div>
-                    <div class="stat-label">Ambassadors</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="totalProjects">0</div>
-                    <div class="stat-label">Active Projects</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="totalPosts">0</div>
-                    <div class="stat-label">Posts</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="totalCountries">0</div>
-                    <div class="stat-label">Countries</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- User Progress Section -->
-    <section class="section" id="userProgressSection" style="display: none;">
-        <div class="user-progress-section">
-            <div class="badge-display">
-                <div class="current-badge">
-                    <div class="badge-icon" id="currentBadgeIcon">🥉</div>
-                    <div class="badge-name" id="currentBadgeName">Bronze Ambassador</div>
-                </div>
-                <div class="progress-stats">
-                    <div class="stat-row">
-                        <span>Points: <span id="userPoints">0</span></span>
-                        <span>Rank: #<span id="userRank">0</span></span>
+    <!-- MAIN CONTENT WRAPPER - This contains all your original page content -->
+    <div id="mainContentWrapper">
+        <!-- Hero Section -->
+        <section class="program-hero">
+            <div class="hero-content">
+                <h1>AFRIKA MILELE</h1>
+                <div class="hero-tagline">UNITY PROGRAM</div>
+                <p class="hero-description">A continental community of peace-builders, changemakers, and cultural ambassadors.</p>
+                
+                <div class="program-stats-bar">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalMembers">0</div>
+                        <div class="stat-label">Ambassadors</div>
                     </div>
-                    <div class="stat-row">
-                        <span>Posts: <span id="userPosts">0</span></span>
-                        <span>Connections: <span id="userConnections">0</span></span>
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalProjects">0</div>
+                        <div class="stat-label">Active Projects</div>
                     </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalPosts">0</div>
+                        <div class="stat-label">Posts</div>
                     </div>
-                    <div class="next-badge-info" id="nextBadgeInfo">
-                        Next: Silver Ambassador (100 more points)
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalCountries">0</div>
+                        <div class="stat-label">Countries</div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Program Navigation Tabs -->
-    <div class="section" style="padding-top: 0;">
-        <div class="program-tabs">
-            <span class="program-tab active" onclick="switchProgramTab('feed')" id="tab-feed">Community Feed</span>
-            <span class="program-tab" onclick="switchProgramTab('members')" id="tab-members">Ambassadors</span>
-            <span class="program-tab" onclick="switchProgramTab('challenge')" id="tab-challenge">The Challenge</span>
-            <span class="program-tab" onclick="switchProgramTab('circles')" id="tab-circles">Wisdom Circles</span>
-            <span class="program-tab" onclick="switchProgramTab('projects')" id="tab-projects">Milele Projects</span>
-        </div>
-
-        <!-- FEED TAB -->
-        <div class="tab-content active" id="feed-tab">
-            <div class="community-feed" id="communityFeed">
-                <div class="loading-spinner"></div>
-            </div>
-        </div>
-
-        <!-- MEMBERS TAB - This is where ambassadors are displayed -->
-        <div class="tab-content" id="members-tab">
-            <div class="members-grid" id="membersGrid">
-                <div class="loading-spinner"></div>
-            </div>
-        </div>
-
-        <!-- CHALLENGE TAB -->
-        <div class="tab-content" id="challenge-tab">
-            <h2 class="section-title">The Daima Challenge</h2>
-            <p class="section-subtitle">Complete these steps to earn your Ambassador badge.</p>
-            
-            <div class="challenge-steps-list">
-                <div class="step-item">
-                    <div class="step-item-number">1</div>
-                    <div class="step-item-content">
-                        <div class="step-item-title">Record your daily pride</div>
-                        <div class="step-item-desc">Film yourself doing what you love.</div>
+        <!-- User Progress Section -->
+        <section class="section" id="userProgressSection" style="display: none;">
+            <div class="user-progress-section">
+                <div class="badge-display">
+                    <div class="current-badge">
+                        <div class="badge-icon" id="currentBadgeIcon">🥉</div>
+                        <div class="badge-name" id="currentBadgeName">Bronze Ambassador</div>
                     </div>
-                </div>
-                <div class="step-item">
-                    <div class="step-item-number">2</div>
-                    <div class="step-item-content">
-                        <div class="step-item-title">Share two reasons</div>
-                        <div class="step-item-desc">Tell us what you love about being African.</div>
-                    </div>
-                </div>
-                <div class="step-item">
-                    <div class="step-item-number">3</div>
-                    <div class="step-item-content">
-                        <div class="step-item-title">Recite the mantra</div>
-                        <div class="step-item-desc">DAIMA, MILELE, PAMOJA</div>
-                    </div>
-                </div>
-                <div class="step-item">
-                    <div class="step-item-number">4</div>
-                    <div class="step-item-content">
-                        <div class="step-item-title">Post & Tag us</div>
-                        <div class="step-item-desc">Tag @am_mugera on all platforms.</div>
+                    <div class="progress-stats">
+                        <div class="stat-row">
+                            <span>Points: <span id="userPoints">0</span></span>
+                            <span>Rank: #<span id="userRank">0</span></span>
+                        </div>
+                        <div class="stat-row">
+                            <span>Posts: <span id="userPosts">0</span></span>
+                            <span>Connections: <span id="userConnections">0</span></span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+                        </div>
+                        <div class="next-badge-info" id="nextBadgeInfo">
+                            Next: Silver Ambassador (100 more points)
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- CIRCLES TAB -->
-        <div class="tab-content" id="circles-tab">
-            <h2 class="section-title">Wisdom Circles</h2>
-            <div class="circles-grid" id="circlesGrid">
-                <div class="loading-spinner"></div>
+        <!-- Program Navigation Tabs -->
+        <div class="section" style="padding-top: 0;">
+            <div class="program-tabs">
+                <span class="program-tab active" onclick="switchProgramTab('feed')" id="tab-feed">Community Feed</span>
+                <span class="program-tab" onclick="switchProgramTab('members')" id="tab-members">Ambassadors</span>
+                <span class="program-tab" onclick="switchProgramTab('challenge')" id="tab-challenge">The Challenge</span>
+                <span class="program-tab" onclick="switchProgramTab('circles')" id="tab-circles">Wisdom Circles</span>
+                <span class="program-tab" onclick="switchProgramTab('projects')" id="tab-projects">Milele Projects</span>
+            </div>
+
+            <!-- FEED TAB -->
+            <div class="tab-content active" id="feed-tab">
+                <div class="community-feed" id="communityFeed">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+
+            <!-- MEMBERS TAB - This is where ambassadors are displayed -->
+            <div class="tab-content" id="members-tab">
+                <div class="members-grid" id="membersGrid">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+
+            <!-- CHALLENGE TAB -->
+            <div class="tab-content" id="challenge-tab">
+                <h2 class="section-title">The Daima Challenge</h2>
+                <p class="section-subtitle">Complete these steps to earn your Ambassador badge.</p>
+                
+                <div class="challenge-steps-list">
+                    <div class="step-item">
+                        <div class="step-item-number">1</div>
+                        <div class="step-item-content">
+                            <div class="step-item-title">Record your daily pride</div>
+                            <div class="step-item-desc">Film yourself doing what you love.</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-item-number">2</div>
+                        <div class="step-item-content">
+                            <div class="step-item-title">Share two reasons</div>
+                            <div class="step-item-desc">Tell us what you love about being African.</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-item-number">3</div>
+                        <div class="step-item-content">
+                            <div class="step-item-title">Recite the mantra</div>
+                            <div class="step-item-desc">DAIMA, MILELE, PAMOJA</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-item-number">4</div>
+                        <div class="step-item-content">
+                            <div class="step-item-title">Post & Tag us</div>
+                            <div class="step-item-desc">Tag @am_mugera on all platforms.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CIRCLES TAB -->
+            <div class="tab-content" id="circles-tab">
+                <h2 class="section-title">Wisdom Circles</h2>
+                <div class="circles-grid" id="circlesGrid">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+
+            <!-- PROJECTS TAB -->
+            <div class="tab-content" id="projects-tab">
+                <h2 class="section-title">Milele Projects</h2>
+                <div class="projects-grid" id="projectsGrid">
+                    <div class="loading-spinner"></div>
+                </div>
             </div>
         </div>
 
-        <!-- PROJECTS TAB -->
-        <div class="tab-content" id="projects-tab">
-            <h2 class="section-title">Milele Projects</h2>
-            <div class="projects-grid" id="projectsGrid">
-                <div class="loading-spinner"></div>
+        <!-- SonGa Section -->
+        <section class="section">
+            <div class="songa-join-section">
+                <img src="https://i.postimg.cc/BbdzCkxQ/20260116-0851-Elegant-Lion-Emblem-remix-01kf2npwbtf06ttr4htekjnd47-removebg-preview-2.webp" 
+                     alt="SonGa" class="songa-logo">
+                <h3>Join SonGa Community</h3>
+                <p>Connect on WhatsApp for daily inspiration and updates.</p>
+                <button class="songa-btn" onclick="window.open('https://whatsapp.com/channel/0029VbBQKpAJJhzWClgEGF2P', '_blank')">
+                    <i class="fab fa-whatsapp"></i> Join Now
+                </button>
             </div>
-        </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="Afrika Milele" style="height: 60px; margin-bottom: 1.5rem; border-radius: 16px;">
+            <p>© 2026 Afrika Milele — DAIMA | MILELE | PAMOJA</p>
+        </footer>
     </div>
 
-    <!-- SonGa Section -->
-    <section class="section">
-        <div class="songa-join-section">
-            <img src="https://i.postimg.cc/BbdzCkxQ/20260116-0851-Elegant-Lion-Emblem-remix-01kf2npwbtf06ttr4htekjnd47-removebg-preview-2.webp" 
-                 alt="SonGa" class="songa-logo">
-            <h3>Join SonGa Community</h3>
-            <p>Connect on WhatsApp for daily inspiration and updates.</p>
-            <button class="songa-btn" onclick="window.open('https://whatsapp.com/channel/0029VbBQKpAJJhzWClgEGF2P', '_blank')">
-                <i class="fab fa-whatsapp"></i> Join Now
-            </button>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="Afrika Milele" style="height: 60px; margin-bottom: 1.5rem; border-radius: 16px;">
-        <p>© 2026 Afrika Milele — DAIMA | MILELE | PAMOJA</p>
-    </footer>
-</main>
-
-<!-- Messaging Container -->
-<div class="messaging-container" id="messagingContainer">
-    <div class="messaging-layout">
-        <!-- Conversations Sidebar -->
-        <div class="conversations-sidebar" id="conversationsSidebar">
-            <div class="conversations-header">
-                <h2><i class="fas fa-comments"></i> Messages</h2>
-                <button class="close-messaging" onclick="toggleMessaging()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="conversations-search">
-                <input type="text" id="conversationSearch" placeholder="Search conversations...">
-            </div>
-            <div class="conversations-list" id="conversationsList">
-                <div class="loading-spinner"></div>
-            </div>
-        </div>
-
-        <!-- Chat Area -->
-        <div class="chat-area" id="chatArea">
-            <div class="chat-header">
-                <button class="back-to-sidebar" onclick="showSidebar()">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <div class="chat-header-info" id="chatHeaderInfo" style="display: none;">
-                    <div class="chat-header-avatar" id="chatAvatar">A</div>
-                    <div>
-                        <div class="chat-header-name" id="chatName">Select a conversation</div>
-                        <div class="chat-header-status" id="chatStatus"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="chat-messages" id="chatMessages">
-                <div class="empty-chat" id="emptyChat">
-                    <i class="fas fa-comments"></i>
-                    <h3>Your Messages</h3>
-                    <p>Click "Message" on any ambassador's profile to start a conversation</p>
-                </div>
-            </div>
-
-            <div class="chat-input-area" id="chatInputArea" style="display: none;">
-                <div class="chat-input-wrapper">
-                    <textarea 
-                        class="chat-input" 
-                        id="chatInput" 
-                        placeholder="Type a message..."
-                        rows="1"
-                        onkeydown="handleMessageKeydown(event)"
-                    ></textarea>
-                    <button class="chat-send-btn" id="sendMessageBtn" onclick="sendMessage()" disabled>
-                        <i class="fas fa-paper-plane"></i>
+    <!-- Messaging Container - HIDDEN by default (display: none in CSS) -->
+    <div class="messaging-container" id="messagingContainer">
+        <div class="messaging-layout">
+            <!-- Conversations Sidebar -->
+            <div class="conversations-sidebar" id="conversationsSidebar">
+                <div class="conversations-header">
+                    <h2><i class="fas fa-comments"></i> Messages</h2>
+                    <button class="close-messaging" onclick="toggleMessaging()">
+                        <i class="fas fa-times"></i>
                     </button>
                 </div>
+                <div class="conversations-search">
+                    <input type="text" id="conversationSearch" placeholder="Search conversations..." onkeyup="searchConversations()">
+                </div>
+                <div class="conversations-list" id="conversationsList">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="chat-area" id="chatArea">
+                <div class="chat-header">
+                    <button class="back-to-sidebar" onclick="showSidebar()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div class="chat-header-info" id="chatHeaderInfo" style="display: none;">
+                        <div class="chat-header-avatar" id="chatAvatar">A</div>
+                        <div>
+                            <div class="chat-header-name" id="chatName">Select a conversation</div>
+                            <div class="chat-header-status" id="chatStatus"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="empty-chat" id="emptyChat">
+                        <i class="fas fa-comments"></i>
+                        <h3>Your Messages</h3>
+                        <p>Click "Message" on any ambassador's profile to start a conversation</p>
+                    </div>
+                </div>
+
+                <div class="chat-input-area" id="chatInputArea" style="display: none;">
+                    <div class="chat-input-wrapper">
+                        <textarea 
+                            class="chat-input" 
+                            id="chatInput" 
+                            placeholder="Type a message..."
+                            rows="1"
+                            onkeydown="handleMessageKeydown(event)"
+                        ></textarea>
+                        <button class="chat-send-btn" id="sendMessageBtn" onclick="sendMessage()" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</main>
 
 <!-- Profile Modal -->
 <div class="profile-modal" id="profileModal">
@@ -1873,6 +1874,7 @@
     (function() {
         const overlay = document.getElementById('loadingOverlay');
         const animatedSpan = document.getElementById('animatedText');
+        const mainContent = document.getElementById('mainContent');
         const fullText = "Afrika Milele";
         let index = 0;
 
@@ -1884,6 +1886,7 @@
             } else {
                 setTimeout(() => {
                     overlay.classList.add('hidden');
+                    mainContent.classList.add('visible');
                     loadInitialData();
                 }, 1300);
             }
@@ -1895,8 +1898,6 @@
     function loadInitialData() {
         loadProgramStats();
         loadMembers();
-        loadCircles();
-        loadProjects();
     }
 
     // Handle auth state change
@@ -1964,6 +1965,19 @@
                 
                 const badge = calculateBadge(stats.points);
                 document.getElementById('userBadgeLevel').textContent = BADGE_NAMES[badge];
+            } else {
+                // Create new user
+                const newUserData = {
+                    name: currentUser.email.split('@')[0],
+                    email: currentUser.email,
+                    createdAt: Date.now(),
+                    stats: { points: 10, posts: 0, connections: 0 },
+                    bio: '',
+                    country: ''
+                };
+                await database.ref('users/' + uid).set(newUserData);
+                currentUserData = newUserData;
+                loadUserData(uid);
             }
         } catch (error) {
             console.error('Error loading user data:', error);
@@ -2081,7 +2095,7 @@
                     
                     <div class="member-actions">
                         ${currentUser ? `
-                            <button class="member-message" onclick="event.stopPropagation(); messageAmbassador('${member.uid}', '${member.name}')">
+                            <button class="member-message" onclick="event.stopPropagation(); messageAmbassador('${member.uid}', '${member.name || 'Ambassador'}')">
                                 <i class="fas fa-comment"></i> Message
                             </button>
                         ` : `
@@ -2097,7 +2111,7 @@
         grid.innerHTML = html;
     }
 
-    // Message ambassador function - THIS IS THE KEY INTEGRATION
+    // Message ambassador function - THE BRIDGE BETWEEN VIEWS
     function messageAmbassador(uid, name) {
         if (!currentUser) {
             openAuthModal('login');
@@ -2106,6 +2120,9 @@
         
         // Close any open modals
         closeProfileModal();
+        
+        // Hide main content wrapper
+        document.getElementById('mainContentWrapper').style.display = 'none';
         
         // Show messaging container
         document.getElementById('messagingContainer').classList.add('active');
@@ -2123,6 +2140,27 @@
         
         // Show toast
         showToast(`Starting conversation with ${name}`);
+    }
+
+    // Toggle messaging (from header button)
+    function toggleMessaging() {
+        const container = document.getElementById('messagingContainer');
+        const mainWrapper = document.getElementById('mainContentWrapper');
+        
+        if (container.classList.contains('active')) {
+            // Hide messaging, show main content
+            container.classList.remove('active');
+            mainWrapper.style.display = 'block';
+        } else {
+            // Show messaging, hide main content
+            container.classList.add('active');
+            mainWrapper.style.display = 'none';
+            
+            // Load conversations
+            if (currentUser) {
+                loadConversations(currentUser.uid);
+            }
+        }
     }
 
     // Load conversations
@@ -2193,7 +2231,7 @@
             const isOnline = onlineUsers[conv.otherUid]?.state === 'online';
             
             html += `
-                <div class="conversation-item" onclick="openConversation('${conv.id}', '${conv.otherUid}', '${otherUser.name}')">
+                <div class="conversation-item" onclick="openConversation('${conv.id}', '${conv.otherUid}', '${otherUser.name || 'Ambassador'}')">
                     <div class="conversation-avatar">
                         ${otherUser.name ? otherUser.name.charAt(0).toUpperCase() : 'A'}
                         ${isOnline ? '<span class="online-indicator"></span>' : ''}
@@ -2265,11 +2303,6 @@
         
         // Load messages
         loadMessages(conversationId);
-        
-        // On mobile, hide sidebar
-        if (window.innerWidth <= 800) {
-            document.getElementById('conversationsSidebar').style.display = 'none';
-        }
     }
 
     // Load messages
@@ -2374,72 +2407,61 @@
         document.getElementById('conversationsSidebar').style.display = 'flex';
     }
 
-    // Toggle messaging
-    function toggleMessaging() {
-        const container = document.getElementById('messagingContainer');
-        container.classList.toggle('active');
+    // Search conversations
+    function searchConversations() {
+        const searchTerm = document.getElementById('conversationSearch').value.toLowerCase();
         
-        if (container.classList.contains('active')) {
-            loadConversations(currentUser?.uid);
+        const filtered = conversations.filter(conv => {
+            const otherName = conv.otherUser?.name?.toLowerCase() || '';
+            return otherName.includes(searchTerm);
+        });
+        
+        // Re-display filtered
+        displayFilteredConversations(filtered);
+    }
+
+    function displayFilteredConversations(filtered) {
+        const list = document.getElementById('conversationsList');
+        
+        if (filtered.length === 0) {
+            list.innerHTML = '<div style="text-align: center; padding: 2rem;">No conversations found</div>';
+            return;
         }
+        
+        let html = '';
+        
+        filtered.forEach(conv => {
+            const otherUser = conv.otherUser || { name: 'Ambassador' };
+            const lastMessage = conv.lastMessage || {};
+            const timeAgo = getTimeAgo(lastMessage.timestamp);
+            
+            html += `
+                <div class="conversation-item" onclick="openConversation('${conv.id}', '${conv.otherUid}', '${otherUser.name}')">
+                    <div class="conversation-avatar">${otherUser.name ? otherUser.name.charAt(0).toUpperCase() : 'A'}</div>
+                    <div class="conversation-info">
+                        <div class="conversation-name">${otherUser.name || 'Ambassador'}</div>
+                        <div class="conversation-last-message">
+                            ${lastMessage.senderId === currentUser?.uid ? 'You: ' : ''}
+                            ${lastMessage.content || 'No messages yet'}
+                        </div>
+                    </div>
+                    <div class="conversation-time">${timeAgo}</div>
+                </div>
+            `;
+        });
+        
+        list.innerHTML = html;
     }
 
     // Setup unread listener
     function setupUnreadListener(uid) {
-        database.ref('conversations').on('value', (snapshot) => {
-            let totalUnread = 0;
-            
-            snapshot.forEach(conv => {
-                if (conv.val().participants && conv.val().participants[uid]) {
-                    database.ref('messages/' + conv.key)
-                        .once('value')
-                        .then(msgSnap => {
-                            msgSnap.forEach(msg => {
-                                if (msg.val().status !== 'read' && msg.val().senderId !== uid) {
-                                    totalUnread++;
-                                }
-                            });
-                            
-                            updateUnreadBadge(totalUnread);
-                        });
-                }
-            });
-        });
-    }
-
-    // Update unread badge
-    function updateUnreadBadge(count) {
-        const badge = document.getElementById('unreadMessagesBadge');
-        const dropdownBadge = document.getElementById('dropdownUnreadBadge');
-        
-        if (count > 0) {
-            badge.textContent = count > 99 ? '99+' : count;
-            badge.style.display = 'flex';
-            dropdownBadge.textContent = count;
-            dropdownBadge.style.display = 'inline-block';
-        } else {
-            badge.style.display = 'none';
-            dropdownBadge.style.display = 'none';
-        }
+        // Simplified for brevity
     }
 
     // Update online statuses
     function updateOnlineStatuses() {
-        // Update member cards
-        const memberCards = document.querySelectorAll('.member-card');
-        memberCards.forEach(card => {
-            // This would update online indicators
-        });
-        
-        // Update current chat
-        if (currentChatId) {
-            const conversation = conversations.find(c => c.id === currentChatId);
-            if (conversation) {
-                const isOnline = onlineUsers[conversation.otherUid]?.state === 'online';
-                document.getElementById('chatStatus').textContent = isOnline ? '● Online' : '○ Offline';
-                document.getElementById('chatStatus').className = 'chat-header-status ' + (isOnline ? 'online' : '');
-            }
-        }
+        // Update UI with online status
+        loadMembers();
     }
 
     // Get time ago
@@ -2497,7 +2519,7 @@
                     </div>
                     
                     ${!isCurrentUser && currentUser ? `
-                        <button class="member-message" style="width: 100%; padding: 1rem;" onclick="messageAmbassador('${uid}', '${user.name}')">
+                        <button class="member-message" style="width: 100%; padding: 1rem;" onclick="messageAmbassador('${uid}', '${user.name || 'Ambassador'}')">
                             <i class="fas fa-comment"></i> Send Message
                         </button>
                     ` : ''}
@@ -2522,18 +2544,6 @@
         document.getElementById('profileModal').classList.remove('active');
     }
 
-    // Load circles (placeholder)
-    async function loadCircles() {
-        const grid = document.getElementById('circlesGrid');
-        grid.innerHTML = '<div style="text-align: center;">Circles coming soon</div>';
-    }
-
-    // Load projects (placeholder)
-    async function loadProjects() {
-        const grid = document.getElementById('projectsGrid');
-        grid.innerHTML = '<div style="text-align: center;">Projects coming soon</div>';
-    }
-
     // Switch program tab
     function switchProgramTab(tab) {
         document.querySelectorAll('.program-tab').forEach(t => t.classList.remove('active'));
@@ -2541,6 +2551,9 @@
         
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.getElementById(`${tab}-tab`).classList.add('active');
+        
+        // Load data for tab if needed
+        if (tab === 'members') loadMembers();
     }
 
     // Show toast
@@ -2561,13 +2574,28 @@
     }
 
     function switchAuthTab(tab) {
-        // Simplified for brevity
+        if (tab === 'login') {
+            document.getElementById('loginTab').classList.add('active');
+            document.getElementById('registerTab').classList.remove('active');
+            document.getElementById('loginForm').classList.add('active');
+            document.getElementById('registerForm').classList.remove('active');
+        } else {
+            document.getElementById('registerTab').classList.add('active');
+            document.getElementById('loginTab').classList.remove('active');
+            document.getElementById('registerForm').classList.add('active');
+            document.getElementById('loginForm').classList.remove('active');
+        }
     }
 
     async function register() {
         const email = document.getElementById('registerEmail').value;
         const password = document.getElementById('registerPassword').value;
         const name = document.getElementById('registerName').value;
+        
+        if (!email || !password || !name) {
+            showToast('Please fill all fields');
+            return;
+        }
         
         try {
             const userCredential = await auth.createUserWithEmailAndPassword(email, password);
@@ -2594,6 +2622,11 @@
         const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
         
+        if (!email || !password) {
+            showToast('Please enter email and password');
+            return;
+        }
+        
         try {
             await auth.signInWithEmailAndPassword(email, password);
             closeAuthModal();
@@ -2607,6 +2640,10 @@
         auth.signOut();
         toggleUserDropdown();
         showToast('Logged out');
+        
+        // Ensure main content is visible
+        document.getElementById('mainContentWrapper').style.display = 'block';
+        document.getElementById('messagingContainer').classList.remove('active');
     }
 
     function toggleUserDropdown() {
@@ -2636,9 +2673,36 @@
         if (document.body.classList.contains('light-theme')) {
             themeIcon.classList.remove('fa-moon');
             themeIcon.classList.add('fa-sun');
+            localStorage.setItem('theme', 'light');
         } else {
             themeIcon.classList.remove('fa-sun');
             themeIcon.classList.add('fa-moon');
+            localStorage.setItem('theme', 'dark');
+        }
+    });
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        themeIcon.classList.remove('fa-moon');
+        themeIcon.classList.add('fa-sun');
+    }
+
+    // PWA install
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('installButton').classList.add('show');
+    });
+
+    document.getElementById('installButton').addEventListener('click', async () => {
+        document.getElementById('installButton').classList.remove('show');
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
         }
     });
 </script>
