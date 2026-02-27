@@ -146,7 +146,7 @@
         }
         @keyframes blinkCursor { 50% { border-color: transparent; } }
         
-        /* ========== MINIMAL PRODUCT ADVERT (only image + overlay) ========== */
+        /* ========== LATEST PRODUCT AD MODAL (image only + overlay) ========== */
         .product-ad-modal {
             position: fixed;
             top: 0;
@@ -179,7 +179,7 @@
             box-shadow: 0 30px 60px rgba(0,0,0,0.8);
             border: 2px solid var(--gold);
             background: #000;
-            aspect-ratio: 1 / 1.2; /* nice portrait ratio */
+            aspect-ratio: 1 / 1.2; /* portrait */
             display: flex;
             flex-direction: column;
         }
@@ -200,10 +200,8 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            transition: transform 0.3s ease;
         }
 
-        /* Overlay with "Just Arrived" and order button */
         .ad-overlay {
             position: absolute;
             bottom: 0;
@@ -283,7 +281,6 @@
             color: black;
         }
 
-        /* countdown inside overlay (small) */
         .ad-countdown {
             font-size: 1rem;
             color: rgba(255,255,255,0.7);
@@ -390,7 +387,7 @@
         }
         .popup-close:hover { background: rgba(202,138,4,0.1); border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
         
-        /* ----- MAIN PAGE STYLES (ORIGINAL, truncated for brevity but fully functional) ----- */
+        /* ----- MAIN PAGE STYLES (ORIGINAL, fully preserved) ----- */
         .page-content { opacity: 0; transition: opacity 1s ease; min-height: 100vh; }
         .page-content.visible { opacity: 1; }
         .site-header {
@@ -477,17 +474,17 @@
         .auth-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(16px); z-index: 9500; display: flex; align-items: center; justify-content: center; padding: 1.5rem; transition: opacity 0.4s ease, visibility 0.4s ease; }
         .auth-modal.hidden { opacity: 0; visibility: hidden; }
         .auth-card { max-width: 460px; width: 100%; background: var(--card-bg); border-radius: 48px; padding: 2.5rem 2.2rem; box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(202,138,4,0.3); border: 1px solid var(--gold); position: relative; }
-        /* auth form styles retained but not shown fully for brevity, they are present in HTML */
+        /* auth form styles continued (present in HTML) */
     </style>
 </head>
 <body class="dark-theme">
 
-<!-- MINIMAL PRODUCT AD MODAL (image + just arrived + order now) -->
+<!-- LATEST PRODUCT AD MODAL -->
 <div class="product-ad-modal hidden" id="productAdModal">
     <div class="ad-minimal-card">
         <div class="ad-close-btn" id="closeAdBtn"><i class="fas fa-times"></i></div>
         <div class="ad-image-container">
-            <img class="ad-product-image" id="adProductImage" src="" alt="New product">
+            <img class="ad-product-image" id="adProductImage" src="" alt="Latest product">
         </div>
         <div class="ad-overlay">
             <span class="just-arrived-badge">✨ JUST ARRIVED ✨</span>
@@ -503,24 +500,16 @@
     </div>
 </div>
 
-<!-- WELCOME POPUP (simplified: Eye, Inspired, Partnerships, Explore) -->
+<!-- WELCOME POPUP (simplified) -->
 <div class="welcome-popup hidden" id="welcomePopup">
     <div class="popup-content">
         <h2>Karibu!</h2>
         <p>Where would you like to go today?</p>
         <div class="popup-buttons">
-            <button class="popup-btn popup-eye" onclick="navigateToEyeOfMugera()">
-                <i class="far fa-newspaper"></i> Eye of Mugera
-            </button>
-            <button class="popup-btn popup-inspired" onclick="navigateToInspiredMe()">
-                <i class="fas fa-seedling"></i> Inspired.Me Program
-            </button>
-            <button class="popup-btn popup-partners" onclick="navigateToPartnerships()">
-                <i class="fas fa-handshake"></i> Partnerships
-            </button>
-            <button class="popup-btn popup-main" onclick="navigateToSection('activities')">
-                <i class="fas fa-compass"></i> Explore more
-            </button>
+            <button class="popup-btn popup-eye" onclick="navigateToEyeOfMugera()"><i class="far fa-newspaper"></i> Eye of Mugera</button>
+            <button class="popup-btn popup-inspired" onclick="navigateToInspiredMe()"><i class="fas fa-seedling"></i> Inspired.Me Program</button>
+            <button class="popup-btn popup-partners" onclick="navigateToPartnerships()"><i class="fas fa-handshake"></i> Partnerships</button>
+            <button class="popup-btn popup-main" onclick="navigateToSection('activities')"><i class="fas fa-compass"></i> Explore more</button>
         </div>
         <button class="popup-close" onclick="closePopup()">Continue to Homepage</button>
     </div>
@@ -530,10 +519,7 @@
 <div class="auth-modal hidden" id="authModal">
     <div class="auth-card">
         <button class="auth-close" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
-        <div class="auth-header">
-            <h3>Mugera Access</h3>
-            <p>join the movement, unlock the experience</p>
-        </div>
+        <div class="auth-header"><h3>Mugera Access</h3><p>join the movement, unlock the experience</p></div>
         <div class="auth-tabs">
             <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Log In</button>
             <button class="auth-tab" id="signupTab" onclick="switchAuthTab('signup')">Sign Up</button>
@@ -544,11 +530,11 @@
             <button class="auth-submit" onclick="handleLogin()"><i class="fas fa-arrow-right-to-bracket"></i> Log In</button>
             <div class="auth-footer"><span onclick="switchAuthTab('signup')">Create new account</span></div>
         </div>
-        <div id="signupForm" class="auth-form" style="display: none;">
-            <div class="auth-input-group"><label>Full name</label><input type="text" class="auth-input-field" placeholder="Wanjiku Njoroge" id="signupName"></div>
-            <div class="auth-input-group"><label>Email</label><input type="email" class="auth-input-field" placeholder="you@example.com" id="signupEmail"></div>
-            <div class="auth-input-group"><label>Password</label><input type="password" class="auth-input-field" placeholder="min. 6 characters" id="signupPassword"></div>
-            <div class="auth-input-group"><label>Confirm password</label><input type="password" class="auth-input-field" placeholder="••••••••" id="signupConfirm"></div>
+        <div id="signupForm" class="auth-form" style="display:none">
+            <div class="auth-input-group"><label>Full name</label><input type="text" class="auth-input-field" id="signupName" placeholder="Wanjiku Njoroge"></div>
+            <div class="auth-input-group"><label>Email</label><input type="email" class="auth-input-field" id="signupEmail" placeholder="you@example.com"></div>
+            <div class="auth-input-group"><label>Password</label><input type="password" class="auth-input-field" id="signupPassword" placeholder="min. 6 characters"></div>
+            <div class="auth-input-group"><label>Confirm password</label><input type="password" class="auth-input-field" id="signupConfirm" placeholder="••••••••"></div>
             <button class="auth-submit" onclick="handleSignup()"><i class="fas fa-user-plus"></i> Create Account</button>
             <div class="auth-footer"><span onclick="switchAuthTab('login')">Already have an account?</span></div>
         </div>
@@ -557,29 +543,22 @@
 
 <!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loadingOverlay">
-    <img src="https://i.postimg.cc/xCvsws8M/20260220-1245-Image-Generation-simple-compose-01khx700xgea3rpkfzhfvyzv5d-1-1.webp" 
-         alt="Afrika Milele" class="hero-image">
-    <div class="afrika-milele-container">
-        <span class="afrika-milele" id="animatedText"></span>
-    </div>
+    <img src="https://i.postimg.cc/xCvsws8M/20260220-1245-Image-Generation-simple-compose-01khx700xgea3rpkfzhfvyzv5d-1-1.webp" alt="Afrika Milele" class="hero-image">
+    <div class="afrika-milele-container"><span class="afrika-milele" id="animatedText"></span></div>
 </div>
 
-<!-- MAIN PAGE CONTENT (fully restored, truncated for space but present) -->
+<!-- MAIN PAGE CONTENT (fully restored) -->
 <main id="mainContent" class="page-content">
     <header class="site-header">
         <div class="header-container">
             <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="I AM MUGERA" class="site-logo">
             <div class="header-right">
-                <div id="userMenu" class="user-menu" style="display: none;">
+                <div id="userMenu" class="user-menu" style="display:none;">
                     <span class="user-name" id="userDisplayName"></span>
                     <div class="user-avatar" id="userAvatar">M</div>
-                    <div class="logout-dropdown">
-                        <div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
-                    </div>
+                    <div class="logout-dropdown"><div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div></div>
                 </div>
-                <div id="loginButton" class="theme-toggle" onclick="openAuthModal()" title="Login / Sign Up" style="width: auto; padding: 0 1.2rem; border-radius: 40px; gap: 0.5rem;">
-                    <i class="fas fa-user-circle"></i><span style="font-size: 0.9rem;">Account</span>
-                </div>
+                <div id="loginButton" class="theme-toggle" onclick="openAuthModal()" title="Login / Sign Up" style="width:auto; padding:0 1.2rem; border-radius:40px; gap:0.5rem;"><i class="fas fa-user-circle"></i><span style="font-size:0.9rem;">Account</span></div>
                 <div class="theme-toggle" id="themeToggle" title="Toggle theme"><i class="fas fa-moon" id="themeIcon"></i></div>
             </div>
         </div>
@@ -601,17 +580,36 @@
 
     <!-- Activities Section (full cards) -->
     <section class="activities-section" id="activities">
-        <div class="section-header"><h2>Explore the Camp</h2><p>Discover the pillars of I AM MUGERA.</p></div>
+        <div class="section-header"><h2>Explore the Camp</h2><p>Discover the pillars of I AM MUGERA — each crafted to inspire and uplift.</p></div>
         <div class="activities-grid">
-            <div class="activity-card">...</div> <!-- cards present in actual code, omitted for space -->
+            <div class="activity-card"><img src="https://i.postimg.cc/W3pyZ0Wc/MUG(8).gif" alt="Mugera" class="card-image"><div class="card-content"><h3>The Voice Central</h3><p>Conversations fueling the African Renaissance.</p><a href="mugera.html" class="card-link">Visit page <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/kGNc3Hg6/MUG(5).gif" alt="Campaigns" class="card-image"><div class="card-content"><h3>Afrika Milele</h3><p>A grassroots movement to promote dignity and drive change. Join campaigns that uplift communities.</p><a href="Afrika.html" class="card-link">Get involved <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/Gm4hfHr4/AFRICA-ON-THE-RISE(2).gif" alt="Eye of Mugera" class="card-image"><div class="card-content"><span class="feature-badge"><i class="far fa-newspaper"></i> Weekly Newsletter</span><h3>Eye of Mugera</h3><p>Weekly insights from the heart of Africa's renaissance. Read exclusive stories or get featured.</p><a href="eye-of-mugera.html" class="card-link">Read & get featured <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/5yPXC5PZ/MUG(6).gif" alt="Shop" class="card-image"><div class="card-content"><h3>Shop</h3><p>Books, merchandise, and digital content that carry the spirit of Afrika Milele. Wear the pride, read the wisdom.</p><a href="shop.html" class="card-link">Browse store <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/wTYpGgpC/MUG(9).gif" alt="World Tour" class="card-image"><div class="card-content"><span class="feature-badge"><i class="fas fa-globe-africa"></i> Coming Soon</span><h3>World Tour Series</h3><p>Explore the cultures of all African countries and across the world. A journey through heritage, stories, and spirit.</p><a href="#" onclick="showElegantMessage('🌍 World Tour Series is launching soon. Be the first to explore!', 'info'); return false;" class="card-link">Notify Me <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/ZqkDY1bN/MUG(12).gif" alt="Inspired.Me" class="card-image"><div class="card-content"><span class="feature-badge inspired-badge"><i class="fas fa-seedling"></i> Whole Person</span><h3>Inspired.Me</h3><p>Physical · Mental · Social · Financial — a holistic journey to transform every dimension of your life.</p><a href="inspire-program.html" class="card-link">Begin transformation <i class="fas fa-arrow-right"></i></a></div></div>
         </div>
     </section>
 
-    <section class="community-section" id="sonGaCommunity">...</section>
+    <!-- SonGa Community Section -->
+    <section class="community-section" id="sonGaCommunity">
+        <div class="sonGa-spotlight">
+            <img src="https://i.postimg.cc/BbdzCkxQ/20260116-0851-Elegant-Lion-Emblem-remix-01kf2npwbtf06ttr4htekjnd47-removebg-preview-2.webp" alt="SonGa" class="community-logo-large">
+            <h2>SonGa</h2><div class="sonGa-tagline">the heartbeat of mugera</div>
+            <div class="sonGa-stats-minimal"><div class="stat-item"><div class="stat-number-large" id="sonGaMemberCount">127</div><div class="stat-label-large">MEMBERS</div></div></div>
+            <div class="sonGa-form">
+                <div class="form-group"><label class="form-label">Full name</label><input type="text" class="form-input" id="sonGaName" placeholder="e.g., Wanjiku Njoroge"></div>
+                <div class="form-group"><label class="form-label">Email address</label><input type="email" class="form-input" id="sonGaEmail" placeholder="you@example.com"></div>
+                <div class="form-group"><label class="form-label">Phone (WhatsApp)</label><input type="tel" class="form-input" id="sonGaPhone" placeholder="+254 ..."></div>
+                <div class="form-group"><label class="form-label">Your County / Location</label><select class="form-select" id="sonGaLocation"><option value="Nairobi">Nairobi</option><option value="Uthiru">Uthiru</option><option value="Lavington">Lavington</option><option value="Satelite">Satelite</option><option value="Kisumu">Kisumu</option><option value="Mombasa">Mombasa</option><option value="Nakuru">Nakuru</option><option value="Other">Other</option></select></div>
+                <button class="join-btn-songa" onclick="joinSonGa()"><i class="fab fa-whatsapp"></i> Join SonGa</button>
+            </div>
+        </div>
+    </section>
 
     <footer class="footer">
         <p>© 2026 I AM MUGERA — Afrika Milele. All rights reserved.</p>
-        <p><a href="#">About</a> · <a href="#">Campaigns</a> · <a href="#">Eye of Mugera</a> · <a href="shop.html">Shop</a> · <a href="payments.html">Partnerships</a> · <a href="inspire-program.html">Inspired.Me</a></p>
+        <p><a href="mugera.html">About</a> · <a href="Afrika.html">Campaigns</a> · <a href="eye-of-mugera.html">Eye of Mugera</a> · <a href="shop.html">Shop</a> · <a href="payments.html">Partnerships</a> · <a href="inspire-program.html">Inspired.Me</a></p>
     </footer>
 </main>
 
@@ -668,28 +666,42 @@
         setTimeout(() => { if (!overlay.classList.contains('hidden')) { overlay.classList.add('hidden'); mainContent.classList.add('visible'); } }, 7000);
     })();
 
-    // ----- FETCH RANDOM PRODUCT FROM FIREBASE (store.products) -----
+    // ----- FETCH LATEST PRODUCT FROM FIREBASE (store.products) -----
     const productModal = document.getElementById('productAdModal');
     const welcomePopup = document.getElementById('welcomePopup');
     let countdownInterval;
 
-    function fetchRandomProductAndShow() {
+    function fetchLatestProductAndShow() {
         if (!database) {
             showFallbackAd();
             return;
         }
+        // Reference to store/products
         database.ref('store/products').once('value', (snapshot) => {
             const productsObj = snapshot.val();
             if (!productsObj) { showFallbackAd(); return; }
-            
-            const products = Object.values(productsObj).filter(p => p.visible !== false);
-            if (products.length === 0) { showFallbackAd(); return; }
-            
-            // pick any random product (no badge filtering)
-            const randomIndex = Math.floor(Math.random() * products.length);
-            const product = products[randomIndex];
-            
-            displayProductAd(product);
+
+            // Convert to array with keys (to find latest by timestamp in key)
+            const productEntries = Object.entries(productsObj);
+            // Filter visible products
+            const visible = productEntries.filter(([key, p]) => p.visible !== false);
+            if (visible.length === 0) { showFallbackAd(); return; }
+
+            // Find the one with the most recent timestamp in its key (e.g., product_1772016071312_e4k8kg)
+            // Keys like product_<timestamp>_* or store_order_* - we extract numeric part after first underscore
+            const withTimestamp = visible.map(([key, p]) => {
+                const match = key.match(/(\d+)/g);
+                const ts = match ? parseInt(match[0], 10) : 0;
+                return { key, ts, product: p };
+            }).filter(item => item.ts > 0);
+
+            if (withTimestamp.length === 0) { showFallbackAd(); return; }
+
+            // Sort descending by timestamp
+            withTimestamp.sort((a, b) => b.ts - a.ts);
+            const latest = withTimestamp[0].product;
+
+            displayProductAd(latest);
         }, (error) => {
             console.warn('Firebase read failed, using fallback', error);
             showFallbackAd();
@@ -712,7 +724,6 @@
         
         productModal.classList.remove('hidden');
         
-        // start 5-second countdown
         let secondsLeft = 5;
         const countdownEl = document.getElementById('countdownNumber');
         countdownEl.textContent = secondsLeft;
@@ -729,7 +740,6 @@
         }, 1000);
     }
 
-    // Close button
     document.getElementById('closeAdBtn').addEventListener('click', function() {
         clearInterval(countdownInterval);
         productModal.classList.add('hidden');
@@ -740,7 +750,7 @@
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((m) => {
             if (m.target.classList.contains('hidden') && m.target.id === 'loadingOverlay') {
-                fetchRandomProductAndShow();
+                fetchLatestProductAndShow();
             }
         });
     });
@@ -751,7 +761,7 @@
     window.showPopup = function() { welcomePopup.classList.remove('hidden'); };
     window.handleOrderNow = function() { window.location.href = 'shop.html'; };
 
-    // Navigation functions
+    // Navigation
     window.navigateToEyeOfMugera = function() { closePopup(); window.location.href = 'eye-of-mugera.html'; };
     window.navigateToInspiredMe = function() { closePopup(); window.location.href = 'inspire-program.html'; };
     window.navigateToPartnerships = function() { closePopup(); window.location.href = 'payments.html'; };
@@ -819,7 +829,5 @@
     window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('installButton').classList.add('show'); });
     document.getElementById('installButton').addEventListener('click', async () => { document.getElementById('installButton').classList.remove('show'); if(deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; } });
 </script>
-<!-- include missing sonGaMemberCount element and other small elements from original -->
-<span id="sonGaMemberCount" style="display: none;">127</span>
 </body>
 </html>
