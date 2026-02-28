@@ -2,30 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">    
-    <!-- PWA Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- Meta Tags -->
     <meta name="theme-color" content="#ca8a04" id="themeColor">
-    <meta name="background-color" content="#0a0a0a" id="bgColorMeta">
     <meta name="color-scheme" content="dark light">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Afrika Milele Challenges">
-    <meta name="application-name" content="Afrika Milele Unity Program">
+    <meta name="apple-mobile-web-app-title" content="Afrika Milele">
     
-    <!-- Version & Build -->
-    <meta name="version" content="6.1.0">
-    <meta name="build-date" content="2025-02-28">
-    
-    <title>Afrika Milele | The Daima Challenge</title>
+    <title>Afrika Milele | Ambassador Challenge</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
-    <link rel="apple-touch-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
-    
-    <!-- PWA manifest -->
-    <link rel="manifest" href="/manifest.json">
     
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -34,1311 +24,1048 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
     
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
-            --gold: #ca8a04;
-            --gold-dark: #a16207;
-            --gold-light: #fef3c7;
-            --gold-gradient: linear-gradient(135deg, #f5e7c8, #ca8a04, #f5e7c8);
+            --primary: #ca8a04;
+            --primary-dark: #a16207;
+            --primary-light: #fef3c7;
+            --primary-gradient: linear-gradient(135deg, #f5e7c8, #ca8a04, #f5e7c8);
             
-            /* Badge Colors */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #121212;
+            --bg-card: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-muted: #9ca3af;
+            --border-color: #2a2a2a;
+            --shadow-color: rgba(202, 138, 4, 0.15);
+            
             --badge-bronze: #cd7f32;
             --badge-silver: #c0c0c0;
             --badge-gold: #ffd700;
             --badge-platinum: #e5e4e2;
             --badge-diamond: #b9f2ff;
             --badge-legend: #8a2be2;
-            
-            /* Dark theme (default) */
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #1a1a1a;
-            --bg-card: rgba(255,255,255,0.05);
-            --text-primary: #ffffff;
-            --text-secondary: #e0e0e0;
-            --text-muted: #a0a0a0;
-            --border-light: #333333;
-            --shadow-color: rgba(202,138,4,0.25);
-            --nav-bg: rgba(10,10,10,0.95);
-            --card-bg: #1e1e1e;
-            --glass-bg: rgba(30,30,30,0.8);
         }
 
         body.light-theme {
-            --bg-primary: #faf7f2;
+            --bg-primary: #f8f9fa;
             --bg-secondary: #ffffff;
             --bg-card: #ffffff;
-            --text-primary: #1e1e1e;
+            --text-primary: #1a1a1a;
             --text-secondary: #2d2d2d;
-            --text-muted: #5a5a5a;
-            --border-light: #dddddd;
-            --shadow-color: rgba(202,138,4,0.3);
-            --nav-bg: rgba(255,255,255,0.97);
-            --card-bg: #ffffff;
-            --glass-bg: rgba(255,255,255,0.8);
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --shadow-color: rgba(202, 138, 4, 0.1);
         }
 
         body {
             font-family: 'Inter', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
-            transition: background-color 0.3s, color 0.2s;
-            scroll-behavior: smooth;
+            line-height: 1.5;
+            transition: background-color 0.3s, color 0.3s;
         }
-        
-        /* Loading overlay */
+
+        /* Loading Overlay */
         .loading-overlay {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #0a0a0a;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             z-index: 10000;
-            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.6s;
-            padding: 1.5rem;
+            transition: opacity 0.5s, visibility 0.5s;
         }
+
         .loading-overlay.hidden {
             opacity: 0;
             visibility: hidden;
         }
-        .hero-image {
-            max-width: min(85%, 700px);
-            max-height: 45vh;
-            border-radius: 32px;
-            box-shadow: 0 30px 60px -10px rgba(202,138,4,0.5);
+
+        .loading-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            animation: pulse 2s infinite;
             margin-bottom: 2rem;
-            border: 3px solid var(--gold);
-            object-fit: cover;
-            animation: float 6s ease-in-out infinite;
         }
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-        
-        .afrika-milele-container {
-            text-align: center;
-            margin-top: 1rem;
-        }
-        .afrika-milele {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(2.5rem, 8vw, 4.5rem);
-            font-weight: 800;
-            letter-spacing: 6px;
-            background: var(--gold-gradient);
+
+        .loading-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            background: var(--primary-gradient);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 30px rgba(202,138,4,0.6);
-            border-right: 4px solid var(--gold);
-            padding-right: 12px;
-            white-space: nowrap;
-            overflow: hidden;
-            animation: blink 0.8s step-end infinite;
+            letter-spacing: 2px;
         }
-        @keyframes blink { 50% { border-color: transparent; } }
-        
-        .page-content { opacity: 0; transition: opacity 0.8s ease; min-height: 100vh; }
-        .page-content.visible { opacity: 1; }
-        
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
         /* Header */
         .site-header {
             position: fixed;
-            top: 0; width: 100%;
-            background: var(--nav-bg);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(202,138,4,0.3);
+            top: 0;
+            width: 100%;
+            background: var(--bg-secondary);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
             z-index: 1000;
-            padding: 0.5rem 2rem;
-            transition: 0.3s;
+            padding: 0.75rem 1.5rem;
         }
+
         .header-container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        .site-logo {
-            height: 48px;
-            width: auto;
-            border-radius: 12px;
-            transition: transform 0.3s;
-        }
-        .site-logo:hover { transform: scale(1.05); }
-        
-        .header-right {
+
+        .logo-link {
             display: flex;
             align-items: center;
-            gap: 1.2rem;
-        }
-        
-        /* Auth Buttons */
-        .auth-buttons {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        
-        .btn-auth {
-            padding: 0.5rem 1.2rem;
-            border: 2px solid var(--gold);
-            background: transparent;
-            color: var(--gold);
-            border-radius: 30px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 0.9rem;
-        }
-        
-        .btn-auth:hover {
-            background: var(--gold);
-            color: var(--bg-primary);
-        }
-        
-        .btn-auth.primary {
-            background: var(--gold);
-            color: var(--bg-primary);
-        }
-        
-        .btn-auth.primary:hover {
-            background: transparent;
-            color: var(--gold);
-        }
-        
-        /* User Menu */
-        .user-menu {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .user-menu-btn {
-            background: var(--gold);
-            color: var(--bg-primary);
-            border: none;
-            border-radius: 30px;
-            padding: 0.5rem 1.2rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-        
-        .user-badge-indicator {
-            background: var(--bg-primary);
-            color: var(--gold);
-            border-radius: 20px;
-            padding: 0.2rem 0.6rem;
-            font-size: 0.7rem;
-            margin-left: 0.3rem;
-        }
-        
-        .user-dropdown {
-            position: absolute;
-            top: 45px;
-            right: 0;
-            background: var(--card-bg);
-            border: 2px solid var(--gold);
-            border-radius: 20px;
-            min-width: 220px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            display: none;
-            z-index: 1001;
-            overflow: hidden;
-        }
-        
-        .user-dropdown.active {
-            display: block;
-        }
-        
-        .user-dropdown a, .user-dropdown button {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
+            gap: 0.75rem;
             text-decoration: none;
+        }
+
+        .logo-image {
+            height: 40px;
+            width: auto;
+            border-radius: 8px;
+        }
+
+        .logo-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+
+        .hamburger-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
             color: var(--text-primary);
+            font-size: 1.5rem;
+        }
+
+        .hamburger-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Menu Modal */
+        .menu-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+        }
+
+        .menu-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .menu-content {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            background: var(--bg-secondary);
+            border-left: 2px solid var(--primary);
+            padding: 2rem;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .menu-modal.active .menu-content {
+            transform: translateX(0);
+        }
+
+        .menu-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .menu-header h3 {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .menu-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 2rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .menu-close:hover {
+            color: var(--primary);
+            background: rgba(202, 138, 4, 0.1);
+        }
+
+        .menu-section {
+            margin-bottom: 2rem;
+        }
+
+        .menu-section-title {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: 0.2s;
+            cursor: pointer;
             width: 100%;
             border: none;
             background: none;
-            cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 1rem;
             text-align: left;
-            transition: 0.2s;
         }
-        
-        .user-dropdown a:hover, .user-dropdown button:hover {
-            background: rgba(202,138,4,0.1);
+
+        .menu-item:hover {
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--primary);
         }
-        
-        .theme-toggle {
-            background: transparent;
-            border: 2px solid var(--gold);
-            color: var(--gold);
-            width: 45px; height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.4rem;
-            transition: 0.3s;
+
+        .menu-item i {
+            width: 24px;
+            color: var(--primary);
         }
-        .theme-toggle:hover {
-            background: var(--gold);
+
+        .menu-badge {
+            margin-left: auto;
+            background: var(--primary);
             color: var(--bg-primary);
-            transform: rotate(15deg) scale(1.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
-        
+
+        .theme-toggle-menu {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-radius: 12px;
+            background: var(--bg-card);
+        }
+
         /* Hero Section */
-        .challenge-hero {
+        .hero {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.7)), 
+                        url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover;
             min-height: 60vh;
-            background: linear-gradient(135deg, rgba(0,0,0,0.85), rgba(0,0,0,0.75)), 
-                        url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover fixed;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
             padding: 8rem 2rem 4rem;
-        }
-        body.light-theme .challenge-hero {
-            background: linear-gradient(135deg, rgba(255,245,235,0.9), rgba(255,255,255,0.9)), 
-                        url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover fixed;
-        }
-        .hero-content { max-width: 900px; }
-        .hero-content h1 {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(3rem, 8vw, 5rem);
-            background: var(--gold-gradient);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 0.5rem;
-        }
-        .challenge-badge {
-            display: inline-block;
-            background: var(--gold);
-            color: black;
-            padding: 0.5rem 2rem;
-            border-radius: 40px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            margin-bottom: 1rem;
-        }
-        .hero-stats {
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            margin: 2rem 0;
-            flex-wrap: wrap;
-        }
-        .stat-item {
             text-align: center;
         }
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--gold);
+
+        body.light-theme .hero {
+            background: linear-gradient(to bottom, rgba(255,255,255,0.9), rgba(255,255,255,0.7)),
+                        url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover;
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            color: var(--primary);
+            margin-bottom: 1rem;
             line-height: 1.2;
         }
+
+        .hero-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.2;
+            margin-bottom: 0.5rem;
+        }
+
         .stat-label {
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        
-        /* Navigation */
-        .main-nav {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(202,138,4,0.3);
-            position: sticky;
-            top: 70px;
-            z-index: 900;
-        }
-        .nav-container {
-            max-width: 1200px;
+
+        /* Main Content */
+        .main-content {
+            max-width: 1000px;
             margin: 0 auto;
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            padding: 0.5rem 1rem;
-            flex-wrap: wrap;
+            padding: 3rem 1.5rem;
         }
-        .nav-link {
-            padding: 0.8rem 1.5rem;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 600;
-            border-radius: 30px;
-            transition: 0.2s;
-            cursor: pointer;
-        }
-        .nav-link:hover {
-            color: var(--gold);
-        }
-        .nav-link.active {
-            background: var(--gold);
-            color: var(--bg-primary);
-        }
-        
-        /* Sections */
-        .section {
-            padding: 4rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .section-title {
-            font-family: 'Cinzel', serif;
-            font-size: 2.5rem;
-            color: var(--gold);
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        .section-title::after {
-            content: '';
-            display: block;
-            width: 60px;
-            height: 3px;
-            background: var(--gold);
-            margin: 1rem auto 0;
-            border-radius: 3px;
-        }
-        
-        /* Challenge Steps */
-        .challenge-container {
-            background: var(--card-bg);
-            border-radius: 40px;
-            padding: 2.5rem;
-            margin: 2rem 0;
-            border: 2px solid var(--gold);
-        }
-        .challenge-steps-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-        .step-card {
-            background: var(--bg-primary);
+
+        /* Ambassador Progress */
+        .ambassador-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
             border-radius: 24px;
-            padding: 1.5rem;
-            border: 1px solid var(--border-light);
-            transition: 0.3s;
-            position: relative;
-            cursor: pointer;
-        }
-        .step-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--gold);
-            box-shadow: 0 10px 25px var(--shadow-color);
-        }
-        .step-card.completed {
-            border-color: var(--gold);
-            background: rgba(202,138,4,0.1);
-        }
-        .step-number {
-            font-size: 3rem;
-            font-weight: 800;
-            color: rgba(202,138,4,0.2);
-            position: absolute;
-            top: 10px;
-            right: 15px;
-        }
-        .step-icon {
-            font-size: 2rem;
-            color: var(--gold);
-            margin-bottom: 1rem;
-        }
-        .step-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--gold);
-            margin-bottom: 0.5rem;
-        }
-        .step-desc {
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-        }
-        .step-status {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-top: 1rem;
-            color: var(--text-muted);
-        }
-        .step-checkbox {
-            width: 24px;
-            height: 24px;
-            border: 2px solid var(--gold);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--bg-primary);
-            background: transparent;
-            transition: 0.2s;
-        }
-        .step-checkbox.checked {
-            background: var(--gold);
-        }
-        .social-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin: 1rem 0;
-        }
-        .social-tag {
-            background: rgba(202,138,4,0.15);
-            border: 1px solid var(--gold);
-            padding: 0.3rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            color: var(--gold);
-        }
-        
-        /* User Progress Card */
-        .user-progress-card {
-            background: linear-gradient(145deg, rgba(202,138,4,0.1), transparent);
-            border-radius: 30px;
             padding: 2rem;
-            margin: 2rem 0;
-            border: 1px solid var(--gold);
+            margin-bottom: 3rem;
         }
-        .progress-header {
+
+        .ambassador-header {
             display: flex;
             align-items: center;
             gap: 2rem;
             flex-wrap: wrap;
         }
-        .badge-showcase {
-            text-align: center;
-        }
-        .badge-icon-large {
-            width: 120px;
-            height: 120px;
-            border-radius: 60px;
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+
+        .badge-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            border: 3px solid var(--gold);
+            font-size: 2.5rem;
+            border: 3px solid var(--primary);
         }
-        .badge-name {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--gold);
-        }
-        .progress-details {
+
+        .ambassador-info {
             flex: 1;
         }
-        .progress-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin: 1.5rem 0;
+
+        .ambassador-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
         }
-        .stat-box {
-            background: var(--bg-primary);
+
+        .ambassador-badge {
+            display: inline-block;
+            padding: 0.25rem 1rem;
+            background: rgba(202, 138, 4, 0.1);
+            border: 1px solid var(--primary);
             border-radius: 20px;
-            padding: 1rem;
-            text-align: center;
+            color: var(--primary);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
         }
-        .stat-box-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--gold);
-        }
-        .stat-box-label {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-        .progress-bar-container {
-            height: 20px;
+
+        .points-bar {
+            height: 8px;
             background: var(--bg-primary);
-            border-radius: 10px;
+            border-radius: 4px;
             overflow: hidden;
             margin: 1rem 0;
         }
-        .progress-bar-fill {
+
+        .points-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            background: var(--primary);
             transition: width 0.3s;
-            position: relative;
         }
-        .progress-bar-fill::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-        
-        /* Submissions Gallery - Text Only */
-        .gallery-header {
+
+        .points-stats {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 2rem;
-        }
-        .gallery-filters {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .filter-btn {
-            padding: 0.5rem 1.2rem;
-            background: transparent;
-            border: 1px solid var(--border-light);
-            border-radius: 30px;
             color: var(--text-muted);
-            cursor: pointer;
-            transition: 0.2s;
+            font-size: 0.875rem;
         }
-        .filter-btn:hover {
-            border-color: var(--gold);
-            color: var(--gold);
-        }
-        .filter-btn.active {
-            background: var(--gold);
-            color: var(--bg-primary);
-            border-color: var(--gold);
-        }
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 2rem;
-        }
-        .submission-card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 1.5rem;
-            border: 1px solid var(--border-light);
-            transition: 0.3s;
-            cursor: pointer;
-        }
-        .submission-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--gold);
-            box-shadow: 0 15px 30px var(--shadow-color);
-        }
-        .submission-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+
+        /* Challenge Section */
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--primary);
+            text-align: center;
             margin-bottom: 1rem;
         }
-        .submission-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 25px;
-            background: var(--gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: var(--bg-primary);
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .submission-user {
-            flex: 1;
-            cursor: pointer;
-        }
-        .submission-name {
-            font-weight: 700;
-            color: var(--gold);
-            font-size: 1.1rem;
-        }
-        .submission-badge {
-            font-size: 0.8rem;
+
+        .section-subtitle {
+            text-align: center;
             color: var(--text-muted);
+            margin-bottom: 3rem;
         }
-        .submission-step {
-            display: inline-block;
-            background: rgba(202,138,4,0.15);
-            color: var(--gold);
-            padding: 0.2rem 1rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            margin: 0.5rem 0;
-        }
-        .submission-message {
-            color: var(--text-secondary);
-            margin: 1rem 0;
-            line-height: 1.6;
-            font-style: italic;
-        }
-        .submission-link {
-            color: var(--gold);
-            text-decoration: none;
-            word-break: break-all;
-            font-size: 0.9rem;
-            display: inline-block;
-            margin: 0.5rem 0;
-        }
-        .submission-link:hover {
-            text-decoration: underline;
-        }
-        .submission-meta {
-            display: flex;
+
+        .challenge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-light);
-            margin-top: 1rem;
+            margin-bottom: 2rem;
         }
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-            cursor: pointer;
-        }
-        .meta-item:hover {
-            color: var(--gold);
-        }
-        .meta-item i.liked {
-            color: #ff4444;
-        }
-        
-        /* Leaderboard */
-        .leaderboard-container {
-            background: var(--card-bg);
-            border-radius: 30px;
-            padding: 2rem;
-            border: 1px solid var(--gold);
-        }
-        .leaderboard-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-light);
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .leaderboard-item:hover {
-            background: rgba(202,138,4,0.05);
-        }
-        .leaderboard-item:last-child {
-            border-bottom: none;
-        }
-        .leaderboard-rank {
-            width: 40px;
-            height: 40px;
-            background: var(--gold);
+
+        .challenge-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
             border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            color: var(--bg-primary);
-        }
-        .leaderboard-rank.top1 { background: #ffd700; }
-        .leaderboard-rank.top2 { background: #c0c0c0; }
-        .leaderboard-rank.top3 { background: #cd7f32; }
-        .leaderboard-info {
-            flex: 1;
-        }
-        .leaderboard-name {
-            font-weight: 600;
-            color: var(--gold);
-        }
-        .leaderboard-stats {
-            display: flex;
-            gap: 1rem;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-        .leaderboard-points {
-            font-weight: 700;
-            color: var(--gold);
-        }
-        
-        /* Submit Modal */
-        .submit-modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(12px);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 1.5rem;
+            transition: 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .challenge-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+
+        .challenge-card.completed {
+            background: linear-gradient(145deg, rgba(202, 138, 4, 0.1), transparent);
+            border-color: var(--primary);
+        }
+
+        .challenge-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: rgba(202, 138, 4, 0.2);
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        .challenge-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .challenge-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            padding-right: 2rem;
+        }
+
+        .challenge-description {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .challenge-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .challenge-tag {
+            background: rgba(202, 138, 4, 0.1);
+            border: 1px solid var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--primary);
+        }
+
+        .challenge-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .challenge-points {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .challenge-check {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            border: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-primary);
+            background: transparent;
+        }
+
+        .challenge-check.completed {
+            background: var(--primary);
+        }
+
+        /* Submit Button */
+        .submit-button {
+            background: var(--primary);
+            color: var(--bg-primary);
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 40px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 2rem;
+        }
+
+        .submit-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px var(--shadow-color);
+        }
+
+        .submit-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .submit-button:disabled:hover {
+            background: var(--primary);
+            box-shadow: none;
+        }
+
+        /* Completion Message */
+        .completion-message {
+            background: rgba(202, 138, 4, 0.1);
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .completion-message h3 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .completion-message p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .badge-preview {
+            display: inline-block;
+            padding: 0.5rem 2rem;
+            background: var(--primary);
+            color: var(--bg-primary);
+            border-radius: 40px;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 3000;
             opacity: 0;
             visibility: hidden;
-            transition: 0.4s;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
         }
-        .submit-modal.active {
+
+        .modal.active {
             opacity: 1;
             visibility: visible;
         }
-        .submit-content {
-            max-width: 600px;
-            width: 100%;
-            background: var(--card-bg);
-            border-radius: 40px;
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 2px solid var(--primary);
+            border-radius: 30px;
             padding: 2.5rem;
-            border: 2px solid var(--gold);
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
             position: relative;
         }
+
         .modal-close {
             position: absolute;
             top: 1rem;
             right: 1rem;
             background: none;
             border: none;
-            color: var(--gold);
+            color: var(--text-muted);
             font-size: 2rem;
             cursor: pointer;
             width: 40px;
             height: 40px;
-            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-radius: 8px;
         }
+
         .modal-close:hover {
-            background: rgba(202,138,4,0.1);
+            color: var(--primary);
         }
+
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+        }
+
         .form-group {
             margin-bottom: 1.5rem;
         }
+
         .form-label {
             display: block;
             margin-bottom: 0.5rem;
-            color: var(--gold);
-            font-weight: 600;
+            color: var(--text-secondary);
+            font-weight: 500;
         }
+
         .form-input, .form-select, .form-textarea {
             width: 100%;
             padding: 1rem;
             background: var(--bg-primary);
-            border: 1px solid var(--border-light);
-            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
             color: var(--text-primary);
             font-family: inherit;
-        }
-        .form-textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            outline: none;
-            border-color: var(--gold);
-        }
-        .social-input-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-light);
-            border-radius: 16px;
-            padding: 0.5rem;
-        }
-        .social-input-group span {
-            padding: 0 0.5rem;
-            color: var(--gold);
-        }
-        .social-input-group input {
-            flex: 1;
-            background: none;
-            border: none;
-            color: var(--text-primary);
-            padding: 0.5rem;
-        }
-        .social-input-group input:focus {
-            outline: none;
-        }
-        .submit-btn {
-            width: 100%;
-            padding: 1.2rem;
-            background: var(--gold);
-            border: none;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--bg-primary);
-            cursor: pointer;
             transition: 0.2s;
         }
-        .submit-btn:hover {
-            background: var(--gold-dark);
-            transform: translateY(-2px);
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
         }
-        
-        /* Profile Modal */
-        .profile-modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(12px);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            opacity: 0;
-            visibility: hidden;
-            transition: 0.4s;
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
         }
-        .profile-modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        .profile-content {
-            max-width: 700px;
+
+        .form-submit {
             width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            background: var(--card-bg);
-            border-radius: 40px;
-            padding: 2.5rem;
-            border: 2px solid var(--gold);
-            position: relative;
-        }
-        .profile-header {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-        .profile-avatar-large {
-            width: 120px;
-            height: 120px;
-            border-radius: 60px;
-            background: var(--gold);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            color: var(--bg-primary);
-        }
-        .profile-info h2 {
-            color: var(--gold);
-            margin-bottom: 0.5rem;
-        }
-        .follow-btn {
-            background: var(--gold);
+            padding: 1rem;
+            background: var(--primary);
             color: var(--bg-primary);
             border: none;
-            padding: 0.8rem 2rem;
-            border-radius: 30px;
+            border-radius: 40px;
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
         }
-        .follow-btn.following {
-            background: transparent;
-            border: 2px solid var(--gold);
-            color: var(--gold);
+
+        .form-submit:hover {
+            background: var(--primary-dark);
         }
-        .profile-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin: 2rem 0;
-        }
-        .submission-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        .profile-submission-item {
-            background: var(--bg-primary);
-            border-radius: 16px;
-            padding: 1rem;
-            border: 1px solid var(--border-light);
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .profile-submission-item:hover {
-            border-color: var(--gold);
-        }
-        
-        /* Auth Modal */
-        .auth-modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(12px);
-            z-index: 9500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            opacity: 0;
-            visibility: hidden;
-            transition: 0.4s;
-        }
-        .auth-modal.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        .auth-content {
-            max-width: 450px;
-            width: 100%;
-            background: var(--card-bg);
-            border-radius: 40px;
-            padding: 2.5rem;
-            border: 2px solid var(--gold);
-            position: relative;
-        }
+
+        /* Auth Tabs */
         .auth-tabs {
             display: flex;
+            gap: 1rem;
             margin-bottom: 2rem;
-            border-bottom: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-color);
         }
+
         .auth-tab {
             flex: 1;
             padding: 1rem;
             background: none;
             border: none;
-            font-weight: 600;
             color: var(--text-muted);
+            font-weight: 600;
             cursor: pointer;
+            border-bottom: 2px solid transparent;
         }
+
         .auth-tab.active {
-            color: var(--gold);
-            border-bottom: 2px solid var(--gold);
+            color: var(--primary);
+            border-bottom-color: var(--primary);
         }
+
         .auth-form {
             display: none;
         }
+
         .auth-form.active {
             display: block;
         }
-        
-        /* Footer */
-        .footer {
-            background: var(--bg-secondary);
-            padding: 3rem 2rem;
-            text-align: center;
-            border-top: 1px solid var(--border-light);
-        }
-        
+
         /* Toast */
         .toast {
             position: fixed;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: var(--gold);
+            background: var(--primary);
             color: var(--bg-primary);
             padding: 1rem 2rem;
-            border-radius: 50px;
+            border-radius: 40px;
             font-weight: 600;
-            z-index: 10001;
+            z-index: 4000;
             opacity: 0;
             transition: 0.3s;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         }
+
         .toast.show {
             transform: translateX(-50%) translateY(0);
             opacity: 1;
         }
-        
+
         /* Responsive */
-        @media (max-width: 768px) {
-            .challenge-hero { padding: 6rem 1rem 3rem; }
-            .hero-stats { gap: 1.5rem; }
-            .section { padding: 3rem 1rem; }
-            .challenge-container { padding: 1.5rem; }
-            .progress-header { flex-direction: column; text-align: center; }
-            .gallery-header { flex-direction: column; gap: 1rem; }
-            .profile-header { flex-direction: column; text-align: center; }
-            .gallery-grid { grid-template-columns: 1fr; }
+        @media (max-width: 640px) {
+            .stats-grid {
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .ambassador-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .challenge-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .menu-content {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
 <body class="dark-theme">
 
-<!-- LOADING OVERLAY -->
+<!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
     <img src="https://i.postimg.cc/xCvsws8M/20260220-1245-Image-Generation-simple-compose-01khx700xgea3rpkfzhfvyzv5d-1-1.webp" 
-         alt="Afrika Milele" class="hero-image">
-    <div class="afrika-milele-container">
-        <span class="afrika-milele" id="animatedText"></span>
+         alt="Afrika Milele" class="loading-logo">
+    <div class="loading-text">AFRIKA MILELE</div>
+</div>
+
+<!-- Header -->
+<header class="site-header">
+    <div class="header-container">
+        <a href="#" class="logo-link" onclick="switchToHome()">
+            <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="Afrika Milele" class="logo-image">
+            <span class="logo-text">AFRIKA MILELE</span>
+        </a>
+        
+        <button class="hamburger-btn" onclick="toggleMenu()" id="hamburgerBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+</header>
+
+<!-- Menu Modal -->
+<div class="menu-modal" id="menuModal">
+    <div class="menu-content">
+        <div class="menu-header">
+            <h3>Menu</h3>
+            <button class="menu-close" onclick="toggleMenu()">&times;</button>
+        </div>
+
+        <!-- Guest Menu -->
+        <div id="guestMenu">
+            <div class="menu-section">
+                <div class="menu-section-title">Account</div>
+                <button class="menu-item" onclick="openAuthModal('login')">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login</span>
+                </button>
+                <button class="menu-item" onclick="openAuthModal('register')">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Become an Ambassador</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Ambassador Menu (Logged In) -->
+        <div id="ambassadorMenu" style="display: none;">
+            <div class="menu-section">
+                <div class="menu-item" onclick="viewAmbassadorProfile()">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="menuAmbassadorName">Ambassador</span>
+                    <span class="menu-badge" id="menuAmbassadorBadge">Bronze</span>
+                </div>
+            </div>
+
+            <div class="menu-section">
+                <div class="menu-section-title">My Dashboard</div>
+                <button class="menu-item" onclick="viewMySubmissions()">
+                    <i class="fas fa-list"></i>
+                    <span>My Submissions</span>
+                </button>
+                <button class="menu-item" onclick="viewSavedSubmissions()">
+                    <i class="fas fa-bookmark"></i>
+                    <span>Saved</span>
+                </button>
+                <button class="menu-item" onclick="viewMyFollowers()">
+                    <i class="fas fa-users"></i>
+                    <span>Followers (<span id="menuFollowerCount">0</span>)</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title">Discover</div>
+            <button class="menu-item" onclick="switchToLeaderboard()">
+                <i class="fas fa-trophy"></i>
+                <span>Leaderboard</span>
+            </button>
+            <button class="menu-item" onclick="openSettings()">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </button>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title">Appearance</div>
+            <div class="theme-toggle-menu">
+                <span><i class="fas fa-moon"></i> Dark Mode</span>
+                <label class="switch">
+                    <input type="checkbox" id="themeToggleCheckbox" onchange="toggleTheme()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="menu-section" id="logoutSection" style="display: none;">
+            <button class="menu-item" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
     </div>
 </div>
 
-<!-- MAIN CONTENT -->
-<main id="mainContent" class="page-content">
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">The Ambassador Challenge</h1>
+        <p class="hero-subtitle">Complete all six steps to earn your place among Africa's finest ambassadors</p>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="statAmbassadors">0</div>
+                <div class="stat-label">Ambassadors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statCompletions">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statEngagement">0</div>
+                <div class="stat-label">Likes</div>
+            </div>
+        </div>
+    </div>
+</section>
 
-    <!-- Header -->
-    <header class="site-header">
-        <div class="header-container">
-            <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="Afrika Milele" class="site-logo">
-            <div class="header-right">
-                <!-- Auth Buttons -->
-                <div class="auth-buttons" id="authButtons">
-                    <button class="btn-auth" onclick="openAuthModal('login')">Login</button>
-                    <button class="btn-auth primary" onclick="openAuthModal('register')">Join Challenge</button>
+<!-- Main Content -->
+<main class="main-content">
+
+    <!-- Ambassador Progress (shown when logged in) -->
+    <div class="ambassador-card" id="ambassadorProgress" style="display: none;">
+        <div class="ambassador-header">
+            <div class="badge-circle" id="ambassadorBadgeIcon">🥉</div>
+            <div class="ambassador-info">
+                <h2 class="ambassador-name" id="ambassadorName">Loading...</h2>
+                <span class="ambassador-badge" id="ambassadorBadgeName">Bronze Ambassador</span>
+                
+                <div class="points-bar">
+                    <div class="points-fill" id="ambassadorProgressBar" style="width: 0%"></div>
                 </div>
                 
-                <!-- User Menu -->
-                <div class="user-menu" id="userMenu" style="display: none;">
-                    <button class="user-menu-btn" onclick="toggleUserDropdown()">
-                        <i class="fas fa-user-circle"></i>
-                        <span id="userName">Account</span>
-                        <span class="user-badge-indicator" id="userBadgeLevel">Bronze</span>
-                    </button>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="#" onclick="viewMyProfile(); return false;">
-                            <i class="fas fa-id-card"></i> My Portfolio
-                        </a>
-                        <a href="#" onclick="viewMyFollowers(); return false;">
-                            <i class="fas fa-users"></i> My Followers (<span id="followerCount">0</span>)
-                        </a>
-                        <a href="#" onclick="viewMyFollowing(); return false;">
-                            <i class="fas fa-user-plus"></i> Following (<span id="followingCount">0</span>)
-                        </a>
-                        <a href="#" onclick="viewMySubmissions(); return false;">
-                            <i class="fas fa-list"></i> My Submissions
-                        </a>
-                        <a href="#" onclick="viewSavedSubmissions(); return false;">
-                            <i class="fas fa-bookmark"></i> Saved
-                        </a>
-                        <a href="#" onclick="showSettings(); return false;">
-                            <i class="fas fa-cog"></i> Settings
-                        </a>
-                        <button onclick="logout()">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="theme-toggle" id="themeToggle" title="Toggle theme">
-                    <i class="fas fa-moon" id="themeIcon"></i>
+                <div class="points-stats">
+                    <span><span id="ambassadorPoints">0</span> points</span>
+                    <span id="ambassadorNextBadge">Next: Silver</span>
                 </div>
             </div>
         </div>
-    </header>
-
-    <!-- Challenge Hero Section -->
-    <section class="challenge-hero">
-        <div class="hero-content">
-            <span class="challenge-badge">THE DAIMA CHALLENGE</span>
-            <h1>SHOW YOUR AFRICAN PRIDE</h1>
-            <p style="color: var(--text-muted); font-size: 1.2rem; max-width: 600px; margin: 1rem auto;">
-                Complete challenges, share your story on social media, and build your legacy. Every post brings you closer to legendary status.
-            </p>
-            
-            <!-- Live Stats -->
-            <div class="hero-stats">
-                <div class="stat-item">
-                    <div class="stat-number" id="totalParticipants">0</div>
-                    <div class="stat-label">Challengers</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="totalSubmissions">0</div>
-                    <div class="stat-label">Submissions</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="totalLikes">0</div>
-                    <div class="stat-label">Total Likes</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Main Navigation -->
-    <div class="main-nav">
-        <div class="nav-container">
-            <span class="nav-link active" onclick="switchView('challenge')" id="nav-challenge">🔥 The Challenge</span>
-            <span class="nav-link" onclick="switchView('gallery')" id="nav-gallery">📝 Submissions</span>
-            <span class="nav-link" onclick="switchView('leaderboard')" id="nav-leaderboard">🏆 Leaderboard</span>
-            <span class="nav-link" onclick="switchView('profile')" id="nav-profile" style="display: none;">👤 My Profile</span>
-        </div>
     </div>
 
-    <!-- CHALLENGE VIEW -->
-    <div id="challenge-view">
-        <!-- User Progress Section (visible when logged in) -->
-        <section class="section" id="userProgressSection" style="display: none;">
-            <div class="user-progress-card">
-                <div class="progress-header">
-                    <div class="badge-showcase">
-                        <div class="badge-icon-large" id="currentBadgeIcon">🥉</div>
-                        <div class="badge-name" id="currentBadgeName">Bronze Challenger</div>
-                    </div>
-                    <div class="progress-details">
-                        <div class="progress-stats">
-                            <div class="stat-box">
-                                <div class="stat-box-value" id="userPoints">0</div>
-                                <div class="stat-box-label">Points</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-box-value" id="userSubmissions">0</div>
-                                <div class="stat-box-label">Submissions</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-box-value" id="userLikes">0</div>
-                                <div class="stat-box-label">Likes Received</div>
-                            </div>
-                        </div>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
-                        </div>
-                        <div id="nextBadgeInfo" style="color: var(--text-muted); margin-top: 0.5rem;">
-                            Next: Silver Challenger (100 more points)
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+    <!-- Challenge Section -->
+    <h2 class="section-title">The Ambassador Challenge</h2>
+    <p class="section-subtitle">Complete all six steps to earn the Ambassador badge</p>
 
-        <!-- Challenge Steps -->
-        <section class="section">
-            <h2 class="section-title">The Daima Challenge Steps</h2>
-            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">
-                Complete each step, share on social media, and submit your links to earn points and level up.
-            </p>
-            
-            <div class="challenge-container">
-                <div class="challenge-steps-grid" id="challengeSteps">
-                    <!-- Steps will be populated by JavaScript -->
-                </div>
-                
-                <!-- Submit Button -->
-                <div style="text-align: center; margin-top: 2rem;">
-                    <button class="submit-btn" style="width: auto; padding: 1rem 3rem;" onclick="openSubmitModal()" id="submitChallengeBtn">
-                        <i class="fas fa-upload"></i> Submit Your Challenge Entry
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Recent Submissions Preview -->
-        <section class="section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap;">
-                <h2 class="section-title" style="margin-bottom: 0;">Recent Submissions</h2>
-                <button class="filter-btn" onclick="switchView('gallery')">View All →</button>
-            </div>
-            
-            <div class="gallery-grid" id="recentSubmissions">
-                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Loading submissions...</div>
-            </div>
-        </section>
+    <div class="challenge-grid" id="challengeSteps">
+        <!-- Steps will be populated by JavaScript -->
     </div>
 
-    <!-- GALLERY VIEW -->
-    <div id="gallery-view" style="display: none;">
-        <section class="section">
-            <div class="gallery-header">
-                <h2 class="section-title" style="margin-bottom: 0;">Challenge Submissions</h2>
-                <div class="gallery-filters">
-                    <span class="filter-btn active" onclick="filterGallery('all')" id="filter-all">All</span>
-                    <span class="filter-btn" onclick="filterGallery('trending')" id="filter-trending">Most Liked</span>
-                    <span class="filter-btn" onclick="filterGallery('following')" id="filter-following">Following</span>
-                </div>
-            </div>
-            
-            <div class="gallery-grid" id="galleryGrid">
-                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Loading submissions...</div>
-            </div>
-        </section>
+    <div style="text-align: center;">
+        <button class="submit-button" onclick="openSubmitModal()" id="submitButton">
+            <i class="fas fa-upload"></i>
+            Submit Challenge Entry
+        </button>
     </div>
 
-    <!-- LEADERBOARD VIEW -->
-    <div id="leaderboard-view" style="display: none;">
-        <section class="section">
-            <h2 class="section-title">Top Challengers</h2>
-            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">
-                Most active and engaged participants in the Daima Challenge.
-            </p>
-            
-            <div class="leaderboard-container" id="leaderboard">
-                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Loading leaderboard...</div>
-            </div>
-        </section>
+    <!-- Completion Message -->
+    <div class="completion-message" id="completionMessage" style="display: none;">
+        <h3>🎉 Congratulations Ambassador!</h3>
+        <p>You have completed all six steps of the Ambassador Challenge. Your dedication to sharing African pride is truly inspiring.</p>
+        <span class="badge-preview" id="completedBadge">🏅 Ambassador Status Achieved</span>
     </div>
-
-    <!-- PROFILE VIEW -->
-    <div id="profile-view" style="display: none;">
-        <section class="section" id="profileViewContent">
-            <!-- Profile content will be populated by JavaScript -->
-        </section>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="Afrika Milele" style="height: 50px; margin-bottom: 1rem; border-radius: 12px;">
-        <p style="color: var(--text-muted);">© 2026 Afrika Milele — DAIMA | MILELE | PAMOJA</p>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Share your African pride on social media. Build your legacy here.</p>
-    </footer>
 </main>
 
+<!-- Footer -->
+<footer class="footer">
+    <p>© 2026 Afrika Milele — All rights reserved</p>
+</footer>
+
 <!-- Submit Modal -->
-<div class="submit-modal" id="submitModal">
-    <div class="submit-content">
+<div class="modal" id="submitModal">
+    <div class="modal-content">
         <button class="modal-close" onclick="closeSubmitModal()">&times;</button>
-        <h2 style="color: var(--gold); margin-bottom: 1.5rem;">Submit Challenge Entry</h2>
+        <h2 class="modal-title">Submit Challenge Entry</h2>
         
         <div class="form-group">
-            <label class="form-label">Select Challenge Step</label>
+            <label class="form-label">Challenge Step</label>
             <select class="form-select" id="submitStep">
-                <option value="1">Step 1: Record your daily pride</option>
-                <option value="2">Step 2: Share two reasons you love being African</option>
-                <option value="3">Step 3: Recite "DAIMA, MILELE, PAMOJA"</option>
-                <option value="4">Step 4: Post & Tag @am_mugera</option>
-                <option value="5">Step 5: Share your African story</option>
-                <option value="6">Step 6: Celebrate African excellence</option>
+                <option value="1">Step 1: Record Your Daily Pride</option>
+                <option value="2">Step 2: Share Two Reasons</option>
+                <option value="3">Step 3: Recite the Mantra</option>
+                <option value="4">Step 4: Tag Us Everywhere</option>
+                <option value="5">Step 5: Share Your African Story</option>
+                <option value="6">Step 6: Celebrate African Excellence</option>
             </select>
         </div>
         
         <div class="form-group">
             <label class="form-label">Social Media Link</label>
-            <div class="social-input-group">
-                <span><i class="fas fa-link"></i></span>
-                <input type="url" id="submitLink" placeholder="https://instagram.com/p/... or https://tiktok.com/@...">
-            </div>
-            <small style="color: var(--text-muted);">Paste your Instagram, TikTok, or X (Twitter) post link</small>
+            <input type="url" class="form-input" id="submitLink" placeholder="https://instagram.com/p/...">
         </div>
         
         <div class="form-group">
             <label class="form-label">Your Message</label>
-            <textarea class="form-textarea" id="submitMessage" placeholder="Tell us about your post and what it means to you..."></textarea>
+            <textarea class="form-textarea" id="submitMessage" placeholder="Tell us about your post..."></textarea>
         </div>
         
-        <button class="submit-btn" onclick="submitChallengeEntry()">
-            <i class="fas fa-check-circle"></i> Submit Entry
-        </button>
-    </div>
-</div>
-
-<!-- Profile Modal -->
-<div class="profile-modal" id="profileModal">
-    <div class="profile-content">
-        <button class="modal-close" onclick="closeProfileModal()">&times;</button>
-        <div id="profileModalContent"></div>
+        <button class="form-submit" onclick="submitChallengeEntry()">Submit Entry</button>
     </div>
 </div>
 
 <!-- Auth Modal -->
-<div class="auth-modal" id="authModal">
-    <div class="auth-content">
+<div class="modal" id="authModal">
+    <div class="modal-content">
         <button class="modal-close" onclick="closeAuthModal()">&times;</button>
         
         <div class="auth-tabs">
             <button class="auth-tab active" onclick="switchAuthTab('login')" id="loginTab">Login</button>
-            <button class="auth-tab" onclick="switchAuthTab('register')" id="registerTab">Join Challenge</button>
+            <button class="auth-tab" onclick="switchAuthTab('register')" id="registerTab">Register</button>
         </div>
         
         <div class="auth-form active" id="loginForm">
@@ -1350,7 +1077,7 @@
                 <label class="form-label">Password</label>
                 <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password">
             </div>
-            <button class="submit-btn" onclick="login()">Login</button>
+            <button class="form-submit" onclick="login()">Login</button>
         </div>
         
         <div class="auth-form" id="registerForm">
@@ -1363,7 +1090,7 @@
                 <input type="email" class="form-input" id="registerEmail" placeholder="Enter your email">
             </div>
             <div class="form-group">
-                <label class="form-label">Instagram/TikTok Handle</label>
+                <label class="form-label">Social Handle</label>
                 <input type="text" class="form-input" id="registerHandle" placeholder="@yourhandle">
             </div>
             <div class="form-group">
@@ -1382,14 +1109,25 @@
                 </select>
             </div>
             <div class="form-group">
-                <label class="form-label">Bio (Tell your story)</label>
-                <textarea class="form-textarea" id="registerBio" rows="3" placeholder="What does being African mean to you?"></textarea>
+                <label class="form-label">Bio</label>
+                <textarea class="form-textarea" id="registerBio" rows="3" placeholder="Tell us about yourself"></textarea>
             </div>
             <div class="form-group">
                 <label class="form-label">Password</label>
                 <input type="password" class="form-input" id="registerPassword" placeholder="Create a password">
             </div>
-            <button class="submit-btn" onclick="register()">Start Your Journey</button>
+            <button class="form-submit" onclick="register()">Become an Ambassador</button>
+        </div>
+    </div>
+</div>
+
+<!-- Leaderboard Modal -->
+<div class="modal" id="leaderboardModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeLeaderboardModal()">&times;</button>
+        <h2 class="modal-title">Ambassador Leaderboard</h2>
+        <div id="leaderboardContent">
+            <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Loading...</div>
         </div>
     </div>
 </div>
@@ -1397,7 +1135,6 @@
 <!-- Toast Notification -->
 <div class="toast" id="toast"></div>
 
-<!-- Core Script -->
 <script>
     // Firebase Config
     const firebaseConfig = {
@@ -1411,11 +1148,15 @@
     };
 
     // Initialize Firebase
-    let database, auth, analytics;
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+    const analytics = firebase.analytics();
+
+    // Global variables
     let currentUser = null;
     let currentUserData = null;
     let submissions = [];
-    let users = [];
     let followers = [];
     let following = [];
     let savedSubmissions = [];
@@ -1483,88 +1224,49 @@
     };
 
     const BADGE_NAMES = {
-        bronze: "Bronze Challenger",
-        silver: "Silver Challenger",
-        gold: "Gold Challenger",
-        platinum: "Platinum Challenger",
-        diamond: "Diamond Challenger",
-        legend: "Legendary Challenger"
+        bronze: "Bronze Ambassador",
+        silver: "Silver Ambassador",
+        gold: "Gold Ambassador",
+        platinum: "Platinum Ambassador",
+        diamond: "Diamond Ambassador",
+        legend: "Legendary Ambassador"
     };
 
-    // Initialize
-    try {
-        firebase.initializeApp(firebaseConfig);
-        database = firebase.database();
-        auth = firebase.auth();
-        analytics = firebase.analytics();
-        
-        auth.onAuthStateChanged(handleAuthStateChange);
-    } catch (e) { 
-        console.warn('Firebase init failed:', e);
-    }
-
     // Loading animation
-    (function() {
-        const overlay = document.getElementById('loadingOverlay');
-        const animatedSpan = document.getElementById('animatedText');
-        const mainContent = document.querySelector('.page-content');
-        const fullText = "Afrika Milele";
-        let index = 0;
-
-        function typeNext() {
-            if (index < fullText.length) {
-                animatedSpan.textContent += fullText.charAt(index);
-                index++;
-                setTimeout(typeNext, fullText.charAt(index-1) === ' ' ? 280 : 120);
-            } else {
-                setTimeout(() => {
-                    overlay.classList.add('hidden');
-                    mainContent.classList.add('visible');
-                    
-                    // Load all data
-                    loadChallengeSteps();
-                    loadStats();
-                    loadSubmissions();
-                    loadLeaderboard();
-                }, 1300);
-            }
-        }
-        setTimeout(typeNext, 400);
-    })();
-
-    // Show toast
-    function showToast(message, duration = 3000) {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.classList.add('show');
+    window.addEventListener('load', () => {
         setTimeout(() => {
-            toast.classList.remove('show');
-        }, duration);
-    }
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }, 2000);
+        
+        loadStats();
+        loadChallengeSteps();
+    });
 
-    // Handle auth state
-    function handleAuthStateChange(user) {
+    // Auth state observer
+    auth.onAuthStateChanged(async (user) => {
         currentUser = user;
         
         if (user) {
-            document.getElementById('authButtons').style.display = 'none';
-            document.getElementById('userMenu').style.display = 'block';
-            document.getElementById('userProgressSection').style.display = 'block';
-            document.getElementById('nav-profile').style.display = 'inline-block';
+            await loadUserData(user.uid);
+            await loadUserFollowers(user.uid);
+            await loadUserFollowing(user.uid);
+            await loadUserSaved(user.uid);
             
-            loadUserData(user.uid);
-            loadUserFollowers(user.uid);
-            loadUserFollowing(user.uid);
-            loadUserSaved(user.uid);
+            document.getElementById('guestMenu').style.display = 'none';
+            document.getElementById('ambassadorMenu').style.display = 'block';
+            document.getElementById('logoutSection').style.display = 'block';
+            document.getElementById('ambassadorProgress').style.display = 'block';
             
-            if (analytics) analytics.logEvent('login');
+            updateMenuAmbassadorInfo();
         } else {
-            document.getElementById('authButtons').style.display = 'flex';
-            document.getElementById('userMenu').style.display = 'none';
-            document.getElementById('userProgressSection').style.display = 'none';
-            document.getElementById('nav-profile').style.display = 'none';
+            document.getElementById('guestMenu').style.display = 'block';
+            document.getElementById('ambassadorMenu').style.display = 'none';
+            document.getElementById('logoutSection').style.display = 'none';
+            document.getElementById('ambassadorProgress').style.display = 'none';
         }
-    }
+        
+        loadChallengeSteps(); // Refresh to show completion status
+    });
 
     // Load stats
     async function loadStats() {
@@ -1572,14 +1274,23 @@
             const usersSnapshot = await database.ref('users').once('value');
             const submissionsSnapshot = await database.ref('submissions').once('value');
             
+            // Count users who completed all steps
+            let completions = 0;
+            usersSnapshot.forEach(child => {
+                const steps = child.val().completedSteps || [];
+                if (steps.length === 6) completions++;
+            });
+            
+            // Count total likes
             let totalLikes = 0;
             submissionsSnapshot.forEach(child => {
                 totalLikes += child.val().likes || 0;
             });
             
-            document.getElementById('totalParticipants').textContent = usersSnapshot.numChildren() || 0;
-            document.getElementById('totalSubmissions').textContent = submissionsSnapshot.numChildren() || 0;
-            document.getElementById('totalLikes').textContent = totalLikes;
+            document.getElementById('statAmbassadors').textContent = usersSnapshot.numChildren() || 0;
+            document.getElementById('statCompletions').textContent = completions;
+            document.getElementById('statEngagement').textContent = totalLikes;
+            
         } catch (error) {
             console.error('Error loading stats:', error);
         }
@@ -1588,44 +1299,45 @@
     // Load challenge steps
     function loadChallengeSteps() {
         const container = document.getElementById('challengeSteps');
+        const completedSteps = currentUserData?.completedSteps || [];
+        const allCompleted = completedSteps.length === 6;
+        
         let html = '';
         
         CHALLENGE_STEPS.forEach(step => {
-            const isCompleted = currentUserData?.completedSteps?.includes(step.id);
+            const isCompleted = completedSteps.includes(step.id);
             
             html += `
-                <div class="step-card ${isCompleted ? 'completed' : ''}" onclick="selectStep(${step.id})">
-                    <div class="step-number">${step.id}</div>
-                    <div class="step-icon">${step.icon}</div>
-                    <div class="step-title">${step.title}</div>
-                    <div class="step-desc">${step.description}</div>
+                <div class="challenge-card ${isCompleted ? 'completed' : ''}" onclick="selectStep(${step.id})">
+                    <div class="challenge-number">${step.id}</div>
+                    <div class="challenge-icon">${step.icon}</div>
+                    <h3 class="challenge-title">${step.title}</h3>
+                    <p class="challenge-description">${step.description}</p>
                     
-                    <div class="social-tags">
-                        ${step.tags.map(tag => `<span class="social-tag">${tag}</span>`).join('')}
+                    <div class="challenge-tags">
+                        ${step.tags.map(tag => `<span class="challenge-tag">${tag}</span>`).join('')}
                     </div>
                     
-                    <div class="step-status">
-                        <div class="step-checkbox ${isCompleted ? 'checked' : ''}">
+                    <div class="challenge-status">
+                        <span class="challenge-points">${step.points} points</span>
+                        <div class="challenge-check ${isCompleted ? 'completed' : ''}">
                             ${isCompleted ? '<i class="fas fa-check"></i>' : ''}
                         </div>
-                        <span>${step.points} points</span>
                     </div>
                 </div>
             `;
         });
         
         container.innerHTML = html;
-    }
-
-    // Select step
-    function selectStep(stepId) {
-        if (!currentUser) {
-            openAuthModal('register');
-            return;
-        }
         
-        document.getElementById('submitStep').value = stepId;
-        openSubmitModal();
+        // Show/hide completion message
+        const completionMsg = document.getElementById('completionMessage');
+        if (allCompleted) {
+            completionMsg.style.display = 'block';
+            document.getElementById('completedBadge').textContent = `🏅 ${BADGE_NAMES[calculateBadge(currentUserData?.stats?.points || 0)]}`;
+        } else {
+            completionMsg.style.display = 'none';
+        }
     }
 
     // Load user data
@@ -1635,27 +1347,11 @@
             
             if (snapshot.exists()) {
                 currentUserData = snapshot.val();
-                
-                // Update UI
-                document.getElementById('userName').textContent = currentUserData.name || currentUser.email.split('@')[0];
-                
-                const stats = currentUserData.stats || {
-                    points: 0,
-                    submissions: 0,
-                    likes: 0,
-                    followers: 0,
-                    following: 0
-                };
-                
-                updateUserProgress(stats);
-                
-                // Update badge indicator
-                const badge = calculateBadge(stats.points || 0);
-                document.getElementById('userBadgeLevel').textContent = BADGE_NAMES[badge];
+                updateAmbassadorProgress();
             } else {
                 // Create new user data
                 const newUserData = {
-                    name: currentUser.displayName || currentUser.email.split('@')[0],
+                    name: currentUser.email.split('@')[0],
                     email: currentUser.email,
                     createdAt: new Date().toISOString(),
                     uid: uid,
@@ -1674,6 +1370,7 @@
                 
                 await database.ref('users/' + uid).set(newUserData);
                 currentUserData = newUserData;
+                updateAmbassadorProgress();
             }
             
         } catch (error) {
@@ -1681,24 +1378,34 @@
         }
     }
 
-    // Update user progress
-    function updateUserProgress(stats) {
-        const points = stats.points || 0;
-        const badge = calculateBadge(points);
+    // Update ambassador progress UI
+    function updateAmbassadorProgress() {
+        if (!currentUserData) return;
+        
+        const stats = currentUserData.stats || { points: 0, submissions: 0, likes: 0 };
+        const badge = calculateBadge(stats.points);
         const nextBadge = getNextBadge(badge);
-        const pointsToNext = BADGE_THRESHOLDS[nextBadge] - points;
-        const progress = ((points - BADGE_THRESHOLDS[badge]) / (BADGE_THRESHOLDS[nextBadge] - BADGE_THRESHOLDS[badge])) * 100;
+        const pointsToNext = BADGE_THRESHOLDS[nextBadge] - stats.points;
+        const progress = ((stats.points - BADGE_THRESHOLDS[badge]) / (BADGE_THRESHOLDS[nextBadge] - BADGE_THRESHOLDS[badge])) * 100;
         
-        document.getElementById('currentBadgeIcon').innerHTML = getBadgeEmoji(badge);
-        document.getElementById('currentBadgeName').textContent = BADGE_NAMES[badge];
-        document.getElementById('userPoints').textContent = points;
-        document.getElementById('userSubmissions').textContent = stats.submissions || 0;
-        document.getElementById('userLikes').textContent = stats.likes || 0;
-        document.getElementById('progressBar').style.width = Math.min(progress, 100) + '%';
-        document.getElementById('nextBadgeInfo').textContent = `Next: ${BADGE_NAMES[nextBadge]} (${pointsToNext} more points)`;
+        document.getElementById('ambassadorName').textContent = currentUserData.name || 'Ambassador';
+        document.getElementById('ambassadorBadgeName').textContent = BADGE_NAMES[badge];
+        document.getElementById('ambassadorBadgeIcon').innerHTML = getBadgeEmoji(badge);
+        document.getElementById('ambassadorPoints').textContent = stats.points;
+        document.getElementById('ambassadorProgressBar').style.width = Math.min(progress, 100) + '%';
+        document.getElementById('ambassadorNextBadge').textContent = `Next: ${BADGE_NAMES[nextBadge]} (${pointsToNext} points)`;
         
-        document.getElementById('followerCount').textContent = stats.followers || 0;
-        document.getElementById('followingCount').textContent = stats.following || 0;
+        // Update menu
+        document.getElementById('menuAmbassadorName').textContent = currentUserData.name || 'Ambassador';
+        document.getElementById('menuAmbassadorBadge').textContent = BADGE_NAMES[badge].split(' ')[0];
+        document.getElementById('menuFollowerCount').textContent = stats.followers || 0;
+    }
+
+    // Update menu ambassador info
+    function updateMenuAmbassadorInfo() {
+        if (!currentUserData) return;
+        
+        document.getElementById('menuAmbassadorName').textContent = currentUserData.name || 'Ambassador';
     }
 
     // Calculate badge
@@ -1729,99 +1436,21 @@
         return emojis[badge] || '🥉';
     }
 
-    // Load submissions
-    async function loadSubmissions() {
-        try {
-            const snapshot = await database.ref('submissions').orderByChild('timestamp').limitToLast(50).once('value');
-            
-            if (snapshot.exists()) {
-                submissions = [];
-                snapshot.forEach(child => {
-                    submissions.push({
-                        id: child.key,
-                        ...child.val()
-                    });
-                });
-                
-                submissions.sort((a, b) => b.timestamp - a.timestamp);
-                displaySubmissions('recentSubmissions', submissions.slice(0, 6));
-                displaySubmissions('galleryGrid', submissions);
-            } else {
-                document.getElementById('recentSubmissions').innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No submissions yet. Be the first!</div>';
-                document.getElementById('galleryGrid').innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No submissions yet</div>';
-            }
-        } catch (error) {
-            console.error('Error loading submissions:', error);
-        }
-    }
-
-    // Display submissions
-    function displaySubmissions(elementId, subs) {
-        const container = document.getElementById(elementId);
-        if (!container) return;
-        
-        if (!subs || subs.length === 0) {
-            container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No submissions yet</div>';
+    // Select step
+    function selectStep(stepId) {
+        if (!currentUser) {
+            openAuthModal('register');
             return;
         }
         
-        let html = '';
+        const completedSteps = currentUserData?.completedSteps || [];
+        if (completedSteps.includes(stepId)) {
+            showToast('You have already completed this step');
+            return;
+        }
         
-        subs.forEach(sub => {
-            const timeAgo = getTimeAgo(sub.timestamp);
-            const userBadge = calculateBadge(sub.userPoints || 0);
-            const hasLiked = currentUser && sub.likedBy && sub.likedBy[currentUser.uid];
-            const isSaved = currentUser && savedSubmissions.includes(sub.id);
-            const stepInfo = CHALLENGE_STEPS.find(s => s.id == sub.step) || { title: 'Challenge Step' };
-            
-            html += `
-                <div class="submission-card" onclick="viewSubmissionDetails('${sub.id}')">
-                    <div class="submission-header">
-                        <div class="submission-avatar" onclick="event.stopPropagation(); viewUserProfile('${sub.userId}')">
-                            ${sub.userName ? sub.userName.charAt(0).toUpperCase() : 'A'}
-                        </div>
-                        <div class="submission-user" onclick="event.stopPropagation(); viewUserProfile('${sub.userId}')">
-                            <div class="submission-name">${sub.userName || 'Ambassador'}</div>
-                            <div class="submission-badge">${BADGE_NAMES[userBadge]}</div>
-                        </div>
-                    </div>
-                    
-                    <div class="submission-step">${stepInfo.title}</div>
-                    
-                    <div class="submission-message">
-                        "${sub.message || 'Completed a challenge step! Check out my post.'}"
-                    </div>
-                    
-                    ${sub.link ? `
-                        <a href="${sub.link}" target="_blank" class="submission-link" onclick="event.stopPropagation()">
-                            <i class="fas fa-external-link-alt"></i> View on Social Media
-                        </a>
-                    ` : ''}
-                    
-                    <div class="submission-meta">
-                        <span class="meta-item" onclick="event.stopPropagation(); likeSubmission('${sub.id}')">
-                            <i class="fas fa-heart ${hasLiked ? 'liked' : ''}"></i>
-                            <span id="likes-${sub.id}">${sub.likes || 0}</span>
-                        </span>
-                        <span class="meta-item" onclick="event.stopPropagation(); saveSubmission('${sub.id}')">
-                            <i class="fas fa-bookmark ${isSaved ? 'liked' : ''}"></i>
-                        </span>
-                        <span class="meta-item">${timeAgo}</span>
-                    </div>
-                </div>
-            `;
-        });
-        
-        container.innerHTML = html;
-    }
-
-    // Get time ago
-    function getTimeAgo(timestamp) {
-        const seconds = Math.floor((Date.now() - timestamp) / 1000);
-        if (seconds < 60) return 'just now';
-        if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
-        if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
-        return Math.floor(seconds / 86400) + 'd ago';
+        document.getElementById('submitStep').value = stepId;
+        openSubmitModal();
     }
 
     // Submit challenge entry
@@ -1831,7 +1460,7 @@
             return;
         }
         
-        const step = document.getElementById('submitStep').value;
+        const step = parseInt(document.getElementById('submitStep').value);
         const link = document.getElementById('submitLink').value.trim();
         const message = document.getElementById('submitMessage').value.trim();
         
@@ -1840,133 +1469,78 @@
             return;
         }
         
-        const stepData = CHALLENGE_STEPS.find(s => s.id == step);
+        const stepData = CHALLENGE_STEPS.find(s => s.id === step);
+        const completedSteps = currentUserData?.completedSteps || [];
+        
+        // Check if step already completed
+        if (completedSteps.includes(step)) {
+            showToast('You have already completed this step');
+            closeSubmitModal();
+            return;
+        }
         
         const submissionId = 'sub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
         
         const submissionData = {
             userId: currentUser.uid,
             userName: currentUserData?.name || currentUser.email.split('@')[0],
-            userPoints: currentUserData?.stats?.points || 0,
             step: step,
             stepTitle: stepData.title,
             link: link,
             message: message || "Completed this challenge step!",
             timestamp: Date.now(),
             likes: 0,
-            likedBy: {},
-            pointsEarned: stepData.points
+            likedBy: {}
         };
         
         try {
+            // Save submission
             await database.ref('submissions/' + submissionId).set(submissionData);
             
-            // Update user stats
-            const stats = currentUserData?.stats || { points: 0, submissions: 0, likes: 0 };
-            stats.points = (stats.points || 0) + stepData.points;
-            stats.submissions = (stats.submissions || 0) + 1;
+            // Update completed steps
+            const newCompletedSteps = [...completedSteps, step];
             
-            // Mark step as completed
-            if (!currentUserData.completedSteps) currentUserData.completedSteps = [];
-            if (!currentUserData.completedSteps.includes(parseInt(step))) {
-                currentUserData.completedSteps.push(parseInt(step));
-            }
+            // Calculate points (sum of all completed steps)
+            const totalPoints = newCompletedSteps.reduce((sum, stepId) => {
+                const step = CHALLENGE_STEPS.find(s => s.id === stepId);
+                return sum + (step ? step.points : 0);
+            }, 0);
+            
+            // Update user stats
+            const stats = {
+                points: totalPoints,
+                submissions: newCompletedSteps.length,
+                likes: currentUserData?.stats?.likes || 0,
+                followers: currentUserData?.stats?.followers || 0,
+                following: currentUserData?.stats?.following || 0
+            };
             
             await database.ref('users/' + currentUser.uid).update({
                 stats: stats,
-                completedSteps: currentUserData.completedSteps
+                completedSteps: newCompletedSteps
             });
             
-            closeSubmitModal();
+            // Reload user data
             await loadUserData(currentUser.uid);
-            await loadSubmissions();
-            await loadLeaderboard();
             
-            showToast(`Submission successful! +${stepData.points} points`);
+            closeSubmitModal();
+            loadChallengeSteps();
+            loadStats();
             
-            if (analytics) analytics.logEvent('submit_challenge', { step: step });
+            // Check if all steps completed
+            if (newCompletedSteps.length === 6) {
+                showToast('🎉 Congratulations! You have completed all steps and earned the Ambassador badge!');
+                
+                if (analytics) {
+                    analytics.logEvent('challenge_completed');
+                }
+            } else {
+                showToast(`Step ${step} completed! +${stepData.points} points`);
+            }
             
         } catch (error) {
             console.error('Error submitting:', error);
             showToast('Failed to submit. Please try again.');
-        }
-    }
-
-    // Like submission
-    async function likeSubmission(subId) {
-        if (!currentUser) {
-            openAuthModal('register');
-            return;
-        }
-        
-        const sub = submissions.find(s => s.id === subId);
-        if (!sub) return;
-        
-        const hasLiked = sub.likedBy && sub.likedBy[currentUser.uid];
-        
-        try {
-            if (hasLiked) {
-                await database.ref('submissions/' + subId + '/likes').transaction(likes => (likes || 1) - 1);
-                await database.ref('submissions/' + subId + '/likedBy/' + currentUser.uid).remove();
-                
-                sub.likes = (sub.likes || 1) - 1;
-                if (sub.likedBy) delete sub.likedBy[currentUser.uid];
-            } else {
-                await database.ref('submissions/' + subId + '/likes').transaction(likes => (likes || 0) + 1);
-                await database.ref('submissions/' + subId + '/likedBy/' + currentUser.uid).set(true);
-                
-                sub.likes = (sub.likes || 0) + 1;
-                if (!sub.likedBy) sub.likedBy = {};
-                sub.likedBy[currentUser.uid] = true;
-                
-                // Give points to post owner
-                const ownerSnapshot = await database.ref('users/' + sub.userId + '/stats/likes').once('value');
-                const ownerLikes = ownerSnapshot.val() || 0;
-                await database.ref('users/' + sub.userId + '/stats/likes').set(ownerLikes + 1);
-                await database.ref('users/' + sub.userId + '/stats/points').transaction(points => (points || 0) + 1);
-                
-                // Give points to liker
-                const userStats = currentUserData?.stats || { points: 0 };
-                userStats.points = (userStats.points || 0) + 1;
-                await database.ref('users/' + currentUser.uid + '/stats').set(userStats);
-            }
-            
-            // Update UI
-            const likesSpan = document.getElementById(`likes-${subId}`);
-            if (likesSpan) likesSpan.textContent = sub.likes;
-            
-            await loadUserData(currentUser.uid);
-            showToast(hasLiked ? 'Like removed' : 'Liked! +1 point');
-            
-        } catch (error) {
-            console.error('Error liking:', error);
-        }
-    }
-
-    // Save submission
-    async function saveSubmission(subId) {
-        if (!currentUser) {
-            openAuthModal('register');
-            return;
-        }
-        
-        const isSaved = savedSubmissions.includes(subId);
-        
-        try {
-            if (isSaved) {
-                await database.ref('saved/' + currentUser.uid + '/' + subId).remove();
-                savedSubmissions = savedSubmissions.filter(id => id !== subId);
-                showToast('Removed from saved');
-            } else {
-                await database.ref('saved/' + currentUser.uid + '/' + subId).set(true);
-                savedSubmissions.push(subId);
-                showToast('Saved to collection');
-            }
-            
-            await loadSubmissions(); // Refresh to update bookmark icons
-            
-        } catch (error) {
-            console.error('Error saving:', error);
         }
     }
 
@@ -2015,309 +1589,73 @@
         }
     }
 
-    // Load leaderboard
-    async function loadLeaderboard() {
-        try {
-            const snapshot = await database.ref('users').orderByChild('stats/points').limitToLast(20).once('value');
-            
-            if (snapshot.exists()) {
-                const users = [];
-                snapshot.forEach(child => {
-                    users.push({
-                        uid: child.key,
-                        name: child.val().name || 'Ambassador',
-                        points: child.val().stats?.points || 0,
-                        submissions: child.val().stats?.submissions || 0,
-                        likes: child.val().stats?.likes || 0
-                    });
-                });
-                
-                users.sort((a, b) => b.points - a.points);
-                displayLeaderboard(users);
-            }
-        } catch (error) {
-            console.error('Error loading leaderboard:', error);
+    // Toggle menu
+    function toggleMenu() {
+        const modal = document.getElementById('menuModal');
+        modal.classList.toggle('active');
+    }
+
+    // Toggle theme
+    function toggleTheme() {
+        const body = document.body;
+        const checkbox = document.getElementById('themeToggleCheckbox');
+        
+        if (body.classList.contains('light-theme')) {
+            body.classList.remove('light-theme');
+            localStorage.setItem('theme', 'dark');
+            checkbox.checked = false;
+        } else {
+            body.classList.add('light-theme');
+            localStorage.setItem('theme', 'light');
+            checkbox.checked = true;
         }
     }
 
-    // Display leaderboard
-    function displayLeaderboard(users) {
-        const container = document.getElementById('leaderboard');
-        
-        let html = '';
-        
-        users.forEach((user, index) => {
-            const rankClass = index === 0 ? 'top1' : index === 1 ? 'top2' : index === 2 ? 'top3' : '';
-            
-            html += `
-                <div class="leaderboard-item" onclick="viewUserProfile('${user.uid}')">
-                    <div class="leaderboard-rank ${rankClass}">${index + 1}</div>
-                    <div class="leaderboard-info">
-                        <div class="leaderboard-name">${user.name}</div>
-                        <div class="leaderboard-stats">
-                            <span>📊 ${user.submissions} submissions</span>
-                            <span>❤️ ${user.likes} likes</span>
-                        </div>
-                    </div>
-                    <div class="leaderboard-points">${user.points} pts</div>
-                </div>
-            `;
-        });
-        
-        container.innerHTML = html;
-    }
-
-    // View user profile
-    async function viewUserProfile(uid) {
-        try {
-            const snapshot = await database.ref('users/' + uid).once('value');
-            if (!snapshot.exists()) return;
-            
-            const user = snapshot.val();
-            const badge = calculateBadge(user.stats?.points || 0);
-            
-            // Get user's submissions
-            const userSubs = submissions.filter(s => s.userId === uid).slice(0, 10);
-            
-            const isFollowing = currentUser && following.includes(uid);
-            
-            const modal = document.getElementById('profileModal');
-            const content = document.getElementById('profileModalContent');
-            
-            let subsHtml = '';
-            userSubs.forEach(sub => {
-                const stepInfo = CHALLENGE_STEPS.find(s => s.id == sub.step) || { title: 'Challenge Step' };
-                subsHtml += `
-                    <div class="profile-submission-item" onclick="viewSubmissionDetails('${sub.id}')">
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: var(--gold);">${stepInfo.title}</span>
-                            <span style="color: var(--text-muted);">${getTimeAgo(sub.timestamp)}</span>
-                        </div>
-                        <div style="margin-top: 0.5rem; color: var(--text-secondary);">${sub.message || 'No message'}</div>
-                        <div style="margin-top: 0.5rem; display: flex; gap: 1rem; color: var(--text-muted);">
-                            <span>❤️ ${sub.likes || 0}</span>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            content.innerHTML = `
-                <div class="profile-header">
-                    <div class="profile-avatar-large">
-                        ${user.name ? user.name.charAt(0).toUpperCase() : 'A'}
-                    </div>
-                    <div class="profile-info">
-                        <h2>${user.name || 'Ambassador'}</h2>
-                        <p style="color: var(--gold);">${BADGE_NAMES[badge]}</p>
-                        ${user.country ? `<p style="color: var(--text-muted);"><i class="fas fa-map-marker-alt"></i> ${user.country}</p>` : ''}
-                        ${user.handle ? `<p style="color: var(--text-muted);">📱 ${user.handle}</p>` : ''}
-                    </div>
-                    ${currentUser && currentUser.uid !== uid ? `
-                        <button class="follow-btn ${isFollowing ? 'following' : ''}" onclick="event.stopPropagation(); toggleFollow('${uid}')">
-                            ${isFollowing ? 'Following' : 'Follow'}
-                        </button>
-                    ` : ''}
-                </div>
-                
-                <p style="color: var(--text-secondary); margin: 1rem 0;">${user.bio || 'Passionate about sharing African pride! 🌍'}</p>
-                
-                <div class="profile-stats">
-                    <div class="stat-box">
-                        <div class="stat-box-value">${user.stats?.points || 0}</div>
-                        <div class="stat-box-label">Points</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-box-value">${user.stats?.submissions || 0}</div>
-                        <div class="stat-box-label">Submissions</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-box-value">${user.stats?.likes || 0}</div>
-                        <div class="stat-box-label">Likes</div>
-                    </div>
-                </div>
-                
-                <h3 style="color: var(--gold); margin: 1.5rem 0 1rem;">Recent Submissions</h3>
-                <div class="submission-list">
-                    ${subsHtml || '<p style="color: var(--text-muted);">No submissions yet</p>'}
-                </div>
-            `;
-            
-            modal.classList.add('active');
-            
-        } catch (error) {
-            console.error('Error loading profile:', error);
-            showToast('Failed to load profile');
-        }
-    }
-
-    // View my profile
-    function viewMyProfile() {
-        if (!currentUser) {
-            openAuthModal('login');
-            return;
-        }
-        viewUserProfile(currentUser.uid);
-        toggleUserDropdown();
-    }
-
-    // View submission details
-    function viewSubmissionDetails(subId) {
-        const sub = submissions.find(s => s.id === subId);
-        if (!sub) return;
-        
-        const stepInfo = CHALLENGE_STEPS.find(s => s.id == sub.step) || { title: 'Challenge Step', points: 0 };
-        
-        const modal = document.getElementById('profileModal');
-        const content = document.getElementById('profileModalContent');
-        
-        content.innerHTML = `
-            <div style="text-align: center;">
-                <div class="profile-avatar-large" style="margin: 0 auto 1rem;">
-                    ${sub.userName ? sub.userName.charAt(0).toUpperCase() : 'A'}
-                </div>
-                <h2 style="color: var(--gold);">${sub.userName}</h2>
-                <p style="color: var(--text-muted);">${BADGE_NAMES[calculateBadge(sub.userPoints || 0)]}</p>
-                
-                <div style="margin: 2rem 0; padding: 1.5rem; background: var(--bg-primary); border-radius: 20px;">
-                    <span class="submission-step">${stepInfo.title}</span>
-                    <p style="color: var(--text-secondary); margin: 1rem 0; font-size: 1.1rem; font-style: italic;">
-                        "${sub.message}"
-                    </p>
-                    ${sub.link ? `
-                        <a href="${sub.link}" target="_blank" class="submission-link" style="font-size: 1rem;">
-                            <i class="fas fa-external-link-alt"></i> View on Social Media
-                        </a>
-                    ` : ''}
-                </div>
-                
-                <div style="display: flex; justify-content: center; gap: 2rem; margin: 1.5rem 0;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 1.5rem; color: var(--gold);">${sub.likes || 0}</div>
-                        <div style="color: var(--text-muted);">Likes</div>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 1.5rem; color: var(--gold);">${stepInfo.points}</div>
-                        <div style="color: var(--text-muted);">Points Earned</div>
-                    </div>
-                </div>
-                
-                <div style="display: flex; gap: 1rem; justify-content: center;">
-                    <button class="follow-btn" onclick="likeSubmission('${sub.id}')">
-                        <i class="fas fa-heart"></i> Like
-                    </button>
-                    <button class="follow-btn following" onclick="closeProfileModal()">
-                        Close
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        modal.classList.add('active');
-    }
-
-    // Toggle follow
-    async function toggleFollow(uid) {
-        if (!currentUser) {
-            openAuthModal('register');
-            return;
-        }
-        
-        const isFollowing = following.includes(uid);
-        
-        try {
-            if (isFollowing) {
-                await database.ref('followers/' + uid + '/' + currentUser.uid).remove();
-                await database.ref('following/' + currentUser.uid + '/' + uid).remove();
-                
-                following = following.filter(id => id !== uid);
-                
-                // Update follower count
-                const userStats = currentUserData?.stats || {};
-                userStats.following = (userStats.following || 1) - 1;
-                await database.ref('users/' + currentUser.uid + '/stats').set(userStats);
-                
-                // Update other user's follower count
-                const otherStats = await database.ref('users/' + uid + '/stats/followers').once('value');
-                await database.ref('users/' + uid + '/stats/followers').set((otherStats.val() || 1) - 1);
-                
-                showToast('Unfollowed');
-            } else {
-                await database.ref('followers/' + uid + '/' + currentUser.uid).set(true);
-                await database.ref('following/' + currentUser.uid + '/' + uid).set(true);
-                
-                following.push(uid);
-                
-                // Update follower count
-                const userStats = currentUserData?.stats || {};
-                userStats.following = (userStats.following || 0) + 1;
-                await database.ref('users/' + currentUser.uid + '/stats').set(userStats);
-                
-                // Update other user's follower count
-                const otherStats = await database.ref('users/' + uid + '/stats/followers').once('value');
-                await database.ref('users/' + uid + '/stats/followers').set((otherStats.val() || 0) + 1);
-                
-                showToast('Following');
-            }
-            
-            await loadUserData(currentUser.uid);
-            closeProfileModal();
-            
-        } catch (error) {
-            console.error('Error toggling follow:', error);
-        }
-    }
-
-    // Filter gallery
-    function filterGallery(filter) {
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`filter-${filter}`).classList.add('active');
-        
-        let filtered = [...submissions];
-        
-        if (filter === 'trending') {
-            filtered.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-        } else if (filter === 'following' && currentUser) {
-            filtered = filtered.filter(s => following.includes(s.userId));
-        }
-        
-        displaySubmissions('galleryGrid', filtered);
-    }
-
-    // Switch view
-    function switchView(view) {
-        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-        document.getElementById(`nav-${view}`).classList.add('active');
-        
-        document.getElementById('challenge-view').style.display = view === 'challenge' ? 'block' : 'none';
-        document.getElementById('gallery-view').style.display = view === 'gallery' ? 'block' : 'none';
-        document.getElementById('leaderboard-view').style.display = view === 'leaderboard' ? 'block' : 'none';
-        document.getElementById('profile-view').style.display = view === 'profile' ? 'block' : 'none';
-        
-        if (view === 'gallery') loadSubmissions();
-        if (view === 'leaderboard') loadLeaderboard();
-        if (view === 'profile' && currentUser) viewMyProfile();
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        document.getElementById('themeToggleCheckbox').checked = true;
     }
 
     // Modal functions
-    function openSubmitModal() {
-        if (!currentUser) {
-            openAuthModal('register');
-            return;
-        }
-        document.getElementById('submitModal').classList.add('active');
-    }
-
-    function closeSubmitModal() {
-        document.getElementById('submitModal').classList.remove('active');
-    }
-
     function openAuthModal(tab) {
+        closeMenu();
         document.getElementById('authModal').classList.add('active');
         switchAuthTab(tab);
     }
 
     function closeAuthModal() {
         document.getElementById('authModal').classList.remove('active');
+    }
+
+    function openSubmitModal() {
+        if (!currentUser) {
+            openAuthModal('register');
+            return;
+        }
+        closeMenu();
+        document.getElementById('submitModal').classList.add('active');
+    }
+
+    function closeSubmitModal() {
+        document.getElementById('submitModal').classList.remove('active');
+        document.getElementById('submitLink').value = '';
+        document.getElementById('submitMessage').value = '';
+    }
+
+    function switchToLeaderboard() {
+        closeMenu();
+        loadLeaderboard();
+        document.getElementById('leaderboardModal').classList.add('active');
+    }
+
+    function closeLeaderboardModal() {
+        document.getElementById('leaderboardModal').classList.remove('active');
+    }
+
+    function closeMenu() {
+        document.getElementById('menuModal').classList.remove('active');
     }
 
     function switchAuthTab(tab) {
@@ -2372,7 +1710,7 @@
             await database.ref('users/' + user.uid).set(userData);
             
             closeAuthModal();
-            showToast('Welcome to the Daima Challenge! Start your journey now.');
+            showToast('Welcome Ambassador! Start your challenge now.');
             
             if (analytics) analytics.logEvent('sign_up');
             
@@ -2394,7 +1732,7 @@
         try {
             await auth.signInWithEmailAndPassword(email, password);
             closeAuthModal();
-            showToast('Welcome back!');
+            showToast('Welcome back Ambassador!');
         } catch (error) {
             showToast(error.message);
         }
@@ -2403,71 +1741,125 @@
     // Logout
     function logout() {
         auth.signOut();
-        toggleUserDropdown();
-        showToast('Logged out');
+        closeMenu();
+        showToast('Logged out successfully');
     }
 
-    // Toggle dropdown
-    function toggleUserDropdown() {
-        document.getElementById('userDropdown').classList.toggle('active');
-    }
-
-    // Close dropdown on click outside
-    document.addEventListener('click', function(event) {
-        const dropdown = document.getElementById('userDropdown');
-        const menuBtn = document.querySelector('.user-menu-btn');
-        if (!menuBtn?.contains(event.target) && !dropdown?.contains(event.target)) {
-            dropdown?.classList.remove('active');
+    // Load leaderboard
+    async function loadLeaderboard() {
+        try {
+            const snapshot = await database.ref('users').orderByChild('stats/points').limitToLast(20).once('value');
+            
+            if (snapshot.exists()) {
+                const users = [];
+                snapshot.forEach(child => {
+                    users.push({
+                        uid: child.key,
+                        name: child.val().name || 'Ambassador',
+                        points: child.val().stats?.points || 0,
+                        submissions: child.val().completedSteps?.length || 0,
+                        badge: calculateBadge(child.val().stats?.points || 0)
+                    });
+                });
+                
+                users.sort((a, b) => b.points - a.points);
+                displayLeaderboard(users);
+            }
+        } catch (error) {
+            console.error('Error loading leaderboard:', error);
         }
-    });
-
-    // Theme toggle
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = document.getElementById('themeIcon');
-    const body = document.body;
-
-    const savedTheme = localStorage.getItem('siteTheme');
-    if (savedTheme === 'light') {
-        body.classList.add('light-theme');
-        themeIcon.classList.replace('fa-moon', 'fa-sun');
     }
 
-    themeToggle.addEventListener('click', () => {
-        if (body.classList.contains('light-theme')) {
-            body.classList.remove('light-theme');
-            themeIcon.classList.replace('fa-sun', 'fa-moon');
-            localStorage.setItem('siteTheme', 'dark');
-        } else {
-            body.classList.add('light-theme');
-            themeIcon.classList.replace('fa-moon', 'fa-sun');
-            localStorage.setItem('siteTheme', 'light');
-        }
-    });
-
-    // Placeholder functions for menu items
-    function viewMyFollowers() { showToast('Viewing your followers'); toggleUserDropdown(); }
-    function viewMyFollowing() { showToast('Viewing who you follow'); toggleUserDropdown(); }
-    function viewMySubmissions() { switchView('gallery'); toggleUserDropdown(); }
-    function viewSavedSubmissions() { 
-        if (savedSubmissions.length > 0) {
-            const saved = submissions.filter(s => savedSubmissions.includes(s.id));
-            displaySubmissions('galleryGrid', saved);
-            switchView('gallery');
-        } else {
-            showToast('No saved submissions');
-        }
-        toggleUserDropdown();
+    // Display leaderboard
+    function displayLeaderboard(users) {
+        const container = document.getElementById('leaderboardContent');
+        
+        let html = '';
+        
+        users.forEach((user, index) => {
+            const rankClass = index === 0 ? 'top1' : index === 1 ? 'top2' : index === 2 ? 'top3' : '';
+            
+            html += `
+                <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--border-color);">
+                    <div style="width: 40px; height: 40px; border-radius: 20px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--bg-primary); ${rankClass ? 'background: ' + (index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : '#cd7f32') : ''}">
+                        ${index + 1}
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: var(--primary);">${user.name}</div>
+                        <div style="display: flex; gap: 1rem; color: var(--text-muted); font-size: 0.875rem;">
+                            <span>${user.submissions}/6 steps</span>
+                            <span>${getBadgeEmoji(user.badge)} ${BADGE_NAMES[user.badge].split(' ')[0]}</span>
+                        </div>
+                    </div>
+                    <div style="font-weight: 700; color: var(--primary);">${user.points} pts</div>
+                </div>
+            `;
+        });
+        
+        container.innerHTML = html;
     }
-    function showSettings() { showToast('Settings coming soon'); toggleUserDropdown(); }
-    function closeProfileModal() { document.getElementById('profileModal').classList.remove('active'); }
 
-    // Keyboard close for modals
+    // Show toast
+    function showToast(message, duration = 3000) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, duration);
+    }
+
+    // Placeholder functions
+    function switchToHome() {
+        // Switch to home view
+    }
+
+    function viewAmbassadorProfile() {
+        showToast('Viewing your profile');
+        closeMenu();
+    }
+
+    function viewMySubmissions() {
+        showToast('Your submissions will appear here');
+        closeMenu();
+    }
+
+    function viewSavedSubmissions() {
+        showToast('Your saved items will appear here');
+        closeMenu();
+    }
+
+    function viewMyFollowers() {
+        showToast('Your followers will appear here');
+        closeMenu();
+    }
+
+    function openSettings() {
+        showToast('Settings coming soon');
+        closeMenu();
+    }
+
+    // Close modals on escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            closeSubmitModal();
+            closeMenu();
             closeAuthModal();
-            closeProfileModal();
+            closeSubmitModal();
+            closeLeaderboardModal();
         }
+    });
+
+    // Close modals when clicking outside
+    document.addEventListener('click', (e) => {
+        const menuModal = document.getElementById('menuModal');
+        const authModal = document.getElementById('authModal');
+        const submitModal = document.getElementById('submitModal');
+        const leaderboardModal = document.getElementById('leaderboardModal');
+        
+        if (e.target === menuModal) closeMenu();
+        if (e.target === authModal) closeAuthModal();
+        if (e.target === submitModal) closeSubmitModal();
+        if (e.target === leaderboardModal) closeLeaderboardModal();
     });
 </script>
 </body>
