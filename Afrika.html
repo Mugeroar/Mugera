@@ -13,10 +13,10 @@
     <meta name="application-name" content="Afrika Milele Unity Program">
     
     <!-- Version & Build -->
-    <meta name="version" content="6.0.0">
+    <meta name="version" content="6.1.0">
     <meta name="build-date" content="2025-02-28">
     
-    <title>Afrika Milele | Challenges & Campaigns</title>
+    <title>Afrika Milele | The Daima Challenge</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
     
@@ -32,7 +32,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -42,8 +41,6 @@
             --gold-dark: #a16207;
             --gold-light: #fef3c7;
             --gold-gradient: linear-gradient(135deg, #f5e7c8, #ca8a04, #f5e7c8);
-            --whatsapp: #25D366;
-            --sonGa: #d4a017;
             
             /* Badge Colors */
             --badge-bronze: #cd7f32;
@@ -297,7 +294,7 @@
             transform: rotate(15deg) scale(1.1);
         }
         
-        /* Hero Section - Simplified for Challenges */
+        /* Hero Section */
         .challenge-hero {
             min-height: 60vh;
             background: linear-gradient(135deg, rgba(0,0,0,0.85), rgba(0,0,0,0.75)), 
@@ -355,7 +352,7 @@
             letter-spacing: 1px;
         }
         
-        /* Navigation - Simplified */
+        /* Navigation */
         .main-nav {
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
@@ -476,9 +473,6 @@
             margin-top: 1rem;
             color: var(--text-muted);
         }
-        .step-status i.completed {
-            color: var(--gold);
-        }
         .step-checkbox {
             width: 24px;
             height: 24px;
@@ -592,7 +586,7 @@
             100% { transform: translateX(100%); }
         }
         
-        /* Submission Gallery */
+        /* Submissions Gallery - Text Only */
         .gallery-header {
             display: flex;
             justify-content: space-between;
@@ -625,13 +619,13 @@
         }
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 2rem;
         }
         .submission-card {
             background: var(--card-bg);
             border-radius: 24px;
-            overflow: hidden;
+            padding: 1.5rem;
             border: 1px solid var(--border-light);
             transition: 0.3s;
             cursor: pointer;
@@ -641,51 +635,63 @@
             border-color: var(--gold);
             box-shadow: 0 15px 30px var(--shadow-color);
         }
-        .submission-media {
-            height: 200px;
-            background: var(--bg-secondary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
-            font-size: 3rem;
-            border-bottom: 1px solid var(--border-light);
-        }
-        .submission-content {
-            padding: 1.5rem;
-        }
         .submission-header {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
+            gap: 1rem;
             margin-bottom: 1rem;
         }
         .submission-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
             background: var(--gold);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.5rem;
             color: var(--bg-primary);
             font-weight: 600;
+            cursor: pointer;
         }
         .submission-user {
             flex: 1;
+            cursor: pointer;
         }
         .submission-name {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--gold);
+            font-size: 1.1rem;
         }
         .submission-badge {
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
         }
-        .submission-text {
+        .submission-step {
+            display: inline-block;
+            background: rgba(202,138,4,0.15);
+            color: var(--gold);
+            padding: 0.2rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin: 0.5rem 0;
+        }
+        .submission-message {
             color: var(--text-secondary);
-            margin-bottom: 1rem;
-            line-height: 1.5;
+            margin: 1rem 0;
+            line-height: 1.6;
+            font-style: italic;
+        }
+        .submission-link {
+            color: var(--gold);
+            text-decoration: none;
+            word-break: break-all;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin: 0.5rem 0;
+        }
+        .submission-link:hover {
+            text-decoration: underline;
         }
         .submission-meta {
             display: flex;
@@ -694,6 +700,7 @@
             font-size: 0.9rem;
             padding-top: 1rem;
             border-top: 1px solid var(--border-light);
+            margin-top: 1rem;
         }
         .meta-item {
             display: flex;
@@ -721,6 +728,11 @@
             gap: 1rem;
             padding: 1rem;
             border-bottom: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .leaderboard-item:hover {
+            background: rgba(202,138,4,0.05);
         }
         .leaderboard-item:last-child {
             border-bottom: none;
@@ -943,25 +955,21 @@
             gap: 1rem;
             margin: 2rem 0;
         }
-        .profile-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        .submission-list {
+            display: flex;
+            flex-direction: column;
             gap: 1rem;
             margin-top: 2rem;
         }
-        .gallery-item {
-            aspect-ratio: 1;
+        .profile-submission-item {
             background: var(--bg-primary);
             border-radius: 16px;
+            padding: 1rem;
             border: 1px solid var(--border-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-muted);
             cursor: pointer;
             transition: 0.2s;
         }
-        .gallery-item:hover {
+        .profile-submission-item:hover {
             border-color: var(--gold);
         }
         
@@ -1018,40 +1026,6 @@
             display: block;
         }
         
-        /* SonGa Section */
-        .songa-section {
-            background: linear-gradient(145deg, rgba(212,160,23,0.1), rgba(212,160,23,0.05));
-            border-radius: 40px;
-            padding: 2.5rem;
-            margin: 3rem 0;
-            text-align: center;
-            border: 2px solid var(--sonGa);
-        }
-        .songa-logo {
-            width: 80px;
-            height: 80px;
-            border-radius: 40px;
-            margin-bottom: 1rem;
-        }
-        .songa-btn {
-            background: var(--sonGa);
-            color: black;
-            border: none;
-            padding: 1rem 2.5rem;
-            border-radius: 40px;
-            font-weight: 700;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.8rem;
-        }
-        .songa-btn:hover {
-            background: #b3860f;
-            transform: translateY(-2px);
-        }
-        
         /* Footer */
         .footer {
             background: var(--bg-secondary);
@@ -1089,6 +1063,7 @@
             .progress-header { flex-direction: column; text-align: center; }
             .gallery-header { flex-direction: column; gap: 1rem; }
             .profile-header { flex-direction: column; text-align: center; }
+            .gallery-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -1135,7 +1110,7 @@
                             <i class="fas fa-user-plus"></i> Following (<span id="followingCount">0</span>)
                         </a>
                         <a href="#" onclick="viewMySubmissions(); return false;">
-                            <i class="fas fa-images"></i> My Submissions
+                            <i class="fas fa-list"></i> My Submissions
                         </a>
                         <a href="#" onclick="viewSavedSubmissions(); return false;">
                             <i class="fas fa-bookmark"></i> Saved
@@ -1162,14 +1137,14 @@
             <span class="challenge-badge">THE DAIMA CHALLENGE</span>
             <h1>SHOW YOUR AFRICAN PRIDE</h1>
             <p style="color: var(--text-muted); font-size: 1.2rem; max-width: 600px; margin: 1rem auto;">
-                Complete challenges, share your story, and build your legacy. Every post brings you closer to legendary status.
+                Complete challenges, share your story on social media, and build your legacy. Every post brings you closer to legendary status.
             </p>
             
             <!-- Live Stats -->
             <div class="hero-stats">
                 <div class="stat-item">
                     <div class="stat-number" id="totalParticipants">0</div>
-                    <div class="stat-label">Participants</div>
+                    <div class="stat-label">Challengers</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-number" id="totalSubmissions">0</div>
@@ -1187,7 +1162,7 @@
     <div class="main-nav">
         <div class="nav-container">
             <span class="nav-link active" onclick="switchView('challenge')" id="nav-challenge">🔥 The Challenge</span>
-            <span class="nav-link" onclick="switchView('gallery')" id="nav-gallery">🖼️ Gallery</span>
+            <span class="nav-link" onclick="switchView('gallery')" id="nav-gallery">📝 Submissions</span>
             <span class="nav-link" onclick="switchView('leaderboard')" id="nav-leaderboard">🏆 Leaderboard</span>
             <span class="nav-link" onclick="switchView('profile')" id="nav-profile" style="display: none;">👤 My Profile</span>
         </div>
@@ -1201,7 +1176,7 @@
                 <div class="progress-header">
                     <div class="badge-showcase">
                         <div class="badge-icon-large" id="currentBadgeIcon">🥉</div>
-                        <div class="badge-name" id="currentBadgeName">Bronze Ambassador</div>
+                        <div class="badge-name" id="currentBadgeName">Bronze Challenger</div>
                     </div>
                     <div class="progress-details">
                         <div class="progress-stats">
@@ -1222,7 +1197,7 @@
                             <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
                         </div>
                         <div id="nextBadgeInfo" style="color: var(--text-muted); margin-top: 0.5rem;">
-                            Next: Silver Ambassador (100 more points)
+                            Next: Silver Challenger (100 more points)
                         </div>
                     </div>
                 </div>
@@ -1250,21 +1225,6 @@
             </div>
         </section>
 
-        <!-- SonGa WhatsApp Community -->
-        <section class="section">
-            <div class="songa-section">
-                <img src="https://i.postimg.cc/BbdzCkxQ/20260116-0851-Elegant-Lion-Emblem-remix-01kf2npwbtf06ttr4htekjnd47-removebg-preview-2.webp" 
-                     alt="SonGa Community" class="songa-logo">
-                <h3 style="color: var(--sonGa); font-size: 2rem; margin-bottom: 1rem;">Join SonGa Community</h3>
-                <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 2rem;">
-                    Connect with fellow challengers on WhatsApp for updates, tips, and community support.
-                </p>
-                <button class="songa-btn" onclick="joinSonGa()">
-                    <i class="fab fa-whatsapp"></i> Join WhatsApp Channel
-                </button>
-            </div>
-        </section>
-
         <!-- Recent Submissions Preview -->
         <section class="section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap;">
@@ -1282,16 +1242,16 @@
     <div id="gallery-view" style="display: none;">
         <section class="section">
             <div class="gallery-header">
-                <h2 class="section-title" style="margin-bottom: 0;">Challenge Gallery</h2>
+                <h2 class="section-title" style="margin-bottom: 0;">Challenge Submissions</h2>
                 <div class="gallery-filters">
                     <span class="filter-btn active" onclick="filterGallery('all')" id="filter-all">All</span>
-                    <span class="filter-btn" onclick="filterGallery('trending')" id="filter-trending">Trending</span>
+                    <span class="filter-btn" onclick="filterGallery('trending')" id="filter-trending">Most Liked</span>
                     <span class="filter-btn" onclick="filterGallery('following')" id="filter-following">Following</span>
                 </div>
             </div>
             
             <div class="gallery-grid" id="galleryGrid">
-                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Loading gallery...</div>
+                <div style="text-align: center; padding: 2rem; color: var(--text-muted);">Loading submissions...</div>
             </div>
         </section>
     </div>
@@ -1321,7 +1281,7 @@
     <footer class="footer">
         <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="Afrika Milele" style="height: 50px; margin-bottom: 1rem; border-radius: 12px;">
         <p style="color: var(--text-muted);">© 2026 Afrika Milele — DAIMA | MILELE | PAMOJA</p>
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Share your African pride. Build your legacy.</p>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Share your African pride on social media. Build your legacy here.</p>
     </footer>
 </main>
 
@@ -1338,8 +1298,8 @@
                 <option value="2">Step 2: Share two reasons you love being African</option>
                 <option value="3">Step 3: Recite "DAIMA, MILELE, PAMOJA"</option>
                 <option value="4">Step 4: Post & Tag @am_mugera</option>
-                <option value="5">Step 5: Join SonGa on WhatsApp</option>
-                <option value="6">Step 6: Keep enjoying being African</option>
+                <option value="5">Step 5: Share your African story</option>
+                <option value="6">Step 6: Celebrate African excellence</option>
             </select>
         </div>
         
@@ -1347,22 +1307,14 @@
             <label class="form-label">Social Media Link</label>
             <div class="social-input-group">
                 <span><i class="fas fa-link"></i></span>
-                <input type="url" id="submitLink" placeholder="https://instagram.com/p/...">
+                <input type="url" id="submitLink" placeholder="https://instagram.com/p/... or https://tiktok.com/@...">
             </div>
-            <small style="color: var(--text-muted);">Paste your Instagram, TikTok, or X post link</small>
+            <small style="color: var(--text-muted);">Paste your Instagram, TikTok, or X (Twitter) post link</small>
         </div>
         
         <div class="form-group">
-            <label class="form-label">Your Message (Optional)</label>
-            <textarea class="form-textarea" id="submitMessage" placeholder="Tell us about your post..."></textarea>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">Upload Media (Optional)</label>
-            <input type="file" id="submitMedia" accept="image/*,video/*" style="display: none;">
-            <button class="filter-btn" style="width: 100%;" onclick="document.getElementById('submitMedia').click()">
-                <i class="fas fa-cloud-upload-alt"></i> Choose File
-            </button>
+            <label class="form-label">Your Message</label>
+            <textarea class="form-textarea" id="submitMessage" placeholder="Tell us about your post and what it means to you..."></textarea>
         </div>
         
         <button class="submit-btn" onclick="submitChallengeEntry()">
@@ -1459,7 +1411,7 @@
     };
 
     // Initialize Firebase
-    let database, auth, storage, analytics;
+    let database, auth, analytics;
     let currentUser = null;
     let currentUserData = null;
     let submissions = [];
@@ -1476,23 +1428,23 @@
             description: "Film yourself doing what you love — your job, craft, or everyday African moment.",
             icon: "🎥",
             points: 10,
-            socialRequired: true
+            tags: ["@am_mugera", "#AfrikaMilele"]
         },
         {
             id: 2,
             title: "Share Two Reasons",
-            description: "Tell us two things you love about being African.",
+            description: "Tell the world two things you love about being African.",
             icon: "❤️",
             points: 15,
-            socialRequired: true
+            tags: ["@iam__mugera", "#AfricanPride"]
         },
         {
             id: 3,
             title: "Recite the Mantra",
-            description: "Say: DAIMA, MILELE, PAMOJA with pride.",
+            description: "Say: DAIMA, MILELE, PAMOJA with pride and passion.",
             icon: "🗣️",
             points: 10,
-            socialRequired: true
+            tags: ["#Daima", "#Milele", "#Pamoja"]
         },
         {
             id: 4,
@@ -1500,24 +1452,23 @@
             description: "Tag @am_mugera on Instagram, @iam__mugera on X, @iam_mugera on TikTok",
             icon: "📱",
             points: 20,
-            socialRequired: true,
             tags: ["@am_mugera", "@iam__mugera", "@iam_mugera"]
         },
         {
             id: 5,
-            title: "Join SonGa Community",
-            description: "Connect with fellow challengers on WhatsApp",
-            icon: "💬",
+            title: "Share Your African Story",
+            description: "Tell a story about your heritage, culture, or favorite African moment.",
+            icon: "📖",
             points: 15,
-            socialRequired: false
+            tags: ["#MyAfricanStory"]
         },
         {
             id: 6,
-            title: "Celebrate Daily",
-            description: "Keep sharing your African pride journey",
-            icon: "🎉",
-            points: 5,
-            socialRequired: true
+            title: "Celebrate African Excellence",
+            description: "Highlight an African innovator, artist, or leader who inspires you.",
+            icon: "🌟",
+            points: 15,
+            tags: ["#AfricanExcellence"]
         }
     ];
 
@@ -1540,15 +1491,11 @@
         legend: "Legendary Challenger"
     };
 
-    // SonGa WhatsApp link
-    const SONGA_WHATSAPP_LINK = "https://whatsapp.com/channel/0029VbBQKpAJJhzWClgEGF2P";
-
     // Initialize
     try {
         firebase.initializeApp(firebaseConfig);
         database = firebase.database();
         auth = firebase.auth();
-        storage = firebase.storage();
         analytics = firebase.analytics();
         
         auth.onAuthStateChanged(handleAuthStateChange);
@@ -1653,11 +1600,9 @@
                     <div class="step-title">${step.title}</div>
                     <div class="step-desc">${step.description}</div>
                     
-                    ${step.tags ? `
-                        <div class="social-tags">
-                            ${step.tags.map(tag => `<span class="social-tag">${tag}</span>`).join('')}
-                        </div>
-                    ` : ''}
+                    <div class="social-tags">
+                        ${step.tags.map(tag => `<span class="social-tag">${tag}</span>`).join('')}
+                    </div>
                     
                     <div class="step-status">
                         <div class="step-checkbox ${isCompleted ? 'checked' : ''}">
@@ -1801,6 +1746,9 @@
                 submissions.sort((a, b) => b.timestamp - a.timestamp);
                 displaySubmissions('recentSubmissions', submissions.slice(0, 6));
                 displaySubmissions('galleryGrid', submissions);
+            } else {
+                document.getElementById('recentSubmissions').innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No submissions yet. Be the first!</div>';
+                document.getElementById('galleryGrid').innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No submissions yet</div>';
             }
         } catch (error) {
             console.error('Error loading submissions:', error);
@@ -1813,7 +1761,7 @@
         if (!container) return;
         
         if (!subs || subs.length === 0) {
-            container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No submissions yet. Be the first!</div>';
+            container.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No submissions yet</div>';
             return;
         }
         
@@ -1824,43 +1772,41 @@
             const userBadge = calculateBadge(sub.userPoints || 0);
             const hasLiked = currentUser && sub.likedBy && sub.likedBy[currentUser.uid];
             const isSaved = currentUser && savedSubmissions.includes(sub.id);
+            const stepInfo = CHALLENGE_STEPS.find(s => s.id == sub.step) || { title: 'Challenge Step' };
             
             html += `
-                <div class="submission-card" onclick="viewSubmission('${sub.id}')">
-                    <div class="submission-media">
-                        ${sub.mediaType === 'image' ? '📷' : sub.mediaType === 'video' ? '🎥' : '📝'}
+                <div class="submission-card" onclick="viewSubmissionDetails('${sub.id}')">
+                    <div class="submission-header">
+                        <div class="submission-avatar" onclick="event.stopPropagation(); viewUserProfile('${sub.userId}')">
+                            ${sub.userName ? sub.userName.charAt(0).toUpperCase() : 'A'}
+                        </div>
+                        <div class="submission-user" onclick="event.stopPropagation(); viewUserProfile('${sub.userId}')">
+                            <div class="submission-name">${sub.userName || 'Ambassador'}</div>
+                            <div class="submission-badge">${BADGE_NAMES[userBadge]}</div>
+                        </div>
                     </div>
-                    <div class="submission-content">
-                        <div class="submission-header">
-                            <div class="submission-avatar" onclick="event.stopPropagation(); viewUserProfile('${sub.userId}')">
-                                ${sub.userName ? sub.userName.charAt(0).toUpperCase() : 'A'}
-                            </div>
-                            <div class="submission-user">
-                                <div class="submission-name" onclick="event.stopPropagation(); viewUserProfile('${sub.userId}')">
-                                    ${sub.userName || 'Ambassador'}
-                                </div>
-                                <div class="submission-badge">${BADGE_NAMES[userBadge]}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="submission-text">
-                            ${sub.message || 'Completed a challenge step! 🎉'}
-                        </div>
-                        
-                        <div class="submission-meta">
-                            <span class="meta-item" onclick="event.stopPropagation(); likeSubmission('${sub.id}')">
-                                <i class="fas fa-heart ${hasLiked ? 'liked' : ''}"></i>
-                                <span id="likes-${sub.id}">${sub.likes || 0}</span>
-                            </span>
-                            <span class="meta-item" onclick="event.stopPropagation(); commentOnSubmission('${sub.id}')">
-                                <i class="fas fa-comment"></i>
-                                <span>${sub.comments || 0}</span>
-                            </span>
-                            <span class="meta-item" onclick="event.stopPropagation(); saveSubmission('${sub.id}')">
-                                <i class="fas fa-bookmark ${isSaved ? 'liked' : ''}"></i>
-                            </span>
-                            <span class="meta-item">${timeAgo}</span>
-                        </div>
+                    
+                    <div class="submission-step">${stepInfo.title}</div>
+                    
+                    <div class="submission-message">
+                        "${sub.message || 'Completed a challenge step! Check out my post.'}"
+                    </div>
+                    
+                    ${sub.link ? `
+                        <a href="${sub.link}" target="_blank" class="submission-link" onclick="event.stopPropagation()">
+                            <i class="fas fa-external-link-alt"></i> View on Social Media
+                        </a>
+                    ` : ''}
+                    
+                    <div class="submission-meta">
+                        <span class="meta-item" onclick="event.stopPropagation(); likeSubmission('${sub.id}')">
+                            <i class="fas fa-heart ${hasLiked ? 'liked' : ''}"></i>
+                            <span id="likes-${sub.id}">${sub.likes || 0}</span>
+                        </span>
+                        <span class="meta-item" onclick="event.stopPropagation(); saveSubmission('${sub.id}')">
+                            <i class="fas fa-bookmark ${isSaved ? 'liked' : ''}"></i>
+                        </span>
+                        <span class="meta-item">${timeAgo}</span>
                     </div>
                 </div>
             `;
@@ -1889,8 +1835,8 @@
         const link = document.getElementById('submitLink').value.trim();
         const message = document.getElementById('submitMessage').value.trim();
         
-        if (!link && !message) {
-            showToast('Please provide a link or message');
+        if (!link) {
+            showToast('Please provide your social media link');
             return;
         }
         
@@ -1905,12 +1851,10 @@
             step: step,
             stepTitle: stepData.title,
             link: link,
-            message: message,
+            message: message || "Completed this challenge step!",
             timestamp: Date.now(),
             likes: 0,
-            comments: 0,
             likedBy: {},
-            mediaType: 'link',
             pointsEarned: stepData.points
         };
         
@@ -1924,8 +1868,8 @@
             
             // Mark step as completed
             if (!currentUserData.completedSteps) currentUserData.completedSteps = [];
-            if (!currentUserData.completedSteps.includes(step)) {
-                currentUserData.completedSteps.push(step);
+            if (!currentUserData.completedSteps.includes(parseInt(step))) {
+                currentUserData.completedSteps.push(parseInt(step));
             }
             
             await database.ref('users/' + currentUser.uid).update({
@@ -1936,6 +1880,7 @@
             closeSubmitModal();
             await loadUserData(currentUser.uid);
             await loadSubmissions();
+            await loadLeaderboard();
             
             showToast(`Submission successful! +${stepData.points} points`);
             
@@ -1978,6 +1923,7 @@
                 const ownerSnapshot = await database.ref('users/' + sub.userId + '/stats/likes').once('value');
                 const ownerLikes = ownerSnapshot.val() || 0;
                 await database.ref('users/' + sub.userId + '/stats/likes').set(ownerLikes + 1);
+                await database.ref('users/' + sub.userId + '/stats/points').transaction(points => (points || 0) + 1);
                 
                 // Give points to liker
                 const userStats = currentUserData?.stats || { points: 0 };
@@ -1989,6 +1935,7 @@
             const likesSpan = document.getElementById(`likes-${subId}`);
             if (likesSpan) likesSpan.textContent = sub.likes;
             
+            await loadUserData(currentUser.uid);
             showToast(hasLiked ? 'Like removed' : 'Liked! +1 point');
             
         } catch (error) {
@@ -2130,7 +2077,7 @@
             const badge = calculateBadge(user.stats?.points || 0);
             
             // Get user's submissions
-            const userSubs = submissions.filter(s => s.userId === uid).slice(0, 6);
+            const userSubs = submissions.filter(s => s.userId === uid).slice(0, 10);
             
             const isFollowing = currentUser && following.includes(uid);
             
@@ -2139,9 +2086,17 @@
             
             let subsHtml = '';
             userSubs.forEach(sub => {
+                const stepInfo = CHALLENGE_STEPS.find(s => s.id == sub.step) || { title: 'Challenge Step' };
                 subsHtml += `
-                    <div class="gallery-item" onclick="viewSubmission('${sub.id}')">
-                        ${sub.stepTitle} • ${getTimeAgo(sub.timestamp)}
+                    <div class="profile-submission-item" onclick="viewSubmissionDetails('${sub.id}')">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--gold);">${stepInfo.title}</span>
+                            <span style="color: var(--text-muted);">${getTimeAgo(sub.timestamp)}</span>
+                        </div>
+                        <div style="margin-top: 0.5rem; color: var(--text-secondary);">${sub.message || 'No message'}</div>
+                        <div style="margin-top: 0.5rem; display: flex; gap: 1rem; color: var(--text-muted);">
+                            <span>❤️ ${sub.likes || 0}</span>
+                        </div>
                     </div>
                 `;
             });
@@ -2158,7 +2113,7 @@
                         ${user.handle ? `<p style="color: var(--text-muted);">📱 ${user.handle}</p>` : ''}
                     </div>
                     ${currentUser && currentUser.uid !== uid ? `
-                        <button class="follow-btn ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${uid}')">
+                        <button class="follow-btn ${isFollowing ? 'following' : ''}" onclick="event.stopPropagation(); toggleFollow('${uid}')">
                             ${isFollowing ? 'Following' : 'Follow'}
                         </button>
                     ` : ''}
@@ -2182,7 +2137,7 @@
                 </div>
                 
                 <h3 style="color: var(--gold); margin: 1.5rem 0 1rem;">Recent Submissions</h3>
-                <div class="profile-gallery">
+                <div class="submission-list">
                     ${subsHtml || '<p style="color: var(--text-muted);">No submissions yet</p>'}
                 </div>
             `;
@@ -2203,6 +2158,61 @@
         }
         viewUserProfile(currentUser.uid);
         toggleUserDropdown();
+    }
+
+    // View submission details
+    function viewSubmissionDetails(subId) {
+        const sub = submissions.find(s => s.id === subId);
+        if (!sub) return;
+        
+        const stepInfo = CHALLENGE_STEPS.find(s => s.id == sub.step) || { title: 'Challenge Step', points: 0 };
+        
+        const modal = document.getElementById('profileModal');
+        const content = document.getElementById('profileModalContent');
+        
+        content.innerHTML = `
+            <div style="text-align: center;">
+                <div class="profile-avatar-large" style="margin: 0 auto 1rem;">
+                    ${sub.userName ? sub.userName.charAt(0).toUpperCase() : 'A'}
+                </div>
+                <h2 style="color: var(--gold);">${sub.userName}</h2>
+                <p style="color: var(--text-muted);">${BADGE_NAMES[calculateBadge(sub.userPoints || 0)]}</p>
+                
+                <div style="margin: 2rem 0; padding: 1.5rem; background: var(--bg-primary); border-radius: 20px;">
+                    <span class="submission-step">${stepInfo.title}</span>
+                    <p style="color: var(--text-secondary); margin: 1rem 0; font-size: 1.1rem; font-style: italic;">
+                        "${sub.message}"
+                    </p>
+                    ${sub.link ? `
+                        <a href="${sub.link}" target="_blank" class="submission-link" style="font-size: 1rem;">
+                            <i class="fas fa-external-link-alt"></i> View on Social Media
+                        </a>
+                    ` : ''}
+                </div>
+                
+                <div style="display: flex; justify-content: center; gap: 2rem; margin: 1.5rem 0;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; color: var(--gold);">${sub.likes || 0}</div>
+                        <div style="color: var(--text-muted);">Likes</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; color: var(--gold);">${stepInfo.points}</div>
+                        <div style="color: var(--text-muted);">Points Earned</div>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button class="follow-btn" onclick="likeSubmission('${sub.id}')">
+                        <i class="fas fa-heart"></i> Like
+                    </button>
+                    <button class="follow-btn following" onclick="closeProfileModal()">
+                        Close
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        modal.classList.add('active');
     }
 
     // Toggle follow
@@ -2397,16 +2407,6 @@
         showToast('Logged out');
     }
 
-    // Join SonGa
-    function joinSonGa() {
-        window.open(SONGA_WHATSAPP_LINK, '_blank');
-        
-        if (currentUser) {
-            database.ref('users/' + currentUser.uid + '/joinedSonGa').set(true);
-            showToast('Redirecting to WhatsApp...');
-        }
-    }
-
     // Toggle dropdown
     function toggleUserDropdown() {
         document.getElementById('userDropdown').classList.toggle('active');
@@ -2445,8 +2445,8 @@
     });
 
     // Placeholder functions for menu items
-    function viewMyFollowers() { showToast('Followers feature coming soon'); toggleUserDropdown(); }
-    function viewMyFollowing() { showToast('Following feature coming soon'); toggleUserDropdown(); }
+    function viewMyFollowers() { showToast('Viewing your followers'); toggleUserDropdown(); }
+    function viewMyFollowing() { showToast('Viewing who you follow'); toggleUserDropdown(); }
     function viewMySubmissions() { switchView('gallery'); toggleUserDropdown(); }
     function viewSavedSubmissions() { 
         if (savedSubmissions.length > 0) {
@@ -2459,8 +2459,6 @@
         toggleUserDropdown();
     }
     function showSettings() { showToast('Settings coming soon'); toggleUserDropdown(); }
-    function viewSubmission(id) { showToast('Viewing submission: ' + id); }
-    function commentOnSubmission(id) { showToast('Comments coming soon'); }
     function closeProfileModal() { document.getElementById('profileModal').classList.remove('active'); }
 
     // Keyboard close for modals
