@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#d4a017" id="themeColor">
+    <meta name="background-color" content="#0a0a0a" id="bgColorMeta">
+    <meta name="color-scheme" content="dark light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SonGa · I AM MUGERA">
+    <meta name="application-name" content="SonGa Community">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <title>SonGa · I AM MUGERA</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/Kzsb3tX6/I-AM-MUGERA.png">
+    
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --sonGa: #d4a017;
+            --sonGa-dark: #b38616;
+            --sonGa-light: #f3d779;
+            --gold: #ca8a04;
+            
+            /* Dark theme (default) */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --card-bg: #151515;
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border-light: #2a2a2a;
+            --nav-bg: rgba(10,10,10,0.98);
+            --shadow-color: rgba(212,160,23,0.25);
+            --glass-bg: rgba(20,20,20,0.3);
+            --glass-border: rgba(255,255,255,0.1);
+        }
+
+        body.light-theme {
+            --bg-primary: #f8f5f0;
+            --bg-secondary: #ffffff;
+            --card-bg: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #2d2d2d;
+            --text-muted: #555555;
+            --border-light: #dddddd;
+            --nav-bg: rgba(255,255,255,0.98);
+            --shadow-color: rgba(212,160,23,0.3);
+            --glass-bg: rgba(255,255,255,0.2);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.2s;
+        }
+
+        /* AUTH GATE */
+        .auth-gate {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-primary);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+        .auth-gate.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .auth-card {
+            max-width: 460px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 48px;
+            padding: 2.5rem 2.2rem;
+            border: 2px solid var(--sonGa);
+            box-shadow: 0 30px 60px var(--shadow-color);
+            position: relative;
+        }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .auth-header h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.6rem;
+            color: var(--sonGa);
+            margin-bottom: 0.25rem;
+        }
+        .auth-header p {
+            color: var(--text-muted);
+        }
+        .auth-tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--bg-secondary);
+            padding: 0.4rem;
+            border-radius: 60px;
+            margin-bottom: 2rem;
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 40px;
+            font-weight: 600;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+        .auth-tab.active {
+            background: var(--sonGa);
+            color: #000;
+        }
+        .auth-input-group {
+            margin-bottom: 1.2rem;
+        }
+        .auth-input-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+            letter-spacing: 0.5px;
+        }
+        .auth-input-field {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 40px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        .auth-input-field:focus {
+            outline: none;
+            border-color: var(--sonGa);
+            box-shadow: 0 0 0 3px rgba(212,160,23,0.2);
+        }
+        .auth-submit {
+            width: 100%;
+            padding: 1rem;
+            background: var(--sonGa);
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #000;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            margin-top: 1.5rem;
+        }
+        .auth-submit:hover {
+            filter: brightness(1.1);
+            transform: scale(1.02);
+        }
+        .auth-footer {
+            margin-top: 1.2rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+        .auth-footer span {
+            color: var(--sonGa);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* MAIN CONTENT (visible only when authenticated) */
+        .sonGa-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 2rem 4rem;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        .sonGa-page.visible {
+            opacity: 1;
+        }
+
+        /* Header with theme toggle & logout */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-radius: 80px;
+            border: 1px solid var(--sonGa);
+            box-shadow: 0 8px 20px var(--shadow-color);
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .site-logo {
+            height: 48px;
+            border-radius: 12px;
+            border: 2px solid var(--sonGa);
+        }
+        .logo-text {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--sonGa);
+            letter-spacing: 1px;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(212,160,23,0.15);
+            border: 1px solid var(--sonGa);
+            border-radius: 40px;
+            padding: 0.3rem 1rem 0.3rem 1.2rem;
+        }
+        .user-badge span {
+            color: var(--sonGa);
+            font-weight: 500;
+        }
+        .user-badge i {
+            color: var(--sonGa);
+            font-size: 1.3rem;
+        }
+        .theme-toggle, .logout-btn {
+            background: transparent;
+            border: 2px solid var(--sonGa);
+            color: var(--sonGa);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 1.3rem;
+        }
+        .logout-btn {
+            width: auto;
+            padding: 0 1.5rem;
+            border-radius: 40px;
+            gap: 0.5rem;
+            background: rgba(212,160,23,0.1);
+        }
+        .logout-btn:hover {
+            background: var(--sonGa);
+            color: #000;
+        }
+        .theme-toggle:hover {
+            background: var(--sonGa);
+            color: #000;
+            transform: rotate(15deg);
+        }
+
+        /* HERO */
+        .sonGa-hero {
+            text-align: center;
+            margin: 2rem 0 3rem;
+        }
+        .sonGa-hero h1 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(3rem, 8vw, 5rem);
+            color: var(--sonGa);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px var(--shadow-color);
+        }
+        .sonGa-hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* STATS CARDS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--sonGa);
+            border-radius: 40px;
+            padding: 1.8rem 1rem;
+            text-align: center;
+            box-shadow: 0 10px 30px var(--shadow-color);
+            backdrop-filter: blur(5px);
+        }
+        .stat-number {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--sonGa);
+            line-height: 1;
+        }
+        .stat-label {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            margin-top: 0.5rem;
+        }
+
+        /* MEMBERSHIP FORM + MANAGEMENT SECTIONS */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        @media (max-width: 700px) {
+            .two-col { grid-template-columns: 1fr; }
+        }
+        .form-card, .list-card {
+            background: var(--card-bg);
+            border-radius: 48px;
+            padding: 2rem;
+            border: 1px solid var(--sonGa);
+            box-shadow: 0 20px 40px var(--shadow-color);
+        }
+        .card-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            color: var(--sonGa);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .sonGa-form .form-group {
+            margin-bottom: 1.3rem;
+        }
+        .sonGa-form .form-label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+        }
+        .sonGa-form .form-input, .sonGa-form .form-select {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        .sonGa-form .form-input:focus {
+            border-color: var(--sonGa);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(212,160,23,0.2);
+        }
+        .sonGa-form .join-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--sonGa);
+            border: none;
+            border-radius: 60px;
+            font-weight: 700;
+            color: #000;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            margin-top: 1rem;
+        }
+        .sonGa-form .join-btn:hover {
+            filter: brightness(1.1);
+            gap: 1rem;
+        }
+
+        /* member list */
+        .member-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        .member-item {
+            background: var(--bg-secondary);
+            border-radius: 60px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border: 1px solid var(--border-light);
+            transition: 0.2s;
+        }
+        .member-item:hover {
+            border-color: var(--sonGa);
+            transform: translateX(4px);
+        }
+        .member-avatar {
+            width: 45px;
+            height: 45px;
+            background: var(--sonGa);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .member-info {
+            flex: 1;
+        }
+        .member-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .member-email {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .member-remove {
+            background: transparent;
+            border: none;
+            color: #b91c1c;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            opacity: 0.6;
+            transition: 0.2s;
+        }
+        .member-remove:hover {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+        .list-note {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--sonGa);
+            text-decoration: none;
+            margin-top: 2rem;
+            font-weight: 500;
+            border: 1px solid var(--sonGa);
+            padding: 0.6rem 1.5rem;
+            border-radius: 40px;
+            transition: 0.2s;
+        }
+        .back-link:hover {
+            background: var(--sonGa);
+            color: #000;
+            gap: 0.8rem;
+        }
+
+        .message-toast {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--sonGa);
+            border-radius: 60px;
+            padding: 0.9rem 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 11000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.4s;
+            color: var(--text-primary);
+            min-width: 280px;
+            justify-content: center;
+        }
+        .message-toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+        .message-toast i { color: var(--sonGa); }
+    </style>
+</head>
+<body>
+
+<!-- AUTH GATE (Login / Signup) - forces authentication -->
+<div class="auth-gate" id="authGate">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>SonGa</h2>
+            <p>members only · sign in to continue</p>
+        </div>
+        <div class="auth-tabs">
+            <button class="auth-tab active" id="gateLoginTab" onclick="switchGateTab('login')">Log In</button>
+            <button class="auth-tab" id="gateSignupTab" onclick="switchGateTab('signup')">Sign Up</button>
+        </div>
+
+        <!-- Login form -->
+        <div id="gateLoginForm">
+            <div class="auth-input-group">
+                <label>Email</label>
+                <input type="email" class="auth-input-field" id="gateEmail" placeholder="you@example.com">
+            </div>
+            <div class="auth-input-group">
+                <label>Password</label>
+                <input type="password" class="auth-input-field" id="gatePassword" placeholder="••••••••">
+            </div>
+            <button class="auth-submit" onclick="gateLogin()"><i class="fas fa-arrow-right-to-bracket"></i> Log In</button>
+            <div class="auth-footer">
+                <span onclick="switchGateTab('signup')">Create new account</span>
+            </div>
+        </div>
+
+        <!-- Signup form -->
+        <div id="gateSignupForm" style="display: none;">
+            <div class="auth-input-group">
+                <label>Full name</label>
+                <input type="text" class="auth-input-field" id="gateName" placeholder="Wanjiku Njoroge">
+            </div>
+            <div class="auth-input-group">
+                <label>Email</label>
+                <input type="email" class="auth-input-field" id="gateSignupEmail" placeholder="you@example.com">
+            </div>
+            <div class="auth-input-group">
+                <label>Password</label>
+                <input type="password" class="auth-input-field" id="gateSignupPassword" placeholder="min. 6 chars">
+            </div>
+            <div class="auth-input-group">
+                <label>Confirm</label>
+                <input type="password" class="auth-input-field" id="gateSignupConfirm" placeholder="••••••••">
+            </div>
+            <button class="auth-submit" onclick="gateSignup()"><i class="fas fa-user-plus"></i> Create Account</button>
+            <div class="auth-footer">
+                <span onclick="switchGateTab('login')">Already have an account?</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN SonGa PAGE (protected) -->
+<div class="sonGa-page" id="sonGaPage">
+    <header class="page-header">
+        <div class="logo-area">
+            <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="Mugera" class="site-logo">
+            <span class="logo-text">SonGa</span>
+        </div>
+        <div class="header-actions">
+            <div class="user-badge" id="userBadge">
+                <i class="fas fa-user-circle"></i>
+                <span id="displayNameSpan">Member</span>
+            </div>
+            <div class="theme-toggle" id="themeToggle" title="Toggle theme">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </div>
+            <button class="logout-btn" onclick="handleLogout()" title="Logout">
+                <i class="fas fa-sign-out-alt"></i> <span>Exit</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="sonGa-hero">
+        <h1>the heartbeat</h1>
+        <p>SonGa Community — membership & management</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number" id="memberCount">0</div>
+            <div class="stat-label">Total members</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="activeToday">—</div>
+            <div class="stat-label">joined this week</div>
+        </div>
+    </div>
+
+    <!-- Two columns: Join form & Member list (management) -->
+    <div class="two-col">
+        <!-- LEFT: Membership Registration -->
+        <div class="form-card">
+            <h3 class="card-title"><i class="fas fa-user-plus"></i> Become a member</h3>
+            <div class="sonGa-form">
+                <div class="form-group">
+                    <label class="form-label">Full name</label>
+                    <input type="text" class="form-input" id="regName" placeholder="e.g., Wanjiku Njoroge">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email address</label>
+                    <input type="email" class="form-input" id="regEmail" placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone (WhatsApp)</label>
+                    <input type="tel" class="form-input" id="regPhone" placeholder="+254 ...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">County / Location</label>
+                    <select class="form-select" id="regLocation">
+                        <option value="Nairobi">Nairobi</option>
+                        <option value="Uthiru">Uthiru</option>
+                        <option value="Lavington">Lavington</option>
+                        <option value="Satelite">Satelite</option>
+                        <option value="Kisumu">Kisumu</option>
+                        <option value="Mombasa">Mombasa</option>
+                        <option value="Nakuru">Nakuru</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <button class="join-btn" onclick="registerMember()"><i class="fab fa-whatsapp"></i> Join SonGa</button>
+            </div>
+            <p style="color: var(--text-muted); margin-top: 1rem; font-size: 0.9rem;"><i class="fas fa-shield-alt"></i> You'll be redirected to WhatsApp after joining.</p>
+        </div>
+
+        <!-- RIGHT: Membership Management (list + remove) -->
+        <div class="list-card">
+            <h3 class="card-title"><i class="fas fa-users-cog"></i> Manage members</h3>
+            <div class="member-list" id="memberListContainer">
+                <!-- Members injected via JS -->
+            </div>
+            <div class="list-note">
+                <i class="fas fa-info-circle"></i> Only you (admin) can remove members.
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Home -->
+    <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Return to main camp</a>
+</div>
+
+<!-- Toast -->
+<div id="elegantToast" class="message-toast"><i class="fas fa-crown"></i><span id="toastMessage">Message</span></div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+    // Firebase config (same as main)
+    const firebaseConfig = {
+        apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+        authDomain: "mugera-e51cc.firebaseapp.com",
+        databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mugera-e51cc",
+        storageBucket: "mugera-e51cc.firebasestorage.app",
+        messagingSenderId: "1024868637509",
+        appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    let database, auth;
+    try {
+        firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+        auth = firebase.auth();
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    } catch (e) { console.error(e); }
+
+    const sonGaWhatsAppLink = "https://whatsapp.com/channel/0029VbBQKpAJJhzWClgEGF2P";
+    let currentUser = null;
+
+    // Toast
+    function showMessage(text, icon = 'fa-crown') {
+        const toast = document.getElementById('elegantToast');
+        document.getElementById('toastMessage').innerText = text;
+        toast.querySelector('i').className = 'fas ' + icon;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // Auth gate tabs
+    window.switchGateTab = (tab) => {
+        document.getElementById('gateLoginTab').classList.toggle('active', tab === 'login');
+        document.getElementById('gateSignupTab').classList.toggle('active', tab === 'signup');
+        document.getElementById('gateLoginForm').style.display = tab === 'login' ? 'block' : 'none';
+        document.getElementById('gateSignupForm').style.display = tab === 'signup' ? 'block' : 'none';
+    };
+
+    // Login
+    window.gateLogin = async () => {
+        const email = document.getElementById('gateEmail').value.trim();
+        const password = document.getElementById('gatePassword').value;
+        if (!email || !password) return showMessage('Fill all fields', 'fa-exclamation');
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+            showMessage('Login successful', 'fa-check-circle');
+        } catch (err) {
+            showMessage(err.message, 'fa-exclamation-triangle');
+        }
+    };
+
+    // Signup
+    window.gateSignup = async () => {
+        const name = document.getElementById('gateName').value.trim();
+        const email = document.getElementById('gateSignupEmail').value.trim();
+        const pass = document.getElementById('gateSignupPassword').value;
+        const conf = document.getElementById('gateSignupConfirm').value;
+        if (!name || !email || !pass || !conf) return showMessage('All fields required', 'fa-exclamation');
+        if (pass !== conf) return showMessage('Passwords do not match', 'fa-exclamation');
+        if (pass.length < 6) return showMessage('Password min 6 chars', 'fa-exclamation');
+        try {
+            const cred = await auth.createUserWithEmailAndPassword(email, pass);
+            await cred.user.updateProfile({ displayName: name });
+            if (database) {
+                await database.ref('users/' + cred.user.uid).set({ name, email, createdAt: Date.now() });
+            }
+            showMessage('Account created!', 'fa-check-circle');
+        } catch (err) {
+            showMessage(err.message, 'fa-exclamation-triangle');
+        }
+    };
+
+    // Logout
+    window.handleLogout = async () => {
+        try {
+            await auth.signOut();
+            // Gate will reappear thanks to onAuthStateChanged
+            showMessage('Logged out', 'fa-sign-out-alt');
+        } catch (err) {
+            showMessage(err.message, 'fa-exclamation');
+        }
+    };
+
+    // Auth observer
+    auth?.onAuthStateChanged((user) => {
+        if (user) {
+            currentUser = user;
+            document.getElementById('authGate').classList.add('hidden');
+            document.getElementById('sonGaPage').classList.add('visible');
+            let displayName = user.displayName || (user.email ? user.email.split('@')[0] : 'Mugera');
+            displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+            document.getElementById('displayNameSpan').innerText = displayName;
+            loadMembers();
+        } else {
+            currentUser = null;
+            document.getElementById('authGate').classList.remove('hidden');
+            document.getElementById('sonGaPage').classList.remove('visible');
+        }
+    });
+
+    // Load members from Realtime DB (only if authenticated)
+    function loadMembers() {
+        if (!database) return;
+        const membersRef = database.ref('community_members/sonGa');
+        membersRef.on('value', (snapshot) => {
+            const members = snapshot.val() || {};
+            const container = document.getElementById('memberListContainer');
+            const count = Object.keys(members).length;
+            document.getElementById('memberCount').innerText = count || 0;
+            document.getElementById('activeToday').innerText = count > 0 ? '🎉 active' : '—';
+
+            if (count === 0) {
+                container.innerHTML = '<div class="list-note" style="padding: 2rem;">✨ No members yet. Be the first!</div>';
+                return;
+            }
+
+            let html = '';
+            Object.entries(members).forEach(([key, member]) => {
+                const name = member.name || 'Unknown';
+                const email = member.email || '—';
+                const initial = name.charAt(0).toUpperCase();
+                html += `
+                    <div class="member-item" data-key="${key}">
+                        <div class="member-avatar">${initial}</div>
+                        <div class="member-info">
+                            <div class="member-name">${name}</div>
+                            <div class="member-email">${email}</div>
+                        </div>
+                        <button class="member-remove" onclick="removeMember('${key}')" title="Remove member"><i class="fas fa-times-circle"></i></button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        });
+    }
+
+    // Remove member (management)
+    window.removeMember = function(key) {
+        if (!database || !currentUser) {
+            showMessage('You must be logged in', 'fa-exclamation');
+            return;
+        }
+        if (confirm('Remove this member from SonGa?')) {
+            database.ref('community_members/sonGa/' + key).remove()
+                .then(() => showMessage('Member removed', 'fa-user-minus'))
+                .catch(err => showMessage(err.message, 'fa-exclamation'));
+        }
+    };
+
+    // Register new member (join)
+    window.registerMember = function() {
+        if (!database || !currentUser) {
+            showMessage('Please log in first', 'fa-exclamation');
+            return;
+        }
+        const name = document.getElementById('regName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const phone = document.getElementById('regPhone').value.trim();
+        const location = document.getElementById('regLocation').value;
+        if (!name || !email) {
+            showMessage('Name and email required', 'fa-exclamation');
+            return;
+        }
+        // Save to Firebase
+        database.ref('community_members/sonGa').push({
+            name, email, phone, location,
+            timestamp: Date.now(),
+            addedBy: currentUser.uid
+        }).then(() => {
+            showMessage('Karibu! Redirecting to WhatsApp...', 'fa-whatsapp');
+            // Clear form
+            document.getElementById('regName').value = '';
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regPhone').value = '';
+            // Redirect after short delay
+            setTimeout(() => {
+                window.open(sonGaWhatsAppLink, '_blank');
+            }, 1500);
+        }).catch(err => showMessage(err.message, 'fa-exclamation'));
+    };
+
+    // Theme toggle (preserve from main)
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const body = document.body;
+    const savedTheme = localStorage.getItem('siteTheme');
+    if (savedTheme === 'light') {
+        body.classList.add('light-theme');
+        themeIcon.classList.remove('fa-moon');
+        themeIcon.classList.add('fa-sun');
+    } else {
+        body.classList.remove('light-theme');
+        themeIcon.classList.remove('fa-sun');
+        themeIcon.classList.add('fa-moon');
+    }
+    themeToggle.addEventListener('click', () => {
+        if (body.classList.contains('light-theme')) {
+            body.classList.remove('light-theme');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+            localStorage.setItem('siteTheme', 'dark');
+        } else {
+            body.classList.add('light-theme');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+            localStorage.setItem('siteTheme', 'light');
+        }
+    });
+
+    // Prefill gate email if coming from somewhere
+</script>
+</body>
+</html>
