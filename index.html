@@ -1497,6 +1497,52 @@
                 gap: 0.5rem;
             }
         }
+        .update-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: var(--gold);
+            color: black;
+            padding: 1rem;
+            border-radius: 30px;
+            box-shadow: 0 5px 20px rgba(202,138,4,0.3);
+            z-index: 10000;
+            animation: slideUp 0.3s ease;
+        }
+        
+        .update-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .update-btn {
+            background: black;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .update-btn:hover {
+            background: #333;
+        }
+        
+        .update-close {
+            background: transparent;
+            border: none;
+            color: black;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0 0.5rem;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
 <body class="dark-theme">
@@ -2254,6 +2300,19 @@
         updateHoursStatus();
         setInterval(updateHoursStatus, 60000);
     });
+    function showUpdateNotification() {
+    const notification = document.createElement('div');
+    notification.className = 'update-notification';
+    notification.innerHTML = `
+        <div class="update-content">
+            <i class="fas fa-sync-alt"></i>
+            <span>New version available!</span>
+            <button onclick="updateToNewVersion()" class="update-btn">Update</button>
+            <button onclick="this.parentElement.parentElement.remove()" class="update-close">&times;</button>
+        </div>
+    `;
+    document.body.appendChild(notification);
+}
 </script>
 </body>
 </html>
