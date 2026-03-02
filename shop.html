@@ -1960,7 +1960,168 @@
         function quickOrderFromModal(){ if(currentProduct) quickOrder(currentProduct.id, currentProduct.name, currentProduct.price, currentProduct.image); }
         function openOrderModal(){ if(cart.length===0){ showNotification('Cart empty'); return; } if(currentUser){ database.ref('users/'+currentUser.uid).once('value', snap=>{ if(snap.exists()){ let d=snap.val(); document.getElementById('orderName').value=d.name||''; document.getElementById('orderEmail').value=d.email||''; document.getElementById('orderPhone').value=d.phone||''; document.getElementById('orderAddress').value=d.address||''; } }); } let subtotal=0, itemsHtml=''; cart.forEach(item=>{ let t=(Number(item.price)||0)*item.quantity; subtotal+=t; itemsHtml+=`<div style="display:flex; justify-content:space-between; padding:8px 0;"><span>${item.name} x${item.quantity}</span><span>KSh ${t.toLocaleString()}</span></div>`; }); let delivery=150, total=subtotal+delivery; itemsHtml+=`<div style="display:flex; justify-content:space-between; padding:8px 0; border-top:1px solid #ddd; margin-top:8px;"><span>Delivery Fee</span><span>KSh ${delivery.toLocaleString()}</span></div>`; document.getElementById('orderItemsContainer').innerHTML=itemsHtml; document.getElementById('orderTotalAmount').innerText=`KSh ${total.toLocaleString()}`; document.getElementById('orderForm').style.display='block'; document.getElementById('orderSuccessMessage').style.display='none'; document.getElementById('orderErrorMessage').style.display='none'; document.getElementById('orderModal').classList.add('active'); document.body.classList.add('modal-open'); closeCartModal(); }
         function closeOrderModal(){ document.getElementById('orderModal').classList.remove('active'); document.body.classList.remove('modal-open'); }
-        function submitOrder(){ if(!currentUser){ closeOrderModal(); openAuthModal('login'); return; } showNotification('Order placed (demo)'); closeOrderModal(); cart=[]; localStorage.removeItem('mugera_cart'); updateCartBadge(); }
+        function submitOrder() {
+            if(!currentUser) { 
+                closeOrderModal(); 
+                openAuthModal('login'); 
+                return; 
+            }
+            
+            // Get form values
+            const name = document.getElementById('orderName').value;
+            const email = document.getElementById('orderEmail').value;
+            const phone = document.getElementById('orderPhone').value;
+            const address = document.getElementById('orderAddress').value;
+            const deliveryDate = document.getElementById('orderDeliveryDate').value;
+            const paymentMethod = document.getElementById('orderPayment').value;
+            const instructions = document.getElementById('orderInstructions').value;
+            
+            // Validate required fields
+            if(!name || !email || !phone || !address || !paymentMethod) {
+                showNotification('Please fill in all required fields');
+                return;
+            }
+            
+            // Calculate totals
+            let subtotal = cart.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0);
+            const delivery = 150;
+            const total = subtotal + delivery;
+            
+            // Create order object
+            const order = {
+                userId: currentUser.uid,
+                userName: name,
+                userEmail: email,
+                userPhone: phone,
+                deliveryAddress: address,
+                deliveryDate: deliveryDate,
+                paymentMethod: paymentMethod,
+                specialInstructions: instructions,
+                items: cart.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: Number(item.price),
+                    quantity: item.quantity,
+                    image: item.image
+                })),
+                subtotal: subtotal,
+                deliveryFee: delivery,
+                total: total,
+                status: 'pending', // pending, confirmed, processing, delivered, cancelled
+                orderDate: new Date().toISOString(),
+                statusHistory: [{
+                    status: 'pending',
+                    timestamp: new Date().toISOString(),
+                    note: 'Order placed'
+                }]
+            };
+            
+            // Show loading state
+            const submitBtn = document.getElementById('orderSubmitBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            submitBtn.disabled = true;
+            
+            // Save to Firebase
+            database.ref('iam-mugera/store/orders').push(order)
+                .then((orderRef) => {
+                    // Update user's order history
+                    return database.ref(`users/${currentUser.uid}/orders/${orderRef.key}`).set(true)
+                        .then(() => orderRef);
+                })
+                .then((orderRef) => {
+                    // Success - show success message
+                    document.getElementById('orderForm').style.display = 'none';
+                    document.getElementById('orderSuccessMessage').style.display = 'flex';
+                    
+                    // Clear cart
+                    cart = [];
+                    localStorage.removeItem('mugera_cart');
+                    updateCartBadge();
+                    
+                    showNotification('Order placed successfully!');
+                    
+                    // Auto close after 3 seconds
+                    setTimeout(() => {
+                        closeOrderModal();
+                        // Reset form for next time
+                        document.getElementById('orderForm').style.display = 'block';
+                        document.getElementById('orderSuccessMessage').style.display = 'none';
+                    }, 3000);
+                })
+                .catch((error) => {
+                    // Error - show error message
+                    console.error('Order failed:', error);
+                    document.getElementById('orderErrorText').innerText = error.message || 'Failed to place order. Please try again.';
+                    document.getElementById('orderForm').style.display = 'none';
+                    document.getElementById('orderErrorMessage').style.display = 'flex';
+                    
+                    showNotification('Order failed: ' + error.message);
+                    
+                    // Reset button
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+        }
+        
+        // Also add this function to view real orders in the profile section
+        function loadUserOrders() {
+            if(!currentUser) return;
+            
+            const ordersDiv = document.getElementById('ordersList');
+            ordersDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading your orders...</div>';
+            
+            database.ref('iam-mugera/store/orders')
+                .orderByChild('userId')
+                .equalTo(currentUser.uid)
+                .once('value')
+                .then((snapshot) => {
+                    if(!snapshot.exists()) {
+                        ordersDiv.innerHTML = '<div style="text-align:center; padding:40px;"><i class="fas fa-shopping-bag" style="font-size:3rem; color:#ccc;"></i><p style="margin-top:20px;">No orders yet</p><button class="btn" onclick="closeProfileModal(); document.getElementById(\'products\').scrollIntoView({behavior:\'smooth\'});">Start Shopping</button></div>';
+                        return;
+                    }
+                    
+                    let ordersHtml = '<table class="orders-table"><thead><tr><th>Order #</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+                    
+                    const orders = [];
+                    snapshot.forEach((childSnapshot) => {
+                        orders.push({
+                            id: childSnapshot.key,
+                            ...childSnapshot.val()
+                        });
+                    });
+                    
+                    // Sort by date descending
+                    orders.sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+                    
+                    orders.forEach(order => {
+                        const orderDate = new Date(order.orderDate).toLocaleDateString();
+                        const itemCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
+                        
+                        ordersHtml += `
+                            <tr>
+                                <td>#${order.id.slice(-6)}</td>
+                                <td>${orderDate}</td>
+                                <td>${itemCount} items</td>
+                                <td>KSh ${order.total.toLocaleString()}</td>
+                                <td><span class="order-status status-${order.status}">${order.status.toUpperCase()}</span></td>
+                                <td class="order-actions">
+                                    <button class="btn-small btn-view" onclick="viewOrderDetails('${order.id}')"><i class="fas fa-eye"></i> View</button>
+                                    ${order.status === 'pending' ? 
+                                        `<button class="btn-small btn-cancel" onclick="cancelOrder('${order.id}')"><i class="fas fa-times"></i> Cancel</button>` : 
+                                        ''}
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    
+                    ordersHtml += '</tbody></table>';
+                    ordersDiv.innerHTML = ordersHtml;
+                })
+                .catch((error) => {
+                    ordersDiv.innerHTML = `<div style="color:#dc2626; text-align:center;">Error loading orders: ${error.message}</div>`;
+                });
+        }
         function openAuthModal(tab){ document.getElementById('authModal').classList.add('active'); switchAuthTab(tab); }
         function closeAuthModal(){ document.getElementById('authModal').classList.remove('active'); document.body.classList.remove('modal-open'); }
         function switchAuthTab(tab){ if(tab==='login'){ document.getElementById('loginTab').classList.add('active'); document.getElementById('registerTab').classList.remove('active'); document.getElementById('loginForm').classList.add('active'); document.getElementById('registerForm').classList.remove('active'); } else { document.getElementById('registerTab').classList.add('active'); document.getElementById('loginTab').classList.remove('active'); document.getElementById('registerForm').classList.add('active'); document.getElementById('loginForm').classList.remove('active'); } }
