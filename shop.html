@@ -23,7 +23,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     
     <style>
-        /* ==================== COMPLETE CSS (with skeleton, perfect cart & design) ==================== */
+        /* ==================== COMPLETE CSS ==================== */
         :root {
             --gold: #ca8a04;
             --gold-light: #fef3c7;
@@ -696,6 +696,12 @@
         .btn-outline:hover {
             background: var(--gold);
             color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
         }
 
         /* Sections */
@@ -1417,6 +1423,27 @@
             to { transform: translateX(0%); opacity: 1; }
         }
 
+        /* Loading Spinner */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            border: 4px solid var(--light-gray);
+            border-top: 4px solid var(--gold);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .products-grid {
@@ -1713,31 +1740,91 @@
                 <button class="profile-tab" onclick="switchProfileTab('orders')">My Orders</button>
                 <button class="profile-tab" onclick="switchProfileTab('settings')">Settings</button>
             </div>
-            <div class="profile-section active" id="profileOverview"><div style="text-align:center; padding:40px;"><i class="fas fa-user-circle" style="font-size:5rem; color:var(--gold);"></i><h3 id="profileDisplayName">Loading...</h3><p id="profileDisplayEmail"></p><p id="profileDisplayPhone"></p><p><small>Member since: <span id="profileJoinDate"></span></small></p></div></div>
-            <div class="profile-section" id="profileOrders"><h3 style="margin-bottom:20px;">My Orders</h3><div id="ordersList"><div class="loading"><div class="spinner"></div><p>Loading your orders...</p></div></div></div>
-            <div class="profile-section" id="profileSettings"><h3 style="margin-bottom:20px;">Account Settings</h3><div class="form-group"><label class="form-label">Full Name</label><input type="text" class="form-control" id="settingsName"></div><div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="form-control" id="settingsPhone"></div><div class="form-group"><label class="form-label">Default Address</label><input type="text" class="form-control" id="settingsAddress"></div><button class="btn" onclick="updateProfile()">Update Profile</button></div>
+            <div class="profile-section active" id="profileOverview">
+                <div style="text-align:center; padding:40px;">
+                    <i class="fas fa-user-circle" style="font-size:5rem; color:var(--gold);"></i>
+                    <h3 id="profileDisplayName">Loading...</h3>
+                    <p id="profileDisplayEmail"></p>
+                    <p id="profileDisplayPhone"></p>
+                    <p><small>Member since: <span id="profileJoinDate"></span></small></p>
+                </div>
+            </div>
+            <div class="profile-section" id="profileOrders">
+                <h3 style="margin-bottom:20px;">My Orders</h3>
+                <div id="ordersList"></div>
+            </div>
+            <div class="profile-section" id="profileSettings">
+                <h3 style="margin-bottom:20px;">Account Settings</h3>
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="settingsName">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="settingsPhone">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Default Address</label>
+                    <input type="text" class="form-control" id="settingsAddress">
+                </div>
+                <button class="btn" onclick="updateProfile()">Update Profile</button>
+            </div>
         </div>
     </div>
 
     <!-- Order Detail Modal -->
-    <div class="order-detail-modal" id="orderDetailModal"><div class="order-detail-content"><div class="profile-header"><h2>Order Details</h2><button class="cart-close" onclick="closeOrderDetailModal()">&times;</button></div><div id="orderDetailContent"></div><div style="margin-top:30px; display:flex; gap:15px;"><button class="btn" onclick="modifyOrder()" id="modifyOrderBtn"><i class="fas fa-edit"></i> Modify Order</button><button class="btn btn-outline" onclick="cancelOrder()" id="cancelOrderBtn"><i class="fas fa-times"></i> Cancel Order</button></div></div></div>
+    <div class="order-detail-modal" id="orderDetailModal">
+        <div class="order-detail-content">
+            <div class="profile-header">
+                <h2>Order Details</h2>
+                <button class="cart-close" onclick="closeOrderDetailModal()">&times;</button>
+            </div>
+            <div id="orderDetailContent"></div>
+            <div style="margin-top:30px; display:flex; gap:15px;">
+                <button class="btn" onclick="modifyCurrentOrder()" id="modifyOrderBtn" style="display:none;"><i class="fas fa-edit"></i> Modify Order</button>
+                <button class="btn btn-outline" onclick="cancelCurrentOrder()" id="cancelOrderBtn" style="display:none;"><i class="fas fa-times"></i> Cancel Order</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Product Modal -->
     <div class="product-modal" id="productModal">
         <button class="modal-close" onclick="closeProductModal()">✕</button>
         <div class="modal-content">
-            <div class="modal-gallery" id="modalGallery" onclick="openImagePopout()"><img id="modalImage" src="" alt="Product"><div class="image-popout-hint"><i class="fas fa-expand"></i> Click to enlarge</div></div>
-            <div class="modal-details"><div id="modalBadge" class="modal-badge"></div><h2 id="modalTitle"></h2><div class="modal-rating" id="modalRating"></div><div class="modal-price" id="modalPrice"></div><div class="modal-stock" id="modalStock"></div><div class="modal-description" id="modalDescription"></div><div style="display:flex; gap:15px;"><button class="btn" style="flex:1;" onclick="addToCartFromModal()" id="modalAddBtn"><i class="fas fa-shopping-cart"></i> Add to Cart</button><button class="btn btn-outline" style="flex:1;" onclick="quickOrderFromModal()" id="modalQuickBtn"><i class="fas fa-bolt"></i> Quick Order</button></div></div>
+            <div class="modal-gallery" id="modalGallery" onclick="openImagePopout()">
+                <img id="modalImage" src="" alt="Product">
+                <div class="image-popout-hint"><i class="fas fa-expand"></i> Click to enlarge</div>
+            </div>
+            <div class="modal-details">
+                <div id="modalBadge" class="modal-badge"></div>
+                <h2 id="modalTitle"></h2>
+                <div class="modal-rating" id="modalRating"></div>
+                <div class="modal-price" id="modalPrice"></div>
+                <div class="modal-stock" id="modalStock"></div>
+                <div class="modal-description" id="modalDescription"></div>
+                <div style="display:flex; gap:15px;">
+                    <button class="btn" style="flex:1;" onclick="addToCartFromModal()" id="modalAddBtn"><i class="fas fa-shopping-cart"></i> Add to Cart</button>
+                    <button class="btn btn-outline" style="flex:1;" onclick="quickOrderFromModal()" id="modalQuickBtn"><i class="fas fa-bolt"></i> Quick Order</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Image Popout Modal -->
-    <div class="image-popout-modal" id="imagePopoutModal" onclick="closeImagePopout()"><div class="image-popout-content" onclick="event.stopPropagation()"><img id="popoutImage" src="" alt="Product enlarged"><button class="image-popout-close" onclick="closeImagePopout()">✕</button></div></div>
+    <div class="image-popout-modal" id="imagePopoutModal" onclick="closeImagePopout()">
+        <div class="image-popout-content" onclick="event.stopPropagation()">
+            <img id="popoutImage" src="" alt="Product enlarged">
+            <button class="image-popout-close" onclick="closeImagePopout()">✕</button>
+        </div>
+    </div>
 
     <!-- Cart Modal -->
     <div class="cart-modal" id="cartModal">
         <div class="cart-content">
-            <div class="cart-header"><h2><i class="fas fa-shopping-cart"></i> Your Cart</h2><button class="cart-close" onclick="closeCartModal()">&times;</button></div>
+            <div class="cart-header">
+                <h2><i class="fas fa-shopping-cart"></i> Your Cart</h2>
+                <button class="cart-close" onclick="closeCartModal()">&times;</button>
+            </div>
             <div id="cartItems"></div>
             <div class="cart-summary" id="cartSummary" style="display:none;">
                 <div class="summary-row"><span>Subtotal:</span><span id="cartSubtotal">KSh 0</span></div>
@@ -1751,17 +1838,74 @@
     <!-- Order Modal -->
     <div class="order-modal" id="orderModal">
         <div class="order-content">
-            <div class="cart-header"><h2>Complete Order</h2><button class="cart-close" onclick="closeOrderModal()">&times;</button></div>
-            <div class="message success" id="orderSuccessMessage"><i class="fas fa-check-circle" style="font-size:2rem;"></i><div><h4>Order Placed Successfully!</h4><p>Thank you for your purchase. You can track your order in your profile.</p></div></div>
-            <div class="message error" id="orderErrorMessage"><i class="fas fa-exclamation-circle" style="font-size:2rem;"></i><div><h4>Order Failed</h4><p id="orderErrorText">Please check your connection and try again.</p></div></div>
+            <div class="cart-header">
+                <h2>Complete Order</h2>
+                <button class="cart-close" onclick="closeOrderModal()">&times;</button>
+            </div>
+            <div class="message success" id="orderSuccessMessage">
+                <i class="fas fa-check-circle" style="font-size:2rem;"></i>
+                <div>
+                    <h4>Order Placed Successfully!</h4>
+                    <p>Thank you for your purchase. You can track your order in your profile.</p>
+                </div>
+            </div>
+            <div class="message error" id="orderErrorMessage">
+                <i class="fas fa-exclamation-circle" style="font-size:2rem;"></i>
+                <div>
+                    <h4>Order Failed</h4>
+                    <p id="orderErrorText">Please check your connection and try again.</p>
+                </div>
+            </div>
             <div id="orderForm">
-                <div style="background:#f8f9fa; padding:20px; margin-bottom:24px;"><h3 style="margin-bottom:16px;">Order Summary</h3><div id="orderItemsContainer"></div><div style="display:flex; justify-content:space-between; font-weight:700; margin-top:16px; padding-top:16px; border-top:2px solid #ddd;"><span>Total Amount:</span><span id="orderTotalAmount">KSh 0</span></div></div>
-                <div class="form-group"><label class="form-label">Full Name *</label><input type="text" class="form-control" id="orderName" placeholder="John Doe"></div>
-                <div class="form-row"><div class="form-group"><label class="form-label">Email *</label><input type="email" class="form-control" id="orderEmail" placeholder="john@example.com"></div><div class="form-group"><label class="form-label">Phone *</label><input type="tel" class="form-control" id="orderPhone" placeholder="+254 XXX XXX"></div></div>
-                <div class="form-group"><label class="form-label">Delivery Address *</label><input type="text" class="form-control" id="orderAddress" placeholder="Street, City"></div>
-                <div class="form-row"><div class="form-group"><label class="form-label">Delivery Date</label><input type="date" class="form-control" id="orderDeliveryDate"></div><div class="form-group"><label class="form-label">Payment Method *</label><select class="form-control" id="orderPayment"><option value="">Select</option><option value="M-Pesa">M-Pesa</option><option value="Card">Credit Card</option><option value="Cash on Delivery">Cash on Delivery</option><option value="Bank Transfer">Bank Transfer</option></select></div></div>
-                <div class="form-group"><label class="form-label">Special Instructions</label><textarea class="form-control" id="orderInstructions" rows="3" placeholder="Any special requests?"></textarea></div>
-                <button class="btn" onclick="submitOrder()" id="orderSubmitBtn" style="width:100%;"><i class="fas fa-check"></i> Place Order</button>
+                <div style="background:#f8f9fa; padding:20px; margin-bottom:24px;">
+                    <h3 style="margin-bottom:16px;">Order Summary</h3>
+                    <div id="orderItemsContainer"></div>
+                    <div style="display:flex; justify-content:space-between; font-weight:700; margin-top:16px; padding-top:16px; border-top:2px solid #ddd;">
+                        <span>Total Amount:</span>
+                        <span id="orderTotalAmount">KSh 0</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" class="form-control" id="orderName" placeholder="John Doe">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="orderEmail" placeholder="john@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone *</label>
+                        <input type="tel" class="form-control" id="orderPhone" placeholder="+254 XXX XXX">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Delivery Address *</label>
+                    <input type="text" class="form-control" id="orderAddress" placeholder="Street, City">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Delivery Date</label>
+                        <input type="date" class="form-control" id="orderDeliveryDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Payment Method *</label>
+                        <select class="form-control" id="orderPayment">
+                            <option value="">Select</option>
+                            <option value="M-Pesa">M-Pesa</option>
+                            <option value="Card">Credit Card</option>
+                            <option value="Cash on Delivery">Cash on Delivery</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Special Instructions</label>
+                    <textarea class="form-control" id="orderInstructions" rows="3" placeholder="Any special requests?"></textarea>
+                </div>
+                <button class="btn" onclick="submitOrder()" id="orderSubmitBtn" style="width:100%;">
+                    <i class="fas fa-check"></i> Place Order
+                </button>
             </div>
         </div>
     </div>
@@ -1778,206 +1922,656 @@
             appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
         };
 
-        let database, auth, currentUser = null, allProducts = [], cart = JSON.parse(localStorage.getItem('mugera_cart')) || [], currentProduct = null, currentOrder = null, lastScroll = 0;
-        let currentSlide = 0, slideInterval;
-        const heroSlides = [ { image:'https://i.postimg.cc/vB0WMJfh/MILELE(4).png', title:'DAIMA Collection', subtitle:'Discover our exclusive merchandise', buttonText:'Shop Now' }, { image:'https://i.postimg.cc/W46L1n9K/MILELE-2.webp', title:'MILELE COLLECTION', subtitle:'Fresh designs for the new season', buttonText:'Explore' }, { image:'https://i.postimg.cc/HWJJV8gY/MILELE(3).png', title:'PAMOJA COLLECTION', subtitle:'Get them before they\'re gone', buttonText:'Shop Limited' } ];
+        // Global Variables
+        let database, auth, currentUser = null;
+        let allProducts = [];
+        let cart = JSON.parse(localStorage.getItem('mugera_cart')) || [];
+        let currentProduct = null;
+        let currentOrderId = null;
+        let lastScroll = 0;
+        let currentSlide = 0;
+        let slideInterval;
 
-        document.addEventListener('DOMContentLoaded', function(){
+        const heroSlides = [
+            { image: 'https://i.postimg.cc/vB0WMJfh/MILELE(4).png', title: 'DAIMA Collection', subtitle: 'Discover our exclusive merchandise', buttonText: 'Shop Now' },
+            { image: 'https://i.postimg.cc/W46L1n9K/MILELE-2.webp', title: 'MILELE COLLECTION', subtitle: 'Fresh designs for the new season', buttonText: 'Explore' },
+            { image: 'https://i.postimg.cc/HWJJV8gY/MILELE(3).png', title: 'PAMOJA COLLECTION', subtitle: 'Get them before they\'re gone', buttonText: 'Shop Limited' }
+        ];
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', function() {
             try {
                 firebase.initializeApp(firebaseConfig);
                 database = firebase.database();
                 auth = firebase.auth();
                 auth.onAuthStateChanged(handleAuthStateChange);
+                
                 showSkeletonLoader();
                 loadProducts();
-            } catch(e){ console.error(e); }
-            initHeroSlideshow();
-            document.getElementById('mobileMenuBtn').addEventListener('click', (e)=>{ e.stopPropagation(); document.getElementById('mobileNav').classList.toggle('active'); });
-            document.addEventListener('click', (e)=>{ const mn=document.getElementById('mobileNav'), mb=document.getElementById('mobileMenuBtn'); if(!mn.contains(e.target) && !mb.contains(e.target)) mn.classList.remove('active'); });
-            window.addEventListener('scroll', ()=>{ const bn=document.getElementById('bottomNav'), cs=window.pageYOffset; if(cs>lastScroll && cs>300) bn.classList.add('hidden'); else bn.classList.remove('hidden'); lastScroll=cs; if(cs<100) bn.classList.remove('hidden'); updateActiveNavOnScroll(); });
-            document.querySelectorAll('a[href^="#"]').forEach(a=>{ a.addEventListener('click', function(e){ if(this.getAttribute('href')==='#') return; e.preventDefault(); const t=document.querySelector(this.getAttribute('href')); if(t) { t.scrollIntoView({behavior:'smooth'}); document.getElementById('mobileNav').classList.remove('active'); } }); });
-            const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1); document.getElementById('orderDeliveryDate').value = tomorrow.toISOString().split('T')[0];
-            document.addEventListener('click', (e)=>{ const dd=document.getElementById('userDropdown'), mb=document.querySelector('.user-menu-btn'); if(!mb?.contains(e.target) && !dd?.contains(e.target)) dd?.classList.remove('active'); });
-            updateCartBadge();
+                initHeroSlideshow();
+                setupEventListeners();
+                updateCartBadge();
+                
+                // Set default delivery date to tomorrow
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                document.getElementById('orderDeliveryDate').value = tomorrow.toISOString().split('T')[0];
+            } catch(e) {
+                console.error('Initialization error:', e);
+                showNotification('Failed to initialize app. Please refresh.');
+            }
         });
 
+        function setupEventListeners() {
+            // Mobile menu toggle
+            document.getElementById('mobileMenuBtn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.getElementById('mobileNav').classList.toggle('active');
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                const mobileNav = document.getElementById('mobileNav');
+                const mobileBtn = document.getElementById('mobileMenuBtn');
+                if (!mobileNav.contains(e.target) && !mobileBtn.contains(e.target)) {
+                    mobileNav.classList.remove('active');
+                }
+            });
+
+            // Hide/show bottom nav on scroll
+            window.addEventListener('scroll', () => {
+                const bottomNav = document.getElementById('bottomNav');
+                const currentScroll = window.pageYOffset;
+                
+                if (currentScroll > lastScroll && currentScroll > 300) {
+                    bottomNav.classList.add('hidden');
+                } else {
+                    bottomNav.classList.remove('hidden');
+                }
+                lastScroll = currentScroll;
+                
+                if (currentScroll < 100) {
+                    bottomNav.classList.remove('hidden');
+                }
+                
+                updateActiveNavOnScroll();
+            });
+
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (this.getAttribute('href') === '#') return;
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                        document.getElementById('mobileNav').classList.remove('active');
+                    }
+                });
+            });
+
+            // Close user dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                const dropdown = document.getElementById('userDropdown');
+                const menuBtn = document.querySelector('.user-menu-btn');
+                if (!menuBtn?.contains(e.target) && !dropdown?.contains(e.target)) {
+                    dropdown?.classList.remove('active');
+                }
+            });
+        }
+
+        // ==================== AUTHENTICATION ====================
+        function handleAuthStateChange(user) {
+            currentUser = user;
+            
+            if (user) {
+                // User is signed in
+                document.getElementById('authButtons').style.display = 'none';
+                document.getElementById('userMenu').style.display = 'block';
+                document.getElementById('mobileAuthLinks').style.display = 'none';
+                document.getElementById('mobileUserLinks').style.display = 'block';
+                
+                // Load user data
+                database.ref('users/' + user.uid).once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        document.getElementById('userName').textContent = userData.name || user.email.split('@')[0];
+                    } else {
+                        // Create user record if it doesn't exist
+                        const userData = {
+                            email: user.email,
+                            name: user.displayName || user.email.split('@')[0],
+                            createdAt: new Date().toISOString(),
+                            uid: user.uid
+                        };
+                        database.ref('users/' + user.uid).set(userData);
+                        document.getElementById('userName').textContent = userData.name;
+                    }
+                });
+                
+                updateProfileDisplay();
+                showNotification(`Welcome back, ${user.email.split('@')[0]}!`);
+            } else {
+                // User is signed out
+                document.getElementById('authButtons').style.display = 'flex';
+                document.getElementById('userMenu').style.display = 'none';
+                document.getElementById('mobileAuthLinks').style.display = 'block';
+                document.getElementById('mobileUserLinks').style.display = 'none';
+            }
+        }
+
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showNotification('Please enter email and password');
+                return;
+            }
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    closeAuthModal();
+                    showNotification('Login successful!');
+                })
+                .catch(error => {
+                    showNotification(error.message);
+                });
+        }
+
+        function register() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            if (!name || !email || !phone || !password) {
+                showNotification('Please fill in all fields');
+                return;
+            }
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((credential) => {
+                    const userData = {
+                        name: name,
+                        email: email,
+                        phone: phone,
+                        createdAt: new Date().toISOString(),
+                        uid: credential.user.uid
+                    };
+                    
+                    return database.ref('users/' + credential.user.uid).set(userData)
+                        .then(() => {
+                            closeAuthModal();
+                            showNotification('Registration successful!');
+                        });
+                })
+                .catch(error => {
+                    showNotification(error.message);
+                });
+        }
+
+        function logout() {
+            auth.signOut()
+                .then(() => {
+                    closeProfileModal();
+                    toggleUserDropdown();
+                    showNotification('Logged out successfully');
+                })
+                .catch(error => {
+                    showNotification(error.message);
+                });
+        }
+
+        function toggleUserDropdown() {
+            document.getElementById('userDropdown').classList.toggle('active');
+        }
+
+        // ==================== PRODUCTS ====================
         function showSkeletonLoader() {
             const grid = document.getElementById('productsGrid');
             let skeletonHTML = '';
-            for(let i=0; i<8; i++) {
-                skeletonHTML += `<div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div><div class="skeleton-line medium"></div></div>`;
+            for (let i = 0; i < 8; i++) {
+                skeletonHTML += `
+                    <div class="skeleton-card">
+                        <div class="skeleton-img"></div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line medium"></div>
+                    </div>
+                `;
             }
             grid.innerHTML = skeletonHTML;
         }
 
-        function handleAuthStateChange(user) {
-            currentUser = user;
-            if(user){
-                document.getElementById('authButtons').style.display='none'; document.getElementById('userMenu').style.display='block';
-                document.getElementById('mobileAuthLinks').style.display='none'; document.getElementById('mobileUserLinks').style.display='block';
-                database.ref('users/'+user.uid).once('value', snap=>{
-                    if(snap.exists()){ let d=snap.val(); document.getElementById('userName').textContent = d.name || user.email.split('@')[0]; }
-                    else { let ud={ email:user.email, name:user.displayName||user.email.split('@')[0], createdAt:new Date().toISOString(), uid:user.uid }; database.ref('users/'+user.uid).set(ud); document.getElementById('userName').textContent=ud.name; }
-                });
-                updateProfileDisplay(); showNotification(`Welcome back, ${user.email.split('@')[0]}!`);
-            } else {
-                document.getElementById('authButtons').style.display='flex'; document.getElementById('userMenu').style.display='none';
-                document.getElementById('mobileAuthLinks').style.display='block'; document.getElementById('mobileUserLinks').style.display='none';
-            }
-        }
-
-        function loadProducts(){
-            if(!database) return;
-            database.ref('iam-mugera/store/products').once('value', (snapshot)=>{
-                if(snapshot.exists()){
+        function loadProducts() {
+            if (!database) return;
+            
+            database.ref('iam-mugera/store/products').once('value', (snapshot) => {
+                if (snapshot.exists()) {
                     const data = snapshot.val();
-                    let products = Object.keys(data).map(key => ({ id:key, ...data[key] }));
-                    products = products.map(p=>({...p, price: parsePrice(p.price||p.originalPrice||'0'), originalPrice: parsePrice(p.originalPrice) }));
-                    products.sort((a,b)=> (b.id > a.id ? 1 : -1));
+                    let products = Object.keys(data).map(key => ({
+                        id: key,
+                        ...data[key]
+                    }));
+                    
+                    products = products.map(p => ({
+                        ...p,
+                        price: parsePrice(p.price || p.originalPrice || '0'),
+                        originalPrice: parsePrice(p.originalPrice)
+                    }));
+                    
+                    products.sort((a, b) => (b.id > a.id ? 1 : -1));
                     allProducts = products;
+                    
                     displayProducts(allProducts);
                     displayCategories(allProducts);
                 } else {
                     document.getElementById('productsGrid').innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px;">No products found.</div>';
                 }
-            }).catch(e=>{
-                document.getElementById('productsGrid').innerHTML = '<div style="grid-column:1/-1; color:#dc2626; text-align:center;">Failed to load.</div>';
+            }).catch(error => {
+                console.error('Error loading products:', error);
+                document.getElementById('productsGrid').innerHTML = '<div style="grid-column:1/-1; color:#dc2626; text-align:center;">Failed to load products.</div>';
             });
         }
 
-        function parsePrice(price){ if(!price) return 0; if(typeof price==='number') return price; const n=String(price).replace(/[^\d.-]/g,''); return parseFloat(n)||0; }
+        function parsePrice(price) {
+            if (!price) return 0;
+            if (typeof price === 'number') return price;
+            const num = String(price).replace(/[^\d.-]/g, '');
+            return parseFloat(num) || 0;
+        }
 
-        function displayProducts(products){
+        function displayProducts(products) {
             const grid = document.getElementById('productsGrid');
-            if(!products || products.length===0){ grid.innerHTML='<div style="grid-column:1/-1; text-align:center;">No products.</div>'; return; }
-            let html='';
-            products.forEach(p=>{
-                const price=p.price||0; const original=p.originalPrice; const hasDiscount=original && original>price;
-                let badgeClass='', badgeText='';
-                if(p.status==='outofstock'){ badgeClass='outofstock'; badgeText='OUT OF STOCK'; }
-                else if(p.badge){ badgeClass=p.badge.toLowerCase(); badgeText=p.badge.toUpperCase(); }
-                else if(hasDiscount){ badgeClass='sale'; badgeText='SALE'; }
-                html+= `<div class="product-card" onclick="openProductModal('${p.id}')"><div class="product-image" onclick="event.stopPropagation(); openImagePopout('${p.image||'https://via.placeholder.com/300'}')"><img src="${p.image||'https://via.placeholder.com/300'}" alt="${p.name||'Product'}" loading="lazy" onerror="this.src='https://via.placeholder.com/300'">${badgeText?`<span class="product-badge ${badgeClass}">${badgeText}</span>`:''}</div><div class="product-info"><h3 class="product-title">${p.name||'Unnamed'}</h3><div><span class="product-price">KSh ${price.toLocaleString()}</span>${hasDiscount?`<span class="product-original-price">KSh ${original.toLocaleString()}</span>`:''}</div><div class="product-stock">${p.stock?`${p.stock} in stock`:(p.status==='outofstock'?'Out of Stock':'In Stock')}</div><div class="product-actions"><button class="btn-small btn-add" ${p.status==='outofstock'?'disabled':''} onclick="event.stopPropagation(); addToCart('${p.id}','${(p.name||'').replace(/'/g,"\\'")}',${price},'${p.image||''}')"><i class="fas fa-cart-plus"></i> Add</button><button class="btn-small btn-quick" ${p.status==='outofstock'?'disabled':''} onclick="event.stopPropagation(); quickOrder('${p.id}','${(p.name||'').replace(/'/g,"\\'")}',${price},'${p.image||''}')"><i class="fas fa-bolt"></i> Buy</button></div></div></div>`;
+            
+            if (!products || products.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center;">No products available.</div>';
+                return;
+            }
+            
+            let html = '';
+            products.forEach(p => {
+                const price = p.price || 0;
+                const original = p.originalPrice;
+                const hasDiscount = original && original > price;
+                
+                let badgeClass = '', badgeText = '';
+                if (p.status === 'outofstock') {
+                    badgeClass = 'outofstock';
+                    badgeText = 'OUT OF STOCK';
+                } else if (p.badge) {
+                    badgeClass = p.badge.toLowerCase();
+                    badgeText = p.badge.toUpperCase();
+                } else if (hasDiscount) {
+                    badgeClass = 'sale';
+                    badgeText = 'SALE';
+                }
+                
+                html += `
+                    <div class="product-card" onclick="openProductModal('${p.id}')">
+                        <div class="product-image" onclick="event.stopPropagation(); openImagePopout('${p.image || 'https://via.placeholder.com/300'}')">
+                            <img src="${p.image || 'https://via.placeholder.com/300'}" alt="${p.name || 'Product'}" loading="lazy" onerror="this.src='https://via.placeholder.com/300'">
+                            ${badgeText ? `<span class="product-badge ${badgeClass}">${badgeText}</span>` : ''}
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">${p.name || 'Unnamed'}</h3>
+                            <div>
+                                <span class="product-price">KSh ${price.toLocaleString()}</span>
+                                ${hasDiscount ? `<span class="product-original-price">KSh ${original.toLocaleString()}</span>` : ''}
+                            </div>
+                            <div class="product-stock">${p.stock ? `${p.stock} in stock` : (p.status === 'outofstock' ? 'Out of Stock' : 'In Stock')}</div>
+                            <div class="product-actions">
+                                <button class="btn-small btn-add" ${p.status === 'outofstock' ? 'disabled' : ''} onclick="event.stopPropagation(); addToCart('${p.id}', '${(p.name || '').replace(/'/g, "\\'")}', ${price}, '${p.image || ''}')">
+                                    <i class="fas fa-cart-plus"></i> Add
+                                </button>
+                                <button class="btn-small btn-quick" ${p.status === 'outofstock' ? 'disabled' : ''} onclick="event.stopPropagation(); quickOrder('${p.id}', '${(p.name || '').replace(/'/g, "\\'")}', ${price}, '${p.image || ''}')">
+                                    <i class="fas fa-bolt"></i> Buy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
             });
+            
             grid.innerHTML = html;
         }
 
-        function displayCategories(products){
-            const cats = {};
-            products.forEach(p=>{ if(p.category) cats[p.category] = (cats[p.category]||0)+1; else cats['General']=(cats['General']||0)+1; });
-            const icons={ apparel:'tshirt', books:'book', materials:'box', general:'tag' };
-            let html='';
-            for(let [cat,count] of Object.entries(cats)){
-                const key=cat.toLowerCase(); html+=`<div class="category-card" onclick="filterByCategory('${cat}')"><div class="category-icon"><i class="fas fa-${icons[key]||'tag'}"></i></div><h3>${cat}</h3><p style="color:var(--gold);">${count} items</p></div>`;
+        function displayCategories(products) {
+            const categories = {};
+            
+            products.forEach(p => {
+                if (p.category) {
+                    categories[p.category] = (categories[p.category] || 0) + 1;
+                } else {
+                    categories['General'] = (categories['General'] || 0) + 1;
+                }
+            });
+            
+            const icons = {
+                apparel: 'tshirt',
+                books: 'book',
+                materials: 'box',
+                general: 'tag',
+                electronics: 'bolt',
+                accessories: 'gem'
+            };
+            
+            let html = '';
+            for (let [category, count] of Object.entries(categories)) {
+                const key = category.toLowerCase();
+                html += `
+                    <div class="category-card" onclick="filterByCategory('${category}')">
+                        <div class="category-icon">
+                            <i class="fas fa-${icons[key] || 'tag'}"></i>
+                        </div>
+                        <h3>${category}</h3>
+                        <p style="color:var(--gold);">${count} items</p>
+                    </div>
+                `;
             }
+            
             document.getElementById('categoriesGrid').innerHTML = html;
         }
 
-        function filterByCategory(cat){
-            const filtered = allProducts.filter(p=> (p.category && p.category.toLowerCase()===cat.toLowerCase()) || p.category===cat);
-            displayProducts(filtered); document.getElementById('products').scrollIntoView({behavior:'smooth'});
+        function filterByCategory(category) {
+            const filtered = allProducts.filter(p => 
+                (p.category && p.category.toLowerCase() === category.toLowerCase()) || 
+                p.category === category
+            );
+            displayProducts(filtered);
+            document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // ---------- Cart Functions (fully working) ----------
-        function addToCart(id, name, price, image){
-            const product = allProducts.find(p=>p.id===id);
-            if(product && product.status==='outofstock'){ showNotification('Out of stock'); return; }
-            const numericPrice = Number(price)||0;
-            const existing = cart.find(item=>item.id===id);
-            if(existing) existing.quantity++;
-            else cart.push({id, name, price:numericPrice, image, quantity:1});
+        function openProductModal(id) {
+            const product = allProducts.find(x => x.id === id);
+            if (product) {
+                currentProduct = product;
+                
+                document.getElementById('modalImage').src = product.image || '';
+                document.getElementById('modalTitle').innerText = product.name || 'Product';
+                document.getElementById('modalPrice').innerHTML = `KSh ${(product.price || 0).toLocaleString()}`;
+                document.getElementById('modalDescription').innerText = product.description || 'Premium quality product.';
+                
+                // Set badge
+                const badgeEl = document.getElementById('modalBadge');
+                if (product.status === 'outofstock') {
+                    badgeEl.className = 'modal-badge outofstock';
+                    badgeEl.innerText = 'OUT OF STOCK';
+                    document.getElementById('modalStock').innerHTML = '<span class="out">Out of Stock</span>';
+                    document.getElementById('modalAddBtn').disabled = true;
+                    document.getElementById('modalQuickBtn').disabled = true;
+                } else {
+                    badgeEl.style.display = 'none';
+                    document.getElementById('modalStock').innerHTML = `<span>In Stock${product.stock ? ` (${product.stock} available)` : ''}</span>`;
+                    document.getElementById('modalAddBtn').disabled = false;
+                    document.getElementById('modalQuickBtn').disabled = false;
+                }
+                
+                // Set rating
+                const rating = product.rating || 4.5;
+                const stars = '★'.repeat(Math.floor(rating)) + '☆'.repeat(5 - Math.floor(rating));
+                document.getElementById('modalRating').innerHTML = `${stars} (${rating})`;
+                
+                document.getElementById('productModal').classList.add('active');
+                document.body.classList.add('modal-open');
+            }
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        // ==================== CART FUNCTIONS ====================
+        function addToCart(id, name, price, image) {
+            const product = allProducts.find(p => p.id === id);
+            if (product && product.status === 'outofstock') {
+                showNotification('Out of stock');
+                return;
+            }
+            
+            const numericPrice = Number(price) || 0;
+            const existing = cart.find(item => item.id === id);
+            
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({
+                    id: id,
+                    name: name,
+                    price: numericPrice,
+                    image: image,
+                    quantity: 1
+                });
+            }
+            
             localStorage.setItem('mugera_cart', JSON.stringify(cart));
             updateCartBadge();
             showNotification(`${name} added to cart`);
         }
 
-        function updateCartBadge(){
-            const total = cart.reduce((s,i)=>s+i.quantity,0);
+        function updateCartBadge() {
+            const total = cart.reduce((sum, item) => sum + item.quantity, 0);
             document.getElementById('headerCartCount').innerText = total;
             document.getElementById('mobileCartCount').innerText = total;
-            document.getElementById('cartBadge').innerText = total>9 ? '9+' : total;
+            document.getElementById('cartBadge').innerText = total > 9 ? '9+' : total;
         }
 
-        function openCartModal(){
+        function openCartModal() {
             const modal = document.getElementById('cartModal');
             const cartItems = document.getElementById('cartItems');
             const summary = document.getElementById('cartSummary');
-            if(cart.length===0){
-                cartItems.innerHTML = '<div style="text-align:center; padding:40px;"><i class="fas fa-shopping-cart" style="font-size:4rem; color:#ccc;"></i><p style="margin-top:20px;">Your cart is empty</p><button class="btn" onclick="closeCartModal()">Continue Shopping</button></div>';
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = `
+                    <div style="text-align:center; padding:40px;">
+                        <i class="fas fa-shopping-cart" style="font-size:4rem; color:#ccc;"></i>
+                        <p style="margin-top:20px;">Your cart is empty</p>
+                        <button class="btn" onclick="closeCartModal()">Continue Shopping</button>
+                    </div>
+                `;
                 summary.style.display = 'none';
             } else {
-                let itemsHtml = '', subtotal=0;
-                cart.forEach(item=>{
-                    const price = Number(item.price)||0;
+                let itemsHtml = '';
+                let subtotal = 0;
+                
+                cart.forEach(item => {
+                    const price = Number(item.price) || 0;
                     const itemTotal = price * item.quantity;
                     subtotal += itemTotal;
-                    itemsHtml += `<div class="cart-item"><div class="cart-item-image"><img src="${item.image}" alt="${item.name}"></div><div class="cart-item-details"><div class="cart-item-title">${item.name}</div><div class="cart-item-price">KSh ${itemTotal.toLocaleString()}</div></div><div class="cart-item-controls"><div class="quantity-control"><button onclick="updateQuantity('${item.id}', ${item.quantity-1})">-</button><span>${item.quantity}</span><button onclick="updateQuantity('${item.id}', ${item.quantity+1})">+</button></div><button class="remove-item" onclick="removeFromCart('${item.id}')"><i class="fas fa-trash"></i></button></div></div>`;
+                    
+                    itemsHtml += `
+                        <div class="cart-item">
+                            <div class="cart-item-image">
+                                <img src="${item.image}" alt="${item.name}">
+                            </div>
+                            <div class="cart-item-details">
+                                <div class="cart-item-title">${item.name}</div>
+                                <div class="cart-item-price">KSh ${itemTotal.toLocaleString()}</div>
+                            </div>
+                            <div class="cart-item-controls">
+                                <div class="quantity-control">
+                                    <button onclick="updateQuantity('${item.id}', ${item.quantity - 1})">-</button>
+                                    <span>${item.quantity}</span>
+                                    <button onclick="updateQuantity('${item.id}', ${item.quantity + 1})">+</button>
+                                </div>
+                                <button class="remove-item" onclick="removeFromCart('${item.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
                 });
+                
                 cartItems.innerHTML = itemsHtml;
-                const delivery = 150, total = subtotal + delivery;
+                
+                const delivery = 150;
+                const total = subtotal + delivery;
+                
                 document.getElementById('cartSubtotal').innerText = `KSh ${subtotal.toLocaleString()}`;
                 document.getElementById('cartDelivery').innerText = `KSh ${delivery}`;
                 document.getElementById('cartTotal').innerText = `KSh ${total.toLocaleString()}`;
+                
                 summary.style.display = 'block';
             }
+            
             modal.classList.add('active');
             document.body.classList.add('modal-open');
             document.getElementById('mobileNav').classList.remove('active');
         }
 
-        function closeCartModal(){
+        function closeCartModal() {
             document.getElementById('cartModal').classList.remove('active');
             document.body.classList.remove('modal-open');
         }
 
-        function updateQuantity(id, newQty){
-            if(newQty<1){ removeFromCart(id); return; }
-            const item = cart.find(i=>i.id===id);
-            if(item){ item.quantity = newQty; localStorage.setItem('mugera_cart',JSON.stringify(cart)); updateCartBadge(); openCartModal(); }
+        function updateQuantity(id, newQty) {
+            if (newQty < 1) {
+                removeFromCart(id);
+                return;
+            }
+            
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.quantity = newQty;
+                localStorage.setItem('mugera_cart', JSON.stringify(cart));
+                updateCartBadge();
+                openCartModal();
+            }
         }
 
-        function removeFromCart(id){
-            cart = cart.filter(i=>i.id!==id);
-            localStorage.setItem('mugera_cart',JSON.stringify(cart));
+        function removeFromCart(id) {
+            cart = cart.filter(i => i.id !== id);
+            localStorage.setItem('mugera_cart', JSON.stringify(cart));
             updateCartBadge();
             openCartModal();
-            showNotification('Item removed');
+            showNotification('Item removed from cart');
         }
 
-        function proceedToCheckout(){
-            if(!currentUser){ closeCartModal(); openAuthModal('login'); showNotification('Please login to continue'); return; }
+        function addToCartFromModal() {
+            if (currentProduct) {
+                addToCart(currentProduct.id, currentProduct.name, currentProduct.price, currentProduct.image);
+            }
+        }
+
+        function quickOrder(id, name, price, image) {
+            cart = [{
+                id: id,
+                name: name,
+                price: Number(price),
+                image: image,
+                quantity: 1
+            }];
+            
+            localStorage.setItem('mugera_cart', JSON.stringify(cart));
+            updateCartBadge();
+            closeProductModal();
+            
+            if (!currentUser) {
+                openAuthModal('login');
+            } else {
+                openOrderModal();
+            }
+        }
+
+        function quickOrderFromModal() {
+            if (currentProduct) {
+                quickOrder(currentProduct.id, currentProduct.name, currentProduct.price, currentProduct.image);
+            }
+        }
+
+        function proceedToCheckout() {
+            if (!currentUser) {
+                closeCartModal();
+                openAuthModal('login');
+                showNotification('Please login to continue');
+                return;
+            }
             openOrderModal();
         }
 
-        // ---------- Other required stubs (full version) ----------
-        function showNotification(msg){ let n=document.createElement('div'); n.className='notification'; n.textContent=msg; document.body.appendChild(n); setTimeout(()=>n.remove(),2500); }
-        function openProductModal(id){ let p=allProducts.find(x=>x.id===id); if(p){ currentProduct=p; document.getElementById('modalImage').src=p.image||''; document.getElementById('modalTitle').innerText=p.name; document.getElementById('modalPrice').innerHTML=`KSh ${(p.price||0).toLocaleString()}`; document.getElementById('modalDescription').innerText=p.description||'Premium quality.'; document.getElementById('productModal').classList.add('active'); document.body.classList.add('modal-open'); } }
-        function closeProductModal(){ document.getElementById('productModal').classList.remove('active'); document.body.classList.remove('modal-open'); }
-        function openImagePopout(url){ let u=url||(currentProduct?currentProduct.image:null); if(u){ document.getElementById('popoutImage').src=u; document.getElementById('imagePopoutModal').classList.add('active'); document.body.classList.add('modal-open'); } }
-        function closeImagePopout(){ document.getElementById('imagePopoutModal').classList.remove('active'); document.body.classList.remove('modal-open'); }
-        function addToCartFromModal(){ if(currentProduct) addToCart(currentProduct.id, currentProduct.name, currentProduct.price, currentProduct.image); }
-        function quickOrder(id,name,price,image){ cart=[{id,name,price:Number(price),image,quantity:1}]; localStorage.setItem('mugera_cart',JSON.stringify(cart)); updateCartBadge(); closeProductModal(); if(!currentUser) openAuthModal('login'); else openOrderModal(); }
-        function quickOrderFromModal(){ if(currentProduct) quickOrder(currentProduct.id, currentProduct.name, currentProduct.price, currentProduct.image); }
-        function openOrderModal(){ if(cart.length===0){ showNotification('Cart empty'); return; } if(currentUser){ database.ref('users/'+currentUser.uid).once('value', snap=>{ if(snap.exists()){ let d=snap.val(); document.getElementById('orderName').value=d.name||''; document.getElementById('orderEmail').value=d.email||''; document.getElementById('orderPhone').value=d.phone||''; document.getElementById('orderAddress').value=d.address||''; } }); } let subtotal=0, itemsHtml=''; cart.forEach(item=>{ let t=(Number(item.price)||0)*item.quantity; subtotal+=t; itemsHtml+=`<div style="display:flex; justify-content:space-between; padding:8px 0;"><span>${item.name} x${item.quantity}</span><span>KSh ${t.toLocaleString()}</span></div>`; }); let delivery=150, total=subtotal+delivery; itemsHtml+=`<div style="display:flex; justify-content:space-between; padding:8px 0; border-top:1px solid #ddd; margin-top:8px;"><span>Delivery Fee</span><span>KSh ${delivery.toLocaleString()}</span></div>`; document.getElementById('orderItemsContainer').innerHTML=itemsHtml; document.getElementById('orderTotalAmount').innerText=`KSh ${total.toLocaleString()}`; document.getElementById('orderForm').style.display='block'; document.getElementById('orderSuccessMessage').style.display='none'; document.getElementById('orderErrorMessage').style.display='none'; document.getElementById('orderModal').classList.add('active'); document.body.classList.add('modal-open'); closeCartModal(); }
-        function closeOrderModal(){ document.getElementById('orderModal').classList.remove('active'); document.body.classList.remove('modal-open'); }
+        // ==================== ORDER FUNCTIONS ====================
+        function openOrderModal() {
+            if (cart.length === 0) {
+                showNotification('Your cart is empty');
+                return;
+            }
+            
+            // Pre-fill user data if logged in
+            if (currentUser) {
+                database.ref('users/' + currentUser.uid).once('value', (snapshot) => {
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        document.getElementById('orderName').value = userData.name || '';
+                        document.getElementById('orderEmail').value = userData.email || '';
+                        document.getElementById('orderPhone').value = userData.phone || '';
+                        document.getElementById('orderAddress').value = userData.address || '';
+                    }
+                });
+            }
+            
+            // Calculate and display order summary
+            let subtotal = 0;
+            let itemsHtml = '';
+            
+            cart.forEach(item => {
+                const itemTotal = (Number(item.price) || 0) * item.quantity;
+                subtotal += itemTotal;
+                itemsHtml += `
+                    <div style="display:flex; justify-content:space-between; padding:8px 0;">
+                        <span>${item.name} x${item.quantity}</span>
+                        <span>KSh ${itemTotal.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            
+            const delivery = 150;
+            const total = subtotal + delivery;
+            
+            itemsHtml += `
+                <div style="display:flex; justify-content:space-between; padding:8px 0; border-top:1px solid #ddd; margin-top:8px;">
+                    <span>Delivery Fee</span>
+                    <span>KSh ${delivery.toLocaleString()}</span>
+                </div>
+            `;
+            
+            document.getElementById('orderItemsContainer').innerHTML = itemsHtml;
+            document.getElementById('orderTotalAmount').innerText = `KSh ${total.toLocaleString()}`;
+            
+            // Reset form state
+            document.getElementById('orderForm').style.display = 'block';
+            document.getElementById('orderSuccessMessage').style.display = 'none';
+            document.getElementById('orderErrorMessage').style.display = 'none';
+            
+            document.getElementById('orderModal').classList.add('active');
+            document.body.classList.add('modal-open');
+            closeCartModal();
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderModal').classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
         function submitOrder() {
-            if(!currentUser) { 
-                closeOrderModal(); 
-                openAuthModal('login'); 
-                return; 
+            if (!currentUser) {
+                closeOrderModal();
+                openAuthModal('login');
+                return;
             }
             
             // Get form values
-            const name = document.getElementById('orderName').value;
-            const email = document.getElementById('orderEmail').value;
-            const phone = document.getElementById('orderPhone').value;
-            const address = document.getElementById('orderAddress').value;
+            const name = document.getElementById('orderName').value.trim();
+            const email = document.getElementById('orderEmail').value.trim();
+            const phone = document.getElementById('orderPhone').value.trim();
+            const address = document.getElementById('orderAddress').value.trim();
             const deliveryDate = document.getElementById('orderDeliveryDate').value;
             const paymentMethod = document.getElementById('orderPayment').value;
-            const instructions = document.getElementById('orderInstructions').value;
+            const instructions = document.getElementById('orderInstructions').value.trim();
             
             // Validate required fields
-            if(!name || !email || !phone || !address || !paymentMethod) {
+            if (!name || !email || !phone || !address || !paymentMethod) {
                 showNotification('Please fill in all required fields');
                 return;
             }
@@ -2007,7 +2601,7 @@
                 subtotal: subtotal,
                 deliveryFee: delivery,
                 total: total,
-                status: 'pending', // pending, confirmed, processing, delivered, cancelled
+                status: 'pending',
                 orderDate: new Date().toISOString(),
                 statusHistory: [{
                     status: 'pending',
@@ -2030,7 +2624,7 @@
                         .then(() => orderRef);
                 })
                 .then((orderRef) => {
-                    // Success - show success message
+                    // Success
                     document.getElementById('orderForm').style.display = 'none';
                     document.getElementById('orderSuccessMessage').style.display = 'flex';
                     
@@ -2047,10 +2641,11 @@
                         // Reset form for next time
                         document.getElementById('orderForm').style.display = 'block';
                         document.getElementById('orderSuccessMessage').style.display = 'none';
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
                     }, 3000);
                 })
                 .catch((error) => {
-                    // Error - show error message
                     console.error('Order failed:', error);
                     document.getElementById('orderErrorText').innerText = error.message || 'Failed to place order. Please try again.';
                     document.getElementById('orderForm').style.display = 'none';
@@ -2063,25 +2658,126 @@
                     submitBtn.disabled = false;
                 });
         }
-        
-        // Also add this function to view real orders in the profile section
+
+        // ==================== PROFILE FUNCTIONS ====================
+        function openProfileModal(tab) {
+            if (!currentUser) {
+                openAuthModal('login');
+                return;
+            }
+            
+            document.getElementById('profileModal').classList.add('active');
+            switchProfileTab(tab || 'overview');
+            updateProfileDisplay();
+            
+            if (tab === 'orders') {
+                loadUserOrders();
+            }
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        function switchProfileTab(tab) {
+            document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.profile-section').forEach(s => s.classList.remove('active'));
+            
+            if (tab === 'overview') {
+                document.querySelector('.profile-tab').classList.add('active');
+                document.getElementById('profileOverview').classList.add('active');
+            } else if (tab === 'orders') {
+                document.querySelectorAll('.profile-tab')[1].classList.add('active');
+                document.getElementById('profileOrders').classList.add('active');
+                loadUserOrders();
+            } else if (tab === 'settings') {
+                document.querySelectorAll('.profile-tab')[2].classList.add('active');
+                document.getElementById('profileSettings').classList.add('active');
+                loadUserSettings();
+            }
+        }
+
+        function updateProfileDisplay() {
+            if (!currentUser) return;
+            
+            database.ref('users/' + currentUser.uid).once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    document.getElementById('profileDisplayName').innerText = userData.name || '';
+                    document.getElementById('profileDisplayEmail').innerText = userData.email || '';
+                    document.getElementById('profileDisplayPhone').innerText = userData.phone || '';
+                    document.getElementById('profileJoinDate').innerText = userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : '';
+                    
+                    document.getElementById('settingsName').value = userData.name || '';
+                    document.getElementById('settingsPhone').value = userData.phone || '';
+                    document.getElementById('settingsAddress').value = userData.address || '';
+                }
+            });
+        }
+
+        function loadUserSettings() {
+            updateProfileDisplay();
+        }
+
+        function updateProfile() {
+            if (!currentUser) return;
+            
+            const name = document.getElementById('settingsName').value;
+            const phone = document.getElementById('settingsPhone').value;
+            const address = document.getElementById('settingsAddress').value;
+            
+            database.ref('users/' + currentUser.uid).update({
+                name: name,
+                phone: phone,
+                address: address
+            }).then(() => {
+                showNotification('Profile updated successfully');
+                updateProfileDisplay();
+                document.getElementById('userName').textContent = name;
+            }).catch(error => {
+                showNotification('Error updating profile: ' + error.message);
+            });
+        }
+
         function loadUserOrders() {
-            if(!currentUser) return;
+            if (!currentUser) return;
             
             const ordersDiv = document.getElementById('ordersList');
-            ordersDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading your orders...</div>';
+            ordersDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading your orders...</p></div>';
             
             database.ref('iam-mugera/store/orders')
                 .orderByChild('userId')
                 .equalTo(currentUser.uid)
                 .once('value')
                 .then((snapshot) => {
-                    if(!snapshot.exists()) {
-                        ordersDiv.innerHTML = '<div style="text-align:center; padding:40px;"><i class="fas fa-shopping-bag" style="font-size:3rem; color:#ccc;"></i><p style="margin-top:20px;">No orders yet</p><button class="btn" onclick="closeProfileModal(); document.getElementById(\'products\').scrollIntoView({behavior:\'smooth\'});">Start Shopping</button></div>';
+                    if (!snapshot.exists()) {
+                        ordersDiv.innerHTML = `
+                            <div style="text-align:center; padding:40px;">
+                                <i class="fas fa-shopping-bag" style="font-size:3rem; color:#ccc;"></i>
+                                <p style="margin-top:20px;">No orders yet</p>
+                                <button class="btn" onclick="closeProfileModal(); document.getElementById('products').scrollIntoView({behavior:'smooth'});">
+                                    Start Shopping
+                                </button>
+                            </div>
+                        `;
                         return;
                     }
                     
-                    let ordersHtml = '<table class="orders-table"><thead><tr><th>Order #</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+                    let ordersHtml = `
+                        <table class="orders-table">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Date</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
                     
                     const orders = [];
                     snapshot.forEach((childSnapshot) => {
@@ -2106,9 +2802,13 @@
                                 <td>KSh ${order.total.toLocaleString()}</td>
                                 <td><span class="order-status status-${order.status}">${order.status.toUpperCase()}</span></td>
                                 <td class="order-actions">
-                                    <button class="btn-small btn-view" onclick="viewOrderDetails('${order.id}')"><i class="fas fa-eye"></i> View</button>
+                                    <button class="btn-small btn-view" onclick="viewOrderDetails('${order.id}')">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
                                     ${order.status === 'pending' ? 
-                                        `<button class="btn-small btn-cancel" onclick="cancelOrder('${order.id}')"><i class="fas fa-times"></i> Cancel</button>` : 
+                                        `<button class="btn-small btn-cancel" onclick="cancelOrder('${order.id}')">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </button>` : 
                                         ''}
                                 </td>
                             </tr>
@@ -2122,32 +2822,267 @@
                     ordersDiv.innerHTML = `<div style="color:#dc2626; text-align:center;">Error loading orders: ${error.message}</div>`;
                 });
         }
-        function openAuthModal(tab){ document.getElementById('authModal').classList.add('active'); switchAuthTab(tab); }
-        function closeAuthModal(){ document.getElementById('authModal').classList.remove('active'); document.body.classList.remove('modal-open'); }
-        function switchAuthTab(tab){ if(tab==='login'){ document.getElementById('loginTab').classList.add('active'); document.getElementById('registerTab').classList.remove('active'); document.getElementById('loginForm').classList.add('active'); document.getElementById('registerForm').classList.remove('active'); } else { document.getElementById('registerTab').classList.add('active'); document.getElementById('loginTab').classList.remove('active'); document.getElementById('registerForm').classList.add('active'); document.getElementById('loginForm').classList.remove('active'); } }
-        function login(){ let email=document.getElementById('loginEmail').value, pw=document.getElementById('loginPassword').value; auth.signInWithEmailAndPassword(email,pw).catch(e=>showNotification(e.message)); }
-        function register(){ let name=document.getElementById('registerName').value, email=document.getElementById('registerEmail').value, phone=document.getElementById('registerPhone').value, pw=document.getElementById('registerPassword').value; auth.createUserWithEmailAndPassword(email,pw).then(cred=>{ database.ref('users/'+cred.user.uid).set({name,email,phone,createdAt:new Date().toISOString(),uid:cred.user.uid}); }).catch(e=>showNotification(e.message)); }
-        function logout(){ auth.signOut(); closeProfileModal(); toggleUserDropdown(); }
-        function toggleUserDropdown(){ document.getElementById('userDropdown').classList.toggle('active'); }
-        function openProfileModal(tab){ if(!currentUser) openAuthModal('login'); else { document.getElementById('profileModal').classList.add('active'); switchProfileTab(tab||'overview'); updateProfileDisplay(); if(tab==='orders') loadUserOrders(); } }
-        function closeProfileModal(){ document.getElementById('profileModal').classList.remove('active'); document.body.classList.remove('modal-open'); }
-        function switchProfileTab(tab){ document.querySelectorAll('.profile-tab').forEach(t=>t.classList.remove('active')); document.querySelectorAll('.profile-section').forEach(s=>s.classList.remove('active')); if(tab==='overview'){ document.querySelector('.profile-tab').classList.add('active'); document.getElementById('profileOverview').classList.add('active'); } else if(tab==='orders'){ document.querySelectorAll('.profile-tab')[1].classList.add('active'); document.getElementById('profileOrders').classList.add('active'); } else if(tab==='settings'){ document.querySelectorAll('.profile-tab')[2].classList.add('active'); document.getElementById('profileSettings').classList.add('active'); loadUserSettings(); } }
-        function updateProfileDisplay(){ if(!currentUser) return; database.ref('users/'+currentUser.uid).once('value', snap=>{ if(snap.exists()){ let d=snap.val(); document.getElementById('profileDisplayName').innerText=d.name||''; document.getElementById('profileDisplayEmail').innerText=d.email||''; document.getElementById('profileDisplayPhone').innerText=d.phone||''; document.getElementById('profileJoinDate').innerText=d.createdAt?new Date(d.createdAt).toLocaleDateString():''; document.getElementById('settingsName').value=d.name||''; document.getElementById('settingsPhone').value=d.phone||''; document.getElementById('settingsAddress').value=d.address||''; } }); }
-        function loadUserSettings(){ updateProfileDisplay(); }
-        function updateProfile(){ if(!currentUser) return; let name=document.getElementById('settingsName').value, phone=document.getElementById('settingsPhone').value, address=document.getElementById('settingsAddress').value; database.ref('users/'+currentUser.uid).update({name,phone,address}).then(()=>{ showNotification('Profile updated'); updateProfileDisplay(); }); }
-        function loadUserOrders(){ let ordersDiv=document.getElementById('ordersList'); ordersDiv.innerHTML='<p>No orders yet.</p>'; }
-        function viewOrderDetails(id){}
-        function modifyOrder(id){}
-        function cancelOrder(id){}
-        function closeOrderDetailModal(){ document.getElementById('orderDetailModal').classList.remove('active'); }
-        function setActiveNav(el){ document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active')); el.classList.add('active'); }
-        function changeSlide(d){ currentSlide = (currentSlide + d + heroSlides.length) % heroSlides.length; updateHero(); }
-        function goToSlide(i){ currentSlide=i; updateHero(); }
-        function updateHero(){ let slides=document.querySelectorAll('.hero-slide'), dots=document.querySelectorAll('.hero-dot'); slides.forEach(s=>s.classList.remove('active')); dots.forEach(d=>d.classList.remove('active')); slides[currentSlide].classList.add('active'); dots[currentSlide].classList.add('active'); document.getElementById('heroTitle').innerText=heroSlides[currentSlide].title; document.getElementById('heroSubtitle').innerText=heroSlides[currentSlide].subtitle; document.getElementById('heroBtn').innerHTML=`<i class="fas fa-shopping-bag"></i> ${heroSlides[currentSlide].buttonText}`; }
-        function initHeroSlideshow(){ let slides='', dots=''; heroSlides.forEach((s,i)=>{ slides+=`<div class="hero-slide ${i===0?'active':''}" style="background-image:url('${s.image}');"></div>`; dots+=`<button class="hero-dot ${i===0?'active':''}" onclick="goToSlide(${i})"></button>`; }); document.getElementById('heroSlides').innerHTML=slides; document.getElementById('heroDots').innerHTML=dots; setInterval(()=>changeSlide(1),5000); }
-        function updateActiveNavOnScroll(){}
-        // Expose globals
-        window.openProductModal=openProductModal; window.closeProductModal=closeProductModal; window.openImagePopout=openImagePopout; window.closeImagePopout=closeImagePopout; window.addToCart=addToCart; window.addToCartFromModal=addToCartFromModal; window.quickOrder=quickOrder; window.quickOrderFromModal=quickOrderFromModal; window.openCartModal=openCartModal; window.closeCartModal=closeCartModal; window.updateQuantity=updateQuantity; window.removeFromCart=removeFromCart; window.proceedToCheckout=proceedToCheckout; window.openOrderModal=openOrderModal; window.closeOrderModal=closeOrderModal; window.submitOrder=submitOrder; window.setActiveNav=setActiveNav; window.filterByCategory=filterByCategory; window.changeSlide=changeSlide; window.goToSlide=goToSlide; window.openAuthModal=openAuthModal; window.closeAuthModal=closeAuthModal; window.switchAuthTab=switchAuthTab; window.login=login; window.register=register; window.logout=logout; window.toggleUserDropdown=toggleUserDropdown; window.openProfileModal=openProfileModal; window.closeProfileModal=closeProfileModal; window.switchProfileTab=switchProfileTab; window.updateProfile=updateProfile; window.viewOrderDetails=viewOrderDetails; window.modifyOrder=modifyOrder; window.cancelOrder=cancelOrder; window.closeOrderDetailModal=closeOrderDetailModal;
+
+        function viewOrderDetails(orderId) {
+            database.ref('iam-mugera/store/orders/' + orderId).once('value')
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        const order = snapshot.val();
+                        currentOrderId = orderId;
+                        
+                        let itemsHtml = '';
+                        order.items.forEach(item => {
+                            itemsHtml += `
+                                <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;">
+                                    <div style="display:flex; gap:10px;">
+                                        <img src="${item.image}" alt="${item.name}" style="width:50px; height:50px; object-fit:cover;">
+                                        <div>
+                                            <div><strong>${item.name}</strong></div>
+                                            <div>Quantity: ${item.quantity}</div>
+                                        </div>
+                                    </div>
+                                    <div>KSh ${(item.price * item.quantity).toLocaleString()}</div>
+                                </div>
+                            `;
+                        });
+                        
+                        const orderHtml = `
+                            <div style="margin-bottom:20px;">
+                                <p><strong>Order ID:</strong> #${orderId.slice(-8)}</p>
+                                <p><strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleString()}</p>
+                                <p><strong>Status:</strong> <span class="order-status status-${order.status}">${order.status.toUpperCase()}</span></p>
+                                <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+                                <p><strong>Delivery Date:</strong> ${new Date(order.deliveryDate).toLocaleDateString()}</p>
+                            </div>
+                            
+                            <h4>Items</h4>
+                            <div style="margin-bottom:20px;">
+                                ${itemsHtml}
+                            </div>
+                            
+                            <div style="background:#f8f9fa; padding:15px; margin-bottom:20px;">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                    <span>Subtotal:</span>
+                                    <span>KSh ${order.subtotal.toLocaleString()}</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                                    <span>Delivery:</span>
+                                    <span>KSh ${order.deliveryFee.toLocaleString()}</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; font-weight:700; margin-top:10px; padding-top:10px; border-top:2px solid #ddd;">
+                                    <span>Total:</span>
+                                    <span>KSh ${order.total.toLocaleString()}</span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4>Delivery Information</h4>
+                                <p><strong>Name:</strong> ${order.userName}</p>
+                                <p><strong>Phone:</strong> ${order.userPhone}</p>
+                                <p><strong>Address:</strong> ${order.deliveryAddress}</p>
+                                ${order.specialInstructions ? `<p><strong>Instructions:</strong> ${order.specialInstructions}</p>` : ''}
+                            </div>
+                        `;
+                        
+                        document.getElementById('orderDetailContent').innerHTML = orderHtml;
+                        
+                        // Show/hide action buttons based on status
+                        const modifyBtn = document.getElementById('modifyOrderBtn');
+                        const cancelBtn = document.getElementById('cancelOrderBtn');
+                        
+                        if (order.status === 'pending') {
+                            modifyBtn.style.display = 'block';
+                            cancelBtn.style.display = 'block';
+                        } else {
+                            modifyBtn.style.display = 'none';
+                            cancelBtn.style.display = 'none';
+                        }
+                        
+                        document.getElementById('orderDetailModal').classList.add('active');
+                        document.body.classList.add('modal-open');
+                    }
+                })
+                .catch(error => {
+                    showNotification('Error loading order details: ' + error.message);
+                });
+        }
+
+        function closeOrderDetailModal() {
+            document.getElementById('orderDetailModal').classList.remove('active');
+            document.body.classList.remove('modal-open');
+            currentOrderId = null;
+        }
+
+        function cancelOrder(orderId) {
+            if (!confirm('Are you sure you want to cancel this order?')) return;
+            
+            database.ref('iam-mugera/store/orders/' + orderId).update({
+                status: 'cancelled',
+                statusHistory: firebase.database.ServerValue.increment(1) // This is a placeholder - in production you'd push to an array
+            }).then(() => {
+                showNotification('Order cancelled successfully');
+                closeOrderDetailModal();
+                loadUserOrders(); // Refresh orders list
+            }).catch(error => {
+                showNotification('Error cancelling order: ' + error.message);
+            });
+        }
+
+        function cancelCurrentOrder() {
+            if (currentOrderId) {
+                cancelOrder(currentOrderId);
+            }
+        }
+
+        function modifyCurrentOrder() {
+            if (currentOrderId) {
+                showNotification('Order modification feature coming soon');
+            }
+        }
+
+        // ==================== AUTH MODAL FUNCTIONS ====================
+        function openAuthModal(tab) {
+            document.getElementById('authModal').classList.add('active');
+            switchAuthTab(tab);
+            document.body.classList.add('modal-open');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        function switchAuthTab(tab) {
+            if (tab === 'login') {
+                document.getElementById('loginTab').classList.add('active');
+                document.getElementById('registerTab').classList.remove('active');
+                document.getElementById('loginForm').classList.add('active');
+                document.getElementById('registerForm').classList.remove('active');
+            } else {
+                document.getElementById('registerTab').classList.add('active');
+                document.getElementById('loginTab').classList.remove('active');
+                document.getElementById('registerForm').classList.add('active');
+                document.getElementById('loginForm').classList.remove('active');
+            }
+        }
+
+        // ==================== IMAGE FUNCTIONS ====================
+        function openImagePopout(url) {
+            let imageUrl = url;
+            if (!imageUrl && currentProduct) {
+                imageUrl = currentProduct.image;
+            }
+            
+            if (imageUrl) {
+                document.getElementById('popoutImage').src = imageUrl;
+                document.getElementById('imagePopoutModal').classList.add('active');
+                document.body.classList.add('modal-open');
+            }
+        }
+
+        function closeImagePopout() {
+            document.getElementById('imagePopoutModal').classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        // ==================== HERO SLIDESHOW ====================
+        function initHeroSlideshow() {
+            let slides = '';
+            let dots = '';
+            
+            heroSlides.forEach((slide, i) => {
+                slides += `<div class="hero-slide ${i === 0 ? 'active' : ''}" style="background-image:url('${slide.image}');"></div>`;
+                dots += `<button class="hero-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></button>`;
+            });
+            
+            document.getElementById('heroSlides').innerHTML = slides;
+            document.getElementById('heroDots').innerHTML = dots;
+            
+            // Auto advance slides
+            setInterval(() => changeSlide(1), 5000);
+        }
+
+        function changeSlide(direction) {
+            currentSlide = (currentSlide + direction + heroSlides.length) % heroSlides.length;
+            updateHero();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateHero();
+        }
+
+        function updateHero() {
+            const slides = document.querySelectorAll('.hero-slide');
+            const dots = document.querySelectorAll('.hero-dot');
+            
+            slides.forEach(s => s.classList.remove('active'));
+            dots.forEach(d => d.classList.remove('active'));
+            
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
+            
+            document.getElementById('heroTitle').innerText = heroSlides[currentSlide].title;
+            document.getElementById('heroSubtitle').innerText = heroSlides[currentSlide].subtitle;
+            document.getElementById('heroBtn').innerHTML = `<i class="fas fa-shopping-bag"></i> ${heroSlides[currentSlide].buttonText}`;
+        }
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.remove(), 2500);
+        }
+
+        function setActiveNav(element) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function updateActiveNavOnScroll() {
+            // This function can be expanded to highlight nav items based on scroll position
+        }
+
+        // Expose functions to global scope
+        window.openProductModal = openProductModal;
+        window.closeProductModal = closeProductModal;
+        window.openImagePopout = openImagePopout;
+        window.closeImagePopout = closeImagePopout;
+        window.addToCart = addToCart;
+        window.addToCartFromModal = addToCartFromModal;
+        window.quickOrder = quickOrder;
+        window.quickOrderFromModal = quickOrderFromModal;
+        window.openCartModal = openCartModal;
+        window.closeCartModal = closeCartModal;
+        window.updateQuantity = updateQuantity;
+        window.removeFromCart = removeFromCart;
+        window.proceedToCheckout = proceedToCheckout;
+        window.openOrderModal = openOrderModal;
+        window.closeOrderModal = closeOrderModal;
+        window.submitOrder = submitOrder;
+        window.setActiveNav = setActiveNav;
+        window.filterByCategory = filterByCategory;
+        window.changeSlide = changeSlide;
+        window.goToSlide = goToSlide;
+        window.openAuthModal = openAuthModal;
+        window.closeAuthModal = closeAuthModal;
+        window.switchAuthTab = switchAuthTab;
+        window.login = login;
+        window.register = register;
+        window.logout = logout;
+        window.toggleUserDropdown = toggleUserDropdown;
+        window.openProfileModal = openProfileModal;
+        window.closeProfileModal = closeProfileModal;
+        window.switchProfileTab = switchProfileTab;
+        window.updateProfile = updateProfile;
+        window.viewOrderDetails = viewOrderDetails;
+        window.modifyCurrentOrder = modifyCurrentOrder;
+        window.cancelCurrentOrder = cancelCurrentOrder;
+        window.cancelOrder = cancelOrder;
+        window.closeOrderDetailModal = closeOrderDetailModal;
     </script>
 </body>
 </html>
