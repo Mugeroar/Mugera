@@ -829,29 +829,76 @@
         }
 
         /* Hours card - responsive */
+        /* ========== ENHANCED AVAILABILITY SECTION ========== */
         .hours-mini-card {
             display: inline-flex;
             align-items: center;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 1rem 1.5rem;
-            background: rgba(0,0,0,0.6);
+            gap: 1.2rem 2rem;
+            background: linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(20,20,20,0.8) 100%);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(202,138,4,0.4);
-            border-radius: 60px;
-            padding: 1rem 2rem;
-            margin: 2rem auto 0;
+            border: 1px solid rgba(202, 138, 4, 0.4);
+            border-radius: 80px;
+            padding: 1.2rem 2.5rem;
+            margin: 2.5rem auto 0;
             max-width: 95%;
             width: fit-content;
-            box-shadow: 0 15px 35px -10px rgba(0,0,0,0.7), 0 0 0 1px rgba(202,138,4,0.2) inset;
-            font-size: clamp(1rem, 4vw, 1.3rem);
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.8), 
+                        0 0 0 1px rgba(202, 138, 4, 0.3) inset,
+                        0 0 30px rgba(202, 138, 4, 0.2);
+            font-size: clamp(1.1rem, 4vw, 1.4rem);
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
-            color: var(--text-primary);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: #ffffff; /* Force white text for dark background */
             position: relative;
             overflow: hidden;
+        }
+        
+        /* Light theme specific styles */
+        body.light-theme .hours-mini-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(245,245,245,0.98) 100%);
+            border: 1px solid rgba(202, 138, 4, 0.5);
+            box-shadow: 0 20px 40px -15px rgba(202, 138, 4, 0.3), 
+                        0 0 0 1px rgba(202, 138, 4, 0.4) inset,
+                        0 0 30px rgba(202, 138, 4, 0.15);
+            color: #1a1a1a; /* Dark text for light background */
+        }
+        
+        body.light-theme .current-day i {
+            color: var(--gold-dark);
+            filter: drop-shadow(0 0 5px rgba(202, 138, 4, 0.3));
+        }
+        
+        body.light-theme .day-name {
+            color: var(--gold-dark);
+            text-shadow: 0 0 10px rgba(202, 138, 4, 0.2);
+        }
+        
+        body.light-theme .status-badge-mini {
+            background: rgba(255, 255, 255, 0.8);
+            border-left: 2px solid var(--gold-dark);
+            border-right: 2px solid var(--gold-dark);
+            color: #1a1a1a;
+        }
+        
+        body.light-theme .status-badge-mini i {
+            filter: drop-shadow(0 0 5px currentColor);
+        }
+        
+        body.light-theme .status-open { color: #059669; } /* Darker green for light mode */
+        body.light-theme .status-soon { color: #d97706; } /* Darker orange for light mode */
+        body.light-theme .status-closing { color: #dc2626; } /* Darker red for light mode */
+        body.light-theme .status-closed { color: #4b5563; } /* Darker gray for light mode */
+        
+        body.light-theme .hours-mini-card::before {
+            background: radial-gradient(circle at center, rgba(202, 138, 4, 0.2) 0%, transparent 70%);
+        }
+        
+        body.light-theme .hours-mini-card::after {
+            background: linear-gradient(90deg, transparent, rgba(202, 138, 4, 0.1), transparent);
         }
         
         .hours-mini-card::before {
@@ -861,16 +908,53 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle at center, rgba(202,138,4,0.1) 0%, transparent 70%);
+            background: radial-gradient(circle at center, rgba(202, 138, 4, 0.15) 0%, transparent 70%);
             animation: rotateGradient 20s linear infinite;
             z-index: -1;
         }
         
+        .hours-mini-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+            pointer-events: none;
+        }
+        
+        /* Light mode shimmer adjustment */
+        body.light-theme .hours-mini-card::after {
+            background: linear-gradient(90deg, transparent, rgba(202, 138, 4, 0.15), transparent);
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            20% { left: 100%; }
+            100% { left: 100%; }
+        }
+        
+        @keyframes rotateGradient {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
         .hours-mini-card:hover {
             border-color: var(--gold);
-            transform: translateY(-2px) scale(1.02);
-            background: rgba(0,0,0,0.7);
-            box-shadow: 0 20px 40px -10px rgba(202,138,4,0.3);
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 25px 50px -15px rgba(202, 138, 4, 0.5), 
+                        0 0 0 2px rgba(202, 138, 4, 0.5) inset,
+                        0 0 40px rgba(202, 138, 4, 0.3);
+        }
+        
+        body.light-theme .hours-mini-card:hover {
+            border-color: var(--gold-dark);
+            box-shadow: 0 25px 50px -15px rgba(202, 138, 4, 0.5), 
+                        0 0 0 2px rgba(202, 138, 4, 0.6) inset,
+                        0 0 40px rgba(202, 138, 4, 0.3);
+            background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(250,250,250,1) 100%);
         }
         
         .current-day {
@@ -883,52 +967,78 @@
         .current-day i {
             color: var(--gold);
             font-size: 1.5rem;
-            filter: drop-shadow(0 0 5px rgba(202,138,4,0.5));
+            filter: drop-shadow(0 0 5px rgba(202, 138, 4, 0.5));
+            transition: transform 0.3s ease;
+        }
+        
+        .hours-mini-card:hover .current-day i {
+            transform: rotate(10deg) scale(1.1);
         }
         
         .day-name {
             font-weight: 700;
             color: var(--gold);
             margin-right: 0.3rem;
-            text-shadow: 0 0 10px rgba(202,138,4,0.3);
+            text-shadow: 0 0 10px rgba(202, 138, 4, 0.3);
         }
         
         .status-badge-mini {
             display: inline-flex;
             align-items: center;
             gap: 0.6rem;
-            padding: 0.4rem 1.2rem;
+            padding: 0.5rem 1.5rem;
             border-radius: 40px;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.4);
             border-left: 2px solid var(--gold);
             border-right: 2px solid var(--gold);
             backdrop-filter: blur(5px);
             white-space: nowrap;
+            font-weight: 600;
+            letter-spacing: 0.3px;
         }
         
         .status-badge-mini i {
             font-size: 1rem;
             filter: drop-shadow(0 0 5px currentColor);
+            animation: pulse 2s infinite;
         }
         
-        .status-open { color: var(--status-open); }
-        .status-soon { color: var(--status-soon); }
-        .status-closing { color: var(--status-closing); }
-        .status-closed { color: var(--status-closed); }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .status-open { 
+            color: #10b981; 
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        .status-soon { 
+            color: #f59e0b; 
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+        .status-closing { 
+            color: #ef4444; 
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+        .status-closed { 
+            color: #9ca3af; 
+            text-shadow: 0 0 10px rgba(156, 163, 175, 0.5);
+        }
         
         /* Mobile optimization for hours card */
         @media (max-width: 480px) {
             .hours-mini-card {
                 flex-direction: column;
                 gap: 0.8rem;
-                padding: 1.2rem 1.5rem;
-                border-radius: 40px;
+                padding: 1.5rem 1.8rem;
+                border-radius: 50px;
                 width: 100%;
             }
             
             .current-day {
                 width: 100%;
                 justify-content: center;
+                font-size: 1.2rem;
             }
             
             .status-badge-mini {
@@ -938,17 +1048,61 @@
                 border-right: none;
                 border-top: 2px solid var(--gold);
                 border-bottom: 2px solid var(--gold);
-                padding: 0.6rem 1.2rem;
+                padding: 0.7rem 1.2rem;
+                font-size: 1.1rem;
             }
             
             .hours-mini-card::after {
+                display: none; /* Remove shimmer on mobile for performance */
+            }
+            
+            .hours-mini-card .fa-chevron-right {
+                display: none;
+            }
+            
+            .hours-mini-card {
+                position: relative;
+            }
+            
+            .hours-mini-card::before {
                 content: '\f054';
                 font-family: 'Font Awesome 6 Free';
                 font-weight: 900;
+                position: absolute;
+                bottom: -5px;
+                right: 15px;
                 color: var(--gold);
-                font-size: 0.9rem;
+                font-size: 1rem;
                 opacity: 0.7;
-                margin-left: 0.5rem;
+                background: none;
+                width: auto;
+                height: auto;
+                animation: bounce 2s infinite;
+            }
+            
+            @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-3px); }
+            }
+            
+            body.light-theme .hours-mini-card::before {
+                color: var(--gold-dark);
+            }
+        }
+        
+        /* Tablet optimization */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .hours-mini-card {
+                padding: 1rem 2rem;
+                gap: 1rem;
+            }
+            
+            .current-day i {
+                font-size: 1.3rem;
+            }
+            
+            .status-badge-mini {
+                padding: 0.4rem 1rem;
             }
         }
         
@@ -956,8 +1110,9 @@
         .hours-modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             z-index: 10000;
             display: flex;
             align-items: center;
@@ -965,73 +1120,174 @@
             padding: 1.5rem;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        
         .hours-modal.show {
             opacity: 1;
             visibility: visible;
         }
+        
         .hours-modal-card {
-            max-width: 450px;
+            max-width: 480px;
             width: 100%;
-            background: var(--card-bg);
-            border-radius: 48px;
-            padding: 2.5rem 2rem;
+            background: linear-gradient(135deg, rgba(20,20,20,0.95) 0%, rgba(30,30,30,0.98) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 60px;
+            padding: 3rem 2.5rem;
             border: 2px solid var(--gold);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 2px rgba(202, 138, 4, 0.3) inset;
             position: relative;
+            transform: scale(0.9);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        
+        .hours-modal.show .hours-modal-card {
+            transform: scale(1);
+        }
+        
+        /* Light theme modal */
+        body.light-theme .hours-modal-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(250,250,250,0.98) 100%);
+            color: #1a1a1a;
+        }
+        
         .hours-modal-close {
             position: absolute;
-            top: 1.5rem; right: 1.5rem;
-            background: transparent;
-            border: none;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(202, 138, 4, 0.3);
             color: var(--text-muted);
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             cursor: pointer;
-            transition: 0.2s;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
         }
+        
         .hours-modal-close:hover {
             color: var(--gold);
-            transform: rotate(90deg);
+            background: rgba(202, 138, 4, 0.15);
+            transform: rotate(90deg) scale(1.1);
+            border-color: var(--gold);
         }
+        
+        body.light-theme .hours-modal-close {
+            background: rgba(0,0,0,0.05);
+            color: #666;
+        }
+        
+        body.light-theme .hours-modal-close:hover {
+            background: rgba(202, 138, 4, 0.2);
+            color: var(--gold-dark);
+        }
+        
         .hours-modal h3 {
             font-family: 'Cinzel', serif;
-            font-size: 2rem;
+            font-size: 2.2rem;
             color: var(--gold);
-            margin-bottom: 1.8rem;
+            margin-bottom: 2rem;
             text-align: center;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(202, 138, 4, 0.3);
         }
+        
+        body.light-theme .hours-modal h3 {
+            color: var(--gold-dark);
+            text-shadow: 0 2px 10px rgba(202, 138, 4, 0.2);
+        }
+        
         .hours-table {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.2rem;
+            margin-bottom: 2rem;
         }
+        
         .hours-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.6rem 0;
-            border-bottom: 1px dashed var(--border-light);
+            padding: 0.8rem 0;
+            border-bottom: 1px dashed rgba(202, 138, 4, 0.3);
+            font-size: 1.1rem;
         }
+        
+        body.light-theme .hours-row {
+            border-bottom: 1px dashed rgba(202, 138, 4, 0.5);
+        }
+        
         .hours-row .day {
             font-weight: 600;
             color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+        
+        .hours-row .day::before {
+            content: '•';
+            color: var(--gold);
+            font-size: 1.5rem;
+            line-height: 0;
+        }
+        
         .hours-row .time {
             color: var(--text-secondary);
+            font-weight: 500;
         }
+        
+        body.light-theme .hours-row .time {
+            color: #333;
+        }
+        
         .closed-day {
-            color: var(--status-closed);
+            color: var(--status-closed) !important;
+            font-weight: 600;
         }
+        
         .holiday-note-modal {
-            margin-top: 1.5rem;
+            margin-top: 2rem;
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: var(--text-muted);
-            border-top: 1px solid var(--border-light);
-            padding-top: 1.2rem;
+            border-top: 1px solid rgba(202, 138, 4, 0.3);
+            padding-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
+        
+        body.light-theme .holiday-note-modal {
+            color: #666;
+        }
+        
+        .holiday-note-modal i {
+            color: var(--gold);
+            animation: bounce 2s infinite;
+        }
+        
+        /* Add status indicator in modal */
+        .hours-modal .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        .hours-modal .status-indicator.open { background: #10b981; box-shadow: 0 0 10px #10b981; }
+        .hours-modal .status-indicator.soon { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+        .hours-modal .status-indicator.closing { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+        .hours-modal .status-indicator.closed { background: #6b7280; box-shadow: 0 0 10px #6b7280; }
 
         /* Hero Section */
         .hero-section {
