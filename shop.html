@@ -23,7 +23,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     
     <style>
-        /* ==================== COMPLETE CSS ==================== */
+        /* ==================== COMPLETE CSS (same as before) ==================== */
         :root {
             --gold: #ca8a04;
             --gold-light: #fef3c7;
@@ -1602,7 +1602,7 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
+    <!-- Header (same structure as before) -->
     <header class="header">
         <div class="container header-content">
             <a href="#" class="logo">
@@ -2031,13 +2031,13 @@
                 document.getElementById('mobileAuthLinks').style.display = 'none';
                 document.getElementById('mobileUserLinks').style.display = 'block';
                 
-                // Load user data
+                // Load user data from users node
                 database.ref('users/' + user.uid).once('value', (snapshot) => {
                     if (snapshot.exists()) {
                         const userData = snapshot.val();
                         document.getElementById('userName').textContent = userData.name || user.email.split('@')[0];
                     } else {
-                        // Create user record if it doesn't exist
+                        // Create user record if it doesn't exist in users node
                         const userData = {
                             email: user.email,
                             name: user.displayName || user.email.split('@')[0],
@@ -2097,7 +2097,8 @@
                         email: email,
                         phone: phone,
                         createdAt: new Date().toISOString(),
-                        uid: credential.user.uid
+                        uid: credential.user.uid,
+                        address: ''
                     };
                     
                     return database.ref('users/' + credential.user.uid).set(userData)
@@ -2147,21 +2148,28 @@
         function loadProducts() {
             if (!database) return;
             
+            // Updated path to match your data structure
             database.ref('iam-mugera/store/products').once('value', (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    let products = Object.keys(data).map(key => ({
-                        id: key,
-                        ...data[key]
+                    let products = Object.keys(data).map(key => ({ 
+                        id: key, 
+                        ...data[key] 
                     }));
                     
+                    // Filter only visible products
+                    products = products.filter(p => p.visible !== false);
+                    
+                    // Parse prices correctly
                     products = products.map(p => ({
                         ...p,
                         price: parsePrice(p.price || p.originalPrice || '0'),
                         originalPrice: parsePrice(p.originalPrice)
                     }));
                     
-                    products.sort((a, b) => (b.id > a.id ? 1 : -1));
+                    // Sort by order field
+                    products.sort((a, b) => (a.order || 999) - (b.order || 999));
+                    
                     allProducts = products;
                     
                     displayProducts(allProducts);
@@ -2178,6 +2186,7 @@
         function parsePrice(price) {
             if (!price) return 0;
             if (typeof price === 'number') return price;
+            // Handle strings like "KSh 1000" or "1000"
             const num = String(price).replace(/[^\d.-]/g, '');
             return parseFloat(num) || 0;
         }
@@ -2241,20 +2250,15 @@
             const categories = {};
             
             products.forEach(p => {
-                if (p.category) {
-                    categories[p.category] = (categories[p.category] || 0) + 1;
-                } else {
-                    categories['General'] = (categories['General'] || 0) + 1;
-                }
+                const cat = p.category || 'General';
+                categories[cat] = (categories[cat] || 0) + 1;
             });
             
             const icons = {
                 apparel: 'tshirt',
                 books: 'book',
                 materials: 'box',
-                general: 'tag',
-                electronics: 'bolt',
-                accessories: 'gem'
+                general: 'tag'
             };
             
             let html = '';
@@ -2302,16 +2306,17 @@
                     document.getElementById('modalAddBtn').disabled = true;
                     document.getElementById('modalQuickBtn').disabled = true;
                 } else {
-                    badgeEl.style.display = 'none';
+                    if (product.badge) {
+                        badgeEl.className = `modal-badge ${product.badge.toLowerCase()}`;
+                        badgeEl.innerText = product.badge.toUpperCase();
+                        badgeEl.style.display = 'inline-block';
+                    } else {
+                        badgeEl.style.display = 'none';
+                    }
                     document.getElementById('modalStock').innerHTML = `<span>In Stock${product.stock ? ` (${product.stock} available)` : ''}</span>`;
                     document.getElementById('modalAddBtn').disabled = false;
                     document.getElementById('modalQuickBtn').disabled = false;
                 }
-                
-                // Set rating
-                const rating = product.rating || 4.5;
-                const stars = '★'.repeat(Math.floor(rating)) + '☆'.repeat(5 - Math.floor(rating));
-                document.getElementById('modalRating').innerHTML = `${stars} (${rating})`;
                 
                 document.getElementById('productModal').classList.add('active');
                 document.body.classList.add('modal-open');
@@ -2581,7 +2586,7 @@
             const delivery = 150;
             const total = subtotal + delivery;
             
-            // Create order object
+            // Create order object matching your data structure
             const order = {
                 userId: currentUser.uid,
                 userName: name,
@@ -2596,7 +2601,8 @@
                     name: item.name,
                     price: Number(item.price),
                     quantity: item.quantity,
-                    image: item.image
+                    image: item.image,
+                    total: Number(item.price) * item.quantity
                 })),
                 subtotal: subtotal,
                 deliveryFee: delivery,
@@ -2607,7 +2613,8 @@
                     status: 'pending',
                     timestamp: new Date().toISOString(),
                     note: 'Order placed'
-                }]
+                }],
+                type: 'cart_order'
             };
             
             // Show loading state
@@ -2616,14 +2623,21 @@
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
             submitBtn.disabled = true;
             
-            // Save to Firebase
-            database.ref('iam-mugera/store/orders').push(order)
-                .then((orderRef) => {
+            // Save to orders node (not iam-mugera/store/orders based on your data)
+            const ordersRef = database.ref('orders');
+            const newOrderRef = ordersRef.push();
+            
+            newOrderRef.set(order)
+                .then(() => {
                     // Update user's order history
-                    return database.ref(`users/${currentUser.uid}/orders/${orderRef.key}`).set(true)
-                        .then(() => orderRef);
+                    return database.ref(`users/${currentUser.uid}/orders/${newOrderRef.key}`).set({
+                        orderId: newOrderRef.key,
+                        status: order.status,
+                        timestamp: order.orderDate,
+                        total: order.total
+                    });
                 })
-                .then((orderRef) => {
+                .then(() => {
                     // Success
                     document.getElementById('orderForm').style.display = 'none';
                     document.getElementById('orderSuccessMessage').style.display = 'flex';
@@ -2673,6 +2687,7 @@
             if (tab === 'orders') {
                 loadUserOrders();
             }
+            document.body.classList.add('modal-open');
         }
 
         function closeProfileModal() {
@@ -2746,7 +2761,8 @@
             const ordersDiv = document.getElementById('ordersList');
             ordersDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading your orders...</p></div>';
             
-            database.ref('iam-mugera/store/orders')
+            // Load from orders node
+            database.ref('orders')
                 .orderByChild('userId')
                 .equalTo(currentUser.uid)
                 .once('value')
@@ -2792,15 +2808,15 @@
                     
                     orders.forEach(order => {
                         const orderDate = new Date(order.orderDate).toLocaleDateString();
-                        const itemCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
+                        const itemCount = order.items ? order.items.reduce((sum, item) => sum + item.quantity, 0) : 1;
                         
                         ordersHtml += `
                             <tr>
                                 <td>#${order.id.slice(-6)}</td>
                                 <td>${orderDate}</td>
                                 <td>${itemCount} items</td>
-                                <td>KSh ${order.total.toLocaleString()}</td>
-                                <td><span class="order-status status-${order.status}">${order.status.toUpperCase()}</span></td>
+                                <td>KSh ${(order.total || 0).toLocaleString()}</td>
+                                <td><span class="order-status status-${order.status || 'pending'}">${(order.status || 'pending').toUpperCase()}</span></td>
                                 <td class="order-actions">
                                     <button class="btn-small btn-view" onclick="viewOrderDetails('${order.id}')">
                                         <i class="fas fa-eye"></i> View
@@ -2819,40 +2835,45 @@
                     ordersDiv.innerHTML = ordersHtml;
                 })
                 .catch((error) => {
+                    console.error('Error loading orders:', error);
                     ordersDiv.innerHTML = `<div style="color:#dc2626; text-align:center;">Error loading orders: ${error.message}</div>`;
                 });
         }
 
         function viewOrderDetails(orderId) {
-            database.ref('iam-mugera/store/orders/' + orderId).once('value')
+            database.ref('orders/' + orderId).once('value')
                 .then((snapshot) => {
                     if (snapshot.exists()) {
                         const order = snapshot.val();
                         currentOrderId = orderId;
                         
                         let itemsHtml = '';
-                        order.items.forEach(item => {
-                            itemsHtml += `
-                                <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;">
-                                    <div style="display:flex; gap:10px;">
-                                        <img src="${item.image}" alt="${item.name}" style="width:50px; height:50px; object-fit:cover;">
-                                        <div>
-                                            <div><strong>${item.name}</strong></div>
-                                            <div>Quantity: ${item.quantity}</div>
+                        if (order.items && order.items.length > 0) {
+                            order.items.forEach(item => {
+                                itemsHtml += `
+                                    <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;">
+                                        <div style="display:flex; gap:10px;">
+                                            <img src="${item.image || ''}" alt="${item.name || ''}" style="width:50px; height:50px; object-fit:cover;">
+                                            <div>
+                                                <div><strong>${item.name || ''}</strong></div>
+                                                <div>Quantity: ${item.quantity || 1}</div>
+                                            </div>
                                         </div>
+                                        <div>KSh ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}</div>
                                     </div>
-                                    <div>KSh ${(item.price * item.quantity).toLocaleString()}</div>
-                                </div>
-                            `;
-                        });
+                                `;
+                            });
+                        } else {
+                            itemsHtml = '<p>No items details available</p>';
+                        }
                         
                         const orderHtml = `
                             <div style="margin-bottom:20px;">
                                 <p><strong>Order ID:</strong> #${orderId.slice(-8)}</p>
-                                <p><strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleString()}</p>
-                                <p><strong>Status:</strong> <span class="order-status status-${order.status}">${order.status.toUpperCase()}</span></p>
-                                <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
-                                <p><strong>Delivery Date:</strong> ${new Date(order.deliveryDate).toLocaleDateString()}</p>
+                                <p><strong>Order Date:</strong> ${order.orderDate ? new Date(order.orderDate).toLocaleString() : 'N/A'}</p>
+                                <p><strong>Status:</strong> <span class="order-status status-${order.status || 'pending'}">${(order.status || 'pending').toUpperCase()}</span></p>
+                                <p><strong>Payment Method:</strong> ${order.paymentMethod || 'N/A'}</p>
+                                <p><strong>Delivery Date:</strong> ${order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : 'N/A'}</p>
                             </div>
                             
                             <h4>Items</h4>
@@ -2863,23 +2884,23 @@
                             <div style="background:#f8f9fa; padding:15px; margin-bottom:20px;">
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                                     <span>Subtotal:</span>
-                                    <span>KSh ${order.subtotal.toLocaleString()}</span>
+                                    <span>KSh ${(order.subtotal || 0).toLocaleString()}</span>
                                 </div>
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                                     <span>Delivery:</span>
-                                    <span>KSh ${order.deliveryFee.toLocaleString()}</span>
+                                    <span>KSh ${(order.deliveryFee || 150).toLocaleString()}</span>
                                 </div>
                                 <div style="display:flex; justify-content:space-between; font-weight:700; margin-top:10px; padding-top:10px; border-top:2px solid #ddd;">
                                     <span>Total:</span>
-                                    <span>KSh ${order.total.toLocaleString()}</span>
+                                    <span>KSh ${(order.total || 0).toLocaleString()}</span>
                                 </div>
                             </div>
                             
                             <div>
                                 <h4>Delivery Information</h4>
-                                <p><strong>Name:</strong> ${order.userName}</p>
-                                <p><strong>Phone:</strong> ${order.userPhone}</p>
-                                <p><strong>Address:</strong> ${order.deliveryAddress}</p>
+                                <p><strong>Name:</strong> ${order.userName || ''}</p>
+                                <p><strong>Phone:</strong> ${order.userPhone || ''}</p>
+                                <p><strong>Address:</strong> ${order.deliveryAddress || ''}</p>
                                 ${order.specialInstructions ? `<p><strong>Instructions:</strong> ${order.specialInstructions}</p>` : ''}
                             </div>
                         `;
@@ -2916,9 +2937,13 @@
         function cancelOrder(orderId) {
             if (!confirm('Are you sure you want to cancel this order?')) return;
             
-            database.ref('iam-mugera/store/orders/' + orderId).update({
+            database.ref('orders/' + orderId).update({
                 status: 'cancelled',
-                statusHistory: firebase.database.ServerValue.increment(1) // This is a placeholder - in production you'd push to an array
+                statusHistory: [{
+                    status: 'cancelled',
+                    timestamp: new Date().toISOString(),
+                    note: 'Order cancelled by user'
+                }]
             }).then(() => {
                 showNotification('Order cancelled successfully');
                 closeOrderDetailModal();
