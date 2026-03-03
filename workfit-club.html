@@ -35,7 +35,6 @@
             --header-height: 70px; --input-bg: rgba(255,255,255,0.05);
             --input-focus-bg: rgba(255,255,255,0.1);
             --danger: #dc2626; --success: #10b981;
-            --fitness: #0284c7; --sports: #ea580c; --youth: #10b981;
         }
         body.light-theme {
             --bg-primary: #f8f5f0; --bg-secondary: #ffffff; --bg-card: #ffffff;
@@ -53,7 +52,7 @@
             padding-top: var(--header-height);
             transition: background 0.3s, color 0.2s;
         }
-        /* header */
+        /* header - exactly like homepage */
         .site-header {
             position: fixed; top: 0; width: 100%; height: var(--header-height);
             background: var(--nav-bg); backdrop-filter: blur(10px);
@@ -99,6 +98,11 @@
             width: 42px; height: 42px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.3rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mobile-search-icon:hover, .hamburger-icon:hover {
+            background: var(--gold);
+            color: black;
         }
         /* mobile search overlay */
         .search-overlay {
@@ -119,47 +123,159 @@
             background: transparent; border: none; color: var(--text-muted);
             font-size: 2rem; width: 50px; cursor: pointer;
         }
-        /* hamburger panel */
+        /* hamburger panel - properly styled like homepage */
         .hamburger-panel {
             position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
             background: var(--nav-bg); backdrop-filter: blur(20px);
             border-left: 1px solid var(--gold); padding: 2rem 1.5rem;
-            z-index: 2500; transition: right 0.3s; display: flex; flex-direction: column;
+            z-index: 2500; transition: right 0.3s ease; display: flex; flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
         }
         .hamburger-panel.open { right: 0; }
-        .panel-header { display: flex; justify-content: space-between; align-items: center; }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;
+        }
+        .panel-header h3 { font-family: 'Cinzel', serif; color: var(--gold); }
+        .close-panel {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1.8rem; cursor: pointer; line-height: 1;
+        }
+        .panel-quick-links {
+            display: flex; flex-direction: column; gap: 0.5rem; margin: 2rem 0;
+        }
+        .panel-link {
+            padding: 0.9rem 1rem; background: rgba(255,255,255,0.03);
+            border-radius: 30px; color: var(--text-primary); text-decoration: none;
+            display: flex; align-items: center; gap: 1rem; transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .panel-link:hover {
+            border-color: var(--gold); background: rgba(202,138,4,0.1); color: var(--gold);
+        }
+        .panel-link i { width: 24px; color: var(--gold); }
         .panel-theme-toggle {
             display: flex; align-items: center; justify-content: space-between;
             padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 40px;
             margin-top: auto; border: 1px solid var(--border-light);
         }
-        /* hero */
-        .workfit-hero {
-            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 100%), url('https://i.postimg.cc/fWxRmKfz/MUG(16).gif') center/cover;
-            min-height: 60vh;
+        /* hero slider - fixed slides */
+        .hero-slider {
+            position: relative;
+            height: 80vh;
+            min-height: 600px;
+            overflow: hidden;
+        }
+        .slide-container {
+            height: 100%;
+            position: relative;
+        }
+        .slide {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            opacity: 0;
+            transition: opacity 0.8s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 4rem 1.5rem;
-            border-bottom: 2px solid var(--gold);
         }
-        body.light-theme .workfit-hero {
-            background: linear-gradient(135deg, rgba(255,245,235,0.9) 0%, rgba(255,255,255,0.8) 100%), url('https://i.postimg.cc/fWxRmKfz/MUG(16).gif') center/cover;
+        .slide.active { opacity: 1; }
+        .slide-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(20,20,20,0.7) 100%);
         }
-        .hero-content h1 {
+        body.light-theme .slide-overlay {
+            background: linear-gradient(135deg, rgba(255,245,235,0.85) 0%, rgba(255,255,255,0.8) 100%);
+        }
+        .slide-content {
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+            padding: 2rem;
+        }
+        .slide-content h2 {
             font-family: 'Cinzel', serif;
-            font-size: clamp(2.8rem, 8vw, 5rem);
+            font-size: clamp(2.5rem, 5vw, 4rem);
             color: var(--gold);
             margin-bottom: 1rem;
-            text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+            text-shadow: 0 2px 15px rgba(0,0,0,0.5);
         }
-        .hero-content p {
+        .slide-content p {
             font-size: 1.3rem;
-            max-width: 700px;
-            margin: 0 auto;
+            margin-bottom: 2rem;
             color: var(--text-secondary);
         }
+        .slide-btn {
+            background: var(--gold);
+            color: black;
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(202,138,4,0.4);
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .slide-btn:hover {
+            background: #b8860b;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(202,138,4,0.5);
+        }
+        .slider-nav {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 20;
+        }
+        .slider-dot {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .slider-dot.active {
+            background: var(--gold);
+            transform: scale(1.3);
+            border-color: white;
+        }
+        .slider-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            color: white;
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            z-index: 20;
+            border: 1px solid var(--gold);
+            transition: 0.2s;
+        }
+        .slider-arrow:hover {
+            background: var(--gold);
+            color: black;
+        }
+        .prev { left: 20px; }
+        .next { right: 20px; }
         /* sections */
         .container {
             max-width: 1200px;
@@ -397,7 +513,7 @@
             z-index: 10000; opacity: 0; visibility: hidden; transition: 0.4s;
         }
         .message-toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
-        /* auth modal (reused) */
+        /* auth modal */
         .modal-overlay {
             position: fixed; top:0; left:0; width:100%; height:100%;
             background:rgba(0,0,0,0.85); backdrop-filter:blur(8px);
@@ -427,6 +543,10 @@
         @media (max-width:768px) {
             .header-desktop-actions { display:none; }
             .mobile-header-group { display:flex; }
+            .hero-slider { height: 70vh; min-height: 500px; }
+            .slider-arrow { width: 40px; height: 40px; font-size: 1.3rem; }
+            .prev { left: 10px; }
+            .next { right: 10px; }
             .inquiry-section { padding:2rem 1.5rem; }
             .youth-section { padding:2rem 1.5rem; }
         }
@@ -492,11 +612,17 @@
     </div>
 </div>
 
-<!-- hamburger panel -->
+<!-- hamburger panel - properly styled -->
 <div class="hamburger-panel" id="hamburgerPanel">
-    <div class="panel-header"><h3>WorkFit menu</h3><button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button></div>
-    <div style="margin:2rem 0; display:flex; gap:1rem; justify-content:center;">
-        <a href="#fitness" style="color:var(--gold);">Fitness</a> · <a href="#sports" style="color:var(--gold);">Sports</a> · <a href="#youth" style="color:var(--gold);">Youth</a> · <a href="#inquiry" style="color:var(--gold);">Join</a>
+    <div class="panel-header">
+        <h3>WorkFit</h3>
+        <button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="panel-quick-links">
+        <a href="#fitness" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-heartbeat"></i> Fitness</a>
+        <a href="#sports" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-futbol"></i> Sports</a>
+        <a href="#youth" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-child"></i> Youth Programs</a>
+        <a href="#inquiry" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-calendar-check"></i> Join / Inquire</a>
     </div>
     <div class="panel-theme-toggle">
         <span><i class="fas fa-palette"></i> Dark / Light</span>
@@ -506,11 +632,43 @@
     </div>
 </div>
 
-<!-- hero -->
-<section class="workfit-hero">
-    <div class="hero-content">
-        <h1>WorkFit Club</h1>
-        <p>Discover how our membership options can help you achieve your fitness goals</p>
+<!-- hero slider with 3 slides -->
+<section class="hero-slider">
+    <div class="slide-container">
+        <!-- slide 1 - fitness -->
+        <div class="slide active" style="background-image:url('https://i.postimg.cc/fWxRmKfz/MUG(16).gif');">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>WorkFit Fitness</h2>
+                <p>Personalized programs for health, wellness & rehabilitation</p>
+                <button class="slide-btn" onclick="openInquiry('WorkFit Fitness')"><i class="fas fa-heartbeat"></i> Join Fitness</button>
+            </div>
+        </div>
+        <!-- slide 2 - sports -->
+        <div class="slide" style="background-image:url('https://i.postimg.cc/DyQVxpSq/MUG(17).gif');">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>WorkFit Sports</h2>
+                <p>Team training, coaching & competitive development</p>
+                <button class="slide-btn" onclick="openInquiry('WorkFit Sports')"><i class="fas fa-trophy"></i> Join Sports</button>
+            </div>
+        </div>
+        <!-- slide 3 - youth -->
+        <div class="slide" style="background-image:url('https://i.postimg.cc/FHZZR8RQ/MUG(18).gif');">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>Youth Sports</h2>
+                <p>Basketball · Running · Cycling · Swimming</p>
+                <button class="slide-btn" onclick="openInquiry('Youth')"><i class="fas fa-child"></i> Learn more</button>
+            </div>
+        </div>
+    </div>
+    <div class="slider-arrow prev" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></div>
+    <div class="slider-arrow next" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></div>
+    <div class="slider-nav">
+        <span class="slider-dot active" onclick="goToSlide(0)"></span>
+        <span class="slider-dot" onclick="goToSlide(1)"></span>
+        <span class="slider-dot" onclick="goToSlide(2)"></span>
     </div>
 </section>
 
@@ -751,7 +909,7 @@
     };
 
     // ---------- THEME & UI ----------
-    function toggleTheme() {
+    window.toggleTheme = function() {
         document.body.classList.toggle('light-theme');
         const icon = document.getElementById('panelThemeIcon');
         if (document.body.classList.contains('light-theme')) {
@@ -761,7 +919,7 @@
             icon?.classList.replace('fa-sun','fa-moon');
             localStorage.setItem('siteTheme','dark');
         }
-    }
+    };
     (function() {
         if (localStorage.getItem('siteTheme') === 'light') {
             document.body.classList.add('light-theme');
@@ -771,10 +929,25 @@
         setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 1300);
     })();
 
-    function toggleHamburger() { document.getElementById('hamburgerPanel').classList.toggle('open'); }
-    function toggleMobileSearch() { document.getElementById('mobileSearchOverlay').classList.toggle('open'); }
+    window.toggleHamburger = function() { document.getElementById('hamburgerPanel').classList.toggle('open'); };
+    window.toggleMobileSearch = function() { document.getElementById('mobileSearchOverlay').classList.toggle('open'); };
     document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
     document.getElementById('mobileSearchBtn')?.addEventListener('click', toggleMobileSearch);
+
+    // ---------- SLIDER ----------
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.slider-dot');
+    function showSlide(index) {
+        if (index >= slides.length) index = 0;
+        if (index < 0) index = slides.length - 1;
+        slides.forEach((s, i) => s.classList.toggle('active', i === index));
+        dots.forEach((d, i) => d.classList.toggle('active', i === index));
+        currentSlide = index;
+    }
+    window.changeSlide = (direction) => showSlide(currentSlide + direction);
+    window.goToSlide = (idx) => showSlide(idx);
+    setInterval(() => changeSlide(1), 6000);
 
     // ---------- OPEN INQUIRY ----------
     window.openInquiry = (membershipType) => {
@@ -848,11 +1021,6 @@
             submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> request membership info';
         }
     });
-
-    // Prefill email if logged in
-    if (currentUser && currentUser.email) {
-        document.getElementById('inquiryEmail').value = currentUser.email;
-    }
 </script>
 </body>
 </html>
