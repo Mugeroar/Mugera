@@ -1,5 +1,5 @@
 // service-worker.js - UPDATED VERSION
-const CACHE_NAME = 'mugera-cache-v6'; // Increment version when you make changes
+const CACHE_NAME = 'mugera-cache-v7'; // Increment version when you make changes
 const urlsToCache = [
   '/',
   '/index.html',
