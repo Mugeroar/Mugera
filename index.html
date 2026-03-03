@@ -15,8 +15,8 @@
     <meta name="msapplication-TileColor" content="#ca8a04">
     
     <!-- Version & Build -->
-    <meta name="version" content="7.0.0">
-    <meta name="build-date" content="2025-03-03">
+    <meta name="version" content="5.21.0">
+    <meta name="build-date" content="2025-03-02">
     
     <title>I AM MUGERA | Afrika Milele</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
@@ -82,16 +82,6 @@
             --status-soon: #f59e0b;
             --status-closing: #ef4444;
             --status-closed: #6b7280;
-
-            /* Category colors for search */
-            --cat-community: #2e7d32;
-            --cat-heritage: #8B4513;
-            --cat-fashion: #c2410c;
-            --cat-leisure: #9f4e96;
-            --cat-transport: #0284c7;
-            --cat-environment: #059669;
-            --cat-realestate: #b45309;
-            --cat-technology: #4f46e5;
         }
 
         /* Light theme class */
@@ -439,7 +429,7 @@
             gap: 1rem;
         }
         
-        /* Desktop Search - Category Dropdown + Input */
+        /* Desktop Search */
         .desktop-search {
             position: relative;
             display: flex;
@@ -447,34 +437,15 @@
             background: rgba(255,255,255,0.08);
             border: 1px solid var(--border-light);
             border-radius: 40px;
-            padding: 0.3rem;
+            padding: 0.4rem 0.4rem 0.4rem 1.2rem;
             transition: all 0.3s;
-            min-width: 450px;
+            min-width: 300px;
         }
         .desktop-search:focus-within {
             border-color: var(--gold);
             box-shadow: 0 0 0 3px rgba(202,138,4,0.2);
             background: var(--bg-secondary);
         }
-        
-        .category-select {
-            background: rgba(202,138,4,0.15);
-            border: none;
-            border-right: 1px solid var(--border-light);
-            color: var(--gold);
-            padding: 0.5rem 1rem;
-            border-radius: 40px 0 0 40px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            outline: none;
-            min-width: 140px;
-        }
-        .category-select option {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-        
         .desktop-search input {
             background: transparent;
             border: none;
@@ -482,7 +453,7 @@
             font-size: 0.95rem;
             width: 100%;
             outline: none;
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 0;
         }
         .desktop-search input::placeholder {
             color: var(--text-muted);
@@ -501,11 +472,60 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            margin-right: 0.2rem;
         }
         .desktop-search button:hover {
             transform: scale(1.05);
             background: #b8860b;
+        }
+        
+        /* Search hints dropdown */
+        .search-hints {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            padding: 0.5rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 2100;
+            display: none;
+            backdrop-filter: blur(10px);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .search-hints.show {
+            display: block;
+        }
+        .hint-item {
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .hint-item:last-child {
+            border-bottom: none;
+        }
+        .hint-item:hover {
+            background: var(--search-highlight);
+            color: var(--gold);
+        }
+        .hint-item i {
+            width: 24px;
+            color: var(--gold);
+            font-size: 1rem;
+        }
+        .hint-item .hint-category {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-left: auto;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         /* User menu */
@@ -592,7 +612,7 @@
             color: black;
         }
 
-        /* Mobile search overlay with category select */
+        /* Mobile search overlay */
         .search-overlay {
             position: fixed;
             top: 0;
@@ -614,20 +634,6 @@
             align-items: center;
             gap: 0.5rem;
             position: relative;
-            flex-wrap: wrap;
-        }
-        .mobile-category-select {
-            flex: 1 1 100%;
-            background: rgba(202,138,4,0.15);
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            padding: 0.8rem 1rem;
-            border-radius: 40px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            outline: none;
-            margin-bottom: 0.5rem;
         }
         .search-overlay input {
             flex: 1;
@@ -680,6 +686,30 @@
         .close-search:hover {
             background: rgba(255,255,255,0.1);
             color: var(--gold);
+        }
+
+        /* Mobile search hints */
+        .mobile-search-hints {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            right: 70px;
+            background: var(--card-bg);
+            border: 2px solid var(--gold);
+            border-radius: 30px;
+            padding: 0.8rem 0;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            z-index: 2500;
+            display: none;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .mobile-search-hints.show {
+            display: block;
+        }
+        .mobile-search-hints .hint-item {
+            padding: 1.2rem 1.5rem;
+            font-size: 1rem;
         }
 
         /* Hamburger panel */
@@ -798,7 +828,8 @@
             border: 1px solid var(--border-light);
         }
 
-        /* Hours card */
+        /* Hours card - responsive */
+        /* ========== ENHANCED AVAILABILITY SECTION ========== */
         .hours-mini-card {
             display: inline-flex;
             align-items: center;
@@ -821,18 +852,93 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            color: #ffffff;
+            color: #ffffff; /* Force white text for dark background */
             position: relative;
             overflow: hidden;
         }
         
+        /* Light theme specific styles */
         body.light-theme .hours-mini-card {
             background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(245,245,245,0.98) 100%);
             border: 1px solid rgba(202, 138, 4, 0.5);
             box-shadow: 0 20px 40px -15px rgba(202, 138, 4, 0.3), 
                         0 0 0 1px rgba(202, 138, 4, 0.4) inset,
                         0 0 30px rgba(202, 138, 4, 0.15);
+            color: #1a1a1a; /* Dark text for light background */
+        }
+        
+        body.light-theme .current-day i {
+            color: var(--gold-dark);
+            filter: drop-shadow(0 0 5px rgba(202, 138, 4, 0.3));
+        }
+        
+        body.light-theme .day-name {
+            color: var(--gold-dark);
+            text-shadow: 0 0 10px rgba(202, 138, 4, 0.2);
+        }
+        
+        body.light-theme .status-badge-mini {
+            background: rgba(255, 255, 255, 0.8);
+            border-left: 2px solid var(--gold-dark);
+            border-right: 2px solid var(--gold-dark);
             color: #1a1a1a;
+        }
+        
+        body.light-theme .status-badge-mini i {
+            filter: drop-shadow(0 0 5px currentColor);
+        }
+        
+        body.light-theme .status-open { color: #059669; } /* Darker green for light mode */
+        body.light-theme .status-soon { color: #d97706; } /* Darker orange for light mode */
+        body.light-theme .status-closing { color: #dc2626; } /* Darker red for light mode */
+        body.light-theme .status-closed { color: #4b5563; } /* Darker gray for light mode */
+        
+        body.light-theme .hours-mini-card::before {
+            background: radial-gradient(circle at center, rgba(202, 138, 4, 0.2) 0%, transparent 70%);
+        }
+        
+        body.light-theme .hours-mini-card::after {
+            background: linear-gradient(90deg, transparent, rgba(202, 138, 4, 0.1), transparent);
+        }
+        
+        .hours-mini-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(202, 138, 4, 0.15) 0%, transparent 70%);
+            animation: rotateGradient 20s linear infinite;
+            z-index: -1;
+        }
+        
+        .hours-mini-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+            pointer-events: none;
+        }
+        
+        /* Light mode shimmer adjustment */
+        body.light-theme .hours-mini-card::after {
+            background: linear-gradient(90deg, transparent, rgba(202, 138, 4, 0.15), transparent);
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            20% { left: 100%; }
+            100% { left: 100%; }
+        }
+        
+        @keyframes rotateGradient {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         
         .hours-mini-card:hover {
@@ -841,6 +947,14 @@
             box-shadow: 0 25px 50px -15px rgba(202, 138, 4, 0.5), 
                         0 0 0 2px rgba(202, 138, 4, 0.5) inset,
                         0 0 40px rgba(202, 138, 4, 0.3);
+        }
+        
+        body.light-theme .hours-mini-card:hover {
+            border-color: var(--gold-dark);
+            box-shadow: 0 25px 50px -15px rgba(202, 138, 4, 0.5), 
+                        0 0 0 2px rgba(202, 138, 4, 0.6) inset,
+                        0 0 40px rgba(202, 138, 4, 0.3);
+            background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(250,250,250,1) 100%);
         }
         
         .current-day {
@@ -854,12 +968,18 @@
             color: var(--gold);
             font-size: 1.5rem;
             filter: drop-shadow(0 0 5px rgba(202, 138, 4, 0.5));
+            transition: transform 0.3s ease;
+        }
+        
+        .hours-mini-card:hover .current-day i {
+            transform: rotate(10deg) scale(1.1);
         }
         
         .day-name {
             font-weight: 700;
             color: var(--gold);
             margin-right: 0.3rem;
+            text-shadow: 0 0 10px rgba(202, 138, 4, 0.3);
         }
         
         .status-badge-mini {
@@ -874,13 +994,38 @@
             backdrop-filter: blur(5px);
             white-space: nowrap;
             font-weight: 600;
+            letter-spacing: 0.3px;
         }
         
-        .status-open { color: #10b981; }
-        .status-soon { color: #f59e0b; }
-        .status-closing { color: #ef4444; }
-        .status-closed { color: #9ca3af; }
+        .status-badge-mini i {
+            font-size: 1rem;
+            filter: drop-shadow(0 0 5px currentColor);
+            animation: pulse 2s infinite;
+        }
         
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .status-open { 
+            color: #10b981; 
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        .status-soon { 
+            color: #f59e0b; 
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+        .status-closing { 
+            color: #ef4444; 
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+        .status-closed { 
+            color: #9ca3af; 
+            text-shadow: 0 0 10px rgba(156, 163, 175, 0.5);
+        }
+        
+        /* Mobile optimization for hours card */
         @media (max-width: 480px) {
             .hours-mini-card {
                 flex-direction: column;
@@ -889,14 +1034,85 @@
                 border-radius: 50px;
                 width: 100%;
             }
+            
+            .current-day {
+                width: 100%;
+                justify-content: center;
+                font-size: 1.2rem;
+            }
+            
+            .status-badge-mini {
+                width: 100%;
+                justify-content: center;
+                border-left: none;
+                border-right: none;
+                border-top: 2px solid var(--gold);
+                border-bottom: 2px solid var(--gold);
+                padding: 0.7rem 1.2rem;
+                font-size: 1.1rem;
+            }
+            
+            .hours-mini-card::after {
+                display: none; /* Remove shimmer on mobile for performance */
+            }
+            
+            .hours-mini-card .fa-chevron-right {
+                display: none;
+            }
+            
+            .hours-mini-card {
+                position: relative;
+            }
+            
+            .hours-mini-card::before {
+                content: '\f054';
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                position: absolute;
+                bottom: -5px;
+                right: 15px;
+                color: var(--gold);
+                font-size: 1rem;
+                opacity: 0.7;
+                background: none;
+                width: auto;
+                height: auto;
+                animation: bounce 2s infinite;
+            }
+            
+            @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-3px); }
+            }
+            
+            body.light-theme .hours-mini-card::before {
+                color: var(--gold-dark);
+            }
         }
         
-        /* Hours modal */
+        /* Tablet optimization */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .hours-mini-card {
+                padding: 1rem 2rem;
+                gap: 1rem;
+            }
+            
+            .current-day i {
+                font-size: 1.3rem;
+            }
+            
+            .status-badge-mini {
+                padding: 0.4rem 1rem;
+            }
+        }
+        
+        /* Hours detail modal */
         .hours-modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             z-index: 10000;
             display: flex;
             align-items: center;
@@ -904,23 +1120,39 @@
             padding: 1.5rem;
             opacity: 0;
             visibility: hidden;
-            transition: all 0.4s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .hours-modal.show { opacity: 1; visibility: visible; }
+        
+        .hours-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
         .hours-modal-card {
             max-width: 480px;
             width: 100%;
             background: linear-gradient(135deg, rgba(20,20,20,0.95) 0%, rgba(30,30,30,0.98) 100%);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-radius: 60px;
             padding: 3rem 2.5rem;
             border: 2px solid var(--gold);
-            box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 2px rgba(202, 138, 4, 0.3) inset;
             position: relative;
             transform: scale(0.9);
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .hours-modal.show .hours-modal-card { transform: scale(1); }
+        
+        .hours-modal.show .hours-modal-card {
+            transform: scale(1);
+        }
+        
+        /* Light theme modal */
+        body.light-theme .hours-modal-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(250,250,250,0.98) 100%);
+            color: #1a1a1a;
+        }
+        
         .hours-modal-close {
             position: absolute;
             top: 1.5rem;
@@ -936,21 +1168,48 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s;
         }
-        .hours-modal-close:hover { color: var(--gold); background: rgba(202,138,4,0.15); transform: rotate(90deg); }
+        
+        .hours-modal-close:hover {
+            color: var(--gold);
+            background: rgba(202, 138, 4, 0.15);
+            transform: rotate(90deg) scale(1.1);
+            border-color: var(--gold);
+        }
+        
+        body.light-theme .hours-modal-close {
+            background: rgba(0,0,0,0.05);
+            color: #666;
+        }
+        
+        body.light-theme .hours-modal-close:hover {
+            background: rgba(202, 138, 4, 0.2);
+            color: var(--gold-dark);
+        }
+        
         .hours-modal h3 {
             font-family: 'Cinzel', serif;
             font-size: 2.2rem;
             color: var(--gold);
             margin-bottom: 2rem;
             text-align: center;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(202, 138, 4, 0.3);
         }
+        
+        body.light-theme .hours-modal h3 {
+            color: var(--gold-dark);
+            text-shadow: 0 2px 10px rgba(202, 138, 4, 0.2);
+        }
+        
         .hours-table {
             display: flex;
             flex-direction: column;
             gap: 1.2rem;
             margin-bottom: 2rem;
         }
+        
         .hours-row {
             display: flex;
             justify-content: space-between;
@@ -959,6 +1218,11 @@
             border-bottom: 1px dashed rgba(202, 138, 4, 0.3);
             font-size: 1.1rem;
         }
+        
+        body.light-theme .hours-row {
+            border-bottom: 1px dashed rgba(202, 138, 4, 0.5);
+        }
+        
         .hours-row .day {
             font-weight: 600;
             color: var(--gold);
@@ -966,14 +1230,28 @@
             align-items: center;
             gap: 0.5rem;
         }
+        
         .hours-row .day::before {
             content: '•';
             color: var(--gold);
             font-size: 1.5rem;
             line-height: 0;
         }
-        .hours-row .time { color: var(--text-secondary); font-weight: 500; }
-        .closed-day { color: var(--status-closed) !important; }
+        
+        .hours-row .time {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        body.light-theme .hours-row .time {
+            color: #333;
+        }
+        
+        .closed-day {
+            color: var(--status-closed) !important;
+            font-weight: 600;
+        }
+        
         .holiday-note-modal {
             margin-top: 2rem;
             text-align: center;
@@ -986,6 +1264,30 @@
             justify-content: center;
             gap: 0.5rem;
         }
+        
+        body.light-theme .holiday-note-modal {
+            color: #666;
+        }
+        
+        .holiday-note-modal i {
+            color: var(--gold);
+            animation: bounce 2s infinite;
+        }
+        
+        /* Add status indicator in modal */
+        .hours-modal .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        .hours-modal .status-indicator.open { background: #10b981; box-shadow: 0 0 10px #10b981; }
+        .hours-modal .status-indicator.soon { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+        .hours-modal .status-indicator.closing { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+        .hours-modal .status-indicator.closed { background: #6b7280; box-shadow: 0 0 10px #6b7280; }
 
         /* Hero Section */
         .hero-section {
@@ -1020,6 +1322,7 @@
             margin-bottom: 1.5rem;
             font-weight: 300;
             letter-spacing: 2px;
+            word-break: break-word;
         }
         .brand-purpose {
             font-size: clamp(1rem, 3vw, 1.2rem);
@@ -1035,49 +1338,32 @@
             width: 95%;
         }
         
-        /* ----- CATEGORY SECTIONS (professional headers) ----- */
-        .category-section {
-            margin-bottom: 3rem;
+        /* Activities Section (cards) */
+        .activities-section {
+            max-width: 1200px;
+            margin: 5rem auto;
+            padding: 0 1.5rem;
         }
-        .category-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid var(--gold);
-        }
-        .category-header i {
-            font-size: 2rem;
-            color: var(--gold);
-            background: rgba(202,138,4,0.1);
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-        .category-header h2 {
+        .section-header { text-align: center; margin-bottom: 3rem; }
+        .section-header h2 {
             font-family: 'Cinzel', serif;
-            font-size: 1.8rem;
+            font-size: clamp(2rem, 5vw, 2.5rem);
             color: var(--gold);
-            margin: 0;
+            margin-bottom: 1rem;
+            word-break: break-word;
         }
-        .category-header span {
+        .section-header p {
             color: var(--text-muted);
-            margin-left: auto;
-            font-size: 0.9rem;
-            background: rgba(202,138,4,0.1);
-            padding: 0.3rem 1rem;
-            border-radius: 40px;
+            font-size: clamp(1rem, 3vw, 1.1rem);
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 1rem;
         }
-        
         .activities-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 1.5rem;
-            margin-top: 1rem;
+            margin-top: 2rem;
         }
         .activity-card {
             background: var(--card-bg);
@@ -1114,6 +1400,7 @@
             color: var(--gold);
             margin-bottom: 0.5rem;
             font-weight: 600;
+            word-break: break-word;
         }
         .card-content p {
             color: var(--text-muted);
@@ -1121,6 +1408,7 @@
             line-height: 1.5;
             margin-bottom: 1.2rem;
             flex: 1;
+            word-break: break-word;
         }
         .card-link {
             color: var(--gold);
@@ -1131,9 +1419,25 @@
             gap: 0.5rem;
             transition: gap 0.2s;
             margin-top: auto;
+            flex-wrap: wrap;
         }
         .card-link i { font-size: 0.9rem; }
         .card-link:hover { gap: 0.8rem; }
+        .feature-badge {
+            display: inline-block;
+            background: rgba(202,138,4,0.15);
+            color: var(--gold);
+            font-size: 0.7rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 30px;
+            margin-bottom: 0.75rem;
+            border: 1px solid var(--gold);
+            width: fit-content;
+            max-width: 100%;
+            word-break: break-word;
+        }
+        .inspired-badge { background: rgba(46,125,50,0.2); color: #2e7d32; border-color: #2e7d32; }
+        .songa-badge { background: rgba(212,160,23,0.2); color: #d4a017; border-color: #d4a017; }
         
         /* Toast Message */
         .message-toast {
@@ -1158,6 +1462,7 @@
             font-weight: 500;
             min-width: 280px;
             justify-content: center;
+            letter-spacing: 0.5px;
         }
         .message-toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
         .message-toast i { font-size: 1.4rem; color: var(--gold); }
@@ -1173,7 +1478,7 @@
             text-align: center;
             border-top: 1px solid var(--border-light);
         }
-        .footer p { color: var(--text-muted); }
+        .footer p { color: var(--text-muted); word-break: break-word; }
         .footer a { color: var(--gold); text-decoration: none; }
         
         /* PWA Install Button */
@@ -1208,7 +1513,10 @@
             z-index: 9499;
             display: none;
         }
-        .modal-overlay.active { display: block; }
+        .modal-overlay.active {
+            display: block;
+        }
+        
         .auth-modal {
             position: fixed;
             top: 50%;
@@ -1226,11 +1534,16 @@
             display: none;
             box-shadow: 0 30px 60px rgba(0,0,0,0.5);
         }
-        .auth-modal.active { display: block; animation: modalFadeIn 0.3s ease; }
+        .auth-modal.active {
+            display: block;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
         @keyframes modalFadeIn {
             from { opacity: 0; transform: translate(-50%, -60%); }
             to { opacity: 1; transform: translate(-50%, -50%); }
         }
+        
         .auth-modal .modal-close {
             position: absolute;
             top: 1rem;
@@ -1244,26 +1557,34 @@
             line-height: 1;
             transition: color 0.2s;
         }
-        .auth-modal .modal-close:hover { color: var(--gold); transform: rotate(90deg); }
+        .auth-modal .modal-close:hover {
+            color: var(--gold);
+            transform: rotate(90deg);
+        }
+        
         .auth-modal .modal-header {
             text-align: center;
             margin-bottom: 1.5rem;
         }
+        
         .auth-modal .modal-header i {
             font-size: 2.2rem;
             color: var(--gold);
             margin-bottom: 0.5rem;
         }
+        
         .auth-modal .modal-header h3 {
             font-family: 'Cinzel', serif;
             font-size: 1.8rem;
             color: var(--gold);
             margin-bottom: 0.25rem;
         }
+        
         .auth-modal .modal-header p {
             color: var(--text-muted);
             font-size: 0.9rem;
         }
+        
         .modal-tabs {
             display: flex;
             gap: 1rem;
@@ -1271,6 +1592,7 @@
             border-bottom: 1px solid var(--border-light);
             padding-bottom: 1rem;
         }
+        
         .modal-tab {
             flex: 1;
             padding: 0.75rem;
@@ -1283,9 +1605,20 @@
             transition: 0.2s;
             font-size: 1rem;
         }
-        .modal-tab.active { color: var(--gold); background: rgba(202,138,4,0.1); }
-        .modal-form { display: none; }
-        .modal-form.active { display: block; }
+        
+        .modal-tab.active {
+            color: var(--gold);
+            background: rgba(202,138,4,0.1);
+        }
+        
+        .modal-form {
+            display: none;
+        }
+        
+        .modal-form.active {
+            display: block;
+        }
+        
         .modal-input {
             width: 100%;
             padding: 0.875rem 1rem;
@@ -1297,11 +1630,13 @@
             font-size: 0.95rem;
             transition: all 0.2s;
         }
+        
         .modal-input:focus {
             outline: none;
             border-color: var(--gold);
             box-shadow: 0 0 0 3px rgba(202,138,4,0.2);
         }
+        
         .modal-btn {
             width: 100%;
             padding: 0.875rem;
@@ -1315,11 +1650,13 @@
             transition: all 0.2s;
             margin-top: 0.5rem;
         }
+        
         .modal-btn:hover {
             background: var(--gold-dark);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(202,138,4,0.3);
         }
+        
         .modal-error {
             color: var(--danger);
             font-size: 0.85rem;
@@ -1330,6 +1667,7 @@
             border-radius: 8px;
             display: none;
         }
+        
         .modal-success {
             color: var(--success);
             font-size: 0.85rem;
@@ -1340,6 +1678,7 @@
             border-radius: 8px;
             display: none;
         }
+        
         .modal-footer {
             text-align: center;
             margin-top: 1.5rem;
@@ -1348,17 +1687,159 @@
             color: var(--text-muted);
             font-size: 0.85rem;
         }
+        
+        .modal-footer span {
+            color: var(--gold);
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 1px dashed var(--gold);
+            padding-bottom: 2px;
+        }
+        
+        /* Hide scrollbar but keep functionality */
+        .auth-modal::-webkit-scrollbar {
+            width: 4px;
+        }
+        .auth-modal::-webkit-scrollbar-track {
+            background: var(--border-light);
+            border-radius: 10px;
+        }
+        .auth-modal::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 10px;
+        }
+        
+        /* Password strength indicator */
+        .password-strength {
+            margin: 0.5rem 0 1rem;
+        }
+        .strength-bar {
+            height: 4px;
+            background: var(--border-light);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .strength-fill {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s;
+            border-radius: 2px;
+        }
+        .strength-text {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+        
+        #passwordMatch {
+            font-size: 0.75rem;
+            margin: 0.3rem 0 0.5rem;
+            color: var(--text-muted);
+        }
+
+        /* Update notification */
+        .update-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: var(--gold);
+            color: black;
+            padding: 1rem;
+            border-radius: 30px;
+            box-shadow: 0 5px 20px rgba(202,138,4,0.3);
+            z-index: 10000;
+            animation: slideUp 0.3s ease;
+        }
+        
+        .update-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .update-btn {
+            background: black;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .update-btn:hover {
+            background: #333;
+        }
+        
+        .update-close {
+            background: transparent;
+            border: none;
+            color: black;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0 0.5rem;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
 
         @media (max-width: 768px) {
             .header-desktop-actions { display: none; }
             .mobile-header-group { display: flex; }
-            .category-header h2 { font-size: 1.4rem; }
+            
+            .auth-modal {
+                padding: 1.5rem;
+                max-width: 400px;
+            }
+            
+            .auth-modal .modal-header h3 {
+                font-size: 1.5rem;
+            }
+            
+            .modal-tab {
+                padding: 0.6rem;
+                font-size: 0.9rem;
+            }
+            
+            .popup-content {
+                padding: 2rem 1.5rem;
+            }
+            
+            .popup-content h2 {
+                font-size: 2.2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .auth-modal {
+                padding: 1.2rem;
+                width: 95%;
+            }
+            
+            .modal-tabs {
+                gap: 0.5rem;
+            }
+            
+            .popup-content {
+                padding: 1.8rem 1.2rem;
+            }
+            
+            .popup-content h2 {
+                font-size: 2rem;
+            }
+            
+            .popup-btn {
+                padding: 0.7rem 1rem;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body class="dark-theme">
 
-<!-- WELCOME POPUP -->
+<!-- WELCOME POPUP - Enhanced Glass Morphism -->
 <div class="welcome-popup" id="welcomePopup">
     <div class="popup-content">
         <h2>Karibu!</h2>
@@ -1376,8 +1857,10 @@
     </div>
 </div>
 
-<!-- MODAL OVERLAY & AUTH MODAL -->
+<!-- MODAL OVERLAY -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeAllModals()"></div>
+
+<!-- AUTH MODAL -->
 <div class="auth-modal" id="authModal">
     <button class="modal-close" onclick="closeAllModals()">&times;</button>
     <div class="modal-header">
@@ -1389,22 +1872,40 @@
         <button class="modal-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button>
         <button class="modal-tab" id="signupTab" onclick="switchAuthTab('signup')">Sign Up</button>
     </div>
+    
+    <!-- Login Form -->
     <form id="loginForm" class="modal-form active" onsubmit="handleLogin(event)">
         <input type="email" class="modal-input" id="loginEmail" placeholder="Email" required>
         <input type="password" class="modal-input" id="loginPassword" placeholder="Password" required>
         <button type="submit" class="modal-btn" id="loginBtn">Login</button>
         <div class="modal-error" id="loginError"></div>
     </form>
+    
+    <!-- Signup Form -->
     <form id="signupForm" class="modal-form" onsubmit="handleSignup(event)">
         <input type="text" class="modal-input" id="signupName" placeholder="Full Name" required>
         <input type="email" class="modal-input" id="signupEmail" placeholder="Email" required>
         <input type="password" class="modal-input" id="signupPassword" placeholder="Password (min. 6)" required minlength="6">
+        
+        <!-- Password strength indicator -->
+        <div class="password-strength">
+            <div class="strength-bar">
+                <div class="strength-fill" id="strengthFill"></div>
+            </div>
+            <div class="strength-text" id="strengthText">Enter password</div>
+        </div>
+        
         <input type="password" class="modal-input" id="signupConfirm" placeholder="Confirm Password" required>
+        <div id="passwordMatch"></div>
+        
         <button type="submit" class="modal-btn" id="signupBtn">Create Account</button>
         <div class="modal-error" id="signupError"></div>
         <div class="modal-success" id="signupSuccess"></div>
     </form>
-    <div class="modal-footer">By joining, you agree to our Terms of Service</div>
+    
+    <div class="modal-footer">
+        By joining, you agree to our Terms of Service
+    </div>
 </div>
 
 <!-- LOADING OVERLAY -->
@@ -1421,19 +1922,9 @@
             <img src="https://i.postimg.cc/HLQqRybx/mm.jpg" alt="I AM MUGERA" class="site-logo">
             <div class="header-desktop-actions">
                 <div class="desktop-search" id="desktopSearchContainer">
-                    <select class="category-select" id="desktopCategorySelect">
-                        <option value="all">All Categories</option>
-                        <option value="community">Community</option>
-                        <option value="heritage">African Heritage</option>
-                        <option value="fashion">Fashion & Beauty</option>
-                        <option value="leisure">Exposure & Leisure</option>
-                        <option value="transport">Transport & Travel</option>
-                        <option value="environment">Environment</option>
-                        <option value="realestate">Real Estate</option>
-                        <option value="technology">Technology</option>
-                    </select>
-                    <input type="text" placeholder="Search..." id="desktopSearchInput" autocomplete="off">
-                    <button onclick="performSearch()"><i class="fas fa-search"></i></button>
+                    <input type="text" placeholder="Search I AM MUGERA..." id="desktopSearchInput" autocomplete="off">
+                    <button onclick="performSearch(document.getElementById('desktopSearchInput').value)"><i class="fas fa-search"></i></button>
+                    <div class="search-hints" id="desktopSearchHints"></div>
                 </div>
                 <div id="userMenuDesktop" class="user-menu" style="display: none;">
                     <span class="user-name" id="userDisplayNameDesktop"></span>
@@ -1454,20 +1945,10 @@
     <!-- MOBILE SEARCH OVERLAY -->
     <div class="search-overlay" id="mobileSearchOverlay">
         <div class="search-row">
-            <select class="mobile-category-select" id="mobileCategorySelect">
-                <option value="all">All Categories</option>
-                <option value="community">Community</option>
-                <option value="heritage">African Heritage</option>
-                <option value="fashion">Fashion & Beauty</option>
-                <option value="leisure">Exposure & Leisure</option>
-                <option value="transport">Transport & Travel</option>
-                <option value="environment">Environment</option>
-                <option value="realestate">Real Estate</option>
-                <option value="technology">Technology</option>
-            </select>
-            <input type="text" placeholder="Search..." id="mobileSearchInput" autocomplete="off">
-            <button onclick="performSearch(true); toggleMobileSearch();"><i class="fas fa-search"></i></button>
+            <input type="text" placeholder="Search I AM MUGERA..." id="mobileSearchInput" autocomplete="off">
+            <button onclick="performSearch(document.getElementById('mobileSearchInput').value); toggleMobileSearch();"><i class="fas fa-search"></i></button>
             <button class="close-search" onclick="toggleMobileSearch()"><i class="fas fa-times"></i></button>
+            <div class="mobile-search-hints" id="mobileSearchHints"></div>
         </div>
     </div>
 
@@ -1485,10 +1966,12 @@
             </div>
         </div>
         <div class="panel-quick-links">
-            <a href="#" class="panel-link" onclick="quickNav('eye-of-mugera.html'); toggleHamburger();"><i class="far fa-newspaper"></i> Eye of Mugera</a>
-            <a href="#" class="panel-link" onclick="quickNav('inspire-program.html'); toggleHamburger();"><i class="fas fa-seedling"></i> Inspired.Me</a>
-            <a href="#" class="panel-link" onclick="quickNav('shop.html'); toggleHamburger();"><i class="fas fa-store"></i> Shop</a>
-            <a href="#" class="panel-link" onclick="quickNav('songa.html'); toggleHamburger();"><i class="fas fa-users"></i> SonGa</a>
+            <a href="#" class="panel-link" onclick="navigateToEyeOfMugera(); toggleHamburger();"><i class="far fa-newspaper"></i> Eye of Mugera</a>
+            <a href="#" class="panel-link" onclick="navigateToInspiredMe(); toggleHamburger();"><i class="fas fa-seedling"></i> Inspired.Me</a>
+            <a href="#" class="panel-link" onclick="navigateToShop(); toggleHamburger();"><i class="fas fa-store"></i> Shop</a>
+            <a href="#" class="panel-link" onclick="navigateToPartnerships(); toggleHamburger();"><i class="fas fa-handshake"></i> Partnerships</a>
+            <a href="#" class="panel-link" onclick="navigateToSonGaPage(); toggleHamburger();"><i class="fas fa-users"></i> SonGa</a>
+            <a href="#" class="panel-link" onclick="navigateToSection('activities'); toggleHamburger();"><i class="fas fa-compass"></i> Activities</a>
         </div>
         <div class="panel-theme-toggle">
             <span><i class="fas fa-palette"></i> Dark / Light</span>
@@ -1503,10 +1986,20 @@
         <div class="hero-container">
             <h1 class="main-title">I AM MUGERA</h1>
             <p class="main-sub">DREAM · ASPIRE · INSPIRE</p>
+            
+            <!-- HOURS CARD -->
             <div class="hours-mini-card" id="hoursMiniCard" onclick="openHoursModal()">
-                <div class="current-day"><i class="fas fa-calendar-alt"></i><span><span class="day-name" id="currentDayName">Monday</span></span></div>
-                <div class="status-badge-mini" id="currentStatusBadge"><i class="fas fa-circle" id="statusIcon"></i><span id="statusText">Loading...</span></div>
+                <div class="current-day">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span><span class="day-name" id="currentDayName">Monday</span></span>
+                </div>
+                <div class="status-badge-mini" id="currentStatusBadge">
+                    <i class="fas fa-circle" id="statusIcon"></i>
+                    <span id="statusText">Loading...</span>
+                </div>
             </div>
+
+            <!-- HOURS DETAIL MODAL -->
             <div class="hours-modal" id="hoursModal">
                 <div class="hours-modal-card">
                     <button class="hours-modal-close" onclick="closeHoursModal()"><i class="fas fa-times"></i></button>
@@ -1520,120 +2013,41 @@
                     <div class="holiday-note-modal"><i class="fas fa-map-pin"></i> Operating in Kenya · EAT</div>
                 </div>
             </div>
+
             <div class="brand-purpose">
                 <p>We exist to empower the African voice, Celebrate heritage, and build a future where every child of this soil stands tall. Through speaking, impactful writing, and community engagement, we ignite the dreamer within.</p>
             </div>
         </div>
     </section>
 
-    <!-- Activities organized in professional category sections -->
+    <!-- Activities Section -->
     <section class="activities-section" id="activities">
-        <!-- 1. Community Section -->
-        <div class="category-section" data-category="community">
-            <div class="category-header">
-                <i class="fas fa-users"></i>
-                <h2>Community</h2>
-                <span>6 activities</span>
-            </div>
-            <div class="activities-grid">
-                <div class="activity-card"><img src="https://i.postimg.cc/kgcRrtMJ/MUG(20).gif" alt="Eye of Mugera" class="card-image" loading="lazy"><div class="card-content"><h3>Eye of Mugera</h3><p>Weekly articles, insights and real life empowering stories.</p><a href="eye-of-mugera.html" class="card-link">Read & get featured <i class="fas fa-arrow-right"></i></a></div></div>
-                <div class="activity-card"><img src="https://i.postimg.cc/gkrZZKp0/MUG(26).gif" alt="Inspired.Me" class="card-image" loading="lazy"><div class="card-content"><h3>Inspired.Me</h3><p>Physical · Mental · Social · Financial — A premium holistic program.</p><a href="inspire-program.html" class="card-link">Begin transformation <i class="fas fa-arrow-right"></i></a></div></div>
-                <div class="activity-card"><img src="https://i.postimg.cc/Dfr2Y3wT/MUG(21).gif" alt="Voice Central" class="card-image" loading="lazy"><div class="card-content"><h3>Voice Central</h3><p>Impactful speaking and engaging conversations fueling the African Renaissance.</p><a href="mugera.html" class="card-link">Visit page <i class="fas fa-arrow-right"></i></a></div></div>
-                <div class="activity-card"><img src="https://i.postimg.cc/tRvbY3D5/MUG(24).gif" alt="SonGa" class="card-image" loading="lazy"><div class="card-content"><h3>SonGa Community</h3><p>Fellowship dedicated to family building and responsibility.</p><a href="songa.html" class="card-link">Enter SonGa <i class="fas fa-arrow-right"></i></a></div></div>
-                <div class="activity-card"><img src="https://i.postimg.cc/DyQVxpSq/MUG(17).gif" alt="Educare" class="card-image" loading="lazy"><div class="card-content"><h3>Educare</h3><p>Dedicated tutoring sessions and activities.</p><a href="educare.html" class="card-link">Check us out <i class="fas fa-arrow-right"></i></a></div></div>
-                <div class="activity-card"><img src="https://i.postimg.cc/fWxRmKfz/MUG(16).gif" alt="WorkFit" class="card-image" loading="lazy"><div class="card-content"><h3>WorkFit Club</h3><p>Fitness club, sports activities, personal wellness.</p><a href="workfit-club.html" class="card-link">Check us out <i class="fas fa-arrow-right"></i></a></div></div>
-            </div>
+        <div class="section-header"><h2>Explore the Camp</h2><p>Discover the pillars of I AM MUGERA — each crafted to inspire and uplift.</p></div>
+        <div class="activities-grid">
+            <div class="activity-card"><img src="https://i.postimg.cc/kgcRrtMJ/MUG(20).gif" alt="Eye of Mugera" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="far fa-newspaper"></i> Weekly Journals</span><h3>EOM Journal</h3><p>Weekly articles, Insights and Real life empowering stories. Read exclusively or get featured.</p><a href="eye-of-mugera.html" class="card-link">Read & get featured <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/gkrZZKp0/MUG(26).gif" alt="Inspired.Me" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge inspired-badge"><i class="fas fa-seedling"></i> Whole Person</span><h3>Inspired.Me</h3><p>Physical · Mental · Social · Financial — A premium holistic program to transform every dimension of your life.</p><a href="inspire-program.html" class="card-link">Begin transformation <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/2yQXFfhb/MUG(25).gif" alt="Tour Series" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="fas fa-globe-africa"></i> Coming Soon</span><h3>Tembea Series</h3><p>Explore the cultures of all African countries and across the world. A journey through heritage, stories, and spirit.</p><a href="#" onclick="showElegantMessage('🌍 Tour Series is launching soon. Be the first to explore!', 'info'); return false;" class="card-link">Notify Me <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/Dfr2Y3wT/MUG(21).gif" alt="Voice Central" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="fas fa-microphone-alt"></i> Conversations</span><h3>Voice Central</h3><p>Impactful speaking and engaging conversations fueling the African Renaissance.</p><a href="mugera.html" class="card-link">Visit page <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/mDcwVGfD/MUG(23).gif" alt="shop" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="fas fa-store"></i> Shop</span><h3>African Heritage Store</h3><p>Books, merchandise, and digital content that carry the spirit of Afrika Milele. Wear the pride, read the wisdom.</p><a href="shop.html" class="card-link">Browse store <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/rmgfKp9W/MUG(22).gif" alt="Afrika Milele" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="fas fa-heart"></i> Movement</span><h3>Afrika Milele</h3><p>A grassroots movement to promote dignity and drive change. Join campaigns that uplift communities.</p><a href="Afrika.html" class="card-link">Get involved <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/tRvbY3D5/MUG(24).gif" alt="SonGa Community" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge songa-badge"><i class="fas fa-users"></i> Community</span><h3>SonGa Community</h3><p>Join the inner circle — a fellowship dedicated to family building, financial stability, and developing you into responsibility.</p><a href="songa.html" class="card-link">Enter SonGa <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/JnvG3fmK/MUG(27).gif" alt="FlexiKazi" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge songa-badge"><i class="fas fa-users"></i> Freelancing</span><h3>FlexiKazi</h3><p>Freelancing space for both employers and freelancers.</p><a href="flexikazi.html" class="card-link">Start Tasking <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/gJs30WjJ/MUG(15).gif.gif" alt="" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge songa-badge"><i class="fas fa-computer"></i> Programming</span><h3>Web Development</h3><p>We develop websites, apps, softwares and many more digital services.</p><a href="mugeradev.html" class="card-link">Check us out<i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/fWxRmKfz/MUG(16).gif" alt="Workfit" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge songa-badge"><i class="fas fa-gym"></i> Wellness</span><h3>WorkFit Club</h3><p>Fitness club, sports activities, personal welness.</p><a href="workfit-club.html" class="card-link">Check us out<i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/DyQVxpSq/MUG(17).gif" alt="Academy" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge songa-badge"><i class="fas fa-book"></i> Learning</span><h3>Educare</h3><p>Take part in our dedicated tutoring sessions and activities.</p><a href="educare.html" class="card-link">Check us out<i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/FHZZR8RQ/MUG(18).gif" alt="food" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge songa-badge"><i class="fas fa-food"></i> Food</span><h3>MUGS n DINES</h3><p>Enjoy you best African meals at the comfort of your home..</p><a href="mugs.html" class="card-link">Check us out<i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/hvtpx74W/MUG(28).gif" alt="Pick-Up Delivery" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge songa-badge"><i class="fas fa-truck"></i> Delivery</span><h3>Pick-Up</h3><p>Short distance delivery service — Fast, reliable pickup and drop-off within your neighborhood. Packages, groceries, documents.</p><a href="pickup.html" class="card-link">Request delivery <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/BnHcjC50/MUG(29).gif" alt="Pick-Me Rides" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge songa-badge"><i class="fas fa-car"></i> Travel</span><h3>Pick-Me</h3><p>Short distance travel service — Quick, affordable rides around town. Book a seat or a private trip. Safe and convenient.</p><a href="pickme.html" class="card-link">Book a ride <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/mr00ggBN/MUG(38).gif" alt="House of Groom" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge songa-badge"><i class="fas fa-cut"></i> Unisex Salon</span><h3>House of Groom</h3><p>Unisex hair and beauty services. Where style meets elegance. Pamper yourself with our premium grooming experiences.</p><a href="house-of-groom.html" class="card-link">Book appointment <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/Gp0BPvQR/MUG(34).gif" alt="Castle Bliss" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="fas fa-home"></i> Real Estate</span><h3>Castle Bliss</h3><p>Your trusted partner in real estate. Find your dream home or investment property with our expert guidance.</p><a href="castle-bliss.html" class="card-link">Explore properties <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/Bn3bXJQf/MUG(37).gif" alt="Latter Dimensions" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="fas fa-ship"></i> Shipping</span><h3>Latter Dimensions</h3><p>Last Mile Shipping solutions. Fast, reliable, and efficient delivery services for all your logistics needs.</p><a href="latter-dimensions.html" class="card-link">Ship with us <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/brG8FBy6/MUG(35).gif" alt="Latter Motive" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="fas fa-car"></i> Dealership</span><h3>Latter Motive</h3><p>Premium car dealership offering cars, bikes, trucks, choppers, and helicopters. Your premier destination for quality vehicles.</p><a href="latter-motive.html" class="card-link">View inventory <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/BQsMp1m3/MUG(31).gif" alt="M&R Brand" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="fas fa-tshirt"></i> Fashion</span><h3>M&R Brand</h3><p>Trendsetting fashion brand that celebrates African style and contemporary design. Wear the culture, own the look.</p><a href="mandr-brand.html" class="card-link">Shop collection <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/7YyQRRZy/MUG(30).gif" alt="Visha Apparel" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="fas fa-user-tie"></i> Formal Wear</span><h3>Visha Apparel</h3><p>Premium fashion brand focused on official dresscode. Elevate your professional wardrobe with our sophisticated collections.</p><a href="visha-apparel.html" class="card-link">Browse formal wear <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/ZRxy50pf/MUG(33).gif" alt="E - Nergy" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="fas fa-solar-panel"></i> Green Energy</span><h3>E - Nergy</h3><p>Sustainable green energy solutions for a brighter future. Solar, wind, and renewable energy systems for home and business.</p><a href="e-nergy.html" class="card-link">Go green <i class="fas fa-arrow-right"></i></a></div></div>
+        </div>    
         </div>
 
-        <!-- 2. African Heritage Section -->
-        <div class="category-section" data-category="heritage">
-            <div class="category-header">
-                <i class="fas fa-heart"></i>
-                <h2>African Heritage</h2>
-                <span>2 activities</span>
-            </div>
-            <div class="activities-grid">
-                <div class="activity-card"><img src="https://i.postimg.cc/rmgfKp9W/MUG(22).gif" alt="Afrika Milele" class="card-image" loading="lazy"><div class="card-content"><h3>Afrika Milele</h3><p>Movement to promote dignity and drive change.</p><a href="Afrika.html" class="card-link">Get involved <i class="fas fa-arrow-right"></i></a></div></div>
-                <div class="activity-card"><img src="https://i.postimg.cc/mDcwVGfD/MUG(23).gif" alt="African Heritage Collections" class="card-image" loading="lazy"><div class="card-content"><h3>African Heritage Collections</h3><p>Books, merchandise, digital content that carry the spirit of Afrika Milele.</p><a href="shop.html" class="card-link">Browse store <i class="fas fa-arrow-right"></i></a></div></div>
-            </div>
-        </div>
-
-        <!-- 3. Fashion And Beauty Section -->
-        <div class="category-section" data-category="fashion">
-            <div class="category-header">
-                <i class="fas fa-tshirt"></i>
-                <h2>Fashion & Beauty</h2>
-                <span>3 activities</span>
-            </div>
-            <div class="activities-grid">
-                <div class="activity-card"><img src="https://i.postimg.cc/7YyQRRZy/MUG(30).gif" alt="Visha Apparel" class="card-image" loading="lazy"><div class="card-content"><h3>Visha Apparel</h3><p>Premium fashion focused on official dresscode.</p><a href="visha-apparel.html" class="card-link">Browse formal wear <i class="fas fa-arrow-right"></i></a></div></div>
-                <div class="activity-card"><img src="https://i.postimg.cc/BQsMp1m3/MUG(31).gif" alt="M&R Brand" class="card-image" loading="lazy"><div class="card-content"><h3>M&R Brand</h3><p>Trendsetting fashion celebrating African style.</p><a href="mandr-brand.html" class="card-link">Shop collection <i class="fas fa-arrow-right"></i></a></div></div>
-                <div class="activity-card"><img src="https://i.postimg.cc/mr00ggBN/MUG(38).gif" alt="House of Groom" class="card-image" loading="lazy"><div class="card-content"><h3>House of Groom</h3><p>Unisex hair and beauty services. Where style meets elegance.</p><a href="house-of-groom.html" class="card-link">Book appointment <i class="fas fa-arrow-right"></i></a></div></div>
-            </div>
-        </div>
-
-        <!-- 4. Exposure and Leisure Section -->
-        <div class="category-section" data-category="leisure">
-            <div class="category-header">
-                <i class="fas fa-umbrella-beach"></i>
-                <h2>Exposure & Leisure</h2>
-                <span>2 activities</span>
-            </div>
-            <div class="activities-grid">
-                <div class="activity-card"><img src="https://i.postimg.cc/2yQXFfhb/MUG(25).gif" alt="Tembea Series" class="card-image" loading="lazy"><div class="card-content"><h3>Tembea Series</h3><p>Explore cultures of all African countries. Coming soon.</p><a href="#" onclick="showElegantMessage('🌍 Tour Series is launching soon.', 'info'); return false;" class="card-link">Notify Me <i class="fas fa-arrow-right"></i></a></div></div>
-                <div class="activity-card"><img src="https://i.postimg.cc/FHZZR8RQ/MUG(18).gif" alt="Mugs and Dines" class="card-image" loading="lazy"><div class="card-content"><h3>Mugs and Dines</h3><p>Enjoy your best African meals at the comfort of your home.</p><a href="mugs.html" class="card-link">Check us out <i class="fas fa-arrow-right"></i></a></div></div>
-            </div>
-        </div>
-
-        <!-- 5. Transport and Travel Section -->
-        <div class="category-section" data-category="transport">
-            <div class="category-header">
-                <i class="fas fa-truck"></i>
-                <h2>Transport & Travel</h2>
-                <span>3 activities</span>
-            </div>
-            <div class="activities-grid">
-                <div class="activity-card"><img src="https://i.postimg.cc/hvtpx74W/MUG(28).gif" alt="Pick-me Pick-up" class="card-image" loading="lazy"><div class="card-content"><h3>Pick-me Pick-up</h3><p>Short distance delivery service — Fast, reliable pickup and drop-off.</p><a href="pickup.html" class="card-link">Request delivery <i class="fas fa-arrow-right"></i></a></div></div>
-                <div class="activity-card"><img src="https://i.postimg.cc/BnHcjC50/MUG(29).gif" alt="Latter Dimensions" class="card-image" loading="lazy"><div class="card-content"><h3>Latter Dimensions</h3><p>Last Mile Shipping solutions. Fast, reliable delivery.</p><a href="latter-dimensions.html" class="card-link">Ship with us <i class="fas fa-arrow-right"></i></a></div></div>
-                <div class="activity-card"><img src="https://i.postimg.cc/brG8FBy6/MUG(35).gif" alt="Latter Motive" class="card-image" loading="lazy"><div class="card-content"><h3>Latter Motive</h3><p>Premium car dealership offering cars, bikes, trucks, choppers.</p><a href="latter-motive.html" class="card-link">View inventory <i class="fas fa-arrow-right"></i></a></div></div>
-            </div>
-        </div>
-
-        <!-- 6. Environment Section -->
-        <div class="category-section" data-category="environment">
-            <div class="category-header">
-                <i class="fas fa-leaf"></i>
-                <h2>Environment</h2>
-                <span>1 activity</span>
-            </div>
-            <div class="activities-grid">
-                <div class="activity-card"><img src="https://i.postimg.cc/ZRxy50pf/MUG(33).gif" alt="E-Nergy" class="card-image" loading="lazy"><div class="card-content"><h3>E-Nergy</h3><p>Sustainable green energy solutions for a brighter future.</p><a href="e-nergy.html" class="card-link">Go green <i class="fas fa-arrow-right"></i></a></div></div>
-            </div>
-        </div>
-
-        <!-- 7. Real Estate Section -->
-        <div class="category-section" data-category="realestate">
-            <div class="category-header">
-                <i class="fas fa-home"></i>
-                <h2>Real Estate</h2>
-                <span>1 activity</span>
-            </div>
-            <div class="activities-grid">
-                <div class="activity-card"><img src="https://i.postimg.cc/Gp0BPvQR/MUG(34).gif" alt="Castle Bliss" class="card-image" loading="lazy"><div class="card-content"><h3>Castle Bliss</h3><p>Your trusted partner in real estate. Find your dream home.</p><a href="castle-bliss.html" class="card-link">Explore properties <i class="fas fa-arrow-right"></i></a></div></div>
-            </div>
-        </div>
-
-        <!-- 8. Technology Section -->
-        <div class="category-section" data-category="technology">
-            <div class="category-header">
-                <i class="fas fa-microchip"></i>
-                <h2>Technology</h2>
-                <span>2 activities</span>
-            </div>
-            <div class="activities-grid">
-                <div class="activity-card"><img src="https://i.postimg.cc/gJs30WjJ/MUG(15).gif.gif" alt="Web Dev" class="card-image" loading="lazy"><div class="card-content"><h3>Web Development</h3><p>Websites, apps, software and many more digital services.</p><a href="mugeradev.html" class="card-link">Check us out <i class="fas fa-arrow-right"></i></a></div></div>
-                <div class="activity-card"><img src="https://i.postimg.cc/JnvG3fmK/MUG(27).gif" alt="FlexiKazi" class="card-image" loading="lazy"><div class="card-content"><h3>FlexiKazi</h3><p>Freelancing space for both employers and freelancers.</p><a href="flexikazi.html" class="card-link">Start Tasking <i class="fas fa-arrow-right"></i></a></div></div>
-            </div>
         </div>
     </section>
 
@@ -1650,6 +2064,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
 
 <script>
     // Firebase Config
@@ -1663,28 +2078,236 @@
         appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
     };
     
-    let database, auth;
+    let database, auth, messaging;
+    
     try {
         firebase.initializeApp(firebaseConfig);
         database = firebase.database();
         auth = firebase.auth();
+        messaging = firebase.messaging();
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-    } catch (e) { console.error(e); }
+        console.log('Firebase initialized successfully');
+    } catch (e) { 
+        console.error('Firebase initialization error:', e); 
+    }
 
-    // ========== AUTH STATE ==========
+    // ========== PUSH NOTIFICATIONS ==========
+    async function initializeNotifications() {
+        try {
+            if (!('Notification' in window)) {
+                console.log('This browser does not support notifications');
+                return;
+            }
+
+            const permission = await Notification.requestPermission();
+            
+            if (permission === 'granted') {
+                console.log('Notification permission granted');
+                
+                try {
+                    const token = await messaging.getToken({
+                        vapidKey: 'BPtEuB4xDkM5dmjRVMvHW6oOwdqjUuYeTNoJdhlblVig5X2wHge_tclMAPId3RehWSyuK3_fVOTBK90LSlsoOtg'
+                    });
+                    
+                    console.log('FCM Token:', token);
+                    
+                    if (currentUser && database) {
+                        await database.ref(`users/${currentUser.uid}/fcmTokens/${token}`).set(true);
+                    }
+                    
+                    return token;
+                } catch (tokenError) {
+                    console.error('Error getting FCM token:', tokenError);
+                }
+            } else {
+                console.log('Notification permission denied');
+            }
+        } catch (error) {
+            console.error('Error in notification initialization:', error);
+        }
+    }
+
+    // Handle foreground messages
+    if (messaging) {
+        messaging.onMessage((payload) => {
+            console.log('Message received in foreground:', payload);
+            showElegantMessage(payload.notification?.body || 'New notification', 'info');
+        });
+    }
+
+    // ========== AUTH STATE MANAGEMENT ==========
     let currentUser = null;
-    auth.onAuthStateChanged((user) => {
+    
+    auth.onAuthStateChanged(async (user) => {
         currentUser = user;
+        
         if (user) {
+            // User is logged in - hide welcome popup, show content
             document.getElementById('welcomePopup').classList.add('hidden');
             document.getElementById('mainContent').classList.add('visible');
             updateUIForUser(user);
+            
+            // Initialize notifications for logged in user
+            await initializeNotifications();
         } else {
+            // User is logged out - show welcome popup, hide content
             document.getElementById('welcomePopup').classList.remove('hidden');
             document.getElementById('mainContent').classList.remove('visible');
             updateUIForUser(null);
         }
     });
+
+    // ========== MODAL FUNCTIONS ==========
+    window.closeAllModals = () => {
+        document.getElementById('authModal').classList.remove('active');
+        document.getElementById('modalOverlay').classList.remove('active');
+        document.body.style.overflow = '';
+    };
+    
+    window.openAuthModal = () => {
+        document.getElementById('authModal').classList.add('active');
+        document.getElementById('modalOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+    
+    window.switchAuthTab = (tab) => {
+        document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+        document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
+        document.getElementById('loginForm').classList.toggle('active', tab === 'login');
+        document.getElementById('signupForm').classList.toggle('active', tab === 'signup');
+    };
+
+    // ========== PASSWORD STRENGTH ==========
+    function setupPasswordStrength() {
+        const pwd = document.getElementById('signupPassword');
+        if (!pwd) return;
+        
+        pwd.addEventListener('input', function() {
+            const val = this.value;
+            const fill = document.getElementById('strengthFill');
+            const txt = document.getElementById('strengthText');
+            
+            if (!val) { 
+                fill.style.width = '0'; 
+                txt.textContent = 'Enter password'; 
+                return; 
+            }
+            
+            let strength = 0;
+            if (val.length >= 6) strength += 1;
+            if (val.length >= 8) strength += 1;
+            if (/[A-Z]/.test(val)) strength += 1;
+            if (/[0-9]/.test(val)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(val)) strength += 1;
+            
+            strength = Math.min(strength, 4);
+            fill.style.width = (strength / 4) * 100 + '%';
+            
+            const colors = ['#ef4444', '#f59e0b', '#f59e0b', '#10b981', '#10b981'];
+            fill.style.backgroundColor = colors[strength];
+            
+            const texts = ['Too weak', 'Weak', 'Fair', 'Good', 'Strong'];
+            txt.textContent = texts[strength];
+        });
+        
+        const conf = document.getElementById('signupConfirm');
+        if (conf) {
+            conf.addEventListener('input', function() {
+                const pwd = document.getElementById('signupPassword').value;
+                const matchDiv = document.getElementById('passwordMatch');
+                if (!this.value) matchDiv.innerHTML = '';
+                else if (pwd === this.value) matchDiv.innerHTML = '<span style="color:#10b981;"><i class="fas fa-check-circle"></i> Passwords match</span>';
+                else matchDiv.innerHTML = '<span style="color:#ef4444;"><i class="fas fa-exclamation-circle"></i> Passwords do not match</span>';
+            });
+        }
+    }
+
+    // ========== AUTH HANDLERS ==========
+    window.handleLogin = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const errorEl = document.getElementById('loginError');
+        
+        if (!email || !password) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = 'Please fill all fields';
+            return;
+        }
+        
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+            errorEl.style.display = 'none';
+            closeAllModals();
+            showElegantMessage('Login successful! Welcome back.', 'success');
+        } catch (err) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = err.message;
+        }
+    };
+    
+    window.handleSignup = async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('signupName').value.trim();
+        const email = document.getElementById('signupEmail').value.trim();
+        const password = document.getElementById('signupPassword').value;
+        const confirm = document.getElementById('signupConfirm').value;
+        const errorEl = document.getElementById('signupError');
+        const successEl = document.getElementById('signupSuccess');
+        
+        if (!name || !email || !password || !confirm) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = 'Please fill all fields';
+            return;
+        }
+        
+        if (password !== confirm) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = 'Passwords do not match';
+            return;
+        }
+        
+        if (password.length < 6) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = 'Password must be at least 6 characters';
+            return;
+        }
+        
+        try {
+            const cred = await auth.createUserWithEmailAndPassword(email, password);
+            await cred.user.updateProfile({ displayName: name });
+            
+            // Save user to database
+            if (database) {
+                await database.ref('users/' + cred.user.uid).set({
+                    name,
+                    email,
+                    createdAt: Date.now()
+                });
+            }
+            
+            errorEl.style.display = 'none';
+            successEl.style.display = 'block';
+            successEl.textContent = 'Account created successfully!';
+            
+            setTimeout(() => {
+                closeAllModals();
+                showElegantMessage('Welcome to I AM MUGERA!', 'success');
+            }, 1500);
+        } catch (err) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = err.message;
+        }
+    };
+    
+    window.handleLogout = async () => {
+        try {
+            await auth.signOut();
+            showElegantMessage('Logged out successfully', 'success');
+        } catch (err) {
+            showElegantMessage(err.message, 'info');
+        }
+    };
 
     function updateUIForUser(user) {
         const desktopMenu = document.getElementById('userMenuDesktop');
@@ -1693,11 +2316,15 @@
         const panelIn = document.getElementById('panelLoggedIn');
         const panelAvatar = document.getElementById('panelAvatar');
         const panelName = document.getElementById('panelUserName');
+        const userNameSpan = document.getElementById('userDisplayNameDesktop');
+        const userAvatar = document.getElementById('userAvatarDesktop');
+        
         if (user) {
             let dn = user.displayName || user.email?.split('@')[0] || 'Mugera';
             dn = dn.charAt(0).toUpperCase() + dn.slice(1);
-            document.getElementById('userDisplayNameDesktop').textContent = dn;
-            document.getElementById('userAvatarDesktop').textContent = dn.charAt(0).toUpperCase();
+            
+            if (userNameSpan) userNameSpan.textContent = dn;
+            if (userAvatar) userAvatar.textContent = dn.charAt(0).toUpperCase();
             if (desktopMenu) desktopMenu.style.display = 'flex';
             if (desktopLogin) desktopLogin.style.display = 'none';
             if (panelOut) panelOut.style.display = 'none';
@@ -1712,155 +2339,212 @@
         }
     }
 
-    // ========== MODAL FUNCTIONS ==========
-    window.closeAllModals = () => {
-        document.getElementById('authModal').classList.remove('active');
-        document.getElementById('modalOverlay').classList.remove('active');
-        document.body.style.overflow = '';
-    };
-    window.openAuthModal = () => {
-        document.getElementById('authModal').classList.add('active');
-        document.getElementById('modalOverlay').classList.add('active');
-        document.body.style.overflow = 'hidden';
-    };
-    window.switchAuthTab = (tab) => {
-        document.getElementById('loginTab').classList.toggle('active', tab === 'login');
-        document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
-        document.getElementById('loginForm').classList.toggle('active', tab === 'login');
-        document.getElementById('signupForm').classList.toggle('active', tab === 'signup');
-    };
-    window.handleLogin = async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('loginEmail').value.trim();
-        const password = document.getElementById('loginPassword').value;
-        try {
-            await auth.signInWithEmailAndPassword(email, password);
-            closeAllModals();
-            showElegantMessage('Login successful!', 'success');
-        } catch (err) {
-            document.getElementById('loginError').style.display = 'block';
-            document.getElementById('loginError').textContent = err.message;
-        }
-    };
-    window.handleSignup = async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('signupName').value.trim();
-        const email = document.getElementById('signupEmail').value.trim();
-        const password = document.getElementById('signupPassword').value;
-        const confirm = document.getElementById('signupConfirm').value;
-        if (password !== confirm) {
-            document.getElementById('signupError').style.display = 'block';
-            document.getElementById('signupError').textContent = 'Passwords do not match';
-            return;
-        }
-        try {
-            const cred = await auth.createUserWithEmailAndPassword(email, password);
-            await cred.user.updateProfile({ displayName: name });
-            if (database) {
-                await database.ref('users/' + cred.user.uid).set({ name, email, createdAt: Date.now() });
-            }
-            document.getElementById('signupSuccess').style.display = 'block';
-            document.getElementById('signupSuccess').textContent = 'Account created!';
-            setTimeout(() => { closeAllModals(); showElegantMessage('Welcome!', 'success'); }, 1500);
-        } catch (err) {
-            document.getElementById('signupError').style.display = 'block';
-            document.getElementById('signupError').textContent = err.message;
-        }
-    };
-    window.handleLogout = async () => {
-        await auth.signOut();
-        showElegantMessage('Logged out', 'success');
-    };
+    // ========== UPDATED SEARCH DATABASE with Pick-Up and Pick-Me ==========
+        const searchDatabase = [
+            // Existing entries
+            { title: "Eye of Mugera", category: "Section", icon: "far fa-newspaper", keywords: ["news","newsletter","eye","mugera","weekly","insights"], url: "eye-of-mugera.html" },
+            { title: "Inspired.Me Program", category: "Section", icon: "fas fa-seedling", keywords: ["inspired","program","whole person","physical","mental","social","financial"], url: "inspire-program.html" },
+            { title: "Shop With Us", category: "Section", icon: "fas fa-store", keywords: ["shop","store","buy","merchandise","books","heritage", "African"], url: "shop.html" },
+            { title: "Partnerships", category: "Section", icon: "fas fa-handshake", keywords: ["partner","partnership","collaborate"], url: "payments.html" },
+            { title: "SonGa Community", category: "Section", icon: "fas fa-users", keywords: ["songa","community","family","collective","fellowship"], url: "songa.html" },
+            { title: "Voice Central", category: "Section", icon: "fas fa-microphone-alt", keywords: ["voice","central","conversations","renaissance"], url: "mugera.html" },
+            { title: "Afrika Milele Movement", category: "Section", icon: "fas fa-heart", keywords: ["afrika","milele","movement","grassroots","campaigns"], url: "Afrika.html" },
+            { title: "Tembea Series", category: "Coming Soon", icon: "fas fa-globe-africa", keywords: ["tour","travel","world","cultures","heritage"], url: "#", comingSoon: true },
+            { title: "FlexiKazi", category: "Section", icon: "fas fa-briefcase", keywords: ["freelance","freelancing","flexikazi","work","jobs","employers"], url: "flexikazi.html" },
+            { title: "Web Development", category: "Section", icon: "fas fa-code", keywords: ["web","development","software","apps","programming","digital"], url: "mugeradev.html" },
+            { title: "WorkFit Club", category: "Section", icon: "fas fa-dumbbell", keywords: ["fitness","wellness","gym","workout","sports","health"], url: "workfit-club.html" },
+            { title: "Educare", category: "Section", icon: "fas fa-graduation-cap", keywords: ["tutoring","learning","education","academy","lessons"], url: "educare.html" },
+            { title: "MUGS n DINES", category: "Section", icon: "fas fa-utensils", keywords: ["food","meals","african","restaurant","dining"], url: "mugs.html" },
+            { title: "Pick-Up Delivery",category: "Service",icon: "fas fa-truck",keywords: ["pickup", "pick up", "delivery", "courier", "parcel", "package", "short distance", "dropoff", "groceries", "documents"],url: "pickup.html"},
+            { title: "Pick-Me Rides",category: "Service",icon: "fas fa-car",keywords: ["pickme", "pick me", "ride", "travel", "transport", "taxi", "short distance", "trip", "carpool", "affordable rides"],url: "pickme.html"},
+            { title: "House of Groom", category: "Service", icon: "fas fa-cut", keywords: ["groom", "salon", "unisex", "hair", "beauty", "barber"], url: "house-of-groom.html" },
+            { title: "Castle Bliss", category: "Service", icon: "fas fa-home", keywords: ["real estate", "property", "home", "house", "investment", "castle bliss"], url: "castle-bliss.html" },
+            { title: "Latter Dimensions", category: "Service", icon: "fas fa-ship", keywords: ["shipping", "last mile", "logistics", "delivery", "courier", "cargo", "latter dimensions"], url: "latter-dimensions.html" },
+            { title: "Latter Motive", category: "Service", icon: "fas fa-car", keywords: ["dealership", "cars", "vehicles", "bikes", "trucks", "choppers", "helicopters", "latter motive", "auto"], url: "latter-motive.html" },
+            { title: "M&R Brand", category: "Service", icon: "fas fa-tshirt", keywords: ["fashion", "clothing", "brand", "apparel", "african fashion", "m&r"], url: "mandr-brand.html" },
+            { title: "Visha Apparel", category: "Service", icon: "fas fa-user-tie", keywords: ["apparel", "formal wear", "official dresscode", "professional", "suits", "visha"], url: "visha-apparel.html" },
+            { title: "E - Nergy", category: "Service", icon: "fas fa-solar-panel", keywords: ["green energy", "solar", "renewable", "sustainable", "power", "energy", "e-nergy"], url: "e-nergy.html" },
+        ];
 
-    // ========== SEARCH DATABASE ==========
-    const searchDatabase = [
-        { title: "Eye of Mugera", category: "community", url: "eye-of-mugera.html", keywords: ["eye","mugera","news"] },
-        { title: "Inspired.Me", category: "community", url: "inspire-program.html", keywords: ["inspired"] },
-        { title: "Voice Central", category: "community", url: "mugera.html", keywords: ["voice"] },
-        { title: "SonGa Community", category: "community", url: "songa.html", keywords: ["songa"] },
-        { title: "Educare", category: "community", url: "educare.html", keywords: ["educare","tutoring"] },
-        { title: "WorkFit Club", category: "community", url: "workfit-club.html", keywords: ["workfit","fitness"] },
-        { title: "Afrika Milele", category: "heritage", url: "Afrika.html", keywords: ["afrika","milele"] },
-        { title: "African Heritage Collections", category: "heritage", url: "shop.html", keywords: ["heritage","store","shop"] },
-        { title: "Visha Apparel", category: "fashion", url: "visha-apparel.html", keywords: ["visha","apparel"] },
-        { title: "M&R Brand", category: "fashion", url: "mandr-brand.html", keywords: ["mandr","brand"] },
-        { title: "House of Groom", category: "fashion", url: "house-of-groom.html", keywords: ["groom","salon"] },
-        { title: "Tembea Series", category: "leisure", url: "#", comingSoon: true, keywords: ["tembea","tour"] },
-        { title: "Mugs and Dines", category: "leisure", url: "mugs.html", keywords: ["mugs","dines","food"] },
-        { title: "Pick-me Pick-up", category: "transport", url: "pickup.html", keywords: ["pickup","delivery"] },
-        { title: "Latter Dimensions", category: "transport", url: "latter-dimensions.html", keywords: ["latter dimensions","shipping"] },
-        { title: "Latter Motive", category: "transport", url: "latter-motive.html", keywords: ["latter motive","dealership"] },
-        { title: "E-Nergy", category: "environment", url: "e-nergy.html", keywords: ["energy","solar"] },
-        { title: "Castle Bliss", category: "realestate", url: "castle-bliss.html", keywords: ["castle","bliss","real estate"] },
-        { title: "Web Development", category: "technology", url: "mugeradev.html", keywords: ["web","dev","development"] },
-        { title: "FlexiKazi", category: "technology", url: "flexikazi.html", keywords: ["flexikazi","freelance"] }
-    ];
+    function debounce(func, wait) { 
+        let timeout; 
+        return function(...args) { 
+            clearTimeout(timeout); 
+            timeout = setTimeout(() => func(...args), wait); 
+        }; 
+    }
 
-    window.performSearch = function(fromMobile = false) {
-        let category, query;
-        if (fromMobile) {
-            category = document.getElementById('mobileCategorySelect').value;
-            query = document.getElementById('mobileSearchInput').value.trim().toLowerCase();
-        } else {
-            category = document.getElementById('desktopCategorySelect').value;
-            query = document.getElementById('desktopSearchInput').value.trim().toLowerCase();
+    window.performSearch = function(query, fromHint = false) {
+        if (!query || query.trim() === '') { 
+            showElegantMessage('Please enter a search term', 'info'); 
+            return; 
         }
-        
-        if (!query) {
-            showElegantMessage('Please enter a search term', 'info');
-            return;
-        }
-        
-        let results = searchDatabase.filter(item => {
-            const matchesCategory = (category === 'all' || item.category === category);
-            const matchesQuery = item.title.toLowerCase().includes(query) || 
-                                item.keywords.some(k => k.includes(query));
-            return matchesCategory && matchesQuery;
-        });
+        query = query.toLowerCase().trim();
+        const results = searchDatabase.filter(item => {
+            if (item.title.toLowerCase().includes(query)) return true;
+            if (item.keywords && item.keywords.some(k => k.includes(query))) return true;
+            return false;
+        }).slice(0, 5);
         
         if (results.length > 0) {
             if (results[0].url && results[0].url !== '#') {
                 showElegantMessage(`🔍 Found: ${results[0].title}`, 'success');
-                setTimeout(() => { window.location.href = results[0].url; }, 800);
-            } else if (results[0].comingSoon) {
-                showElegantMessage(`✨ ${results[0].title} is coming soon!`, 'info');
-            } else {
-                showElegantMessage(`Found ${results.length} result(s)`, 'success');
+                if (!fromHint) setTimeout(() => { window.location.href = results[0].url; }, 800);
+            } else if (results[0].comingSoon) { 
+                showElegantMessage(`✨ ${results[0].title} is coming soon!`, 'info'); 
+            } else { 
+                showElegantMessage(`Found ${results.length} results for "${query}"`, 'success'); 
             }
-        } else {
-            showElegantMessage(`No results found in this category`, 'info');
+        } else { 
+            showElegantMessage(`No results found for "${query}"`, 'info'); 
         }
     };
 
-    // ========== HOURS STATUS ==========
+    function generateHints(query, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        if (!query || query.trim().length < 2) { 
+            container.classList.remove('show'); 
+            container.innerHTML = ''; 
+            return; 
+        }
+        query = query.toLowerCase().trim();
+        const matches = searchDatabase.filter(item => {
+            if (item.title.toLowerCase().includes(query)) return true;
+            if (item.keywords && item.keywords.some(k => k.includes(query))) return true;
+            return false;
+        }).slice(0, 5);
+        
+        if (matches.length === 0) { 
+            container.classList.remove('show'); 
+            container.innerHTML = ''; 
+            return; 
+        }
+        
+        let html = '';
+        matches.forEach(match => {
+            const url = match.url || '#';
+            const comingSoon = match.comingSoon || false;
+            html += `<div class="hint-item" onclick="selectHint('${match.title.replace(/'/g, "\\'")}', '${url}', ${comingSoon})"><i class="${match.icon}"></i><span>${match.title}</span><span class="hint-category">${match.category}</span></div>`;
+        });
+        container.innerHTML = html;
+        container.classList.add('show');
+    }
+
+    window.selectHint = function(title, url, comingSoon) {
+        if (comingSoon || url === '#') { 
+            showElegantMessage(`✨ ${title} is coming soon!`, 'info'); 
+        } else { 
+            window.location.href = url; 
+        }
+        document.getElementById('desktopSearchHints')?.classList.remove('show');
+        document.getElementById('mobileSearchHints')?.classList.remove('show');
+        document.getElementById('desktopSearchInput').value = title;
+        document.getElementById('mobileSearchInput').value = title;
+        toggleMobileSearch();
+    };
+
+    const debouncedDesktopHints = debounce(function() { 
+        generateHints(document.getElementById('desktopSearchInput').value, 'desktopSearchHints'); 
+    }, 200);
+    
+    const debouncedMobileHints = debounce(function() { 
+        generateHints(document.getElementById('mobileSearchInput').value, 'mobileSearchHints'); 
+    }, 200);
+
+    function setupSearchListeners() {
+        const desktopInput = document.getElementById('desktopSearchInput');
+        const mobileInput = document.getElementById('mobileSearchInput');
+        
+        if (desktopInput) {
+            desktopInput.addEventListener('input', debouncedDesktopHints);
+            desktopInput.addEventListener('keypress', function(e) { 
+                if (e.key === 'Enter') { 
+                    performSearch(this.value); 
+                    document.getElementById('desktopSearchHints').classList.remove('show'); 
+                } 
+            });
+            document.addEventListener('click', function(e) { 
+                const container = document.getElementById('desktopSearchContainer'); 
+                if (container && !container.contains(e.target)) { 
+                    document.getElementById('desktopSearchHints')?.classList.remove('show'); 
+                } 
+            });
+        }
+        
+        if (mobileInput) {
+            mobileInput.addEventListener('input', debouncedMobileHints);
+            mobileInput.addEventListener('keypress', function(e) { 
+                if (e.key === 'Enter') { 
+                    performSearch(this.value); 
+                    document.getElementById('mobileSearchHints').classList.remove('show'); 
+                    toggleMobileSearch(); 
+                } 
+            });
+        }
+    }
+
+    // ========== HOURS STATUS UPDATE ==========
     function updateHoursStatus() {
         const dayNameEl = document.getElementById('currentDayName');
         const statusTextEl = document.getElementById('statusText');
         const statusIcon = document.getElementById('statusIcon');
-        if (!dayNameEl || !statusTextEl) return;
+        if (!dayNameEl || !statusTextEl || !statusIcon) return;
+
         const now = new Date();
+        const formatter = new Intl.DateTimeFormat('en-KE', { 
+            timeZone: 'Africa/Nairobi', 
+            weekday: 'long', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            hour12: false, 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit' 
+        });
+        
+        const parts = formatter.formatToParts(now);
+        const getVal = (type) => { 
+            const p = parts.find(p => p.type === type); 
+            return p ? p.value : ''; 
+        };
+        
+        const year = getVal('year'), month = getVal('month'), day = getVal('day');
+        const hour = parseInt(getVal('hour'), 10) || 0, minute = parseInt(getVal('minute'), 10) || 0;
+        const currentHourMin = hour + minute / 60;
         const nairobiDay = new Intl.DateTimeFormat('en-KE', { timeZone: 'Africa/Nairobi', weekday: 'long' }).format(now);
+        const dayLower = nairobiDay.toLowerCase();
         dayNameEl.textContent = nairobiDay;
-        const hour = now.getUTCHours() + 3;
+
+        const kenyanHolidays = ['2025-01-01','2025-04-18','2025-04-21','2025-05-01','2025-06-01','2025-10-10','2025-10-20','2025-12-12','2025-12-25','2025-12-26'];
+        const todayKey = `${year}-${month}-${day}`;
+        const isPublicHoliday = kenyanHolidays.includes(todayKey);
+
         let status = '', statusClass = '';
-        if (nairobiDay === 'Sunday') { status = 'Closed'; statusClass = 'status-closed'; }
-        else if (hour >= 8 && hour < 17) { status = 'Open'; statusClass = 'status-open'; }
-        else if (hour >= 17 && hour < 18) { status = 'Closing Soon'; statusClass = 'status-closing'; }
-        else if (hour < 8) { status = 'Opening Soon'; statusClass = 'status-soon'; }
-        else { status = 'Closed'; statusClass = 'status-closed'; }
+        let openHour = 8.5, closeHour = 17.5;
+        if (dayLower === 'saturday') { openHour = 9; closeHour = 17; }
+        else if (dayLower === 'sunday') { openHour = null; closeHour = null; }
+
+        if (isPublicHoliday || dayLower === 'sunday') {
+            status = isPublicHoliday ? 'Public Holiday' : 'Closed';
+            statusClass = 'status-closed';
+        } else {
+            if (currentHourMin < openHour - 0.5) { status = 'Opening Soon'; statusClass = 'status-soon'; }
+            else if (currentHourMin >= openHour && currentHourMin < closeHour - 1) { status = 'Open'; statusClass = 'status-open'; }
+            else if (currentHourMin >= closeHour - 1 && currentHourMin < closeHour) { status = 'Closing Soon'; statusClass = 'status-closing'; }
+            else if (currentHourMin >= closeHour) { status = 'Closed'; statusClass = 'status-closed'; }
+            else { status = 'Opening Soon'; statusClass = 'status-soon'; }
+        }
         statusTextEl.textContent = status;
         statusIcon.className = `fas fa-circle ${statusClass}`;
     }
-    window.openHoursModal = () => document.getElementById('hoursModal').classList.add('show');
-    window.closeHoursModal = () => document.getElementById('hoursModal').classList.remove('show');
 
-    // ========== TOAST ==========
-    window.showElegantMessage = function(text, type = 'info') {
-        const toast = document.getElementById('elegantToast');
-        document.getElementById('toastMessage').textContent = text;
-        toast.className = 'message-toast ' + type;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 4000);
+    window.openHoursModal = function() { 
+        document.getElementById('hoursModal').classList.add('show'); 
+    };
+    
+    window.closeHoursModal = function() { 
+        document.getElementById('hoursModal').classList.remove('show'); 
     };
 
     // ========== LOADING ANIMATION ==========
@@ -1869,22 +2553,80 @@
         const animatedSpan = document.getElementById('animatedText');
         const fullText = "Afrika Milele";
         let index = 0;
+        animatedSpan.textContent = '';
+        
         function typeNext() {
             if (index < fullText.length) {
                 animatedSpan.textContent += fullText.charAt(index);
                 index++;
-                setTimeout(typeNext, 120);
+                setTimeout(typeNext, fullText.charAt(index-1) === ' ' ? 280 : 120);
             } else {
-                setTimeout(() => { overlay.classList.add('hidden'); }, 1300);
+                setTimeout(() => { 
+                    overlay.classList.add('hidden'); 
+                }, 1300);
             }
         }
         setTimeout(typeNext, 400);
-        setTimeout(() => { if (!overlay.classList.contains('hidden')) overlay.classList.add('hidden'); }, 7000);
+        setTimeout(() => { 
+            if (!overlay.classList.contains('hidden')) { 
+                overlay.classList.add('hidden'); 
+            } 
+        }, 7000);
     })();
 
+    // ========== TOAST ==========
+    window.showElegantMessage = function(text, type = 'info') {
+        const toast = document.getElementById('elegantToast');
+        document.getElementById('toastMessage').textContent = text;
+        toast.className = 'message-toast ' + type;
+        if (type === 'info') toast.querySelector('i').className = 'fas fa-globe-africa';
+        else if (type === 'success') toast.querySelector('i').className = 'fas fa-check-circle';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 4000);
+    };
+
+    // ========== NAVIGATION ==========
+    window.navigateToEyeOfMugera = function() { 
+        if (currentUser) window.location.href = 'eye-of-mugera.html'; 
+        else openAuthModal();
+    };
+    
+    window.navigateToInspiredMe = function() { 
+        if (currentUser) window.location.href = 'inspire-program.html'; 
+        else openAuthModal();
+    };
+    
+    window.navigateToShop = function() { 
+        if (currentUser) window.location.href = 'shop.html'; 
+        else openAuthModal();
+    };
+    
+    window.navigateToPartnerships = function() { 
+        if (currentUser) window.location.href = 'payments.html'; 
+        else openAuthModal();
+    };
+    
+    window.navigateToSonGaPage = function() { 
+        if (currentUser) window.location.href = 'songa.html'; 
+        else openAuthModal();
+    };
+    
+    window.navigateToSection = function(section) { 
+        if (currentUser) document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' }); 
+        else openAuthModal();
+    };
+
     // ========== MOBILE TOGGLES ==========
-    window.toggleHamburger = () => document.getElementById('hamburgerPanel').classList.toggle('open');
-    window.toggleMobileSearch = () => document.getElementById('mobileSearchOverlay').classList.toggle('open');
+    window.toggleHamburger = function() { 
+        document.getElementById('hamburgerPanel').classList.toggle('open'); 
+    };
+    
+    window.toggleMobileSearch = function() {
+        const o = document.getElementById('mobileSearchOverlay');
+        o.classList.toggle('open');
+        if (!o.classList.contains('open')) document.getElementById('mobileSearchHints').classList.remove('show');
+    };
+    
     document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
     document.getElementById('mobileSearchBtn')?.addEventListener('click', toggleMobileSearch);
 
@@ -1900,6 +2642,7 @@
             localStorage.setItem('siteTheme','dark'); 
         }
     };
+    
     (function initTheme() { 
         if (localStorage.getItem('siteTheme') === 'light') { 
             document.body.classList.add('light-theme'); 
@@ -1907,22 +2650,91 @@
         } 
     })();
 
-    // ========== QUICK NAV ==========
-    window.quickNav = function(url) {
-        if (currentUser) window.location.href = url;
-        else openAuthModal();
-    };
-
     // ========== PWA INSTALL ==========
     let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('installButton').classList.add('show'); });
+    window.addEventListener('beforeinstallprompt', (e) => { 
+        e.preventDefault(); 
+        deferredPrompt = e; 
+        document.getElementById('installButton').classList.add('show'); 
+    });
+    
     document.getElementById('installButton')?.addEventListener('click', async () => {
         document.getElementById('installButton').classList.remove('show');
-        if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; }
+        if (deferredPrompt) { 
+            deferredPrompt.prompt(); 
+            await deferredPrompt.userChoice; 
+            deferredPrompt = null; 
+        }
     });
 
-    // ========== INIT ==========
+    // ========== SERVICE WORKER REGISTRATION ==========
+    // Replace your current service worker registration with this improved version
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            // Use updateViaCache: 'none' to always fetch fresh service worker
+            navigator.serviceWorker.register('/service-worker.js', {
+                updateViaCache: 'none' // Critical for updates! [citation:3]
+            })
+            .then(registration => {
+                console.log('Service Worker registered with scope:', registration);
+                
+                // Check for updates every time page loads
+                registration.update();
+                
+                // Listen for new service worker
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    console.log('New service worker found');
+                    
+                    newWorker.addEventListener('statechange', () => {
+                        console.log('Service worker state:', newWorker.state);
+                        
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            // New version available!
+                            showUpdateNotification();
+                        }
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Service Worker registration failed:', error);
+            });
+            
+            // Handle controller change (when new SW takes over)
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                console.log('New service worker activated, reloading...');
+                window.location.reload();
+            });
+        });
+    }
+
+    // ========== UPDATE NOTIFICATION ==========
+    window.showUpdateNotification = function() {
+        const notification = document.createElement('div');
+        notification.className = 'update-notification';
+        notification.innerHTML = `
+            <div class="update-content">
+                <i class="fas fa-sync-alt"></i>
+                <span>New version available!</span>
+                <button onclick="updateToNewVersion()" class="update-btn">Update</button>
+                <button onclick="this.parentElement.parentElement.remove()" class="update-close">&times;</button>
+            </div>
+        `;
+        document.body.appendChild(notification);
+    };
+
+    window.updateToNewVersion = function() {
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
+        } else {
+            window.location.reload();
+        }
+    };
+
+    // ========== INITIALIZATION ==========
     document.addEventListener('DOMContentLoaded', function() {
+        setupSearchListeners();
+        setupPasswordStrength();
         updateHoursStatus();
         setInterval(updateHoursStatus, 60000);
     });
