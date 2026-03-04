@@ -16,7 +16,7 @@
     <meta name="msapplication-TileColor" content="#ca8a04">
     
     <!-- Version & Build -->
-    <meta name="version" content="6.1.0">
+    <meta name="version" content="7.0.0">
     <meta name="build-date" content="2025-03-06">
     
     <!-- Fonts & Icons -->
@@ -83,6 +83,9 @@
             --like-color: #f91880;
             --dislike-color: #6b7280;
             --resolved-badge: #10b981;
+            --mention-bg: rgba(202,138,4,0.2);
+            --search-match-bg: rgba(202,138,4,0.3);
+            --mention-suggest-bg: #2a2a2a;
         }
 
         body.light-theme {
@@ -108,6 +111,7 @@
             --gradient-end: rgba(255,255,255,0.5);
             --post-bg: #f0f0f0;
             --hover-bg: #e5e5e5;
+            --mention-suggest-bg: #ffffff;
         }
 
         body {
@@ -244,12 +248,93 @@
             .mobile-header-group { display:flex; } 
         }
 
-        /* ----- SOCIAL FEED WITH COLLAPSIBLE POSTS ----- */
+        /* ----- SOCIAL FEED WITH SEARCH & MENTIONS ----- */
         .social-container {
             max-width: 800px;
             margin: 2rem auto;
             padding: 0 1rem;
         }
+
+        /* Advanced Search Panel */
+        .search-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--gold);
+        }
+        .search-row {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+            min-width: 250px;
+        }
+        .search-input-wrapper i {
+            position: absolute;
+            left: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gold);
+        }
+        .search-input-wrapper input {
+            width: 100%;
+            padding: 0.9rem 1rem 0.9rem 2.8rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 40px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+        }
+        .search-input-wrapper input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(202,138,4,0.2);
+        }
+        .search-filters {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .search-filter-select {
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 40px;
+            padding: 0.6rem 1.2rem;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .search-filter-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .search-filter-checkbox input {
+            accent-color: var(--gold);
+        }
+        .search-stats {
+            margin-top: 0.8rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .clear-search {
+            color: var(--gold);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
         .compose-tweet {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
@@ -352,6 +437,10 @@
             background: var(--card-bg);
             border: 2px solid var(--gold);
         }
+        .post-card.search-match {
+            border-left: 6px solid var(--gold);
+            background: var(--search-match-bg);
+        }
         .post-header {
             display: flex;
             align-items: center;
@@ -438,6 +527,13 @@
         .expanded .post-content-full {
             display: block;
         }
+        .highlight-match {
+            background: var(--gold);
+            color: black;
+            padding: 0.1rem 0.3rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
         .post-stats {
             display: flex;
             align-items: center;
@@ -509,15 +605,27 @@
             font-size: 0.9rem;
             word-break: break-word;
         }
+        .reply-text .mention {
+            background: var(--mention-bg);
+            color: var(--gold);
+            padding: 0.1rem 0.3rem;
+            border-radius: 12px;
+            font-weight: 500;
+        }
         .reply-form {
+            position: relative;
             display: flex;
             gap: 0.5rem;
             margin-top: 1rem;
             flex-wrap: wrap;
         }
-        .reply-form input {
+        .reply-input-wrapper {
             flex: 1;
+            position: relative;
             min-width: 200px;
+        }
+        .reply-input-wrapper input {
+            width: 100%;
             background: var(--input-bg);
             border: 1px solid var(--border-light);
             border-radius: 40px;
@@ -525,8 +633,43 @@
             color: var(--text-primary);
             outline: none;
         }
-        .reply-form input:focus {
+        .reply-input-wrapper input:focus {
             border-color: var(--gold);
+        }
+        .mention-suggestions {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            background: var(--mention-suggest-bg);
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            margin-bottom: 0.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+        }
+        .mention-suggestions.show {
+            display: block;
+        }
+        .mention-item {
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .mention-item:hover {
+            background: var(--gold);
+            color: black;
+        }
+        .mention-item i {
+            color: var(--gold);
+        }
+        .mention-item:hover i {
+            color: black;
         }
         .reply-form button {
             background: var(--gold);
@@ -536,12 +679,14 @@
             font-weight: 600;
             color: black;
             cursor: pointer;
+            white-space: nowrap;
         }
         .admin-controls {
             display: flex;
             gap: 0.5rem;
             margin-top: 1rem;
             margin-left: 3rem;
+            flex-wrap: wrap;
         }
         .resolve-btn {
             background: var(--success);
@@ -593,8 +738,8 @@
             <img src="https://i.postimg.cc/T10385m6/20260304-0949-Image-Generation-remix-01kjvspyrkf078efwbh09qxkag-1.webp" alt="I AM MUGERA" class="site-logo">
             <div class="header-desktop-actions">
                 <div class="desktop-search">
-                    <input type="text" placeholder="Search discussions..." id="desktopSearch" autocomplete="off">
-                    <button onclick="searchPosts()"><i class="fas fa-search"></i></button>
+                    <input type="text" placeholder="Quick search..." id="quickSearch" autocomplete="off">
+                    <button onclick="focusAdvancedSearch()"><i class="fas fa-search"></i></button>
                 </div>
                 <div id="userMenuDesktop" class="user-menu" style="display: none;">
                     <span class="user-name" id="userDisplayNameDesktop"></span>
@@ -616,7 +761,7 @@
     <div class="search-overlay" id="mobileSearchOverlay" style="position:fixed; top:0; left:0; width:100%; background:var(--nav-bg); backdrop-filter:blur(20px); padding:1rem; z-index:2400; transform:translateY(-100%); transition:0.3s; border-bottom:2px solid var(--gold);">
         <div style="display:flex; gap:0.5rem;">
             <input type="text" id="mobileSearchInput" placeholder="Search discussions..." style="flex:1; padding:1rem; background:var(--bg-secondary); border:2px solid var(--gold); border-radius:50px; color:var(--text-primary);">
-            <button onclick="searchMobile()" style="background:var(--gold); border:none; width:60px; border-radius:50%; color:black;"><i class="fas fa-search"></i></button>
+            <button onclick="performMobileSearch()" style="background:var(--gold); border:none; width:60px; border-radius:50%; color:black;"><i class="fas fa-search"></i></button>
             <button onclick="toggleMobileSearch()" style="background:transparent; border:none; color:var(--text-muted); font-size:2rem;"><i class="fas fa-times"></i></button>
         </div>
     </div>
@@ -653,13 +798,48 @@
 
     <!-- MAIN SOCIAL FEED -->
     <div class="social-container">
+        <!-- Advanced Search Panel -->
+        <div class="search-panel">
+            <div class="search-row">
+                <div class="search-input-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search posts, questions, or keywords..." value="">
+                </div>
+                <button class="post-btn" onclick="performSearch()" style="padding: 0.8rem 1.5rem;"><i class="fas fa-search"></i> Search</button>
+            </div>
+            <div class="search-filters">
+                <select id="searchServiceFilter" class="search-filter-select">
+                    <option value="all">All services</option>
+                    <option value="general">💬 General</option>
+                    <option value="eye-of-mugera">👁️ Eye of Mugera</option>
+                    <option value="inspired-me">🌱 Inspired.Me</option>
+                    <option value="heritage-shop">🛒 Shop</option>
+                    <option value="workfit">🏋️ WorkFit</option>
+                    <option value="webdev">💻 Dev</option>
+                    <option value="partnership">🤝 Partnership</option>
+                </select>
+                <select id="searchTypeFilter" class="search-filter-select">
+                    <option value="all">All content</option>
+                    <option value="posts">Posts only</option>
+                    <option value="replies">Replies only</option>
+                </select>
+                <label class="search-filter-checkbox">
+                    <input type="checkbox" id="searchResolvedOnly"> Resolved only
+                </label>
+            </div>
+            <div class="search-stats" id="searchStats" style="display: none;">
+                <span id="searchResultsCount"></span>
+                <span class="clear-search" onclick="clearSearch()">Clear search</span>
+            </div>
+        </div>
+
         <!-- compose box -->
         <div class="compose-tweet">
             <div class="compose-header">
                 <h2><i class="fas fa-feather-alt"></i> Start a discussion</h2>
             </div>
             <div class="compose-input">
-                <textarea id="composeText" placeholder="Ask about a service, share insights..."></textarea>
+                <textarea id="composeText" placeholder="Ask about a service, share insights... (Use @ to mention someone)"></textarea>
             </div>
             <div class="post-actions">
                 <select id="composeService" class="service-selector">
@@ -707,8 +887,15 @@
         let currentUser = null;
         let isAdmin = false;
         let allPosts = [];
+        let allUsers = []; // for mentions
         let currentFilter = 'all';
         let expandedPostId = null;
+        let currentSearchQuery = '';
+        let currentSearchService = 'all';
+        let currentSearchType = 'all';
+        let currentSearchResolved = false;
+        let activeMentionInput = null;
+        let mentionTimeout = null;
 
         // Auth observer
         auth.onAuthStateChanged(user => {
@@ -735,6 +922,7 @@
                     isAdmin = false;
                 }
                 loadPosts();
+                loadUsers();
             } else {
                 document.getElementById('composeAuthWarning').style.display = 'block';
                 document.getElementById('postTrigger').disabled = true;
@@ -746,6 +934,21 @@
                 document.getElementById('feedContainer').innerHTML = '<div class="empty-feed">🔒 Please log in to see discussions</div>';
             }
         });
+
+        // Load all users for mentions
+        function loadUsers() {
+            const usersRef = database.ref('users');
+            usersRef.once('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    allUsers = Object.keys(data).map(key => ({
+                        uid: key,
+                        name: data[key].name || data[key].email?.split('@')[0] || 'User',
+                        email: data[key].email
+                    }));
+                }
+            });
+        }
 
         // Load posts
         function loadPosts() {
@@ -760,12 +963,219 @@
                 }
                 posts.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
                 allPosts = posts;
-                renderFeed();
+                if (currentSearchQuery) {
+                    performSearch();
+                } else {
+                    renderFeed();
+                }
             });
         }
 
-        // Render feed
+        // Search function
+        window.performSearch = function() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const service = document.getElementById('searchServiceFilter').value;
+            const type = document.getElementById('searchTypeFilter').value;
+            const resolvedOnly = document.getElementById('searchResolvedOnly').checked;
+
+            currentSearchQuery = query;
+            currentSearchService = service;
+            currentSearchType = type;
+            currentSearchResolved = resolvedOnly;
+
+            if (!query && service === 'all' && !resolvedOnly) {
+                clearSearch();
+                return;
+            }
+
+            let results = [];
+            const searchRegex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+
+            allPosts.forEach(post => {
+                // Filter by service
+                if (service !== 'all' && post.service !== service) return;
+                
+                // Filter by resolved
+                if (resolvedOnly && !post.resolved) return;
+
+                let matchFound = false;
+                let matchedText = '';
+
+                // Search in post
+                if (type === 'all' || type === 'posts') {
+                    if (query === '' || (post.text && post.text.toLowerCase().includes(query))) {
+                        matchFound = true;
+                        matchedText = post.text;
+                    }
+                }
+
+                // Search in replies
+                if (type === 'all' || type === 'replies') {
+                    if (post.replies) {
+                        Object.values(post.replies).forEach(reply => {
+                            if (reply.text && reply.text.toLowerCase().includes(query)) {
+                                matchFound = true;
+                                matchedText = reply.text;
+                            }
+                        });
+                    }
+                }
+
+                if (matchFound || query === '') {
+                    results.push({ ...post, matchHighlight: matchedText });
+                }
+            });
+
+            // Show search stats
+            document.getElementById('searchStats').style.display = 'flex';
+            document.getElementById('searchResultsCount').textContent = `Found ${results.length} results`;
+
+            // Render search results
+            renderSearchResults(results, query);
+        };
+
+        // Render search results with highlighting
+        function renderSearchResults(results, query) {
+            const container = document.getElementById('feedContainer');
+            if (!currentUser) return;
+
+            if (results.length === 0) {
+                container.innerHTML = '<div class="empty-feed">🔍 No matches found. Try different keywords.</div>';
+                return;
+            }
+
+            let html = '';
+            results.forEach(post => {
+                const isExpanded = expandedPostId === post.id;
+                const postTime = post.timestamp ? new Date(post.timestamp).toLocaleString('en-KE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
+                const authorName = post.authorName || 'Anonymous';
+                const authorHandle = post.authorEmail ? '@' + post.authorEmail.split('@')[0] : '@user';
+                const serviceDisplay = {
+                    'general':'💬 General','eye-of-mugera':'👁️ Eye','inspired-me':'🌱 Inspired',
+                    'heritage-shop':'🛒 Shop','workfit':'🏋️ WorkFit','webdev':'💻 Dev','partnership':'🤝 Partner'
+                }[post.service] || post.service;
+
+                // Highlight matching text
+                let displayText = post.text;
+                if (query && post.text) {
+                    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                    displayText = post.text.replace(regex, '<span class="highlight-match">$1</span>');
+                }
+
+                // Count likes/dislikes
+                const likes = post.likes ? Object.keys(post.likes).length : 0;
+                const dislikes = post.dislikes ? Object.keys(post.dislikes).length : 0;
+                
+                // Check if current user liked/disliked
+                const userLiked = currentUser && post.likes && post.likes[currentUser.uid];
+                const userDisliked = currentUser && post.dislikes && post.dislikes[currentUser.uid];
+
+                html += `
+                    <div class="post-card search-match ${isExpanded ? 'expanded' : ''}" id="post-${post.id}" onclick="togglePost('${post.id}', event)">
+                        <div class="post-header">
+                            <div class="post-avatar">${authorName.charAt(0)}</div>
+                            <div class="post-author-info">
+                                <span class="post-author-name">${escapeHtml(authorName)} ${post.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''} ${post.resolved ? '<span class="resolved-badge"><i class="fas fa-check-circle"></i> Resolved</span>' : ''}</span>
+                                <span class="post-author-handle">${escapeHtml(authorHandle)}</span>
+                            </div>
+                            <span class="post-service-tag">${serviceDisplay}</span>
+                        </div>
+                        
+                        <div class="post-preview">${displayText}</div>
+                        
+                        <div class="post-content-full">${displayText}</div>
+                        
+                        <div class="post-stats" onclick="event.stopPropagation()">
+                            <span class="post-stat ${userLiked ? 'liked' : ''}" onclick="handleLike('${post.id}', event)">
+                                <i class="fas fa-heart"></i> ${likes}
+                            </span>
+                            <span class="post-stat ${userDisliked ? 'disliked' : ''}" onclick="handleDislike('${post.id}', event)">
+                                <i class="fas fa-thumbs-down"></i> ${dislikes}
+                            </span>
+                            <span class="post-stat">
+                                <i class="fas fa-comment"></i> ${post.replies ? Object.keys(post.replies).length : 0}
+                            </span>
+                        </div>
+                        
+                        <div class="expanded-content" onclick="event.stopPropagation()">
+                            ${renderReplies(post)}
+                            
+                            <div class="reply-form">
+                                <div class="reply-input-wrapper">
+                                    <input type="text" id="replyInput-${post.id}" placeholder="Write a reply... (Use @ to mention)" onkeydown="handleReplyKeydown(event, '${post.id}')" oninput="checkMention(this, '${post.id}')">
+                                    <div class="mention-suggestions" id="mentionSuggest-${post.id}"></div>
+                                </div>
+                                <button onclick="postReply('${post.id}', event)"><i class="fas fa-reply"></i> Reply</button>
+                            </div>
+                            
+                            ${renderAdminControls(post)}
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Helper to render replies
+        function renderReplies(post) {
+            if (!post.replies) return '';
+            let repliesHtml = '<div class="replies-section">';
+            const replyIds = Object.keys(post.replies).sort((a,b) => post.replies[a].timestamp - post.replies[b].timestamp);
+            replyIds.forEach(rid => {
+                const rep = post.replies[rid];
+                const repTime = rep.timestamp ? new Date(rep.timestamp).toLocaleString('en-KE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
+                
+                // Parse mentions in reply text
+                let replyText = escapeHtml(rep.text);
+                replyText = replyText.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
+                
+                repliesHtml += `
+                    <div class="reply-item">
+                        <div class="reply-header">
+                            <span class="reply-author">${escapeHtml(rep.authorName || 'User')}</span>
+                            ${rep.isAdmin ? '<span class="reply-admin-badge">ADMIN</span>' : ''}
+                            <span class="reply-time">${repTime}</span>
+                            ${ (currentUser?.uid === rep.userId || isAdmin) ? `<span class="delete-btn" onclick="deleteReply('${post.id}','${rid}', event)"><i class="fas fa-trash-alt"></i></span>` : '' }
+                        </div>
+                        <div class="reply-text">${replyText}</div>
+                    </div>
+                `;
+            });
+            repliesHtml += '</div>';
+            return repliesHtml;
+        }
+
+        // Helper to render admin controls
+        function renderAdminControls(post) {
+            let controls = '';
+            if (isAdmin) {
+                controls += `
+                    <div class="admin-controls">
+                        ${!post.resolved ? `
+                            <button class="resolve-btn" onclick="markResolved('${post.id}', event)">
+                                <i class="fas fa-check-circle"></i> Mark resolved
+                            </button>
+                        ` : ''}
+                        <button class="delete-btn" onclick="deletePost('${post.id}', event)">
+                            <i class="fas fa-trash-alt"></i> Delete post
+                        </button>
+                    </div>
+                `;
+            } else if (currentUser?.uid === post.userId) {
+                controls += `
+                    <div class="admin-controls">
+                        <button class="delete-btn" onclick="deletePost('${post.id}', event)">
+                            <i class="fas fa-trash-alt"></i> Delete my post
+                        </button>
+                    </div>
+                `;
+            }
+            return controls;
+        }
+
+        // Regular render (non-search)
         function renderFeed() {
+            if (currentSearchQuery) return;
             const container = document.getElementById('feedContainer');
             if (!currentUser) return;
 
@@ -790,34 +1200,10 @@
                     'heritage-shop':'🛒 Shop','workfit':'🏋️ WorkFit','webdev':'💻 Dev','partnership':'🤝 Partner'
                 }[post.service] || post.service;
 
-                // Count likes/dislikes
                 const likes = post.likes ? Object.keys(post.likes).length : 0;
                 const dislikes = post.dislikes ? Object.keys(post.dislikes).length : 0;
-                
-                // Check if current user liked/disliked
                 const userLiked = currentUser && post.likes && post.likes[currentUser.uid];
                 const userDisliked = currentUser && post.dislikes && post.dislikes[currentUser.uid];
-
-                // Replies
-                let repliesHtml = '';
-                if (post.replies) {
-                    const replyIds = Object.keys(post.replies).sort((a,b) => post.replies[a].timestamp - post.replies[b].timestamp);
-                    replyIds.forEach(rid => {
-                        const rep = post.replies[rid];
-                        const repTime = rep.timestamp ? new Date(rep.timestamp).toLocaleString('en-KE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
-                        repliesHtml += `
-                            <div class="reply-item">
-                                <div class="reply-header">
-                                    <span class="reply-author">${escapeHtml(rep.authorName || 'User')}</span>
-                                    ${rep.isAdmin ? '<span class="reply-admin-badge">ADMIN</span>' : ''}
-                                    <span class="reply-time">${repTime}</span>
-                                    ${ (currentUser?.uid === rep.userId || isAdmin) ? `<span class="delete-btn" onclick="deleteReply('${post.id}','${rid}', event)"><i class="fas fa-trash-alt"></i></span>` : '' }
-                                </div>
-                                <div class="reply-text">${escapeHtml(rep.text)}</div>
-                            </div>
-                        `;
-                    });
-                }
 
                 html += `
                     <div class="post-card ${isExpanded ? 'expanded' : ''}" id="post-${post.id}" onclick="togglePost('${post.id}', event)">
@@ -830,10 +1216,8 @@
                             <span class="post-service-tag">${serviceDisplay}</span>
                         </div>
                         
-                        <!-- preview (collapsed) -->
                         <div class="post-preview">${escapeHtml(post.text)}</div>
                         
-                        <!-- full content (expanded) -->
                         <div class="post-content-full">${escapeHtml(post.text)}</div>
                         
                         <div class="post-stats" onclick="event.stopPropagation()">
@@ -848,37 +1232,18 @@
                             </span>
                         </div>
                         
-                        <!-- expanded content (replies, reply form, admin controls) -->
                         <div class="expanded-content" onclick="event.stopPropagation()">
-                            <div class="replies-section" id="replies-${post.id}">
-                                ${repliesHtml}
-                            </div>
+                            ${renderReplies(post)}
                             
                             <div class="reply-form">
-                                <input type="text" id="replyInput-${post.id}" placeholder="Write a reply..." onclick="event.stopPropagation()">
+                                <div class="reply-input-wrapper">
+                                    <input type="text" id="replyInput-${post.id}" placeholder="Write a reply... (Use @ to mention)" onkeydown="handleReplyKeydown(event, '${post.id}')" oninput="checkMention(this, '${post.id}')">
+                                    <div class="mention-suggestions" id="mentionSuggest-${post.id}"></div>
+                                </div>
                                 <button onclick="postReply('${post.id}', event)"><i class="fas fa-reply"></i> Reply</button>
                             </div>
                             
-                            ${isAdmin ? `
-                                <div class="admin-controls">
-                                    ${!post.resolved ? `
-                                        <button class="resolve-btn" onclick="markResolved('${post.id}', event)">
-                                            <i class="fas fa-check-circle"></i> Mark resolved
-                                        </button>
-                                    ` : ''}
-                                    <button class="delete-btn" onclick="deletePost('${post.id}', event)">
-                                        <i class="fas fa-trash-alt"></i> Delete post
-                                    </button>
-                                </div>
-                            ` : ''}
-                            
-                            ${currentUser?.uid === post.userId && !isAdmin ? `
-                                <div class="admin-controls">
-                                    <button class="delete-btn" onclick="deletePost('${post.id}', event)">
-                                        <i class="fas fa-trash-alt"></i> Delete my post
-                                    </button>
-                                </div>
-                            ` : ''}
+                            ${renderAdminControls(post)}
                         </div>
                     </div>
                 `;
@@ -886,13 +1251,114 @@
             container.innerHTML = html;
         }
 
+        // Check for @ mentions
+        window.checkMention = function(input, postId) {
+            const text = input.value;
+            const cursorPos = input.selectionStart;
+            const beforeCursor = text.substring(0, cursorPos);
+            
+            // Find last @ symbol before cursor
+            const atIndex = beforeCursor.lastIndexOf('@');
+            if (atIndex !== -1 && (atIndex === 0 || beforeCursor[atIndex - 1] === ' ')) {
+                const searchTerm = beforeCursor.substring(atIndex + 1).toLowerCase();
+                
+                // Filter users
+                const matches = allUsers.filter(user => 
+                    user.name.toLowerCase().includes(searchTerm) && user.uid !== currentUser?.uid
+                ).slice(0, 5);
+
+                if (matches.length > 0) {
+                    showMentions(input, postId, matches, atIndex, cursorPos);
+                } else {
+                    hideMentions(postId);
+                }
+            } else {
+                hideMentions(postId);
+            }
+        };
+
+        // Show mention suggestions
+        function showMentions(input, postId, users, atIndex, cursorPos) {
+            const suggestDiv = document.getElementById(`mentionSuggest-${postId}`);
+            if (!suggestDiv) return;
+
+            let html = '';
+            users.forEach(user => {
+                html += `<div class="mention-item" onclick="insertMention('${postId}', '${user.name}', ${atIndex}, ${cursorPos})">
+                    <i class="fas fa-user"></i> ${escapeHtml(user.name)}
+                </div>`;
+            });
+            suggestDiv.innerHTML = html;
+            suggestDiv.classList.add('show');
+            
+            // Store active mention context
+            activeMentionInput = {
+                input: input,
+                postId: postId,
+                atIndex: atIndex,
+                cursorPos: cursorPos
+            };
+        }
+
+        // Insert selected mention
+        window.insertMention = function(postId, username, atIndex, cursorPos) {
+            const input = document.getElementById(`replyInput-${postId}`);
+            if (!input) return;
+
+            const currentText = input.value;
+            const beforeMention = currentText.substring(0, atIndex);
+            const afterMention = currentText.substring(cursorPos);
+            
+            input.value = beforeMention + '@' + username + ' ' + afterMention;
+            
+            hideMentions(postId);
+            input.focus();
+        };
+
+        // Hide mention suggestions
+        function hideMentions(postId) {
+            const suggestDiv = document.getElementById(`mentionSuggest-${postId}`);
+            if (suggestDiv) {
+                suggestDiv.classList.remove('show');
+            }
+            activeMentionInput = null;
+        }
+
+        // Handle Enter key in reply input
+        window.handleReplyKeydown = function(event, postId) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                postReply(postId, event);
+            }
+        };
+
+        // Handle Enter in compose
+        document.getElementById('composeText')?.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                createPost();
+            }
+        });
+
+        // Handle Enter in search
+        document.getElementById('searchInput')?.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                performSearch();
+            }
+        });
+
         // Toggle post expansion
         window.togglePost = function(postId, event) {
-            if (event.target.closest('.post-stat') || event.target.closest('.reply-form') || event.target.closest('.admin-controls') || event.target.closest('.delete-btn') || event.target.closest('.resolve-btn')) {
+            if (event.target.closest('.post-stat') || event.target.closest('.reply-form') || event.target.closest('.admin-controls') || event.target.closest('.delete-btn') || event.target.closest('.resolve-btn') || event.target.closest('.mention-item')) {
                 return;
             }
             expandedPostId = expandedPostId === postId ? null : postId;
-            renderFeed();
+            if (currentSearchQuery) {
+                performSearch();
+            } else {
+                renderFeed();
+            }
         };
 
         // Create post
@@ -969,23 +1435,28 @@
             const text = input.value.trim();
             if (!text) return;
 
+            // Parse mentions to create notifications (simplified)
+            const mentions = text.match(/@(\w+)/g) || [];
+            
             const replyData = {
                 userId: currentUser.uid,
                 authorName: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
                 text: text,
                 timestamp: Date.now(),
-                isAdmin: isAdmin
+                isAdmin: isAdmin,
+                mentions: mentions.map(m => m.substring(1)) // Store mentioned usernames
             };
             try {
                 await database.ref(`socialPosts/${postId}/replies`).push(replyData);
                 input.value = '';
+                hideMentions(postId);
                 showToast('Reply posted', 'success');
             } catch (err) {
                 showToast('Reply failed', 'error');
             }
         };
 
-        // Mark as resolved (admin only)
+        // Mark as resolved
         window.markResolved = async function(postId, event) {
             event.stopPropagation();
             if (!isAdmin) return;
@@ -1023,45 +1494,39 @@
             }
         };
 
+        // Clear search
+        window.clearSearch = function() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('searchServiceFilter').value = 'all';
+            document.getElementById('searchTypeFilter').value = 'all';
+            document.getElementById('searchResolvedOnly').checked = false;
+            document.getElementById('searchStats').style.display = 'none';
+            currentSearchQuery = '';
+            renderFeed();
+        };
+
+        // Focus advanced search from quick search
+        window.focusAdvancedSearch = function() {
+            const quickQuery = document.getElementById('quickSearch').value;
+            document.getElementById('searchInput').value = quickQuery;
+            document.getElementById('searchInput').focus();
+            performSearch();
+        };
+
+        // Mobile search
+        window.performMobileSearch = function() {
+            const query = document.getElementById('mobileSearchInput').value;
+            document.getElementById('searchInput').value = query;
+            performSearch();
+            toggleMobileSearch();
+        };
+
         // Filter by service
         window.filterService = function(service) {
             currentFilter = service;
             expandedPostId = null;
+            clearSearch();
             renderFeed();
-        };
-
-        // Search
-        window.searchPosts = function() {
-            const query = document.getElementById('desktopSearch').value.toLowerCase();
-            if (!query) {
-                renderFeed();
-                return;
-            }
-            const filtered = allPosts.filter(p => 
-                p.text.toLowerCase().includes(query) || 
-                (p.service && p.service.toLowerCase().includes(query))
-            );
-            // Temporarily show filtered results
-            const container = document.getElementById('feedContainer');
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-feed">🔍 No results found</div>';
-            } else {
-                // Quick render without changing master filter
-                let html = '';
-                filtered.forEach(post => {
-                    // Simplified render for search results
-                    html += `<div class="post-card" onclick="window.location.href='#post-${post.id}'">${escapeHtml(post.text.substring(0,100))}...</div>`;
-                });
-                container.innerHTML = html;
-            }
-            showToast('Search completed', 'info');
-        };
-
-        window.searchMobile = function() {
-            const query = document.getElementById('mobileSearchInput').value;
-            document.getElementById('desktopSearch').value = query;
-            searchPosts();
-            toggleMobileSearch();
         };
 
         // Utility
@@ -1120,6 +1585,15 @@
         document.getElementById('installButton')?.addEventListener('click', async () => {
             document.getElementById('installButton').classList.remove('show');
             if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; }
+        });
+
+        // Click outside to hide mentions
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.reply-input-wrapper')) {
+                document.querySelectorAll('.mention-suggestions').forEach(el => {
+                    el.classList.remove('show');
+                });
+            }
         });
     </script>
 </body>
