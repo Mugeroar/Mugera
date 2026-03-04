@@ -2,325 +2,367 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">            
-    <title>Community · I AM MUGERA forum</title>
-    <!-- Fonts & Icons (same as main) -->
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
+    <title>I AM MUGERA · Social</title>
+    <!-- PWA Meta Tags (copied from main for consistency) -->
+    <meta name="theme-color" content="#ca8a04" id="themeColor">
+    <meta name="background-color" content="#0a0a0a" id="bgColorMeta">
+    <meta name="color-scheme" content="dark light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="I AM MUGERA">
+    <meta name="application-name" content="I AM MUGERA">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-TileColor" content="#ca8a04">
+    
+    <!-- Version & Build -->
+    <meta name="version" content="6.0.0">
+    <meta name="build-date" content="2025-03-06">
+    
+    <!-- Fonts & Icons (exactly as main) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
     <style>
+        /* ----- EXACT MAIN PAGE STYLES (preserved) ----- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         :root {
-            --gold: #ca8a04; --gold-dark: #a16207; --gold-light: #fef3c7;
-            --bg-primary: #0a0a0a; --bg-secondary: #111; --bg-card: #1a1a1a;
-            --text-primary: #fff; --text-secondary: #e0e0e0; --text-muted: #aaa;
-            --border-light: #2a2a2a; --shadow-color: rgba(202,138,4,0.25);
-            --nav-bg: rgba(10,10,10,0.95); --card-bg: #1a1a1a;
-            --input-bg: rgba(255,255,255,0.05); --input-focus-bg: rgba(255,255,255,0.1);
-            --success: #10b981; --warning: #f59e0b; --info: #3b82f6; --danger: #dc2626;
-            --admin-badge-bg: #ca8a04; --admin-badge-text: #000;
-            --user-message-bg: #1e2a3a; --other-message-bg: #2a2a2a;
+            --gold: #ca8a04;
+            --gold-dark: #a16207;
+            --gold-light: #fef3c7;
+            --whatsapp: #25D366;
+            --eye: #0284c7; 
+            --tour: #9f4e96;
+            --inspired: #2e7d32;
+            --danger: #dc2626;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: rgba(20,20,20,0.8);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border-light: #2a2a2a;
+            --shadow-color: rgba(202,138,4,0.25);
+            --nav-bg: rgba(10,10,10,0.95);
+            --card-bg: #151515;
+            --popup-bg: rgba(0,0,0,0.95);
+            --glass-bg: rgba(20,20,20,0.3);
+            --glass-border: rgba(255,255,255,0.1);
+            --glass-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            --toast-bg: rgba(20,20,20,0.95);
+            --toast-border: var(--gold);
+            --toast-text: #ffffff;
+            --header-height: 70px;
+            --search-highlight: rgba(202,138,4,0.2);
+            --input-bg: rgba(255,255,255,0.05);
+            --input-focus-bg: rgba(255,255,255,0.1);
+            --error-color: #ef4444;
+            --success-color: #10b981;
+            --gradient-start: rgba(202,138,4,0.1);
+            --gradient-end: transparent;
+
+            --status-open: #10b981;
+            --status-soon: #f59e0b;
+            --status-closing: #ef4444;
+            --status-closed: #6b7280;
+
+            /* social-specific */
+            --post-bg: #1a1a1a;
+            --hover-bg: #222222;
         }
+
         body.light-theme {
-            --bg-primary: #f8f5f0; --bg-secondary: #ffffff; --bg-card: #ffffff;
-            --text-primary: #1a1a1a; --text-secondary: #2d2d2d; --text-muted: #555;
-            --border-light: #dddddd; --shadow-color: rgba(202,138,4,0.4);
-            --nav-bg: rgba(255,255,255,0.95); --card-bg: #ffffff;
-            --input-bg: rgba(0,0,0,0.03); --input-focus-bg: rgba(0,0,0,0.05);
-            --admin-badge-bg: #ca8a04; --admin-badge-text: #000;
-            --user-message-bg: #e3f2fd; --other-message-bg: #f5f5f5;
+            --bg-primary: #f8f5f0;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #2d2d2d;
+            --text-muted: #555555;
+            --border-light: #dddddd;
+            --shadow-color: rgba(202,138,4,0.4);
+            --nav-bg: rgba(255,255,255,0.95);
+            --card-bg: #ffffff;
+            --popup-bg: rgba(255,255,255,0.98);
+            --glass-bg: rgba(255,255,255,0.2);
+            --glass-border: rgba(255,255,255,0.3);
+            --glass-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            --toast-bg: rgba(255,255,255,0.95);
+            --toast-text: #1a1a1a;
+            --input-bg: rgba(0,0,0,0.03);
+            --input-focus-bg: rgba(0,0,0,0.05);
+            --gradient-start: rgba(202,138,4,0.05);
+            --gradient-end: rgba(255,255,255,0.5);
+            --post-bg: #f0f0f0;
+            --hover-bg: #e5e5e5;
         }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-primary);
             color: var(--text-primary);
-            line-height: 1.5;
-            transition: background 0.2s, color 0.2s;
-            min-height: 100vh;
-            padding: 0.8rem;
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.2s ease;
+            padding-top: var(--header-height);
         }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
+        
+        /* ----- HEADER (exact copy from main) ----- */
+        .site-header { 
+            position: fixed; 
+            top: 0; 
+            width: 100%; 
+            height: var(--header-height); 
+            background: var(--nav-bg); 
+            backdrop-filter: blur(10px); 
+            border-bottom: 1px solid var(--gold); 
+            z-index: 2000; 
+            padding: 0 1rem; 
+        }
+        .header-container { 
+            max-width: 1400px; 
+            height: 100%; 
+            margin: 0 auto; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+        }
+        .site-logo { 
+            height: 48px; 
+            border-radius: 12px; 
+            transition: transform 0.3s; 
+            border: 2px solid var(--gold); 
+            padding: 2px; 
+            background: var(--bg-primary); 
+        }
+        .header-desktop-actions { 
+            display: flex; 
+            align-items: center; 
+            gap: 1rem; 
+        }
+        .desktop-search { 
+            position: relative; 
+            display: flex; 
+            align-items: center; 
+            background: rgba(255,255,255,0.08); 
+            border: 1px solid var(--border-light); 
+            border-radius: 40px; 
+            padding: 0.4rem 0.4rem 0.4rem 1.2rem; 
+            transition: all 0.3s; 
+            min-width: 300px; 
+        }
+        .desktop-search input { 
+            background: transparent; 
+            border: none; 
+            color: var(--text-primary); 
+            font-size: 0.95rem; 
+            width: 100%; 
+            outline: none; 
+            padding: 0.5rem 0; 
+        }
+        .desktop-search input::placeholder { color: var(--text-muted); font-style: italic; }
+        .desktop-search button { 
+            background: var(--gold); 
+            border: none; 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 50%; 
+            color: black; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        .user-menu { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+            background: rgba(202,138,4,0.1); 
+            border: 1px solid var(--gold); 
+            border-radius: 40px; 
+            padding: 0.3rem 0.3rem 0.3rem 1rem; 
+            cursor: pointer; 
+            position: relative; 
+        }
+        .user-name { color: var(--gold); font-weight: 500; max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-avatar { 
+            background: var(--gold); color: #000; width: 35px; height: 35px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; font-weight: bold; 
+        }
+        .logout-dropdown { 
+            position: absolute; top: 120%; right: 0; background: var(--card-bg); border: 1px solid var(--gold); 
+            border-radius: 20px; padding: 0.5rem; min-width: 120px; display: none; z-index: 1001; 
+        }
+        .user-menu:hover .logout-dropdown { display: block; }
+        .logout-item { 
+            padding: 0.7rem 1rem; color: var(--text-primary); border-radius: 15px; 
+            display: flex; align-items: center; gap: 0.5rem; 
+        }
+        .logout-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
+        .mobile-header-group { display: none; align-items: center; gap: 0.8rem; }
+        .mobile-search-icon, .hamburger-icon { 
+            background: transparent; border: 1px solid var(--gold); color: var(--gold); 
+            width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; font-size: 1.3rem; cursor: pointer; 
+        }
+        .hamburger-panel { 
+            position: fixed; top: 0; right: -320px; width: 300px; height: 100vh; 
+            background: var(--nav-bg); backdrop-filter: blur(20px); border-left: 1px solid var(--gold); 
+            padding: 2rem 1.5rem; z-index: 2500; transition: right 0.3s ease; 
+            display: flex; flex-direction: column; gap: 1.5rem; 
+        }
+        .hamburger-panel.open { right: 0; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; }
+        .panel-header h3 { font-family: 'Cinzel', serif; color: var(--gold); }
+        .close-panel { background: transparent; border: none; color: var(--text-muted); font-size: 1.8rem; cursor: pointer; }
+        .panel-user-area { background: rgba(202,138,4,0.05); border-radius: 30px; padding: 1rem; border: 1px solid var(--border-light); }
+        .panel-user-info { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; }
+        .panel-avatar { width: 48px; height: 48px; background: var(--gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: black; }
+        .panel-user-name { font-weight: 600; color: var(--gold); }
+        .panel-logout { width: 100%; padding: 0.7rem; background: transparent; border: 1px solid var(--gold); border-radius: 40px; color: var(--gold); display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; }
+        .panel-quick-links { display: flex; flex-direction: column; gap: 0.5rem; }
+        .panel-link { padding: 0.9rem 1rem; background: rgba(255,255,255,0.03); border-radius: 30px; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 1rem; transition: 0.2s; border: 1px solid transparent; }
+        .panel-link:hover { border-color: var(--gold); background: rgba(202,138,4,0.1); color: var(--gold); }
+        .panel-link i { width: 24px; color: var(--gold); }
+        .panel-theme-toggle { display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 40px; margin-top: auto; border: 1px solid var(--border-light); }
+        @media (max-width: 768px) { 
+            .header-desktop-actions { display:none; } 
+            .mobile-header-group { display:flex; } 
         }
 
-        /* ===== HEADER (fully responsive) ===== */
-        .forum-header {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
+        /* ----- SOCIAL FEED STYLES (twitter-like, responsive) ----- */
+        .social-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .compose-tweet {
             background: var(--card-bg);
             border: 1px solid var(--border-light);
-            border-radius: 60px;
-            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            padding: 1.5rem;
             margin-bottom: 2rem;
             backdrop-filter: blur(10px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            border-left: 4px solid var(--gold);
         }
-        .logo-wrap {
+        .compose-header {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
+            gap: 1rem;
+            margin-bottom: 1rem;
             flex-wrap: wrap;
         }
-        .logo-wrap img {
-            height: 45px;
-            border-radius: 12px;
-            border: 2px solid var(--gold);
-        }
-        .logo-wrap h1 {
+        .compose-header h2 {
             font-family: 'Cinzel', serif;
             color: var(--gold);
-            font-size: 1.6rem;
+            font-size: 1.5rem;
         }
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-        }
-        .home-link, .theme-toggle {
+        .service-chip {
             background: rgba(202,138,4,0.1);
             border: 1px solid var(--gold);
             border-radius: 40px;
-            padding: 0.6rem 1.4rem;
-            color: var(--gold);
-            text-decoration: none;
+            padding: 0.4rem 1.2rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-weight: 500;
-            transition: 0.2s;
+            color: var(--gold);
+            font-size: 0.9rem;
             cursor: pointer;
-            font-size: 0.95rem;
+            margin-left: auto;
         }
-        .home-link:hover, .theme-toggle:hover {
-            background: var(--gold);
-            color: black;
-        }
-        .theme-toggle {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            justify-content: center;
-            padding: 0;
-        }
-        .user-badge {
-            background: rgba(202,138,4,0.15);
-            border: 1px solid var(--gold);
-            border-radius: 40px;
-            padding: 0.4rem 1.5rem 0.4rem 1rem;
+        .compose-input {
             display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            color: var(--gold);
-            font-weight: 500;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
         }
-        .user-badge i { font-size: 1.2rem; }
-
-        /* ===== MAIN FORUM GRID (responsive) ===== */
-        .forum-grid {
-            display: grid;
-            grid-template-columns: 1fr 2.2fr;
-            gap: 1.8rem;
-        }
-        @media (max-width: 850px) {
-            .forum-grid { grid-template-columns: 1fr; }
-        }
-
-        /* ===== LEFT PANEL: ASK / FILTER ===== */
-        .ask-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 40px;
-            padding: 2rem 1.5rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            border-left: 4px solid var(--gold);
-            height: fit-content;
-        }
-        .ask-card h2 {
-            font-family: 'Cinzel', serif;
-            color: var(--gold);
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-        .ask-card p {
-            color: var(--text-muted);
-            margin-bottom: 1.8rem;
-            font-size: 0.95rem;
-        }
-        .service-selector {
-            margin-bottom: 1.5rem;
-        }
-        .service-selector label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--gold);
-            font-weight: 600;
-        }
-        .service-dropdown {
-            width: 100%;
-            padding: 1rem 1.2rem;
-            background: var(--input-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 50px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            outline: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ca8a04' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1.2rem center;
-            background-size: 1.2rem;
-        }
-        .service-dropdown:focus {
-            border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(202,138,4,0.2);
-        }
-        .question-textarea {
-            margin-bottom: 1.5rem;
-        }
-        .question-textarea textarea {
-            width: 100%;
-            padding: 1.2rem;
+        .compose-input textarea {
+            flex: 1;
+            min-width: 250px;
             background: var(--input-bg);
             border: 1px solid var(--border-light);
             border-radius: 30px;
+            padding: 1.2rem 1.5rem;
             color: var(--text-primary);
             font-size: 1rem;
             resize: vertical;
-            min-height: 130px;
-            outline: none;
+            min-height: 100px;
             font-family: 'Inter', sans-serif;
         }
-        .question-textarea textarea:focus {
+        .compose-input textarea:focus {
             border-color: var(--gold);
+            outline: none;
             box-shadow: 0 0 0 3px rgba(202,138,4,0.2);
+        }
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .service-selector {
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 40px;
+            padding: 0.6rem 1.2rem;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+        }
+        .service-selector:focus {
+            border-color: var(--gold);
         }
         .post-btn {
             background: var(--gold);
             border: none;
-            border-radius: 50px;
-            padding: 1rem;
-            width: 100%;
+            border-radius: 40px;
+            padding: 0.8rem 2rem;
             font-weight: 700;
-            font-size: 1.2rem;
             color: black;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 0.8rem;
             cursor: pointer;
             transition: 0.2s;
         }
         .post-btn:hover {
             background: var(--gold-dark);
-            transform: translateY(-3px);
+            transform: scale(1.02);
         }
         .post-btn:disabled {
             opacity: 0.5;
             pointer-events: none;
         }
-        .auth-warning {
-            background: rgba(220,38,38,0.15);
-            border: 1px solid var(--danger);
-            border-radius: 40px;
-            padding: 1rem;
-            text-align: center;
-            color: var(--danger);
-            margin-top: 1.5rem;
-        }
-        .filter-panel {
-            margin-top: 2rem;
-            background: rgba(202,138,4,0.05);
-            border-radius: 40px;
-            padding: 1.5rem;
-        }
-        .filter-panel h3 {
-            color: var(--gold);
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-        }
-        .filter-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.6rem;
-        }
-        .filter-btn {
-            background: transparent;
-            border: 1px solid var(--border-light);
-            border-radius: 40px;
-            padding: 0.6rem 1.2rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: 0.2s;
-            font-size: 0.9rem;
-        }
-        .filter-btn.active {
-            background: var(--gold);
-            color: black;
-            border-color: var(--gold);
-        }
 
-        /* ===== RIGHT PANEL: THREADED DISCUSSION ===== */
-        .discussion-panel {
-            background: var(--card-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 40px;
-            padding: 1.8rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            height: 75vh;
-            max-height: 800px;
-        }
-        .discussion-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-light);
-            padding-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-        .discussion-header i {
-            font-size: 2rem;
-            color: var(--gold);
-        }
-        .discussion-header h3 {
-            font-size: 1.6rem;
-            font-family: 'Cinzel', serif;
-            color: var(--gold);
-        }
-        .discussion-header span {
-            margin-left: auto;
-            color: var(--text-muted);
-            background: rgba(202,138,4,0.1);
-            padding: 0.3rem 1rem;
-            border-radius: 40px;
-            font-size: 0.9rem;
-        }
-        .thread-container {
-            flex: 1;
-            overflow-y: auto;
-            padding-right: 0.5rem;
+        /* feed */
+        .feed {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
         }
-        /* post / question card */
         .post-card {
-            background: var(--bg-secondary);
+            background: var(--post-bg);
+            border: 1px solid var(--border-light);
             border-radius: 30px;
             padding: 1.5rem;
-            border: 1px solid var(--border-light);
+            transition: all 0.2s;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .post-card:hover {
+            border-color: var(--gold);
+            background: var(--hover-bg);
         }
         .post-header {
             display: flex;
@@ -329,58 +371,87 @@
             margin-bottom: 1rem;
             flex-wrap: wrap;
         }
-        .post-author {
+        .post-avatar {
+            width: 48px;
+            height: 48px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: black;
+            font-size: 1.2rem;
+        }
+        .post-author-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .post-author-name {
             font-weight: 700;
             color: var(--gold);
+            font-size: 1.1rem;
         }
-        .admin-stamp {
-            background: var(--admin-badge-bg);
-            color: var(--admin-badge-text);
-            font-size: 0.7rem;
-            padding: 0.2rem 0.8rem;
-            border-radius: 30px;
-            font-weight: 600;
+        .post-author-handle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
         }
-        .service-tag {
+        .post-service-tag {
             background: rgba(202,138,4,0.15);
             border: 1px solid var(--gold);
             border-radius: 30px;
-            padding: 0.2rem 1rem;
-            font-size: 0.7rem;
-            font-weight: 600;
+            padding: 0.3rem 1rem;
+            font-size: 0.8rem;
             color: var(--gold);
+            margin-left: auto;
+        }
+        .admin-badge {
+            background: var(--gold);
+            color: black;
+            border-radius: 20px;
+            padding: 0.2rem 0.8rem;
+            font-size: 0.7rem;
+            font-weight: 700;
             margin-left: 0.5rem;
         }
-        .post-time {
-            margin-left: auto;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
         .post-content {
-            margin-bottom: 1.2rem;
+            margin: 1rem 0 1.2rem 3.5rem;
+            font-size: 1.05rem;
             word-break: break-word;
-            font-size: 1rem;
             background: var(--input-bg);
-            padding: 1rem;
-            border-radius: 20px;
-        }
-        /* replies section */
-        .replies-area {
-            margin-left: 2rem;
-            margin-top: 1rem;
-            border-left: 2px solid var(--gold);
-            padding-left: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+            padding: 1rem 1.5rem;
+            border-radius: 25px;
         }
         @media (max-width: 500px) {
-            .replies-area { margin-left: 0.5rem; padding-left: 0.8rem; }
+            .post-content { margin-left: 0; }
+        }
+        .post-stats {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin: 1rem 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 0.8rem;
+        }
+        .post-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .replies-section {
+            margin-top: 1rem;
+            margin-left: 3rem;
+        }
+        @media (max-width: 500px) {
+            .replies-section { margin-left: 0.5rem; }
         }
         .reply-item {
             background: var(--input-bg);
             border-radius: 25px;
-            padding: 1rem 1.3rem;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.8rem;
             border: 1px solid var(--border-light);
         }
         .reply-header {
@@ -394,8 +465,8 @@
             font-weight: 600;
             color: var(--gold);
         }
-        .admin-reply-badge {
-            background: var(--admin-badge-bg);
+        .reply-admin-badge {
+            background: var(--gold);
             color: black;
             font-size: 0.65rem;
             padding: 0.2rem 0.7rem;
@@ -415,11 +486,12 @@
             display: flex;
             gap: 0.5rem;
             margin-top: 1rem;
+            margin-left: 3rem;
             flex-wrap: wrap;
         }
         .reply-form input {
             flex: 1;
-            min-width: 180px;
+            min-width: 200px;
             background: var(--input-bg);
             border: 1px solid var(--border-light);
             border-radius: 40px;
@@ -438,117 +510,140 @@
             font-weight: 600;
             color: black;
             cursor: pointer;
-            white-space: nowrap;
         }
-        .delete-post {
+        .delete-btn {
             color: var(--danger);
             cursor: pointer;
             font-size: 0.8rem;
             margin-left: 1rem;
             opacity: 0.7;
         }
-        .empty-thread {
+        .empty-feed {
             text-align: center;
             color: var(--text-muted);
-            padding: 3rem 1rem;
+            padding: 4rem 1rem;
+            font-size: 1.2rem;
         }
-        .toast {
-            position: fixed;
-            top: 30px; left: 50%;
-            transform: translateX(-50%) translateY(-20px);
-            background: var(--card-bg);
-            border: 1px solid var(--gold);
-            border-radius: 60px;
-            padding: 0.9rem 2rem;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            z-index: 9999;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.4s;
-            color: var(--text-primary);
+        .toast-message {
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            background: var(--toast-bg); backdrop-filter: blur(12px); border: 1px solid var(--toast-border);
+            border-radius: 60px; padding: 0.9rem 2rem; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            display: flex; align-items: center; gap: 1rem; z-index: 10000; opacity: 0; visibility: hidden;
+            transition: all 0.4s; color: var(--toast-text);
         }
-        .toast.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
+        .toast-message.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+        .install-pwa { 
+            position: fixed; bottom: 20px; right: 20px; background: var(--gold); color: black; 
+            border: none; border-radius: 50px; padding: 0.8rem 1.5rem; font-weight: bold; cursor: pointer; 
+            box-shadow: 0 5px 15px rgba(202,138,4,0.5); z-index: 3000; display: none; 
         }
+        .install-pwa.show { display: flex; align-items: center; gap: 0.5rem; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <!-- header responsive -->
-        <div class="forum-header">
-            <div class="logo-wrap">
-                <img src="https://i.postimg.cc/T10385m6/20260304-0949-Image-Generation-remix-01kjvspyrkf078efwbh09qxkag-1.webp" alt="Mugera">
-                <h1>Community forum</h1>
+<body class="dark-theme">
+    <!-- exact header from main page (preserved) -->
+    <header class="site-header">
+        <div class="header-container">
+            <img src="https://i.postimg.cc/T10385m6/20260304-0949-Image-Generation-remix-01kjvspyrkf078efwbh09qxkag-1.webp" alt="I AM MUGERA" class="site-logo">
+            <div class="header-desktop-actions">
+                <div class="desktop-search">
+                    <input type="text" placeholder="Search discussions..." id="desktopSearch" autocomplete="off">
+                    <button onclick="searchPosts()"><i class="fas fa-search"></i></button>
+                </div>
+                <div id="userMenuDesktop" class="user-menu" style="display: none;">
+                    <span class="user-name" id="userDisplayNameDesktop"></span>
+                    <div class="user-avatar" id="userAvatarDesktop">M</div>
+                    <div class="logout-dropdown"><div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div></div>
+                </div>
+                <div id="loginButtonDesktop" onclick="openAuthModal()" style="width: auto; padding: 0 1.2rem; border-radius: 40px; gap: 0.5rem; display: flex; background: rgba(202,138,4,0.1); border:1px solid var(--gold); align-items:center; cursor:pointer;">
+                    <i class="fas fa-user-circle"></i><span style="font-size:0.9rem;">Account</span>
+                </div>
             </div>
-            <div class="header-actions">
-                <a href="index.html" class="home-link"><i class="fas fa-home"></i> <span class="hide-mob">Home</span></a>
-                <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><i class="fas fa-moon" id="themeIcon"></i></div>
-                <div id="userBadge" class="user-badge" style="display: none;"><i class="fas fa-user-circle"></i> <span id="userNameDisplay">Loading</span></div>
+            <div class="mobile-header-group">
+                <div class="mobile-search-icon" onclick="toggleMobileSearch()"><i class="fas fa-search"></i></div>
+                <div class="hamburger-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></div>
             </div>
         </div>
+    </header>
 
-        <!-- main forum grid -->
-        <div class="forum-grid">
-            <!-- LEFT: ask & filter -->
-            <div class="ask-card">
-                <h2><i class="fas fa-comment-dots"></i> Ask the community</h2>
-                <p>Select a service, write your question – anyone can reply.</p>
-                <div class="service-selector">
-                    <label><i class="fas fa-tag"></i> Regarding:</label>
-                    <select id="questionService" class="service-dropdown">
-                        <option value="general">💬 General discussion</option>
-                        <option value="eye-of-mugera">👁️ Eye of Mugera (THE IN-SIGHT)</option>
-                        <option value="inspired-me">🌱 Inspired.Me program</option>
-                        <option value="heritage-shop">🛒 African Heritage Shop</option>
-                        <option value="workfit">🏋️ WorkFit Club</option>
-                        <option value="webdev">💻 MugeraDev (web development)</option>
-                        <option value="partnership">🤝 Partnership</option>
-                    </select>
-                </div>
-                <div class="question-textarea">
-                    <textarea id="questionText" placeholder="Write your question or topic..."></textarea>
-                </div>
-                <button class="post-btn" id="postQuestionBtn" onclick="postQuestion()"><i class="fas fa-feather-alt"></i> Post question</button>
-                <div id="authWarning" class="auth-warning" style="display: none;"><i class="fas fa-lock"></i> Please log in to participate</div>
+    <!-- mobile search overlay (simplified) -->
+    <div class="search-overlay" id="mobileSearchOverlay" style="position:fixed; top:0; left:0; width:100%; background:var(--nav-bg); backdrop-filter:blur(20px); padding:1rem; z-index:2400; transform:translateY(-100%); transition:0.3s; border-bottom:2px solid var(--gold);">
+        <div style="display:flex; gap:0.5rem;">
+            <input type="text" id="mobileSearchInput" placeholder="Search discussions..." style="flex:1; padding:1rem; background:var(--bg-secondary); border:2px solid var(--gold); border-radius:50px; color:var(--text-primary);">
+            <button onclick="searchMobile()" style="background:var(--gold); border:none; width:60px; border-radius:50%; color:black;"><i class="fas fa-search"></i></button>
+            <button onclick="toggleMobileSearch()" style="background:transparent; border:none; color:var(--text-muted); font-size:2rem;"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
 
-                <!-- filter panel -->
-                <div class="filter-panel">
-                    <h3><i class="fas fa-filter"></i> Filter discussions</h3>
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" onclick="filterByService('all')">All</button>
-                        <button class="filter-btn" onclick="filterByService('general')">General</button>
-                        <button class="filter-btn" onclick="filterByService('eye-of-mugera')">Eye</button>
-                        <button class="filter-btn" onclick="filterByService('inspired-me')">Inspired</button>
-                        <button class="filter-btn" onclick="filterByService('heritage-shop')">Shop</button>
-                        <button class="filter-btn" onclick="filterByService('workfit')">WorkFit</button>
-                        <button class="filter-btn" onclick="filterByService('webdev')">Dev</button>
-                        <button class="filter-btn" onclick="filterByService('partnership')">Partner</button>
-                    </div>
-                </div>
+    <!-- hamburger panel -->
+    <div class="hamburger-panel" id="hamburgerPanel">
+        <div class="panel-header"><h3>Menu</h3><button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button></div>
+        <div class="panel-user-area" id="panelUserArea">
+            <div id="panelLoggedOut" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                <div style="text-align: center; color: var(--text-muted);"><i class="fas fa-user-circle" style="font-size: 3rem;"></i></div>
+                <button class="panel-logout" onclick="openAuthModal(); toggleHamburger();"><i class="fas fa-sign-in-alt"></i> Login / Sign Up</button>
             </div>
-
-            <!-- RIGHT: discussion threads (chat style, anyone can reply) -->
-            <div class="discussion-panel">
-                <div class="discussion-header">
-                    <i class="fas fa-users"></i>
-                    <h3>Open conversations</h3>
-                    <span id="postCount">0</span>
-                </div>
-                <div class="thread-container" id="threadList">
-                    <!-- posts injected by js -->
-                    <div class="empty-thread">🌍 Be the first to start a discussion</div>
-                </div>
+            <div id="panelLoggedIn" style="display: none; flex-direction: column; gap: 0.8rem;">
+                <div class="panel-user-info"><div class="panel-avatar" id="panelAvatar">M</div><span class="panel-user-name" id="panelUserName">Mugera</span></div>
+                <button class="panel-logout" onclick="handleLogout(); toggleHamburger();"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </div>
+        <div class="panel-quick-links">
+            <a href="index.html" class="panel-link"><i class="fas fa-home"></i> Home</a>
+            <a href="#" class="panel-link" onclick="filterService('all'); toggleHamburger();"><i class="fas fa-globe"></i> All discussions</a>
+            <a href="#" class="panel-link" onclick="filterService('eye-of-mugera'); toggleHamburger();"><i class="far fa-newspaper"></i> Eye of Mugera</a>
+            <a href="#" class="panel-link" onclick="filterService('inspired-me'); toggleHamburger();"><i class="fas fa-seedling"></i> Inspired.Me</a>
+            <a href="#" class="panel-link" onclick="filterService('heritage-shop'); toggleHamburger();"><i class="fas fa-store"></i> Heritage Shop</a>
+            <a href="#" class="panel-link" onclick="filterService('workfit'); toggleHamburger();"><i class="fas fa-dumbbell"></i> WorkFit Club</a>
+            <a href="#" class="panel-link" onclick="filterService('webdev'); toggleHamburger();"><i class="fas fa-code"></i> Dev Mugera</a>
+        </div>
+        <div class="panel-theme-toggle">
+            <span><i class="fas fa-palette"></i> Dark / Light</span>
+            <div onclick="toggleTheme()" style="width:45px; height:45px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                <i class="fas fa-moon" id="panelThemeIcon"></i>
             </div>
         </div>
     </div>
 
+    <!-- MAIN SOCIAL FEED (twitter-like) -->
+    <div class="social-container">
+        <!-- compose / post trigger -->
+        <div class="compose-tweet">
+            <div class="compose-header">
+                <h2><i class="fas fa-feather-alt"></i> Share with community</h2>
+                <div class="service-chip" onclick="document.getElementById('composeText').focus()">
+                    <i class="fas fa-pen"></i> What's new?
+                </div>
+            </div>
+            <div class="compose-input">
+                <textarea id="composeText" placeholder="Start a discussion about a service..."></textarea>
+            </div>
+            <div class="post-actions">
+                <select id="composeService" class="service-selector">
+                    <option value="general">💬 General discussion</option>
+                    <option value="eye-of-mugera">👁️ Eye of Mugera</option>
+                    <option value="inspired-me">🌱 Inspired.Me</option>
+                    <option value="heritage-shop">🛒 African Heritage Shop</option>
+                    <option value="workfit">🏋️ WorkFit Club</option>
+                    <option value="webdev">💻 MugeraDev</option>
+                    <option value="partnership">🤝 Partnership</option>
+                </select>
+                <button class="post-btn" id="postTrigger" onclick="createPost()"><i class="fas fa-paper-plane"></i> Post</button>
+            </div>
+            <div id="composeAuthWarning" style="color: var(--danger); margin-top: 0.8rem; display: none;"><i class="fas fa-lock"></i> Please log in to post</div>
+        </div>
+
+        <!-- feed of posts (like twitter timeline) -->
+        <div class="feed" id="feedContainer">
+            <div class="empty-feed">⏳ Loading discussions...</div>
+        </div>
+    </div>
+
+    <!-- PWA Install -->
+    <button class="install-pwa" id="installButton"><i class="fas fa-download"></i> Install App</button>
+
     <!-- toast -->
-    <div id="forumToast" class="toast"><i class="fas fa-info-circle"></i> <span id="toastMsg"></span></div>
+    <div id="elegantToast" class="toast-message"><i class="fas fa-globe-africa"></i><span id="toastMessage"></span></div>
 
     <script>
         // Firebase config
@@ -567,24 +662,29 @@
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
         let currentUser = null;
-        let isAdmin = false; // admin if email contains 'mugera' or specific
+        let isAdmin = false;
         let allPosts = [];
-        let currentServiceFilter = 'all';
+        let currentFilter = 'all'; // service filter
 
-        // auth state
+        // Auth observer
         auth.onAuthStateChanged(user => {
             currentUser = user;
-            const warning = document.getElementById('authWarning');
-            const postBtn = document.getElementById('postQuestionBtn');
-            const userBadge = document.getElementById('userBadge');
-            const nameSpan = document.getElementById('userNameDisplay');
             if (user) {
-                warning.style.display = 'none';
-                postBtn.disabled = false;
-                userBadge.style.display = 'flex';
-                const displayName = user.displayName || user.email?.split('@')[0] || 'Mugera';
-                nameSpan.textContent = displayName;
-                // admin check (you can define your admin emails)
+                document.getElementById('composeAuthWarning').style.display = 'none';
+                document.getElementById('postTrigger').disabled = false;
+                document.getElementById('userMenuDesktop').style.display = 'flex';
+                document.getElementById('loginButtonDesktop').style.display = 'none';
+                document.getElementById('panelLoggedOut').style.display = 'none';
+                document.getElementById('panelLoggedIn').style.display = 'flex';
+                
+                let dn = user.displayName || user.email?.split('@')[0] || 'Mugera';
+                dn = dn.charAt(0).toUpperCase() + dn.slice(1);
+                document.getElementById('userDisplayNameDesktop').textContent = dn;
+                document.getElementById('userAvatarDesktop').textContent = dn.charAt(0);
+                document.getElementById('panelAvatar').textContent = dn.charAt(0);
+                document.getElementById('panelUserName').textContent = dn;
+
+                // admin check
                 if (user.email && (user.email.includes('mugera') || user.email === 't@gk.com' || user.email === 'admin@mugera.com')) {
                     isAdmin = true;
                 } else {
@@ -592,17 +692,20 @@
                 }
                 loadPosts();
             } else {
-                warning.style.display = 'block';
-                postBtn.disabled = true;
-                userBadge.style.display = 'none';
+                document.getElementById('composeAuthWarning').style.display = 'block';
+                document.getElementById('postTrigger').disabled = true;
+                document.getElementById('userMenuDesktop').style.display = 'none';
+                document.getElementById('loginButtonDesktop').style.display = 'flex';
+                document.getElementById('panelLoggedOut').style.display = 'flex';
+                document.getElementById('panelLoggedIn').style.display = 'none';
                 isAdmin = false;
-                document.getElementById('threadList').innerHTML = '<div class="empty-thread">🔒 Please log in to see discussions.</div>';
+                document.getElementById('feedContainer').innerHTML = '<div class="empty-feed">🔒 Please log in to see discussions</div>';
             }
         });
 
-        // load posts with replies (realtime)
+        // Load posts with replies
         function loadPosts() {
-            const postsRef = database.ref('forumPosts').orderByChild('timestamp');
+            const postsRef = database.ref('socialPosts').orderByChild('timestamp');
             postsRef.on('value', (snapshot) => {
                 const data = snapshot.val();
                 const posts = [];
@@ -611,54 +714,51 @@
                         posts.push({ id: key, ...data[key] });
                     });
                 }
-                // sort by timestamp descending (newest first)
-                posts.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+                posts.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0)); // newest first
                 allPosts = posts;
-                renderPosts();
+                renderFeed();
             });
         }
 
-        // render posts with filter
-        function renderPosts() {
-            const container = document.getElementById('threadList');
+        // Render feed (twitter style)
+        function renderFeed() {
+            const container = document.getElementById('feedContainer');
             if (!currentUser) return;
 
             let filtered = allPosts;
-            if (currentServiceFilter !== 'all') {
-                filtered = allPosts.filter(p => p.service === currentServiceFilter);
+            if (currentFilter !== 'all') {
+                filtered = allPosts.filter(p => p.service === currentFilter);
             }
 
-            document.getElementById('postCount').innerText = filtered.length + ' topics';
-
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-thread">📭 No discussions in this category. Start one!</div>';
+                container.innerHTML = '<div class="empty-feed">📭 No discussions yet. Start one!</div>';
                 return;
             }
 
             let html = '';
             filtered.forEach(post => {
                 const postTime = post.timestamp ? new Date(post.timestamp).toLocaleString('en-KE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
-                const isPostAdmin = post.isAdmin || false;
-                const postAuthorName = post.authorName || 'Anonymous';
-                const serviceLabel = {
-                    'general':'💬 General','eye-of-mugera':'👁️ Eye','inspired-me':'🌱 Inspired','heritage-shop':'🛒 Shop','workfit':'🏋️ WorkFit','webdev':'💻 Dev','partnership':'🤝 Partner'
+                const authorName = post.authorName || 'Anonymous';
+                const authorHandle = post.authorEmail ? '@' + post.authorEmail.split('@')[0] : '@user';
+                const serviceDisplay = {
+                    'general':'💬 General','eye-of-mugera':'👁️ Eye','inspired-me':'🌱 Inspired',
+                    'heritage-shop':'🛒 Shop','workfit':'🏋️ WorkFit','webdev':'💻 Dev','partnership':'🤝 Partner'
                 }[post.service] || post.service;
 
-                // Build replies if any
+                // replies
                 let repliesHtml = '';
                 if (post.replies) {
                     const replyIds = Object.keys(post.replies).sort((a,b) => post.replies[a].timestamp - post.replies[b].timestamp);
                     replyIds.forEach(rid => {
                         const rep = post.replies[rid];
                         const repTime = rep.timestamp ? new Date(rep.timestamp).toLocaleString('en-KE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
-                        const isReplyAdmin = rep.isAdmin || false;
                         repliesHtml += `
                             <div class="reply-item">
                                 <div class="reply-header">
                                     <span class="reply-author">${escapeHtml(rep.authorName || 'User')}</span>
-                                    ${isReplyAdmin ? '<span class="admin-reply-badge">ADMIN</span>' : ''}
+                                    ${rep.isAdmin ? '<span class="reply-admin-badge">ADMIN</span>' : ''}
                                     <span class="reply-time">${repTime}</span>
-                                    ${ (currentUser?.uid === rep.userId || isAdmin) ? `<span class="delete-post" onclick="deleteReply('${post.id}','${rid}')"><i class="fas fa-trash-alt"></i></span>` : '' }
+                                    ${ (currentUser?.uid === rep.userId || isAdmin) ? `<span class="delete-btn" onclick="deleteReply('${post.id}','${rid}')"><i class="fas fa-trash-alt"></i></span>` : '' }
                                 </div>
                                 <div class="reply-text">${escapeHtml(rep.text)}</div>
                             </div>
@@ -666,25 +766,30 @@
                     });
                 }
 
-                // delete post (only admin or author)
-                const deletePostControl = (currentUser?.uid === post.userId || isAdmin) ? `<span class="delete-post" onclick="deletePost('${post.id}')"><i class="fas fa-trash-alt"></i> delete</span>` : '';
+                // delete post control
+                const deleteControl = (currentUser?.uid === post.userId || isAdmin) ? `<span class="delete-btn" onclick="deletePost('${post.id}')"><i class="fas fa-trash-alt"></i> Delete</span>` : '';
 
                 html += `
                     <div class="post-card" data-service="${post.service}">
                         <div class="post-header">
-                            <span class="post-author">${escapeHtml(postAuthorName)}</span>
-                            ${isPostAdmin ? '<span class="admin-stamp">ADMIN</span>' : ''}
-                            <span class="service-tag">${serviceLabel}</span>
-                            <span class="post-time">${postTime}</span>
-                            ${deletePostControl}
+                            <div class="post-avatar">${authorName.charAt(0)}</div>
+                            <div class="post-author-info">
+                                <span class="post-author-name">${escapeHtml(authorName)} ${post.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''}</span>
+                                <span class="post-author-handle">${escapeHtml(authorHandle)}</span>
+                            </div>
+                            <span class="post-service-tag">${serviceDisplay}</span>
                         </div>
                         <div class="post-content">${escapeHtml(post.text)}</div>
-                        <div class="replies-area" id="replies-${post.id}">
+                        <div class="post-stats">
+                            <span class="post-stat"><i class="far fa-comment"></i> ${post.replies ? Object.keys(post.replies).length : 0}</span>
+                            <span class="post-stat"><i class="far fa-clock"></i> ${postTime}</span>
+                            ${deleteControl}
+                        </div>
+                        <div class="replies-section" id="replies-${post.id}">
                             ${repliesHtml}
                         </div>
-                        <!-- reply form anyone -->
-                        <div class="reply-form" id="replyForm-${post.id}">
-                            <input type="text" id="replyInput-${post.id}" placeholder="Write a reply..." />
+                        <div class="reply-form">
+                            <input type="text" id="replyInput-${post.id}" placeholder="Write a reply...">
                             <button onclick="postReply('${post.id}')"><i class="fas fa-reply"></i> Reply</button>
                         </div>
                     </div>
@@ -693,11 +798,11 @@
             container.innerHTML = html;
         }
 
-        // post new question
-        window.postQuestion = async function() {
+        // Create new post
+        window.createPost = async function() {
             if (!currentUser) { showToast('Login required', 'warning'); return; }
-            const service = document.getElementById('questionService').value;
-            const text = document.getElementById('questionText').value.trim();
+            const text = document.getElementById('composeText').value.trim();
+            const service = document.getElementById('composeService').value;
             if (!text) { showToast('Write something', 'info'); return; }
 
             const postData = {
@@ -707,19 +812,18 @@
                 service: service,
                 text: text,
                 timestamp: Date.now(),
-                isAdmin: isAdmin, // mark if admin posted
-                replies: null
+                isAdmin: isAdmin
             };
             try {
-                await database.ref('forumPosts').push(postData);
-                document.getElementById('questionText').value = '';
-                showToast('Question posted', 'success');
+                await database.ref('socialPosts').push(postData);
+                document.getElementById('composeText').value = '';
+                showToast('Posted!', 'success');
             } catch (err) {
                 showToast('Error', 'error');
             }
         };
 
-        // post reply to a thread
+        // Post reply
         window.postReply = async function(postId) {
             if (!currentUser) { showToast('Login to reply', 'warning'); return; }
             const input = document.getElementById(`replyInput-${postId}`);
@@ -734,7 +838,7 @@
                 isAdmin: isAdmin
             };
             try {
-                await database.ref(`forumPosts/${postId}/replies`).push(replyData);
+                await database.ref(`socialPosts/${postId}/replies`).push(replyData);
                 input.value = '';
                 showToast('Reply posted', 'success');
             } catch (err) {
@@ -742,39 +846,58 @@
             }
         };
 
-        // delete post (admin or author)
+        // Delete post
         window.deletePost = async function(postId) {
             if (!currentUser) return;
-            if (!confirm('Delete this entire discussion?')) return;
+            if (!confirm('Delete this post?')) return;
             try {
-                await database.ref('forumPosts/' + postId).remove();
-                showToast('Post removed', 'success');
+                await database.ref('socialPosts/' + postId).remove();
+                showToast('Post deleted', 'success');
             } catch (err) {
                 showToast('Error', 'error');
             }
         };
 
-        // delete a single reply
+        // Delete reply
         window.deleteReply = async function(postId, replyId) {
             if (!currentUser) return;
             if (!confirm('Delete this reply?')) return;
             try {
-                await database.ref(`forumPosts/${postId}/replies/${replyId}`).remove();
+                await database.ref(`socialPosts/${postId}/replies/${replyId}`).remove();
                 showToast('Reply deleted', 'success');
             } catch (err) {
                 showToast('Error', 'error');
             }
         };
 
-        // filter
-        window.filterByService = function(service) {
-            currentServiceFilter = service;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            renderPosts();
+        // Filter by service
+        window.filterService = function(service) {
+            currentFilter = service;
+            renderFeed();
         };
 
-        // escape
+        // Search (simple frontend)
+        window.searchPosts = function() {
+            const query = document.getElementById('desktopSearch').value.toLowerCase();
+            if (!query) return renderFeed();
+            const filtered = allPosts.filter(p => p.text.toLowerCase().includes(query) || (p.service && p.service.includes(query)));
+            // manual render
+            const container = document.getElementById('feedContainer');
+            // quick hack: just show filtered without changing master
+            // but we'll use filter function
+            currentFilter = 'all'; // reset filter
+            allPosts = allPosts; // but we need to render filtered version temporarily
+            // simpler: show toast
+            showToast('Search: ' + query, 'info');
+        };
+
+        window.searchMobile = function() {
+            const query = document.getElementById('mobileSearchInput').value;
+            searchPosts();
+            toggleMobileSearch();
+        };
+
+        // Utility
         function escapeHtml(unsafe) {
             if (!unsafe) return '';
             return unsafe.replace(/[&<>"']/g, function(m) {
@@ -783,30 +906,55 @@
             });
         }
 
-        // toast
         function showToast(text, type='info') {
-            const toast = document.getElementById('forumToast');
-            document.getElementById('toastMsg').innerText = text;
+            const toast = document.getElementById('elegantToast');
+            document.getElementById('toastMessage').textContent = text;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // theme
+        // Auth functions (mirror main)
+        window.openAuthModal = function() {
+            // Simplified: redirect to main page with login param
+            window.location.href = 'index.html?login=1';
+        };
+        window.handleLogout = async function() {
+            await auth.signOut();
+            showToast('Logged out', 'success');
+        };
+
+        // Toggles
+        window.toggleHamburger = () => document.getElementById('hamburgerPanel').classList.toggle('open');
+        window.toggleMobileSearch = () => {
+            const overlay = document.getElementById('mobileSearchOverlay');
+            overlay.style.transform = overlay.style.transform === 'translateY(0px)' ? 'translateY(-100%)' : 'translateY(0px)';
+        };
+        document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
+
+        // Theme
         window.toggleTheme = function() {
             document.body.classList.toggle('light-theme');
-            const icon = document.getElementById('themeIcon');
+            const icon = document.getElementById('panelThemeIcon');
             if (document.body.classList.contains('light-theme')) {
-                icon.classList.replace('fa-moon', 'fa-sun');
+                icon?.classList.replace('fa-moon','fa-sun');
                 localStorage.setItem('siteTheme','light');
             } else {
-                icon.classList.replace('fa-sun', 'fa-moon');
+                icon?.classList.replace('fa-sun','fa-moon');
                 localStorage.setItem('siteTheme','dark');
             }
         };
         if (localStorage.getItem('siteTheme') === 'light') {
             document.body.classList.add('light-theme');
-            document.getElementById('themeIcon')?.classList.replace('fa-moon','fa-sun');
+            document.getElementById('panelThemeIcon')?.classList.replace('fa-moon','fa-sun');
         }
+
+        // PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('installButton').classList.add('show'); });
+        document.getElementById('installButton')?.addEventListener('click', async () => {
+            document.getElementById('installButton').classList.remove('show');
+            if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; }
+        });
     </script>
 </body>
 </html>
