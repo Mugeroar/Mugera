@@ -16,7 +16,7 @@
     <meta name="msapplication-TileColor" content="#ca8a04">
     
     <!-- Version & Build -->
-    <meta name="version" content="7.0.0">
+    <meta name="version" content="7.1.0">
     <meta name="build-date" content="2025-03-06">
     
     <!-- Fonts & Icons -->
@@ -86,6 +86,7 @@
             --mention-bg: rgba(202,138,4,0.2);
             --search-match-bg: rgba(202,138,4,0.3);
             --mention-suggest-bg: #2a2a2a;
+            --resolved-message-bg: rgba(16,185,129,0.1);
         }
 
         body.light-theme {
@@ -112,6 +113,7 @@
             --post-bg: #f0f0f0;
             --hover-bg: #e5e5e5;
             --mention-suggest-bg: #ffffff;
+            --resolved-message-bg: #d1fae5;
         }
 
         body {
@@ -441,6 +443,9 @@
             border-left: 6px solid var(--gold);
             background: var(--search-match-bg);
         }
+        .post-card.resolved {
+            opacity: 0.9;
+        }
         .post-header {
             display: flex;
             align-items: center;
@@ -612,12 +617,35 @@
             border-radius: 12px;
             font-weight: 500;
         }
+        
+        /* Resolved post message */
+        .resolved-message {
+            background: var(--resolved-message-bg);
+            border: 1px solid var(--success);
+            border-radius: 40px;
+            padding: 1rem 1.5rem;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+        .resolved-message i {
+            color: var(--success);
+            font-size: 1.2rem;
+        }
+        
         .reply-form {
             position: relative;
             display: flex;
             gap: 0.5rem;
             margin-top: 1rem;
             flex-wrap: wrap;
+        }
+        .reply-form.disabled {
+            opacity: 0.6;
+            pointer-events: none;
         }
         .reply-input-wrapper {
             flex: 1;
@@ -635,6 +663,10 @@
         }
         .reply-input-wrapper input:focus {
             border-color: var(--gold);
+        }
+        .reply-input-wrapper input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         .mention-suggestions {
             position: absolute;
@@ -681,6 +713,10 @@
             cursor: pointer;
             white-space: nowrap;
         }
+        .reply-form button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
         .admin-controls {
             display: flex;
             gap: 0.5rem;
@@ -700,6 +736,10 @@
             display: flex;
             align-items: center;
             gap: 0.3rem;
+        }
+        .resolve-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         .delete-btn {
             background: var(--danger);
@@ -895,7 +935,6 @@
         let currentSearchType = 'all';
         let currentSearchResolved = false;
         let activeMentionInput = null;
-        let mentionTimeout = null;
 
         // Auth observer
         auth.onAuthStateChanged(user => {
@@ -1071,7 +1110,7 @@
                 const userDisliked = currentUser && post.dislikes && post.dislikes[currentUser.uid];
 
                 html += `
-                    <div class="post-card search-match ${isExpanded ? 'expanded' : ''}" id="post-${post.id}" onclick="togglePost('${post.id}', event)">
+                    <div class="post-card search-match ${isExpanded ? 'expanded' : ''} ${post.resolved ? 'resolved' : ''}" id="post-${post.id}" onclick="togglePost('${post.id}', event)">
                         <div class="post-header">
                             <div class="post-avatar">${authorName.charAt(0)}</div>
                             <div class="post-author-info">
@@ -1100,13 +1139,7 @@
                         <div class="expanded-content" onclick="event.stopPropagation()">
                             ${renderReplies(post)}
                             
-                            <div class="reply-form">
-                                <div class="reply-input-wrapper">
-                                    <input type="text" id="replyInput-${post.id}" placeholder="Write a reply... (Use @ to mention)" onkeydown="handleReplyKeydown(event, '${post.id}')" oninput="checkMention(this, '${post.id}')">
-                                    <div class="mention-suggestions" id="mentionSuggest-${post.id}"></div>
-                                </div>
-                                <button onclick="postReply('${post.id}', event)"><i class="fas fa-reply"></i> Reply</button>
-                            </div>
+                            ${renderReplySection(post)}
                             
                             ${renderAdminControls(post)}
                         </div>
@@ -1143,6 +1176,28 @@
             });
             repliesHtml += '</div>';
             return repliesHtml;
+        }
+
+        // Helper to render reply section (disabled if resolved)
+        function renderReplySection(post) {
+            if (post.resolved) {
+                return `
+                    <div class="resolved-message">
+                        <i class="fas fa-check-circle"></i>
+                        <span>This discussion has been marked as resolved. No further replies can be added.</span>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="reply-form">
+                        <div class="reply-input-wrapper">
+                            <input type="text" id="replyInput-${post.id}" placeholder="Write a reply... (Use @ to mention)" onkeydown="handleReplyKeydown(event, '${post.id}')" oninput="checkMention(this, '${post.id}')">
+                            <div class="mention-suggestions" id="mentionSuggest-${post.id}"></div>
+                        </div>
+                        <button onclick="postReply('${post.id}', event)"><i class="fas fa-reply"></i> Reply</button>
+                    </div>
+                `;
+            }
         }
 
         // Helper to render admin controls
@@ -1206,7 +1261,7 @@
                 const userDisliked = currentUser && post.dislikes && post.dislikes[currentUser.uid];
 
                 html += `
-                    <div class="post-card ${isExpanded ? 'expanded' : ''}" id="post-${post.id}" onclick="togglePost('${post.id}', event)">
+                    <div class="post-card ${isExpanded ? 'expanded' : ''} ${post.resolved ? 'resolved' : ''}" id="post-${post.id}" onclick="togglePost('${post.id}', event)">
                         <div class="post-header">
                             <div class="post-avatar">${authorName.charAt(0)}</div>
                             <div class="post-author-info">
@@ -1235,13 +1290,7 @@
                         <div class="expanded-content" onclick="event.stopPropagation()">
                             ${renderReplies(post)}
                             
-                            <div class="reply-form">
-                                <div class="reply-input-wrapper">
-                                    <input type="text" id="replyInput-${post.id}" placeholder="Write a reply... (Use @ to mention)" onkeydown="handleReplyKeydown(event, '${post.id}')" oninput="checkMention(this, '${post.id}')">
-                                    <div class="mention-suggestions" id="mentionSuggest-${post.id}"></div>
-                                </div>
-                                <button onclick="postReply('${post.id}', event)"><i class="fas fa-reply"></i> Reply</button>
-                            </div>
+                            ${renderReplySection(post)}
                             
                             ${renderAdminControls(post)}
                         </div>
@@ -1350,7 +1399,7 @@
 
         // Toggle post expansion
         window.togglePost = function(postId, event) {
-            if (event.target.closest('.post-stat') || event.target.closest('.reply-form') || event.target.closest('.admin-controls') || event.target.closest('.delete-btn') || event.target.closest('.resolve-btn') || event.target.closest('.mention-item')) {
+            if (event.target.closest('.post-stat') || event.target.closest('.reply-form') || event.target.closest('.admin-controls') || event.target.closest('.delete-btn') || event.target.closest('.resolve-btn') || event.target.closest('.mention-item') || event.target.closest('.resolved-message')) {
                 return;
             }
             expandedPostId = expandedPostId === postId ? null : postId;
@@ -1427,10 +1476,20 @@
             }
         };
 
-        // Post reply
+        // Post reply - now checks if post is resolved
         window.postReply = async function(postId, event) {
             event.stopPropagation();
             if (!currentUser) { showToast('Login to reply', 'warning'); return; }
+            
+            const post = allPosts.find(p => p.id === postId);
+            if (!post) return;
+            
+            // Check if post is resolved
+            if (post.resolved) {
+                showToast('This discussion has been resolved. No further replies can be added.', 'warning');
+                return;
+            }
+            
             const input = document.getElementById(`replyInput-${postId}`);
             const text = input.value.trim();
             if (!text) return;
@@ -1462,7 +1521,7 @@
             if (!isAdmin) return;
             try {
                 await database.ref(`socialPosts/${postId}/resolved`).set(true);
-                showToast('Marked as resolved', 'success');
+                showToast('Marked as resolved. No further replies can be added.', 'success');
             } catch (err) {
                 showToast('Error', 'error');
             }
