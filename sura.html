@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ca8a04">
+    <meta name="background-color" content="#0a0a0a">
+    <meta name="color-scheme" content="dark light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SURA Profile">
+    <meta name="application-name" content="SURA Profile">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>SURA Profile · digital portfolio</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDKs (kept for auth & submissions) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        /* ===== YOUR EXACT WORKFIT STYLING (preserved) ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --gold: #ca8a04; --gold-dark: #a16207; --gold-light: #fef3c7;
+            --bg-primary: #0a0a0a; --bg-secondary: #111111; --bg-card: rgba(20,20,20,0.8);
+            --text-primary: #ffffff; --text-secondary: #e0e0e0; --text-muted: #aaaaaa;
+            --border-light: #2a2a2a; --shadow-color: rgba(202,138,4,0.25);
+            --nav-bg: rgba(10,10,10,0.95); --card-bg: #151515;
+            --glass-bg: rgba(20,20,20,0.3); --glass-border: rgba(255,255,255,0.1);
+            --glass-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            --toast-bg: rgba(20,20,20,0.95); --toast-border: var(--gold);
+            --header-height: 70px; --input-bg: rgba(255,255,255,0.05);
+            --input-focus-bg: rgba(255,255,255,0.1);
+            --danger: #dc2626; --success: #10b981;
+        }
+        body.light-theme {
+            --bg-primary: #f8f5f0; --bg-secondary: #ffffff; --bg-card: #ffffff;
+            --text-primary: #1a1a1a; --text-secondary: #2d2d2d; --text-muted: #555555;
+            --border-light: #dddddd; --shadow-color: rgba(202,138,4,0.4);
+            --nav-bg: rgba(255,255,255,0.95); --card-bg: #ffffff;
+            --glass-bg: rgba(255,255,255,0.2); --glass-border: rgba(255,255,255,0.3);
+            --input-bg: rgba(0,0,0,0.03); --input-focus-bg: rgba(0,0,0,0.05);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-top: var(--header-height);
+            transition: background 0.3s, color 0.2s;
+        }
+        /* header (workfit style) */
+        .site-header {
+            position: fixed; top: 0; width: 100%; height: var(--header-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold); z-index: 2000; padding: 0 1rem;
+        }
+        .header-container {
+            max-width: 1400px; height: 100%; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .site-logo {
+            height: 48px; border-radius: 12px; border: 2px solid var(--gold);
+            padding: 2px; background: var(--bg-primary);
+        }
+        .header-desktop-actions { display: flex; align-items: center; gap: 1.5rem; }
+        .desktop-search {
+            position: relative; display: flex; align-items: center;
+            background: rgba(255,255,255,0.08); border: 1px solid var(--border-light);
+            border-radius: 40px; padding: 0.4rem 0.4rem 0.4rem 1.2rem;
+            min-width: 260px;
+        }
+        .desktop-search input {
+            background: transparent; border: none; color: var(--text-primary);
+            width: 100%; outline: none; padding: 0.5rem 0;
+        }
+        .desktop-search button {
+            background: var(--gold); border: none; width: 38px; height: 38px;
+            border-radius: 50%; color: black; cursor: pointer;
+            transition: 0.2s;
+        }
+        .search-hints, .mobile-search-hints {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            padding: 0.5rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 2100;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .search-hints.show, .mobile-search-hints.show { display: block; }
+        .hint-item {
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .hint-item:last-child { border-bottom: none; }
+        .hint-item:hover {
+            background: rgba(202,138,4,0.2);
+            color: var(--gold);
+        }
+        .hint-item i {
+            width: 24px;
+            color: var(--gold);
+        }
+        .hint-item .hint-category {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-left: auto;
+            text-transform: uppercase;
+        }
+        .user-menu, #loginButtonDesktop {
+            display: flex; align-items: center; gap: 0.5rem;
+            background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
+            border-radius: 40px; padding: 0.3rem 0.3rem 0.3rem 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+        .user-avatar {
+            background: var(--gold); color: #000; width: 35px; height: 35px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+        }
+        .logout-dropdown {
+            position: absolute; top: 120%; right: 0;
+            background: var(--card-bg); border: 1px solid var(--gold);
+            border-radius: 20px; padding: 0.5rem;
+            min-width: 120px; display: none; z-index: 1001;
+        }
+        .user-menu:hover .logout-dropdown { display: block; }
+        .logout-item {
+            padding: 0.7rem 1rem; color: var(--text-primary);
+            border-radius: 15px; transition: 0.2s;
+            display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+        }
+        .logout-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
+        .mobile-header-group { display: none; align-items: center; gap: 0.8rem; }
+        .mobile-search-icon, .hamburger-icon {
+            border: 1px solid var(--gold); color: var(--gold);
+            width: 42px; height: 42px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mobile-search-icon:hover, .hamburger-icon:hover {
+            background: var(--gold);
+            color: black;
+        }
+        .search-overlay {
+            position: fixed; top: 0; left: 0; width: 100%;
+            background: var(--nav-bg); backdrop-filter: blur(20px);
+            padding: 1rem; z-index: 2400;
+            transform: translateY(-100%); transition: 0.3s;
+            border-bottom: 2px solid var(--gold);
+        }
+        .search-overlay.open { transform: translateY(0); }
+        .search-row { display: flex; gap: 0.5rem; position: relative; }
+        .search-overlay input {
+            flex: 1; padding: 1rem 1.2rem; background: var(--bg-secondary);
+            border: 2px solid var(--gold); border-radius: 50px;
+            color: var(--text-primary);
+        }
+        .close-search {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 2rem; width: 50px; cursor: pointer;
+        }
+        .hamburger-panel {
+            position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
+            background: var(--nav-bg); backdrop-filter: blur(20px);
+            border-left: 1px solid var(--gold); padding: 2rem 1.5rem;
+            z-index: 2500; transition: right 0.3s ease; display: flex; flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        .hamburger-panel.open { right: 0; }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;
+        }
+        .panel-header h3 { font-family: 'Cinzel', serif; color: var(--gold); }
+        .close-panel {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1.8rem; cursor: pointer; line-height: 1;
+        }
+        .panel-quick-links {
+            display: flex; flex-direction: column; gap: 0.5rem; margin: 2rem 0;
+        }
+        .panel-link {
+            padding: 0.9rem 1rem; background: rgba(255,255,255,0.03);
+            border-radius: 30px; color: var(--text-primary); text-decoration: none;
+            display: flex; align-items: center; gap: 1rem; transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .panel-link:hover {
+            border-color: var(--gold); background: rgba(202,138,4,0.1); color: var(--gold);
+        }
+        .panel-link i { width: 24px; color: var(--gold); }
+        .panel-theme-toggle {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 40px;
+            margin-top: auto; border: 1px solid var(--border-light);
+        }
+        /* hero slider - now promoting SURA */
+        .hero-slider {
+            position: relative;
+            height: 80vh;
+            min-height: 600px;
+            overflow: hidden;
+        }
+        .slide-container {
+            height: 100%;
+            position: relative;
+        }
+        .slide {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .slide.active { opacity: 1; }
+        .slide-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(20,20,20,0.7) 100%);
+        }
+        body.light-theme .slide-overlay {
+            background: linear-gradient(135deg, rgba(255,245,235,0.85) 0%, rgba(255,255,255,0.8) 100%);
+        }
+        .slide-content {
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+            padding: 2rem;
+        }
+        .slide-content h2 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            color: var(--gold);
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 15px rgba(0,0,0,0.5);
+        }
+        .slide-content p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            color: var(--text-secondary);
+        }
+        .slide-btn {
+            background: var(--gold);
+            color: black;
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(202,138,4,0.4);
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .slide-btn:hover {
+            background: #b8860b;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(202,138,4,0.5);
+        }
+        .slider-nav {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 20;
+        }
+        .slider-dot {
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .slider-dot.active {
+            background: var(--gold);
+            transform: scale(1.3);
+            border-color: white;
+        }
+        .slider-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            color: white;
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            z-index: 20;
+            border: 1px solid var(--gold);
+            transition: 0.2s;
+        }
+        .slider-arrow:hover {
+            background: var(--gold);
+            color: black;
+        }
+        .prev { left: 20px; }
+        .next { right: 20px; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 1.5rem;
+        }
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .section-sub {
+            text-align: center;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            font-size: 1.1rem;
+        }
+        /* ===== SURA PROFILE PACKAGES (exactly as required) ===== */
+        .sura-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-top: 2rem;
+        }
+        .sura-card {
+            background: var(--card-bg);
+            border-radius: 40px;
+            border: 1px solid var(--border-light);
+            padding: 2rem 1.8rem;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.5);
+        }
+        .sura-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--gold);
+            box-shadow: 0 25px 50px var(--shadow-color);
+        }
+        .sura-icon {
+            font-size: 3.5rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .sura-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .sura-badge {
+            display: inline-block;
+            background: rgba(202,138,4,0.15);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            padding: 0.3rem 1.2rem;
+            font-size: 0.9rem;
+            margin: 0.5rem auto 1.5rem;
+            align-self: center;
+        }
+        .sura-feature-list {
+            list-style: none;
+            margin-bottom: 2rem;
+            flex: 1;
+        }
+        .sura-feature-list li {
+            padding: 0.8rem 0;
+            border-bottom: 1px dashed var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .sura-feature-list i {
+            color: var(--gold);
+            width: 24px;
+            font-size: 1.1rem;
+        }
+        .sura-feature-list .muted {
+            color: var(--text-muted);
+            text-decoration: line-through 1px #555;
+            opacity: 0.7;
+        }
+        .sura-feature-list .muted i {
+            color: #666;
+        }
+        .sura-pro-only {
+            background: #2a2a2a;
+            border-radius: 20px;
+            padding: 0.15rem 0.7rem;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+            color: var(--gold);
+            border: 1px solid var(--gold);
+        }
+        .sura-btn {
+            display: block;
+            padding: 1rem;
+            border-radius: 60px;
+            background: transparent;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: 0.2s;
+            margin-top: 1rem;
+        }
+        .sura-btn:hover {
+            background: var(--gold);
+            color: black;
+        }
+        .sura-note {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            background: rgba(202,138,4,0.05);
+            border-radius: 30px;
+            padding: 0.6rem 1rem;
+            margin-top: 1.5rem;
+            text-align: center;
+            border: 1px dashed var(--gold);
+        }
+        .sura-summary {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin: 3rem 0 2rem;
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+        .sura-summary span i {
+            color: var(--gold);
+            margin-right: 0.5rem;
+        }
+        /* keeping original inquiry section (repurposed for SURA) */
+        .inquiry-premium {
+            background: var(--card-bg);
+            border-radius: 60px;
+            border: 1px solid var(--gold);
+            padding: 3rem 3rem 3.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
+            position: relative;
+            overflow: hidden;
+            margin-top: 4rem;
+        }
+        .inquiry-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .inquiry-header i {
+            font-size: 3rem;
+            color: var(--gold);
+            background: rgba(202,138,4,0.1);
+            padding: 1rem;
+            border-radius: 80px;
+            margin-bottom: 1rem;
+            border: 1px dashed var(--gold);
+        }
+        .inquiry-header h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            color: var(--gold);
+        }
+        .inquiry-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.8rem;
+            margin-bottom: 2rem;
+        }
+        .inquiry-field.full-width {
+            grid-column: span 2;
+        }
+        .inquiry-field input,
+        .inquiry-field select,
+        .inquiry-field textarea {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            padding: 1rem 1.5rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+            width: 100%;
+        }
+        .inquiry-field input:focus,
+        .inquiry-field select:focus,
+        .inquiry-field textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(202,138,4,0.2);
+        }
+        .inquiry-btn {
+            background: var(--gold);
+            color: black;
+            border: none;
+            border-radius: 60px;
+            padding: 1.2rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            width: auto;
+            min-width: 260px;
+            margin: 1.5rem auto 0;
+            box-shadow: 0 10px 25px rgba(202,138,4,0.3);
+        }
+        .footer {
+            background: var(--bg-secondary);
+            padding: 3rem 1.5rem;
+            text-align: center;
+            border-top: 1px solid var(--border-light);
+        }
+        .message-toast {
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--toast-bg); backdrop-filter: blur(12px);
+            border: 1px solid var(--toast-border); border-radius: 60px;
+            padding: 0.9rem 2rem; display: flex; align-items: center; gap: 1rem;
+            z-index: 10000; opacity: 0; visibility: hidden; transition: 0.4s;
+        }
+        .message-toast.show { opacity: 1; visibility: visible; }
+        .auth-modal {
+            position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+            background:var(--card-bg); padding:2rem; border-radius:30px;
+            border:2px solid var(--gold); z-index:9500; max-width:450px;
+            width:90%; max-height:85vh; overflow-y:auto; display:none;
+        }
+        .auth-modal.active { display:block; }
+        @media (max-width:768px) {
+            .header-desktop-actions { display:none; }
+            .mobile-header-group { display:flex; }
+            .inquiry-grid { grid-template-columns:1fr; }
+            .inquiry-field.full-width { grid-column: span 1; }
+        }
+    </style>
+</head>
+<body>
+<!-- loading overlay -->
+<div class="loading-overlay" id="loadingOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; display:flex; align-items:center; justify-content:center; z-index:10000; transition:0.5s;">
+    <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" style="max-width:200px; border-radius:30px;">
+</div>
+
+<!-- MODAL OVERLAY & AUTH MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeAllModals()"></div>
+<div class="auth-modal" id="authModal">
+    <button class="modal-close" onclick="closeAllModals()">&times;</button>
+    <div class="modal-header"><i class="fas fa-crown"></i><h3>Join SURA Profile</h3><p>Create account to get started</p></div>
+    <div class="modal-tabs"><button class="modal-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button><button class="modal-tab" id="signupTab" onclick="switchAuthTab('signup')">Sign Up</button></div>
+    <form id="loginForm" class="modal-form active" onsubmit="handleLogin(event)">
+        <input type="email" class="modal-input" id="loginEmail" placeholder="Email" required>
+        <input type="password" class="modal-input" id="loginPassword" placeholder="Password" required>
+        <button type="submit" class="modal-btn">Login</button>
+        <div class="modal-error" id="loginError"></div>
+    </form>
+    <form id="signupForm" class="modal-form" onsubmit="handleSignup(event)">
+        <input type="text" class="modal-input" id="signupName" placeholder="Full Name" required>
+        <input type="email" class="modal-input" id="signupEmail" placeholder="Email" required>
+        <input type="password" class="modal-input" id="signupPassword" placeholder="Password (min 6)" required minlength="6">
+        <input type="password" class="modal-input" id="signupConfirm" placeholder="Confirm Password" required>
+        <button type="submit" class="modal-btn">Create Account</button>
+        <div class="modal-error" id="signupError"></div>
+    </form>
+</div>
+
+<!-- header (workfit style) -->
+<header class="site-header">
+    <div class="header-container">
+        <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" alt="SURA Profile" class="site-logo">
+        <div class="header-desktop-actions">
+            <div class="desktop-search" id="desktopSearchContainer">
+                <input type="text" placeholder="Search SURA..." id="desktopSearchInput" autocomplete="off">
+                <button onclick="performSearch(document.getElementById('desktopSearchInput').value)"><i class="fas fa-search"></i></button>
+                <div class="search-hints" id="desktopSearchHints"></div>
+            </div>
+            <div id="userMenuDesktop" class="user-menu" style="display:none;">
+                <span class="user-name" id="userDisplayNameDesktop">User</span>
+                <div class="user-avatar" id="userAvatarDesktop">U</div>
+                <div class="logout-dropdown"><div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div></div>
+            </div>
+            <div id="loginButtonDesktop" onclick="openAuthModal()" style="display:flex; align-items:center; gap:0.5rem; background:rgba(202,138,4,0.1); border:1px solid var(--gold); border-radius:40px; padding:0.3rem 1.2rem; cursor:pointer;">
+                <i class="fas fa-user-circle"></i><span>Account</span>
+            </div>
+        </div>
+        <div class="mobile-header-group">
+            <div class="mobile-search-icon" id="mobileSearchBtn"><i class="fas fa-search"></i></div>
+            <div class="hamburger-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></div>
+        </div>
+    </div>
+</header>
+
+<!-- mobile search overlay -->
+<div class="search-overlay" id="mobileSearchOverlay">
+    <div class="search-row">
+        <input type="text" placeholder="Search SURA..." id="mobileSearchInput" autocomplete="off">
+        <button onclick="performSearch(document.getElementById('mobileSearchInput').value); toggleMobileSearch();"><i class="fas fa-search"></i></button>
+        <button class="close-search" onclick="toggleMobileSearch()"><i class="fas fa-times"></i></button>
+        <div class="mobile-search-hints" id="mobileSearchHints"></div>
+    </div>
+</div>
+
+<!-- hamburger panel -->
+<div class="hamburger-panel" id="hamburgerPanel">
+    <div class="panel-header">
+        <h3>SURA Profile</h3>
+        <button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="panel-quick-links">
+        <a href="#" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-user"></i> Individual</a>
+        <a href="#" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-briefcase"></i> Professional</a>
+        <a href="#" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-crown"></i> Sura Plus</a>
+    </div>
+    <div class="panel-theme-toggle">
+        <span><i class="fas fa-palette"></i> Dark / Light</span>
+        <div onclick="toggleTheme()" style="width:45px; height:45px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer;">
+            <i class="fas fa-moon" id="panelThemeIcon"></i>
+        </div>
+    </div>
+</div>
+
+<!-- HERO SLIDER (now fully SURA-themed) -->
+<section class="hero-slider">
+    <div class="slide-container">
+        <div class="slide active" style="background-image:url('https://i.postimg.cc/fWxRmKfz/MUG(16).gif');">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>SURA Profile</h2>
+                <p>Your digital identity, layered for life & career</p>
+                <button class="slide-btn" onclick="document.querySelector('.sura-grid').scrollIntoView({behavior:'smooth'});"><i class="fas fa-id-card"></i> Explore plans</button>
+            </div>
+        </div>
+        <div class="slide" style="background-image:url('https://i.postimg.cc/DyQVxpSq/MUG(17).gif');">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>For Individuals</h2>
+                <p>Bio · Medical · Professional · Educational</p>
+                <button class="slide-btn" onclick="document.querySelector('.sura-grid').scrollIntoView({behavior:'smooth'});"><i class="fas fa-user"></i> Start basic</button>
+            </div>
+        </div>
+        <div class="slide" style="background-image:url('https://i.postimg.cc/PrcnfH7t/bb.webp');">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>Professionals & Plus</h2>
+                <p>Business card · Follow · Admin · PWA</p>
+                <button class="slide-btn" onclick="document.querySelector('.sura-grid').scrollIntoView({behavior:'smooth'});"><i class="fas fa-rocket"></i> Go pro</button>
+            </div>
+        </div>
+    </div>
+    <div class="slider-arrow prev" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></div>
+    <div class="slider-arrow next" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></div>
+    <div class="slider-nav">
+        <span class="slider-dot active" onclick="goToSlide(0)"></span>
+        <span class="slider-dot" onclick="goToSlide(1)"></span>
+        <span class="slider-dot" onclick="goToSlide(2)"></span>
+    </div>
+</section>
+
+<!-- SURA PROFILE PACKAGES (the core content) -->
+<div class="container">
+    <h2 class="section-title">Choose your Sura</h2>
+    <p class="section-sub">Three layers. One identity. From essential to total control.</p>
+    
+    <div class="sura-grid">
+        <!-- INDIVIDUAL (basic) -->
+        <div class="sura-card">
+            <div class="sura-icon"><i class="fas fa-user"></i></div>
+            <h3>Individual</h3>
+            <div class="sura-badge"><i class="far fa-smile"></i> basic</div>
+            <ul class="sura-feature-list">
+                <li><i class="fas fa-user-pen"></i> <strong>Personal biography</strong> – intro & story</li>
+                <li><i class="fas fa-notes-medical"></i> Medical info (emergency / allergies)</li>
+                <li><i class="fas fa-briefcase"></i> Professional info – current role</li>
+                <li><i class="fas fa-graduation-cap"></i> Educational background</li>
+                <li><i class="fas fa-check-circle" style="color:var(--gold);"></i> Basic SURA profile (core)</li>
+                <!-- not included -->
+                <li class="muted"><i class="far fa-credit-card"></i> business digital card <span class="sura-pro-only">pro</span></li>
+                <li class="muted"><i class="fas fa-users"></i> follow / direct interact <span class="sura-pro-only">pro</span></li>
+                <li class="muted"><i class="fas fa-shield-alt"></i> admin access <span class="sura-pro-only">plus</span></li>
+                <li class="muted"><i class="fas fa-mobile-alt"></i> PWA <span class="sura-pro-only">plus</span></li>
+            </ul>
+            <a href="#" class="sura-btn" onclick="openAuthModal(); return false;">start individual</a>
+            <div class="sura-note">personal bio · medical · professional · educational</div>
+        </div>
+
+        <!-- PROFESSIONAL (all basic + pro features) -->
+        <div class="sura-card">
+            <div class="sura-icon"><i class="fas fa-briefcase"></i></div>
+            <h3>Professional</h3>
+            <div class="sura-badge"><i class="fas fa-badge-check"></i> growth</div>
+            <ul class="sura-feature-list">
+                <li><i class="fas fa-user-pen"></i> Personal biography (basic)</li>
+                <li><i class="fas fa-notes-medical"></i> Medical info</li>
+                <li><i class="fas fa-briefcase"></i> <strong>Professional info breakdown</strong> – vast</li>
+                <li><i class="fas fa-graduation-cap"></i> Educational history</li>
+                <li><i class="fas fa-id-card"></i> <strong>Business digital card</strong> – share instantly</li>
+                <li><i class="fas fa-user-plus"></i> <strong>Follow & direct interact</strong></li>
+                <!-- no admin, no PWA -->
+                <li class="muted"><i class="fas fa-shield-alt"></i> admin access <span class="sura-pro-only">plus</span></li>
+                <li class="muted"><i class="fas fa-mobile-alt"></i> PWA <span class="sura-pro-only">plus</span></li>
+            </ul>
+            <a href="#" class="sura-btn" onclick="openAuthModal(); return false;">choose professional</a>
+            <div class="sura-note">includes digital card & follow · no admin / no PWA</div>
+        </div>
+
+        <!-- SURA PLUS (all pro + admin + PWA) -->
+        <div class="sura-card">
+            <div class="sura-icon"><i class="fas fa-crown"></i></div>
+            <h3>Sura Plus</h3>
+            <div class="sura-badge"><i class="fas fa-crown"></i> power</div>
+            <ul class="sura-feature-list">
+                <li><i class="fas fa-check-circle" style="color:var(--gold);"></i> <strong>Everything in Professional</strong></li>
+                <li><i class="fas fa-user-tie"></i> professional breakdown + business card</li>
+                <li><i class="fas fa-user-plus"></i> follow & interact</li>
+                <li><i class="fas fa-shield-hawk"></i> <strong>Admin access</strong> – full dashboard</li>
+                <li><i class="fas fa-mobile-alt"></i> <strong>PWA (progressive web app)</strong> <span style="background:#1d4e6f; border-radius:30px; padding:0.2rem 0.8rem; font-size:0.7rem; margin-left:0.5rem; color:#b4f0e0;">installable</span></li>
+                <li><i class="fas fa-cloud-upload-alt"></i> own data management</li>
+            </ul>
+            <a href="#" class="sura-btn" onclick="openAuthModal(); return false;">go plus</a>
+            <div class="sura-note">professional features + admin + PWA</div>
+        </div>
+    </div>
+
+    <!-- summary row -->
+    <div class="sura-summary">
+        <span><i class="fas fa-circle-check"></i> Individual: basic bio-medical-professional-educational</span>
+        <span><i class="fas fa-circle-check"></i> Professional: all basic + business card + follow (no admin/PWA)</span>
+        <span><i class="fas fa-circle-check"></i> Sura Plus: all professional + admin access + PWA</span>
+    </div>
+</div>
+
+<!-- refined general inquiry (for SURA) -->
+<div class="container">
+    <div class="inquiry-premium">
+        <div class="inquiry-header">
+            <i class="fas fa-envelope-open-text"></i>
+            <h2>Ready to build your Sura?</h2>
+            <p>Tell us about yourself – we'll help you choose the right layer.</p>
+        </div>
+        <form id="suraInquiryForm">
+            <div class="inquiry-grid">
+                <div class="inquiry-field">
+                    <label style="color:var(--gold);"><i class="fas fa-user"></i> Full name *</label>
+                    <input type="text" id="inquiryName" placeholder="e.g. Alex Mugera" required>
+                </div>
+                <div class="inquiry-field">
+                    <label style="color:var(--gold);"><i class="fas fa-envelope"></i> Email *</label>
+                    <input type="email" id="inquiryEmail" placeholder="alex@example.com" required>
+                </div>
+                <div class="inquiry-field">
+                    <label style="color:var(--gold);"><i class="fas fa-tag"></i> Interest</label>
+                    <select id="inquiryMembership">
+                        <option value="Individual">Individual – basic</option>
+                        <option value="Professional">Professional – business card & follow</option>
+                        <option value="Sura Plus">Sura Plus – admin + PWA</option>
+                    </select>
+                </div>
+                <div class="inquiry-field">
+                    <label style="color:var(--gold);"><i class="fas fa-clock"></i> Preferred contact</label>
+                    <input type="text" id="inquiryTime" placeholder="e.g. mornings">
+                </div>
+                <div class="inquiry-field full-width">
+                    <label style="color:var(--gold);"><i class="fas fa-comment"></i> Goals / questions</label>
+                    <textarea id="inquiryMessage" placeholder="Tell us about your vision..."></textarea>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <button type="submit" class="inquiry-btn" id="inquirySubmitBtn"><i class="fas fa-paper-plane"></i> Send inquiry</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- footer -->
+<footer class="footer">
+    <p style="margin-bottom:0.5rem;"><i class="fas fa-id-card"></i> SURA Profile · a division of I AM MUGERA</p>
+    <p>© 2026 I AM MUGERA · digital identity layers</p>
+</footer>
+
+<!-- toast -->
+<div id="elegantToast" class="message-toast"><i class="fas fa-globe-africa"></i><span id="toastMessage">message</span></div>
+
+<script>
+    // Firebase config (your existing)
+    const firebaseConfig = {
+        apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+        authDomain: "mugera-e51cc.firebaseapp.com",
+        databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mugera-e51cc",
+        storageBucket: "mugera-e51cc.firebasestorage.app",
+        messagingSenderId: "1024868637509",
+        appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+    let currentUser = null;
+    auth.onAuthStateChanged((user) => {
+        currentUser = user;
+        updateUIForUser(user);
+        if (user && user.email) {
+            document.getElementById('inquiryEmail') && (document.getElementById('inquiryEmail').value = user.email);
+        }
+    });
+
+    function updateUIForUser(user) {
+        const desktopMenu = document.getElementById('userMenuDesktop');
+        const desktopLogin = document.getElementById('loginButtonDesktop');
+        const userNameSpan = document.getElementById('userDisplayNameDesktop');
+        const userAvatar = document.getElementById('userAvatarDesktop');
+        if (user) {
+            let dn = user.displayName || user.email?.split('@')[0] || 'User';
+            dn = dn.charAt(0).toUpperCase() + dn.slice(1);
+            if (userNameSpan) userNameSpan.textContent = dn;
+            if (userAvatar) userAvatar.textContent = dn.charAt(0).toUpperCase();
+            if (desktopMenu) desktopMenu.style.display = 'flex';
+            if (desktopLogin) desktopLogin.style.display = 'none';
+        } else {
+            if (desktopMenu) desktopMenu.style.display = 'none';
+            if (desktopLogin) desktopLogin.style.display = 'flex';
+        }
+    }
+
+    window.closeAllModals = () => {
+        document.getElementById('authModal').classList.remove('active');
+        document.getElementById('modalOverlay').classList.remove('active');
+        document.body.style.overflow = '';
+    };
+    window.openAuthModal = () => {
+        document.getElementById('authModal').classList.add('active');
+        document.getElementById('modalOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+    window.switchAuthTab = (tab) => {
+        document.getElementById('loginTab').classList.toggle('active', tab==='login');
+        document.getElementById('signupTab').classList.toggle('active', tab==='signup');
+        document.getElementById('loginForm').classList.toggle('active', tab==='login');
+        document.getElementById('signupForm').classList.toggle('active', tab==='signup');
+    };
+    window.handleLogin = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const errorEl = document.getElementById('loginError');
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+            errorEl.style.display = 'none';
+            closeAllModals();
+            showElegantMessage('Login successful!', 'success');
+        } catch (err) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = err.message;
+        }
+    };
+    window.handleSignup = async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('signupName').value.trim();
+        const email = document.getElementById('signupEmail').value.trim();
+        const password = document.getElementById('signupPassword').value;
+        const confirm = document.getElementById('signupConfirm').value;
+        const errorEl = document.getElementById('signupError');
+        if (password !== confirm) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = 'Passwords do not match';
+            return;
+        }
+        try {
+            const cred = await auth.createUserWithEmailAndPassword(email, password);
+            await cred.user.updateProfile({ displayName: name });
+            if (database) {
+                await database.ref('users/' + cred.user.uid).set({ name, email, createdAt: Date.now() });
+            }
+            errorEl.style.display = 'none';
+            showElegantMessage('Account created!', 'success');
+            closeAllModals();
+        } catch (err) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = err.message;
+        }
+    };
+    window.handleLogout = async () => {
+        try { await auth.signOut(); showElegantMessage('Logged out', 'success'); } catch (err) { showElegantMessage(err.message, 'info'); }
+    };
+
+    window.toggleTheme = function() {
+        document.body.classList.toggle('light-theme');
+        const icon = document.getElementById('panelThemeIcon');
+        if (document.body.classList.contains('light-theme')) {
+            icon?.classList.replace('fa-moon','fa-sun');
+            localStorage.setItem('siteTheme','light');
+        } else {
+            icon?.classList.replace('fa-sun','fa-moon');
+            localStorage.setItem('siteTheme','dark');
+        }
+    };
+    (function() {
+        if (localStorage.getItem('siteTheme') === 'light') {
+            document.body.classList.add('light-theme');
+            document.getElementById('panelThemeIcon')?.classList.replace('fa-moon','fa-sun');
+        }
+        setTimeout(() => document.getElementById('loadingOverlay').style.opacity = '0', 800);
+        setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 1300);
+    })();
+
+    window.toggleHamburger = function() { document.getElementById('hamburgerPanel').classList.toggle('open'); };
+    window.toggleMobileSearch = function() { 
+        document.getElementById('mobileSearchOverlay').classList.toggle('open');
+    };
+    document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
+    document.getElementById('mobileSearchBtn')?.addEventListener('click', toggleMobileSearch);
+
+    // slider
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.slider-dot');
+    function showSlide(index) {
+        if (index >= slides.length) index = 0;
+        if (index < 0) index = slides.length - 1;
+        slides.forEach((s, i) => s.classList.toggle('active', i === index));
+        dots.forEach((d, i) => d.classList.toggle('active', i === index));
+        currentSlide = index;
+    }
+    window.changeSlide = (direction) => showSlide(currentSlide + direction);
+    window.goToSlide = (idx) => showSlide(idx);
+    setInterval(() => changeSlide(1), 6000);
+
+    // inquiry form
+    document.getElementById('suraInquiryForm')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('inquirySubmitBtn');
+        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> sending...';
+        const name = document.getElementById('inquiryName').value.trim();
+        const email = document.getElementById('inquiryEmail').value.trim();
+        const interest = document.getElementById('inquiryMembership').value;
+        const time = document.getElementById('inquiryTime').value;
+        const msg = document.getElementById('inquiryMessage').value.trim();
+        try {
+            const ref = database.ref('sura_inquiries').push();
+            await ref.set({
+                name, email, interest, preferredTime: time || null, message: msg || '',
+                uid: currentUser ? currentUser.uid : null,
+                timestamp: Date.now()
+            });
+            showElegantMessage('✅ Inquiry sent! We\'ll be in touch.', 'success');
+            this.reset();
+            if (currentUser?.email) document.getElementById('inquiryEmail').value = currentUser.email;
+        } catch (err) {
+            showElegantMessage('❌ Failed to send. Try again.', 'info');
+        } finally {
+            btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send inquiry';
+        }
+    });
+
+    function showElegantMessage(text, type='info') {
+        const toast = document.getElementById('elegantToast');
+        document.getElementById('toastMessage').innerText = text;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    // Search functionality (simplified)
+    window.performSearch = (query) => {
+        if (!query?.trim()) return;
+        showElegantMessage(`Searching: ${query}`, 'info');
+    };
+</script>
+</body>
+</html>
