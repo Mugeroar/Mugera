@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ca8a04">
+    <meta name="background-color" content="#0a0a0a">
+    <meta name="color-scheme" content="dark light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SURA Courses">
+    <meta name="application-name" content="SURA Profile">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Data Entry Mastery · Hekima Hub at SURA</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDKs (your existing authentication) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        /* ===== YOUR EXACT WORKFIT/SURA STYLING (preserved) ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --gold: #ca8a04; --gold-dark: #a16207; --gold-light: #fef3c7;
+            --bg-primary: #0a0a0a; --bg-secondary: #111111; --bg-card: rgba(20,20,20,0.8);
+            --text-primary: #ffffff; --text-secondary: #e0e0e0; --text-muted: #aaaaaa;
+            --border-light: #2a2a2a; --shadow-color: rgba(202,138,4,0.25);
+            --nav-bg: rgba(10,10,10,0.95); --card-bg: #151515;
+            --glass-bg: rgba(20,20,20,0.3); --glass-border: rgba(255,255,255,0.1);
+            --glass-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            --toast-bg: rgba(20,20,20,0.95); --toast-border: var(--gold);
+            --header-height: 70px; --input-bg: rgba(255,255,255,0.05);
+            --input-focus-bg: rgba(255,255,255,0.1);
+            --danger: #dc2626; --success: #10b981;
+            --blue: #1a73e8; --maroon: #8b0000; --green: #34a853; --orange: #ff9800;
+        }
+        body.light-theme {
+            --bg-primary: #f8f5f0; --bg-secondary: #ffffff; --bg-card: #ffffff;
+            --text-primary: #1a1a1a; --text-secondary: #2d2d2d; --text-muted: #555555;
+            --border-light: #dddddd; --shadow-color: rgba(202,138,4,0.4);
+            --nav-bg: rgba(255,255,255,0.95); --card-bg: #ffffff;
+            --glass-bg: rgba(255,255,255,0.2); --glass-border: rgba(255,255,255,0.3);
+            --input-bg: rgba(0,0,0,0.03); --input-focus-bg: rgba(0,0,0,0.05);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-top: var(--header-height);
+            transition: background 0.3s, color 0.2s;
+        }
+        /* header (your exact style) */
+        .site-header {
+            position: fixed; top: 0; width: 100%; height: var(--header-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold); z-index: 2000; padding: 0 1rem;
+        }
+        .header-container {
+            max-width: 1400px; height: 100%; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .site-logo {
+            height: 48px; border-radius: 12px; border: 2px solid var(--gold);
+            padding: 2px; background: var(--bg-primary);
+        }
+        .header-desktop-actions { display: flex; align-items: center; gap: 1.5rem; }
+        .desktop-search {
+            position: relative; display: flex; align-items: center;
+            background: rgba(255,255,255,0.08); border: 1px solid var(--border-light);
+            border-radius: 40px; padding: 0.4rem 0.4rem 0.4rem 1.2rem;
+            min-width: 260px;
+        }
+        .desktop-search input {
+            background: transparent; border: none; color: var(--text-primary);
+            width: 100%; outline: none; padding: 0.5rem 0;
+        }
+        .desktop-search button {
+            background: var(--gold); border: none; width: 38px; height: 38px;
+            border-radius: 50%; color: black; cursor: pointer;
+            transition: 0.2s;
+        }
+        .search-hints, .mobile-search-hints {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            padding: 0.5rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 2100;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .search-hints.show, .mobile-search-hints.show { display: block; }
+        .hint-item {
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .hint-item:hover {
+            background: rgba(202,138,4,0.2);
+            color: var(--gold);
+        }
+        .hint-item i {
+            width: 24px;
+            color: var(--gold);
+        }
+        .hint-item .hint-category {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-left: auto;
+            text-transform: uppercase;
+        }
+        .user-menu, #loginButtonDesktop {
+            display: flex; align-items: center; gap: 0.5rem;
+            background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
+            border-radius: 40px; padding: 0.3rem 0.3rem 0.3rem 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+        .user-avatar {
+            background: var(--gold); color: #000; width: 35px; height: 35px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+        }
+        .logout-dropdown {
+            position: absolute; top: 120%; right: 0;
+            background: var(--card-bg); border: 1px solid var(--gold);
+            border-radius: 20px; padding: 0.5rem;
+            min-width: 120px; display: none; z-index: 1001;
+        }
+        .user-menu:hover .logout-dropdown { display: block; }
+        .logout-item {
+            padding: 0.7rem 1rem; color: var(--text-primary);
+            border-radius: 15px; transition: 0.2s;
+            display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+        }
+        .logout-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
+        .mobile-header-group { display: none; align-items: center; gap: 0.8rem; }
+        .mobile-search-icon, .hamburger-icon {
+            border: 1px solid var(--gold); color: var(--gold);
+            width: 42px; height: 42px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mobile-search-icon:hover, .hamburger-icon:hover {
+            background: var(--gold);
+            color: black;
+        }
+        .search-overlay {
+            position: fixed; top: 0; left: 0; width: 100%;
+            background: var(--nav-bg); backdrop-filter: blur(20px);
+            padding: 1rem; z-index: 2400;
+            transform: translateY(-100%); transition: 0.3s;
+            border-bottom: 2px solid var(--gold);
+        }
+        .search-overlay.open { transform: translateY(0); }
+        .search-row { display: flex; gap: 0.5rem; position: relative; }
+        .search-overlay input {
+            flex: 1; padding: 1rem 1.2rem; background: var(--bg-secondary);
+            border: 2px solid var(--gold); border-radius: 50px;
+            color: var(--text-primary);
+        }
+        .close-search {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 2rem; width: 50px; cursor: pointer;
+        }
+        .hamburger-panel {
+            position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
+            background: var(--nav-bg); backdrop-filter: blur(20px);
+            border-left: 1px solid var(--gold); padding: 2rem 1.5rem;
+            z-index: 2500; transition: right 0.3s ease; display: flex; flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        .hamburger-panel.open { right: 0; }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;
+        }
+        .panel-header h3 { font-family: 'Cinzel', serif; color: var(--gold); }
+        .close-panel {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1.8rem; cursor: pointer; line-height: 1;
+        }
+        .panel-quick-links {
+            display: flex; flex-direction: column; gap: 0.5rem; margin: 2rem 0;
+        }
+        .panel-link {
+            padding: 0.9rem 1rem; background: rgba(255,255,255,0.03);
+            border-radius: 30px; color: var(--text-primary); text-decoration: none;
+            display: flex; align-items: center; gap: 1rem; transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .panel-link:hover {
+            border-color: var(--gold); background: rgba(202,138,4,0.1); color: var(--gold);
+        }
+        .panel-link i { width: 24px; color: var(--gold); }
+        .panel-theme-toggle {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 40px;
+            margin-top: auto; border: 1px solid var(--border-light);
+        }
+        /* Page Header (adapted to dark theme) */
+        .page-header {
+            background: linear-gradient(135deg, rgba(202,138,4,0.2), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            padding: 120px 0 60px;
+            margin-top: var(--header-height);
+            border-bottom: 2px solid var(--gold);
+        }
+        .page-header h1 {
+            color: var(--gold);
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2rem, 6vw, 3rem);
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .page-header p {
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+        }
+        .course-badge {
+            display: inline-block;
+            background: var(--gold);
+            color: black;
+            padding: 5px 20px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            border: 1px solid var(--gold-light);
+        }
+        /* General containers (your existing) */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 1.5rem;
+        }
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .section-sub {
+            text-align: center;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            font-size: 1.1rem;
+        }
+        /* Course overview grid */
+        .overview-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+        .overview-text h2, .overview-text h3 {
+            color: var(--gold);
+            font-family: 'Cinzel', serif;
+            margin: 1.5rem 0 1rem;
+        }
+        .overview-text h2::after {
+            content: none;
+        }
+        .course-highlights {
+            background: var(--card-bg);
+            border-radius: 40px;
+            padding: 2rem;
+            border: 1px solid var(--gold);
+            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.5);
+        }
+        .course-highlights h3 {
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .highlight-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px dashed var(--border-light);
+        }
+        .highlight-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .highlight-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(202,138,4,0.1);
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.3rem;
+        }
+        .highlight-text h4 {
+            color: var(--gold);
+            margin-bottom: 0.25rem;
+            font-size: 1rem;
+        }
+        .highlight-text p {
+            color: var(--text-muted);
+            margin-bottom: 0;
+            font-size: 0.9rem;
+        }
+        /* Tabs for curriculum */
+        .details-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-light);
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            border-radius: 40px 40px 0 0;
+        }
+        .tab-btn.active {
+            color: var(--gold);
+            background: rgba(202,138,4,0.1);
+        }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--gold);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .week-content {
+            background: var(--card-bg);
+            border-radius: 40px;
+            padding: 2rem;
+            border: 1px solid var(--border-light);
+            margin-bottom: 1.5rem;
+        }
+        .week-content h3 {
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            font-family: 'Cinzel', serif;
+        }
+        .week-content h3 i {
+            margin-right: 1rem;
+            color: var(--gold);
+        }
+        .topics-list {
+            list-style: none;
+        }
+        .topics-list li {
+            padding: 0.7rem 0;
+            border-bottom: 1px dashed var(--border-light);
+            display: flex;
+            align-items: center;
+            color: var(--text-secondary);
+        }
+        .topics-list li:last-child {
+            border-bottom: none;
+        }
+        .topics-list li i {
+            color: var(--gold);
+            margin-right: 1rem;
+        }
+        /* Pricing cards (adapted to dark theme) */
+        .pricing-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .pricing-card {
+            background: var(--card-bg);
+            border-radius: 40px;
+            border: 1px solid var(--border-light);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.5);
+        }
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--gold);
+            box-shadow: 0 25px 50px var(--shadow-color);
+        }
+        .pricing-card.featured {
+            border: 2px solid var(--gold);
+            position: relative;
+        }
+        .featured-badge {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gold);
+            color: black;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .pricing-type {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            font-family: 'Cinzel', serif;
+        }
+        .pricing-price {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+        }
+        .pricing-features {
+            margin-bottom: 2rem;
+            flex-grow: 1;
+        }
+        .pricing-features ul {
+            list-style: none;
+            text-align: left;
+        }
+        .pricing-features li {
+            padding: 0.7rem 0;
+            display: flex;
+            align-items: flex-start;
+            color: var(--text-secondary);
+            border-bottom: 1px dashed var(--border-light);
+        }
+        .pricing-features li i {
+            color: var(--gold);
+            margin-right: 0.75rem;
+            margin-top: 0.2rem;
+        }
+        .pricing-btn {
+            display: inline-block;
+            padding: 1rem;
+            background: transparent;
+            border: 2px solid var(--gold);
+            border-radius: 60px;
+            color: var(--gold);
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.2s;
+            width: 100%;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .pricing-btn:hover {
+            background: var(--gold);
+            color: black;
+        }
+        /* CTA section (without WhatsApp button) */
+        .cta {
+            background: linear-gradient(to right, rgba(202,138,4,0.2), rgba(0,0,0,0.9));
+            border-top: 1px solid var(--gold);
+            border-bottom: 1px solid var(--gold);
+            text-align: center;
+            padding: 4rem 0;
+        }
+        .cta h2 {
+            color: var(--gold);
+            font-family: 'Cinzel', serif;
+        }
+        .cta p {
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+        .cta-btn {
+            background: var(--gold);
+            color: black;
+            padding: 1rem 2.5rem;
+            border-radius: 60px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: 0.2s;
+        }
+        .cta-btn:hover {
+            background: #b8860b;
+            transform: scale(1.05);
+        }
+        /* Footer (your exact SURA footer) */
+        .footer {
+            background: var(--bg-secondary);
+            padding: 3rem 1.5rem;
+            text-align: center;
+            border-top: 1px solid var(--border-light);
+        }
+        .footer p {
+            color: var(--text-muted);
+        }
+        .footer a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+        /* Toast message */
+        .message-toast {
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--toast-bg); backdrop-filter: blur(12px);
+            border: 1px solid var(--gold); border-radius: 60px;
+            padding: 0.9rem 2rem; display: flex; align-items: center; gap: 1rem;
+            z-index: 10000; opacity: 0; visibility: hidden; transition: 0.4s;
+        }
+        .message-toast.show { opacity: 1; visibility: visible; }
+        /* Auth modal (your existing) */
+        .auth-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 40px;
+            border: 2px solid var(--gold);
+            z-index: 9500;
+            max-width: 480px;
+            width: 92%;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+        }
+        .auth-modal.active { display: block; animation: modalFade 0.3s; }
+        @keyframes modalFade {
+            from { opacity: 0; transform: translate(-50%, -55%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+        .modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-close:hover { color: var(--gold); }
+        .modal-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .modal-header i {
+            font-size: 3rem;
+            color: var(--gold);
+            background: rgba(202,138,4,0.1);
+            padding: 1rem;
+            border-radius: 60px;
+            border: 1px dashed var(--gold);
+        }
+        .modal-header h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            color: var(--gold);
+        }
+        .modal-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 1rem;
+        }
+        .modal-tab {
+            flex: 1;
+            padding: 0.9rem;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 40px;
+            transition: 0.2s;
+        }
+        .modal-tab.active {
+            color: var(--gold);
+            border-color: var(--gold);
+            background: rgba(202,138,4,0.1);
+        }
+        .modal-form { display: none; }
+        .modal-form.active { display: block; }
+        .modal-input {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 40px;
+            color: var(--text-primary);
+            margin-bottom: 1.2rem;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        .modal-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: var(--input-focus-bg);
+        }
+        .modal-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gold);
+            color: black;
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-btn:hover {
+            background: #b8860b;
+            transform: scale(1.02);
+        }
+        .modal-error {
+            color: var(--danger);
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9400;
+            display: none;
+        }
+        .modal-overlay.active { display: block; }
+        /* Back to top button (your existing) */
+        .back-to-top {
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            bottom: 25px;
+            left: 25px;
+            background: var(--gold);
+            color: black;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid white;
+        }
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            background: #b8860b;
+            transform: translateY(-3px);
+        }
+        @media (max-width: 992px) {
+            .overview-content { grid-template-columns: 1fr; }
+            .pricing-container { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .header-desktop-actions { display:none; }
+            .mobile-header-group { display:flex; }
+            .pricing-container { grid-template-columns: 1fr; }
+        }
+        /* Package input style (reused) */
+        .package-input {
+            width:100%; 
+            padding:1rem; 
+            background:var(--input-bg); 
+            border:1px solid var(--border-light); 
+            border-radius:40px; 
+            color:var(--text-primary); 
+            margin-bottom:0.8rem;
+        }
+        .package-input:focus {
+            outline:none;
+            border-color:var(--gold);
+        }
+    </style>
+</head>
+<body>
+<!-- loading overlay -->
+<div class="loading-overlay" id="loadingOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; display:flex; align-items:center; justify-content:center; z-index:10000; transition:0.5s;">
+    <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" style="max-width:200px; border-radius:30px;">
+</div>
+
+<!-- MODAL OVERLAY & AUTH MODAL (your existing authentication) -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeAllModals()"></div>
+<div class="auth-modal" id="authModal">
+    <button class="modal-close" onclick="closeAllModals()">&times;</button>
+    <div class="modal-header">
+        <i class="fas fa-id-card"></i>
+        <h3>Join Hekima Hub</h3>
+    </div>
+    <div class="modal-tabs">
+        <button class="modal-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button>
+        <button class="modal-tab" id="signupTab" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+    <form id="loginForm" class="modal-form active" onsubmit="handleLogin(event)">
+        <input type="email" class="modal-input" id="loginEmail" placeholder="Email address" required>
+        <input type="password" class="modal-input" id="loginPassword" placeholder="Password" required>
+        <button type="submit" class="modal-btn"><i class="fas fa-sign-in-alt"></i> Login</button>
+        <div class="modal-error" id="loginError"></div>
+    </form>
+    <form id="signupForm" class="modal-form" onsubmit="handleSignup(event)">
+        <input type="text" class="modal-input" id="signupName" placeholder="Full name" required>
+        <input type="email" class="modal-input" id="signupEmail" placeholder="Email address" required>
+        <input type="password" class="modal-input" id="signupPassword" placeholder="Password (min 6)" required minlength="6">
+        <input type="password" class="modal-input" id="signupConfirm" placeholder="Confirm password" required>
+        <button type="submit" class="modal-btn"><i class="fas fa-user-plus"></i> Create account</button>
+        <div class="modal-error" id="signupError"></div>
+    </form>
+</div>
+
+<!-- header (your exact style) -->
+<header class="site-header">
+    <div class="header-container">
+        <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" alt="SURA Profile" class="site-logo">
+        <div class="header-desktop-actions">
+            <div class="desktop-search" id="desktopSearchContainer">
+                <input type="text" placeholder="Search courses..." id="desktopSearchInput" autocomplete="off">
+                <button onclick="performSearch(document.getElementById('desktopSearchInput').value)"><i class="fas fa-search"></i></button>
+                <div class="search-hints" id="desktopSearchHints"></div>
+            </div>
+            <div id="userMenuDesktop" class="user-menu" style="display:none;">
+                <span class="user-name" id="userDisplayNameDesktop">User</span>
+                <div class="user-avatar" id="userAvatarDesktop">U</div>
+                <div class="logout-dropdown">
+                    <div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                </div>
+            </div>
+            <div id="loginButtonDesktop" onclick="openAuthModal()" style="display:flex; align-items:center; gap:0.5rem; background:rgba(202,138,4,0.1); border:1px solid var(--gold); border-radius:40px; padding:0.3rem 1.2rem; cursor:pointer;">
+                <i class="fas fa-user-circle"></i><span>Account</span>
+            </div>
+        </div>
+        <div class="mobile-header-group">
+            <div class="mobile-search-icon" id="mobileSearchBtn"><i class="fas fa-search"></i></div>
+            <div class="hamburger-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></div>
+        </div>
+    </div>
+</header>
+
+<!-- mobile search overlay -->
+<div class="search-overlay" id="mobileSearchOverlay">
+    <div class="search-row">
+        <input type="text" placeholder="Search courses..." id="mobileSearchInput" autocomplete="off">
+        <button onclick="performSearch(document.getElementById('mobileSearchInput').value); toggleMobileSearch();"><i class="fas fa-search"></i></button>
+        <button class="close-search" onclick="toggleMobileSearch()"><i class="fas fa-times"></i></button>
+        <div class="mobile-search-hints" id="mobileSearchHints"></div>
+    </div>
+</div>
+
+<!-- hamburger panel -->
+<div class="hamburger-panel" id="hamburgerPanel">
+    <div class="panel-header">
+        <h3>SURA Courses</h3>
+        <button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="panel-quick-links">
+        <a href="#" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-keyboard"></i> Data Entry</a>
+        <a href="#" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-laptop"></i> Online Work</a>
+        <a href="#" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-chart-line"></i> Finance</a>
+    </div>
+    <div class="panel-theme-toggle">
+        <span><i class="fas fa-palette"></i> Dark / Light</span>
+        <div onclick="toggleTheme()" style="width:45px; height:45px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer;">
+            <i class="fas fa-moon" id="panelThemeIcon"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Page Header (Data Entry Mastery) -->
+<section class="page-header">
+    <div class="container">
+        <h1>Data Entry Mastery</h1>
+        <p>Learn efficient data entry techniques, keyboard shortcuts, and data management skills to boost your productivity and accuracy in today's data-driven workplace.</p>
+        <div class="course-badge">4 Weeks • Online • Beginner Level</div>
+    </div>
+</section>
+
+<!-- Course Overview Section -->
+<section class="course-overview" style="background: var(--bg-primary);">
+    <div class="container">
+        <div class="overview-content">
+            <div class="overview-text">
+                <h2 class="section-title" style="text-align: left; margin-bottom: 1rem;">Course Overview</h2>
+                <p>Our Data Entry Mastery course is designed to equip you with the essential skills needed to excel in data entry roles across various industries. In just 4 weeks, you'll learn efficient typing techniques, data accuracy methods, and time-saving strategies that will make you a valuable asset in any organization.</p>
+                <p>This comprehensive course covers everything from basic keyboard proficiency to advanced data management techniques. You'll gain hands-on experience with real-world data entry tasks and learn how to maintain high accuracy while increasing your speed.</p>
+                <p>Whether you're looking to start a career in data entry or improve your current skills, this course provides the foundation you need to succeed in today's data-driven workplace.</p>
+                
+                <h3>What You'll Learn</h3>
+                <ul class="topics-list">
+                    <li><i class="fas fa-check-circle"></i> Touch typing techniques for improved speed and accuracy</li>
+                    <li><i class="fas fa-check-circle"></i> Efficient use of keyboard shortcuts</li>
+                    <li><i class="fas fa-check-circle"></i> Data validation and error-checking methods</li>
+                    <li><i class="fas fa-check-circle"></i> Introduction to spreadsheet software (Excel/Google Sheets)</li>
+                    <li><i class="fas fa-check-circle"></i> Data organization and management best practices</li>
+                    <li><i class="fas fa-check-circle"></i> Time management strategies for data entry tasks</li>
+                </ul>
+            </div>
+            
+            <div class="course-highlights">
+                <h3>Course Highlights</h3>
+                <div class="highlight-item">
+                    <div class="highlight-icon"><i class="fas fa-clock"></i></div>
+                    <div class="highlight-text"><h4>Duration</h4><p>4 Weeks</p></div>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-icon"><i class="fas fa-user-graduate"></i></div>
+                    <div class="highlight-text"><h4>Level</h4><p>Beginner</p></div>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-icon"><i class="fas fa-laptop"></i></div>
+                    <div class="highlight-text"><h4>Format</h4><p>100% Online / In-Person</p></div>
+                </div>
+                <div class="highlight-item">
+                    <div class="highlight-icon"><i class="fas fa-certificate"></i></div>
+                    <div class="highlight-text"><h4>Certificate</h4><p>Upon Completion</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Course Details Section (Curriculum) -->
+<section class="course-details" style="background: var(--bg-secondary);">
+    <div class="container">
+        <h2 class="section-title">Course Curriculum</h2>
+        <div class="details-tabs">
+            <button class="tab-btn active" data-tab="week1">Week 1</button>
+            <button class="tab-btn" data-tab="week2">Week 2</button>
+            <button class="tab-btn" data-tab="week3">Week 3</button>
+            <button class="tab-btn" data-tab="week4">Week 4</button>
+        </div>
+        
+        <div class="tab-content active" id="week1">
+            <div class="week-content">
+                <h3><i class="fas fa-keyboard"></i> Week 1: Keyboard Mastery & Basic Data Entry</h3>
+                <ul class="topics-list">
+                    <li><i class="fas fa-check"></i> Introduction to data entry and its importance</li>
+                    <li><i class="fas fa-check"></i> Proper typing posture and hand positioning</li>
+                    <li><i class="fas fa-check"></i> Touch typing fundamentals</li>
+                    <li><i class="fas fa-check"></i> Alphabet keys practice and speed building</li>
+                    <li><i class="fas fa-check"></i> Number keys and special characters</li>
+                    <li><i class="fas fa-check"></i> Introduction to data accuracy and error prevention</li>
+                </ul>
+            </div>
+        </div>
+        <div class="tab-content" id="week2">
+            <div class="week-content">
+                <h3><i class="fas fa-bolt"></i> Week 2: Efficiency & Shortcuts</h3>
+                <ul class="topics-list">
+                    <li><i class="fas fa-check"></i> Essential keyboard shortcuts for Windows/Mac</li>
+                    <li><i class="fas fa-check"></i> Text navigation and selection techniques</li>
+                    <li><i class="fas fa-check"></i> Copy, cut, paste, and formatting shortcuts</li>
+                    <li><i class="fas fa-check"></i> Browser and application switching shortcuts</li>
+                    <li><i class="fas fa-check"></i> Time-saving techniques for repetitive tasks</li>
+                    <li><i class="fas fa-check"></i> Practice exercises for shortcut mastery</li>
+                </ul>
+            </div>
+        </div>
+        <div class="tab-content" id="week3">
+            <div class="week-content">
+                <h3><i class="fas fa-table"></i> Week 3: Spreadsheet Fundamentals</h3>
+                <ul class="topics-list">
+                    <li><i class="fas fa-check"></i> Introduction to spreadsheet software (Excel/Google Sheets)</li>
+                    <li><i class="fas fa-check"></i> Basic spreadsheet navigation and data entry</li>
+                    <li><i class="fas fa-check"></i> Cell formatting and data organization</li>
+                    <li><i class="fas fa-check"></i> Simple formulas and functions</li>
+                    <li><i class="fas fa-check"></i> Data sorting and filtering</li>
+                    <li><i class="fas fa-check"></i> Creating basic charts and graphs</li>
+                </ul>
+            </div>
+        </div>
+        <div class="tab-content" id="week4">
+            <div class="week-content">
+                <h3><i class="fas fa-tasks"></i> Week 4: Data Management & Professional Skills</h3>
+                <ul class="topics-list">
+                    <li><i class="fas fa-check"></i> Data validation techniques</li>
+                    <li><i class="fas fa-check"></i> Error checking and quality assurance</li>
+                    <li><i class="fas fa-check"></i> Time management for data entry projects</li>
+                    <li><i class="fas fa-check"></i> Maintaining focus and accuracy over long periods</li>
+                    <li><i class="fas fa-check"></i> Final project: Complete a real-world data entry task</li>
+                    <li><i class="fas fa-check"></i> Course review and next steps for continued improvement</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Section with Firebase Inquiry Forms -->
+<section class="pricing-section">
+    <div class="container">
+        <h2 class="section-title">Choose Your Learning Format</h2>
+        <p class="section-sub">Select the learning format that best fits your needs and schedule</p>
+        
+        <div class="pricing-container">
+            <!-- Fully Online Card -->
+            <div class="pricing-card">
+                <div class="pricing-type">Fully Online</div>
+                <div class="pricing-price">KSh 3,499</div>
+                <div class="pricing-features">
+                    <ul>
+                        <li><i class="fas fa-check"></i> Full 4-week course access</li>
+                        <li><i class="fas fa-check"></i> Weekly live online sessions</li>
+                        <li><i class="fas fa-check"></i> All course materials and exercises</li>
+                        <li><i class="fas fa-check"></i> Certificate of completion</li>
+                        <li><i class="fas fa-check"></i> Instructor support throughout</li>
+                        <li><i class="fas fa-check"></i> Practical assignments and feedback</li>
+                    </ul>
+                </div>
+                <form onsubmit="submitCourseInquiry(event, 'Data Entry Mastery', 'Fully Online', 3499)">
+                    <input type="text" class="package-input" placeholder="Your name" id="online-name" required>
+                    <input type="email" class="package-input" placeholder="Email address" id="online-email" required>
+                    <button type="submit" class="pricing-btn"><i class="fas fa-paper-plane"></i> Request Info</button>
+                </form>
+            </div>
+            
+            <!-- Fully In-Person Card (featured) -->
+            <div class="pricing-card featured">
+                <div class="featured-badge">Most Popular</div>
+                <div class="pricing-type">Fully In-Person</div>
+                <div class="pricing-price">KSh 4,499</div>
+                <div class="pricing-features">
+                    <ul>
+                        <li><i class="fas fa-check"></i> Full 4-week in-person classes</li>
+                        <li><i class="fas fa-check"></i> Hands-on training with instructors</li>
+                        <li><i class="fas fa-check"></i> All course materials and exercises</li>
+                        <li><i class="fas fa-check"></i> Certificate of completion</li>
+                        <li><i class="fas fa-check"></i> Direct instructor guidance</li>
+                        <li><i class="fas fa-check"></i> Access to physical learning resources</li>
+                    </ul>
+                </div>
+                <form onsubmit="submitCourseInquiry(event, 'Data Entry Mastery', 'Fully In-Person', 4499)">
+                    <input type="text" class="package-input" placeholder="Your name" id="inperson-name" required>
+                    <input type="email" class="package-input" placeholder="Email address" id="inperson-email" required>
+                    <button type="submit" class="pricing-btn"><i class="fas fa-paper-plane"></i> Request Info</button>
+                </form>
+            </div>
+            
+            <!-- Hybrid Card -->
+            <div class="pricing-card">
+                <div class="pricing-type">Hybrid</div>
+                <div class="pricing-price">KSh 5,499</div>
+                <div class="pricing-features">
+                    <ul>
+                        <li><i class="fas fa-check"></i> All Online + In-Person sessions</li>
+                        <li><i class="fas fa-check"></i> Flexible schedule</li>
+                        <li><i class="fas fa-check"></i> Recorded sessions + live classes</li>
+                        <li><i class="fas fa-check"></i> Certificate of completion</li>
+                        <li><i class="fas fa-check"></i> Priority support</li>
+                        <li><i class="fas fa-check"></i> Extra practice materials</li>
+                    </ul>
+                </div>
+                <form onsubmit="submitCourseInquiry(event, 'Data Entry Mastery', 'Hybrid', 5499)">
+                    <input type="text" class="package-input" placeholder="Your name" id="hybrid-name" required>
+                    <input type="email" class="package-input" placeholder="Email address" id="hybrid-email" required>
+                    <button type="submit" class="pricing-btn"><i class="fas fa-paper-plane"></i> Request Info</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section (no WhatsApp button) -->
+<section class="cta">
+    <div class="container">
+        <h2>Ready to Master Data Entry?</h2>
+        <p>Join our next cohort and gain the skills you need to excel in data entry roles. Limited spots available.</p>
+        <a href="#" class="cta-btn" onclick="openAuthModal(); return false;"><i class="fas fa-user-plus"></i> Enroll Now</a>
+    </div>
+</section>
+
+<!-- Footer (your exact SURA footer) -->
+<footer class="footer">
+    <p style="margin-bottom:0.5rem;"><i class="fas fa-id-card"></i> Hekima Hub at SURA Profile · a division of I AM MUGERA</p>
+    <p>© 2026 I AM MUGERA · digital courses</p>
+</footer>
+
+<!-- Back to Top Button (your existing) -->
+<div class="back-to-top" id="back-to-top" title="Back to top">
+    <i class="fas fa-chevron-up"></i>
+</div>
+
+<!-- Toast -->
+<div id="elegantToast" class="message-toast"><i class="fas fa-globe-africa"></i><span id="toastMessage">message</span></div>
+
+<script>
+    // Firebase config (your existing)
+    const firebaseConfig = {
+        apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+        authDomain: "mugera-e51cc.firebaseapp.com",
+        databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mugera-e51cc",
+        storageBucket: "mugera-e51cc.firebasestorage.app",
+        messagingSenderId: "1024868637509",
+        appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+    let currentUser = null;
+    auth.onAuthStateChanged((user) => {
+        currentUser = user;
+        updateUIForUser(user);
+        
+        // Auto-fill forms with user data if logged in
+        if (user) {
+            const userEmail = user.email || '';
+            const userName = user.displayName || userEmail.split('@')[0] || '';
+            
+            document.querySelectorAll('#online-name, #inperson-name, #hybrid-name').forEach(input => {
+                if (input && !input.value) input.value = userName;
+            });
+            document.querySelectorAll('#online-email, #inperson-email, #hybrid-email').forEach(input => {
+                if (input && !input.value) input.value = userEmail;
+            });
+        }
+    });
+
+    function updateUIForUser(user) {
+        const desktopMenu = document.getElementById('userMenuDesktop');
+        const desktopLogin = document.getElementById('loginButtonDesktop');
+        const userNameSpan = document.getElementById('userDisplayNameDesktop');
+        const userAvatar = document.getElementById('userAvatarDesktop');
+        if (user) {
+            let dn = user.displayName || user.email?.split('@')[0] || 'User';
+            dn = dn.charAt(0).toUpperCase() + dn.slice(1);
+            if (userNameSpan) userNameSpan.textContent = dn;
+            if (userAvatar) userAvatar.textContent = dn.charAt(0).toUpperCase();
+            if (desktopMenu) desktopMenu.style.display = 'flex';
+            if (desktopLogin) desktopLogin.style.display = 'none';
+        } else {
+            if (desktopMenu) desktopMenu.style.display = 'none';
+            if (desktopLogin) desktopLogin.style.display = 'flex';
+        }
+    }
+
+    window.closeAllModals = () => {
+        document.getElementById('authModal').classList.remove('active');
+        document.getElementById('modalOverlay').classList.remove('active');
+        document.body.style.overflow = '';
+    };
+    window.openAuthModal = () => {
+        document.getElementById('authModal').classList.add('active');
+        document.getElementById('modalOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+    window.switchAuthTab = (tab) => {
+        document.getElementById('loginTab').classList.toggle('active', tab==='login');
+        document.getElementById('signupTab').classList.toggle('active', tab==='signup');
+        document.getElementById('loginForm').classList.toggle('active', tab==='login');
+        document.getElementById('signupForm').classList.toggle('active', tab==='signup');
+    };
+    window.handleLogin = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const errorEl = document.getElementById('loginError');
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+            errorEl.style.display = 'none';
+            closeAllModals();
+            showElegantMessage('Login successful!', 'success');
+        } catch (err) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = err.message;
+        }
+    };
+    window.handleSignup = async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('signupName').value.trim();
+        const email = document.getElementById('signupEmail').value.trim();
+        const password = document.getElementById('signupPassword').value;
+        const confirm = document.getElementById('signupConfirm').value;
+        const errorEl = document.getElementById('signupError');
+        if (password !== confirm) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = 'Passwords do not match';
+            return;
+        }
+        try {
+            const cred = await auth.createUserWithEmailAndPassword(email, password);
+            await cred.user.updateProfile({ displayName: name });
+            if (database) {
+                await database.ref('users/' + cred.user.uid).set({ name, email, createdAt: Date.now() });
+            }
+            errorEl.style.display = 'none';
+            showElegantMessage('Account created!', 'success');
+            closeAllModals();
+        } catch (err) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = err.message;
+        }
+    };
+    window.handleLogout = async () => {
+        try { await auth.signOut(); showElegantMessage('Logged out', 'success'); } 
+        catch (err) { showElegantMessage(err.message, 'info'); }
+    };
+
+    // Course inquiry submission (saves to Firebase)
+    window.submitCourseInquiry = async (event, courseName, format, price) => {
+        event.preventDefault();
+        const form = event.target;
+        const nameInput = form.querySelector('input[type="text"]');
+        const emailInput = form.querySelector('input[type="email"]');
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim();
+
+        if (!name || !email) {
+            showElegantMessage('Please fill name and email', 'info');
+            return;
+        }
+
+        // Show loading state
+        const btn = form.querySelector('button[type="submit"]');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> sending...';
+
+        try {
+            const inquiryRef = database.ref('course_inquiries').push();
+            await inquiryRef.set({
+                course: courseName,
+                format: format,
+                price: price,
+                name: name,
+                email: email,
+                uid: currentUser ? currentUser.uid : null,
+                timestamp: Date.now(),
+                status: 'new'
+            });
+            showElegantMessage(`✅ Inquiry sent for ${format}!`, 'success');
+            if (!currentUser) {
+                nameInput.value = '';
+                emailInput.value = '';
+            }
+        } catch (error) {
+            console.error(error);
+            showElegantMessage('❌ Failed to send. Try again.', 'info');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    };
+
+    // Theme toggle
+    window.toggleTheme = function() {
+        document.body.classList.toggle('light-theme');
+        const icon = document.getElementById('panelThemeIcon');
+        if (document.body.classList.contains('light-theme')) {
+            icon?.classList.replace('fa-moon','fa-sun');
+            localStorage.setItem('siteTheme','light');
+        } else {
+            icon?.classList.replace('fa-sun','fa-moon');
+            localStorage.setItem('siteTheme','dark');
+        }
+    };
+    (function() {
+        if (localStorage.getItem('siteTheme') === 'light') {
+            document.body.classList.add('light-theme');
+            document.getElementById('panelThemeIcon')?.classList.replace('fa-moon','fa-sun');
+        }
+        setTimeout(() => document.getElementById('loadingOverlay').style.opacity = '0', 800);
+        setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 1300);
+    })();
+
+    // Mobile menu handlers
+    window.toggleHamburger = function() { 
+        document.getElementById('hamburgerPanel').classList.toggle('open'); 
+    };
+    window.toggleMobileSearch = function() { 
+        document.getElementById('mobileSearchOverlay').classList.toggle('open');
+    };
+    document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
+    document.getElementById('mobileSearchBtn')?.addEventListener('click', toggleMobileSearch);
+
+    // Tab functionality
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            const tabId = btn.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+
+    // Back to Top
+    const backToTopButton = document.getElementById('back-to-top');
+    window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) {
+            backToTopButton.classList.add('show');
+        } else {
+            backToTopButton.classList.remove('show');
+        }
+    });
+    backToTopButton.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    function showElegantMessage(text, type='info') {
+        const toast = document.getElementById('elegantToast');
+        document.getElementById('toastMessage').innerText = text;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    window.performSearch = (query) => {
+        if (!query?.trim()) return;
+        showElegantMessage(`Searching: ${query}`, 'info');
+    };
+</script>
+</body>
+</html>
