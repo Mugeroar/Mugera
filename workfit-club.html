@@ -80,18 +80,79 @@
         .desktop-search button {
             background: var(--gold); border: none; width: 38px; height: 38px;
             border-radius: 50%; color: black; cursor: pointer;
+            transition: 0.2s;
+        }
+        .desktop-search button:hover {
+            background: #b8860b;
+            transform: scale(1.05);
+        }
+        /* search hints */
+        .search-hints, .mobile-search-hints {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            padding: 0.5rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 2100;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .search-hints.show, .mobile-search-hints.show { display: block; }
+        .hint-item {
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .hint-item:last-child { border-bottom: none; }
+        .hint-item:hover {
+            background: rgba(202,138,4,0.2);
+            color: var(--gold);
+        }
+        .hint-item i {
+            width: 24px;
+            color: var(--gold);
+        }
+        .hint-item .hint-category {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-left: auto;
+            text-transform: uppercase;
         }
         .user-menu, #loginButtonDesktop {
             display: flex; align-items: center; gap: 0.5rem;
             background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
             border-radius: 40px; padding: 0.3rem 0.3rem 0.3rem 1rem;
             cursor: pointer;
+            position: relative;
         }
         .user-avatar {
             background: var(--gold); color: #000; width: 35px; height: 35px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-weight: bold;
         }
+        .logout-dropdown {
+            position: absolute; top: 120%; right: 0;
+            background: var(--card-bg); border: 1px solid var(--gold);
+            border-radius: 20px; padding: 0.5rem;
+            min-width: 120px; display: none; z-index: 1001;
+        }
+        .user-menu:hover .logout-dropdown { display: block; }
+        .logout-item {
+            padding: 0.7rem 1rem; color: var(--text-primary);
+            border-radius: 15px; transition: 0.2s;
+            display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+        }
+        .logout-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
         .mobile-header-group { display: none; align-items: center; gap: 0.8rem; }
         .mobile-search-icon, .hamburger-icon {
             border: 1px solid var(--gold); color: var(--gold);
@@ -112,7 +173,7 @@
             border-bottom: 2px solid var(--gold);
         }
         .search-overlay.open { transform: translateY(0); }
-        .search-row { display: flex; gap: 0.5rem; }
+        .search-row { display: flex; gap: 0.5rem; position: relative; }
         .search-overlay input {
             flex: 1; padding: 1rem 1.2rem; background: var(--bg-secondary);
             border: 2px solid var(--gold); border-radius: 50px;
@@ -463,7 +524,7 @@
             text-align: center;
             border: 1px dashed var(--gold);
         }
-        /* ===== NEW FAQ SECTION (5 questions) ===== */
+        /* ===== NEW FAN-SHAPED FAQ SECTION (each Q&A in its own fan card) ===== */
         .faq-section {
             background: var(--bg-secondary);
             border-radius: 60px;
@@ -491,28 +552,47 @@
         }
         .faq-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
         }
-        .faq-item {
+        .faq-fan-card {
             background: var(--card-bg);
-            border-radius: 30px;
-            padding: 1.8rem;
+            border-radius: 50px 50px 50px 50px; /* symmetrical rounded, fan-like shape */
+            padding: 2rem 1.8rem;
             border: 1px solid var(--border-light);
-            transition: 0.2s;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 25px -8px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
         }
-        .faq-item:hover {
+        .faq-fan-card::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -30%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(202,138,4,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+        .faq-fan-card:hover {
             border-color: var(--gold);
-            box-shadow: 0 10px 25px var(--shadow-color);
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 20px 35px var(--shadow-color);
         }
         .faq-question {
             display: flex;
             align-items: center;
             gap: 1rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.2rem;
+            position: relative;
+            z-index: 2;
         }
         .faq-question i {
-            font-size: 1.5rem;
+            font-size: 2rem;
             color: var(--gold);
             background: rgba(202,138,4,0.1);
             padding: 0.8rem;
@@ -520,14 +600,19 @@
             border: 1px dashed var(--gold);
         }
         .faq-question h4 {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: var(--gold);
+            font-family: 'Cinzel', serif;
+            flex: 1;
         }
         .faq-answer {
             color: var(--text-muted);
             line-height: 1.7;
-            padding-left: 3.2rem;
+            padding-left: 0.2rem;
+            position: relative;
+            z-index: 2;
+            font-size: 1rem;
         }
         .faq-answer p {
             margin-bottom: 0.5rem;
@@ -771,13 +856,15 @@
     <div class="header-container">
         <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x_1.webp" alt="WorkFit Club" class="site-logo">
         <div class="header-desktop-actions">
-            <div class="desktop-search">
-                <input type="text" placeholder="Search WorkFit..." id="desktopSearchInput">
-                <button><i class="fas fa-search"></i></button>
+            <div class="desktop-search" id="desktopSearchContainer">
+                <input type="text" placeholder="Search WorkFit..." id="desktopSearchInput" autocomplete="off">
+                <button onclick="performSearch(document.getElementById('desktopSearchInput').value)"><i class="fas fa-search"></i></button>
+                <div class="search-hints" id="desktopSearchHints"></div>
             </div>
             <div id="userMenuDesktop" class="user-menu" style="display:none;">
                 <span class="user-name" id="userDisplayNameDesktop">User</span>
                 <div class="user-avatar" id="userAvatarDesktop">U</div>
+                <div class="logout-dropdown"><div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div></div>
             </div>
             <div id="loginButtonDesktop" onclick="openAuthModal()" style="display:flex; align-items:center; gap:0.5rem; background:rgba(202,138,4,0.1); border:1px solid var(--gold); border-radius:40px; padding:0.3rem 1.2rem; cursor:pointer;">
                 <i class="fas fa-user-circle"></i><span>Account</span>
@@ -790,11 +877,13 @@
     </div>
 </header>
 
-<!-- mobile search -->
+<!-- mobile search overlay (with hints) -->
 <div class="search-overlay" id="mobileSearchOverlay">
     <div class="search-row">
-        <input type="text" placeholder="Search WorkFit...">
+        <input type="text" placeholder="Search WorkFit..." id="mobileSearchInput" autocomplete="off">
+        <button onclick="performSearch(document.getElementById('mobileSearchInput').value); toggleMobileSearch();"><i class="fas fa-search"></i></button>
         <button class="close-search" onclick="toggleMobileSearch()"><i class="fas fa-times"></i></button>
+        <div class="mobile-search-hints" id="mobileSearchHints"></div>
     </div>
 </div>
 
@@ -971,7 +1060,7 @@
     </div>
 </div>
 
-<!-- ===== NEW FAQ SECTION (5 questions) ===== -->
+<!-- ===== NEW FAN-SHAPED FAQ SECTION (each Q&A in its own fan card) ===== -->
 <div class="container">
     <div class="faq-section">
         <div class="faq-header">
@@ -980,8 +1069,8 @@
             <p>Everything you need to know about WorkFit Club</p>
         </div>
         <div class="faq-grid">
-            <!-- 1. Membership type -->
-            <div class="faq-item">
+            <!-- 1. Membership type fan -->
+            <div class="faq-fan-card">
                 <div class="faq-question">
                     <i class="fas fa-id-card"></i>
                     <h4>Membership type</h4>
@@ -990,8 +1079,8 @@
                     <p>We offer a <strong>subscription-based model</strong>. After subscribing, you can book sessions prior to each day you need the service. Flexible and convenient!</p>
                 </div>
             </div>
-            <!-- 2. Pricing -->
-            <div class="faq-item">
+            <!-- 2. Pricing fan -->
+            <div class="faq-fan-card">
                 <div class="faq-question">
                     <i class="fas fa-tag"></i>
                     <h4>Pricing</h4>
@@ -1000,8 +1089,8 @@
                     <p>Very flexible pricing based on family size, number of sessions, and activities chosen. We'll work with you to find a plan that fits your budget.</p>
                 </div>
             </div>
-            <!-- 3. Time -->
-            <div class="faq-item">
+            <!-- 3. Time fan -->
+            <div class="faq-fan-card">
                 <div class="faq-question">
                     <i class="fas fa-clock"></i>
                     <h4>Time</h4>
@@ -1010,8 +1099,8 @@
                     <p>Sessions available in <strong>morning hours, afternoon, and evening up to 7pm</strong>. Choose the time that suits you best.</p>
                 </div>
             </div>
-            <!-- 4. Meal plans -->
-            <div class="faq-item">
+            <!-- 4. Meal plans fan -->
+            <div class="faq-fan-card">
                 <div class="faq-question">
                     <i class="fas fa-utensils"></i>
                     <h4>Meal plans</h4>
@@ -1020,8 +1109,8 @@
                     <p>We provide <strong>custom meal plans</strong> based on individual or family preferences. Healthy, balanced, and tailored to your goals.</p>
                 </div>
             </div>
-            <!-- 5. Other activities -->
-            <div class="faq-item">
+            <!-- 5. Other activities fan -->
+            <div class="faq-fan-card">
                 <div class="faq-question">
                     <i class="fas fa-hiking"></i>
                     <h4>Other activities</h4>
@@ -1087,7 +1176,7 @@
 <div id="elegantToast" class="message-toast"><i class="fas fa-globe-africa"></i><span id="toastMessage">message</span></div>
 
 <script>
-    // Firebase config and all JavaScript remains exactly as before (fully functional)
+    // Firebase config
     const firebaseConfig = {
         apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
         authDomain: "mugera-e51cc.firebaseapp.com",
@@ -1187,6 +1276,9 @@
             errorEl.textContent = err.message;
         }
     };
+    window.handleLogout = async () => {
+        try { await auth.signOut(); showElegantMessage('Logged out', 'success'); } catch (err) { showElegantMessage(err.message, 'info'); }
+    };
 
     window.toggleTheme = function() {
         document.body.classList.toggle('light-theme');
@@ -1209,9 +1301,26 @@
     })();
 
     window.toggleHamburger = function() { document.getElementById('hamburgerPanel').classList.toggle('open'); };
-    window.toggleMobileSearch = function() { document.getElementById('mobileSearchOverlay').classList.toggle('open'); };
+    window.toggleMobileSearch = function() { 
+        const overlay = document.getElementById('mobileSearchOverlay');
+        overlay.classList.toggle('open');
+        if (!overlay.classList.contains('open')) {
+            document.getElementById('mobileSearchHints')?.classList.remove('show');
+        }
+    };
     document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
     document.getElementById('mobileSearchBtn')?.addEventListener('click', toggleMobileSearch);
+
+    // close panel when clicking outside
+    document.addEventListener('click', function(e) {
+        const panel = document.getElementById('hamburgerPanel');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        if (panel && panel.classList.contains('open')) {
+            if (!panel.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                panel.classList.remove('open');
+            }
+        }
+    });
 
     // slider
     let currentSlide = 0;
@@ -1305,6 +1414,108 @@
             submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send general inquiry';
         }
     });
+
+    // ========== FUNCTIONAL SEARCH ==========
+    const searchDatabase = [
+        { title: "Fit Fam", category: "Package", icon: "fas fa-users", keywords: ["family","group","meal plans","wellness"], section: "packages" },
+        { title: "Fit-Solo", category: "Package", icon: "fas fa-user", keywords: ["individual","solo","gym session","personal"], section: "packages" },
+        { title: "Med-Fit", category: "Package", icon: "fas fa-stethoscope", keywords: ["medical","rehab","physio","low-impact"], section: "packages", comingSoon: true },
+        { title: "Sporting Programs", category: "Package", icon: "fas fa-futbol", keywords: ["sports","coaching","teams","athletes","basketball","swimming"], section: "packages" },
+        { title: "Membership type", category: "FAQ", icon: "fas fa-id-card", keywords: ["subscription","book sessions","how it works","booking"], section: "faq" },
+        { title: "Pricing", category: "FAQ", icon: "fas fa-tag", keywords: ["cost","price","flexible","budget","family size","sessions"], section: "faq" },
+        { title: "Time", category: "FAQ", icon: "fas fa-clock", keywords: ["hours","morning","afternoon","evening","7pm","schedule"], section: "faq" },
+        { title: "Meal plans", category: "FAQ", icon: "fas fa-utensils", keywords: ["nutrition","diet","custom meals","food"], section: "faq" },
+        { title: "Other activities", category: "FAQ", icon: "fas fa-hiking", keywords: ["outdoor","monthly","hikes","adventures","extra"], section: "faq" }
+    ];
+
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    function generateHints(query, containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        if (!query || query.length < 2) {
+            container.classList.remove('show');
+            container.innerHTML = '';
+            return;
+        }
+        query = query.toLowerCase().trim();
+        const matches = searchDatabase.filter(item =>
+            item.title.toLowerCase().includes(query) ||
+            item.keywords.some(k => k.includes(query))
+        ).slice(0, 6);
+
+        if (matches.length === 0) {
+            container.classList.remove('show');
+            container.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+        matches.forEach(m => {
+            let badge = m.comingSoon ? ' <span style="color:#dc2626; font-size:0.7rem;">(coming soon)</span>' : '';
+            html += `<div class="hint-item" onclick="selectHint('${m.title.replace(/'/g,"\\'")}')">
+                <i class="${m.icon}"></i>
+                <span>${m.title}${badge}</span>
+                <span class="hint-category">${m.category}</span>
+            </div>`;
+        });
+        container.innerHTML = html;
+        container.classList.add('show');
+    }
+
+    window.selectHint = function(title) {
+        // Scroll to relevant section based on title
+        showElegantMessage(`Showing: ${title}`, 'info');
+        if (title.includes('Fam') || title.includes('Solo') || title.includes('Med') || title.includes('Sporting')) {
+            document.getElementById('fitness').scrollIntoView({ behavior: 'smooth' });
+        } else {
+            // FAQ items - scroll to FAQ section
+            document.querySelector('.faq-section').scrollIntoView({ behavior: 'smooth' });
+        }
+        // Hide hints after selection
+        document.getElementById('desktopSearchHints')?.classList.remove('show');
+        document.getElementById('mobileSearchHints')?.classList.remove('show');
+    };
+
+    // Desktop search input
+    const desktopSearch = document.getElementById('desktopSearchInput');
+    if (desktopSearch) {
+        desktopSearch.addEventListener('input', debounce(function() {
+            generateHints(this.value, 'desktopSearchHints');
+        }, 200));
+    }
+
+    // Mobile search input
+    const mobileSearch = document.getElementById('mobileSearchInput');
+    if (mobileSearch) {
+        mobileSearch.addEventListener('input', debounce(function() {
+            generateHints(this.value, 'mobileSearchHints');
+        }, 200));
+    }
+
+    // Close hints when clicking outside
+    document.addEventListener('click', function(e) {
+        const desktopContainer = document.getElementById('desktopSearchContainer');
+        if (desktopContainer && !desktopContainer.contains(e.target)) {
+            document.getElementById('desktopSearchHints')?.classList.remove('show');
+        }
+        const mobileRow = document.querySelector('.search-overlay .search-row');
+        if (mobileRow && !mobileRow.contains(e.target)) {
+            document.getElementById('mobileSearchHints')?.classList.remove('show');
+        }
+    });
+
+    window.performSearch = function(query) {
+        if (!query?.trim()) { showElegantMessage('Enter a search term', 'info'); return; }
+        generateHints(query, 'desktopSearchHints'); // also triggers display
+        // If only one clear match, could auto-navigate, but we'll let user click
+    };
 
     function showElegantMessage(text, type='info') {
         const toast = document.getElementById('elegantToast');
