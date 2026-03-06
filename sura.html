@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Firebase SDKs (kept for auth & submissions) -->
+    <!-- Firebase SDKs (your existing authentication) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -214,7 +214,7 @@
             padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 40px;
             margin-top: auto; border: 1px solid var(--border-light);
         }
-        /* hero slider - now promoting SURA */
+        /* hero slider - SURA themed */
         .hero-slider {
             position: relative;
             height: 80vh;
@@ -350,7 +350,7 @@
             margin: 0 auto 3rem;
             font-size: 1.1rem;
         }
-        /* ===== SURA PROFILE PACKAGES (exactly as required) ===== */
+        /* ===== SURA PROFILE PACKAGES (fully styled) ===== */
         .sura-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -441,6 +441,7 @@
             text-align: center;
             transition: 0.2s;
             margin-top: 1rem;
+            cursor: pointer;
         }
         .sura-btn:hover {
             background: var(--gold);
@@ -469,16 +470,156 @@
             color: var(--gold);
             margin-right: 0.5rem;
         }
-        /* keeping original inquiry section (repurposed for SURA) */
+        /* ===== PERFECTLY STYLED FORMS (authentication & inquiry) ===== */
+        .auth-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 40px;
+            border: 2px solid var(--gold);
+            z-index: 9500;
+            max-width: 480px;
+            width: 92%;
+            max-height: 90vh;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            backdrop-filter: blur(15px);
+        }
+        .auth-modal.active { display: block; animation: modalFade 0.3s; }
+        @keyframes modalFade {
+            from { opacity: 0; transform: translate(-50%, -55%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+        .modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: 0.2s;
+            line-height: 1;
+        }
+        .modal-close:hover { color: var(--gold); transform: rotate(90deg); }
+        .modal-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .modal-header i {
+            font-size: 3rem;
+            color: var(--gold);
+            background: rgba(202,138,4,0.1);
+            padding: 1rem;
+            border-radius: 60px;
+            margin-bottom: 1rem;
+            border: 1px dashed var(--gold);
+        }
+        .modal-header h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            color: var(--gold);
+        }
+        .modal-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 1rem;
+        }
+        .modal-tab {
+            flex: 1;
+            padding: 0.9rem;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 40px;
+            transition: 0.2s;
+        }
+        .modal-tab.active {
+            color: var(--gold);
+            border-color: var(--gold);
+            background: rgba(202,138,4,0.1);
+        }
+        .modal-form { display: none; }
+        .modal-form.active { display: block; }
+        .modal-input {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 40px;
+            color: var(--text-primary);
+            margin-bottom: 1.2rem;
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+        .modal-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: var(--input-focus-bg);
+            box-shadow: 0 0 0 3px rgba(202,138,4,0.15);
+        }
+        .modal-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--gold);
+            color: black;
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.7rem;
+            margin-top: 0.5rem;
+        }
+        .modal-btn:hover {
+            background: #b8860b;
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px rgba(202,138,4,0.3);
+        }
+        .modal-error {
+            color: var(--danger);
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+            background: rgba(220,38,38,0.1);
+            padding: 0.7rem;
+            border-radius: 40px;
+            border: 1px solid var(--danger);
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9400;
+            display: none;
+        }
+        .modal-overlay.active { display: block; }
+        /* inquiry form (perfectly styled) */
         .inquiry-premium {
             background: var(--card-bg);
             border-radius: 60px;
             border: 1px solid var(--gold);
-            padding: 3rem 3rem 3.5rem;
+            padding: 3rem;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
-            position: relative;
-            overflow: hidden;
-            margin-top: 4rem;
+            margin: 4rem 0;
         }
         .inquiry-header {
             text-align: center;
@@ -490,13 +631,13 @@
             background: rgba(202,138,4,0.1);
             padding: 1rem;
             border-radius: 80px;
-            margin-bottom: 1rem;
             border: 1px dashed var(--gold);
         }
         .inquiry-header h2 {
             font-family: 'Cinzel', serif;
             font-size: 2.2rem;
             color: var(--gold);
+            margin: 1rem 0 0.5rem;
         }
         .inquiry-grid {
             display: grid;
@@ -504,26 +645,50 @@
             gap: 1.8rem;
             margin-bottom: 2rem;
         }
-        .inquiry-field.full-width {
-            grid-column: span 2;
+        .inquiry-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .inquiry-field.full-width { grid-column: span 2; }
+        .inquiry-field label {
+            font-weight: 600;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         .inquiry-field input,
         .inquiry-field select,
         .inquiry-field textarea {
             background: var(--bg-primary);
             border: 1px solid var(--border-light);
-            border-radius: 30px;
+            border-radius: 40px;
             padding: 1rem 1.5rem;
             color: var(--text-primary);
             font-size: 1rem;
             width: 100%;
+            transition: 0.2s;
         }
         .inquiry-field input:focus,
         .inquiry-field select:focus,
         .inquiry-field textarea:focus {
             outline: none;
             border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(202,138,4,0.2);
+            box-shadow: 0 0 0 3px rgba(202,138,4,0.15);
+            background: var(--input-focus-bg);
+        }
+        .inquiry-field select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ca8a04'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1.5rem center;
+            background-size: 1.2rem;
+        }
+        .inquiry-field textarea {
+            border-radius: 30px;
+            resize: vertical;
+            min-height: 120px;
         }
         .inquiry-btn {
             background: var(--gold);
@@ -538,10 +703,15 @@
             align-items: center;
             justify-content: center;
             gap: 1rem;
-            width: auto;
             min-width: 260px;
             margin: 1.5rem auto 0;
             box-shadow: 0 10px 25px rgba(202,138,4,0.3);
+            transition: 0.2s;
+        }
+        .inquiry-btn:hover {
+            background: #b8860b;
+            transform: scale(1.02);
+            box-shadow: 0 15px 30px rgba(202,138,4,0.4);
         }
         .footer {
             background: var(--bg-secondary);
@@ -552,18 +722,11 @@
         .message-toast {
             position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
             background: var(--toast-bg); backdrop-filter: blur(12px);
-            border: 1px solid var(--toast-border); border-radius: 60px;
+            border: 1px solid var(--gold); border-radius: 60px;
             padding: 0.9rem 2rem; display: flex; align-items: center; gap: 1rem;
             z-index: 10000; opacity: 0; visibility: hidden; transition: 0.4s;
         }
         .message-toast.show { opacity: 1; visibility: visible; }
-        .auth-modal {
-            position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-            background:var(--card-bg); padding:2rem; border-radius:30px;
-            border:2px solid var(--gold); z-index:9500; max-width:450px;
-            width:90%; max-height:85vh; overflow-y:auto; display:none;
-        }
-        .auth-modal.active { display:block; }
         @media (max-width:768px) {
             .header-desktop-actions { display:none; }
             .mobile-header-group { display:flex; }
@@ -578,29 +741,37 @@
     <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" style="max-width:200px; border-radius:30px;">
 </div>
 
-<!-- MODAL OVERLAY & AUTH MODAL -->
+<!-- MODAL OVERLAY & AUTH MODAL (your existing authentication, perfectly styled) -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeAllModals()"></div>
 <div class="auth-modal" id="authModal">
     <button class="modal-close" onclick="closeAllModals()">&times;</button>
-    <div class="modal-header"><i class="fas fa-crown"></i><h3>Join SURA Profile</h3><p>Create account to get started</p></div>
-    <div class="modal-tabs"><button class="modal-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button><button class="modal-tab" id="signupTab" onclick="switchAuthTab('signup')">Sign Up</button></div>
+    <div class="modal-header">
+        <i class="fas fa-id-card"></i>
+        <h3>Join SURA Profile</h3>
+    </div>
+    <div class="modal-tabs">
+        <button class="modal-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button>
+        <button class="modal-tab" id="signupTab" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+    <!-- Login Form -->
     <form id="loginForm" class="modal-form active" onsubmit="handleLogin(event)">
-        <input type="email" class="modal-input" id="loginEmail" placeholder="Email" required>
+        <input type="email" class="modal-input" id="loginEmail" placeholder="Email address" required>
         <input type="password" class="modal-input" id="loginPassword" placeholder="Password" required>
-        <button type="submit" class="modal-btn">Login</button>
+        <button type="submit" class="modal-btn"><i class="fas fa-sign-in-alt"></i> Login</button>
         <div class="modal-error" id="loginError"></div>
     </form>
+    <!-- Signup Form -->
     <form id="signupForm" class="modal-form" onsubmit="handleSignup(event)">
-        <input type="text" class="modal-input" id="signupName" placeholder="Full Name" required>
-        <input type="email" class="modal-input" id="signupEmail" placeholder="Email" required>
-        <input type="password" class="modal-input" id="signupPassword" placeholder="Password (min 6)" required minlength="6">
-        <input type="password" class="modal-input" id="signupConfirm" placeholder="Confirm Password" required>
-        <button type="submit" class="modal-btn">Create Account</button>
+        <input type="text" class="modal-input" id="signupName" placeholder="Full name" required>
+        <input type="email" class="modal-input" id="signupEmail" placeholder="Email address" required>
+        <input type="password" class="modal-input" id="signupPassword" placeholder="Password (min 6 characters)" required minlength="6">
+        <input type="password" class="modal-input" id="signupConfirm" placeholder="Confirm password" required>
+        <button type="submit" class="modal-btn"><i class="fas fa-user-plus"></i> Create account</button>
         <div class="modal-error" id="signupError"></div>
     </form>
 </div>
 
-<!-- header (workfit style) -->
+<!-- header (workfit style, now SURA branded) -->
 <header class="site-header">
     <div class="header-container">
         <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" alt="SURA Profile" class="site-logo">
@@ -613,7 +784,9 @@
             <div id="userMenuDesktop" class="user-menu" style="display:none;">
                 <span class="user-name" id="userDisplayNameDesktop">User</span>
                 <div class="user-avatar" id="userAvatarDesktop">U</div>
-                <div class="logout-dropdown"><div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div></div>
+                <div class="logout-dropdown">
+                    <div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                </div>
             </div>
             <div id="loginButtonDesktop" onclick="openAuthModal()" style="display:flex; align-items:center; gap:0.5rem; background:rgba(202,138,4,0.1); border:1px solid var(--gold); border-radius:40px; padding:0.3rem 1.2rem; cursor:pointer;">
                 <i class="fas fa-user-circle"></i><span>Account</span>
@@ -655,7 +828,7 @@
     </div>
 </div>
 
-<!-- HERO SLIDER (now fully SURA-themed) -->
+<!-- HERO SLIDER (SURA themed) -->
 <section class="hero-slider">
     <div class="slide-container">
         <div class="slide active" style="background-image:url('https://i.postimg.cc/fWxRmKfz/MUG(16).gif');">
@@ -692,13 +865,13 @@
     </div>
 </section>
 
-<!-- SURA PROFILE PACKAGES (the core content) -->
+<!-- SURA PROFILE PACKAGES (core content) -->
 <div class="container">
     <h2 class="section-title">Choose your Sura</h2>
     <p class="section-sub">Three layers. One identity. From essential to total control.</p>
     
     <div class="sura-grid">
-        <!-- INDIVIDUAL (basic) -->
+        <!-- INDIVIDUAL -->
         <div class="sura-card">
             <div class="sura-icon"><i class="fas fa-user"></i></div>
             <h3>Individual</h3>
@@ -709,17 +882,16 @@
                 <li><i class="fas fa-briefcase"></i> Professional info – current role</li>
                 <li><i class="fas fa-graduation-cap"></i> Educational background</li>
                 <li><i class="fas fa-check-circle" style="color:var(--gold);"></i> Basic SURA profile (core)</li>
-                <!-- not included -->
                 <li class="muted"><i class="far fa-credit-card"></i> business digital card <span class="sura-pro-only">pro</span></li>
                 <li class="muted"><i class="fas fa-users"></i> follow / direct interact <span class="sura-pro-only">pro</span></li>
                 <li class="muted"><i class="fas fa-shield-alt"></i> admin access <span class="sura-pro-only">plus</span></li>
                 <li class="muted"><i class="fas fa-mobile-alt"></i> PWA <span class="sura-pro-only">plus</span></li>
             </ul>
-            <a href="#" class="sura-btn" onclick="openAuthModal(); return false;">start individual</a>
+            <button class="sura-btn" onclick="openAuthModal()">start individual</button>
             <div class="sura-note">personal bio · medical · professional · educational</div>
         </div>
 
-        <!-- PROFESSIONAL (all basic + pro features) -->
+        <!-- PROFESSIONAL -->
         <div class="sura-card">
             <div class="sura-icon"><i class="fas fa-briefcase"></i></div>
             <h3>Professional</h3>
@@ -731,15 +903,14 @@
                 <li><i class="fas fa-graduation-cap"></i> Educational history</li>
                 <li><i class="fas fa-id-card"></i> <strong>Business digital card</strong> – share instantly</li>
                 <li><i class="fas fa-user-plus"></i> <strong>Follow & direct interact</strong></li>
-                <!-- no admin, no PWA -->
                 <li class="muted"><i class="fas fa-shield-alt"></i> admin access <span class="sura-pro-only">plus</span></li>
                 <li class="muted"><i class="fas fa-mobile-alt"></i> PWA <span class="sura-pro-only">plus</span></li>
             </ul>
-            <a href="#" class="sura-btn" onclick="openAuthModal(); return false;">choose professional</a>
+            <button class="sura-btn" onclick="openAuthModal()">choose professional</button>
             <div class="sura-note">includes digital card & follow · no admin / no PWA</div>
         </div>
 
-        <!-- SURA PLUS (all pro + admin + PWA) -->
+        <!-- SURA PLUS -->
         <div class="sura-card">
             <div class="sura-icon"><i class="fas fa-crown"></i></div>
             <h3>Sura Plus</h3>
@@ -752,12 +923,11 @@
                 <li><i class="fas fa-mobile-alt"></i> <strong>PWA (progressive web app)</strong> <span style="background:#1d4e6f; border-radius:30px; padding:0.2rem 0.8rem; font-size:0.7rem; margin-left:0.5rem; color:#b4f0e0;">installable</span></li>
                 <li><i class="fas fa-cloud-upload-alt"></i> own data management</li>
             </ul>
-            <a href="#" class="sura-btn" onclick="openAuthModal(); return false;">go plus</a>
+            <button class="sura-btn" onclick="openAuthModal()">go plus</button>
             <div class="sura-note">professional features + admin + PWA</div>
         </div>
     </div>
 
-    <!-- summary row -->
     <div class="sura-summary">
         <span><i class="fas fa-circle-check"></i> Individual: basic bio-medical-professional-educational</span>
         <span><i class="fas fa-circle-check"></i> Professional: all basic + business card + follow (no admin/PWA)</span>
@@ -765,7 +935,7 @@
     </div>
 </div>
 
-<!-- refined general inquiry (for SURA) -->
+<!-- PERFECTLY STYLED INQUIRY FORM -->
 <div class="container">
     <div class="inquiry-premium">
         <div class="inquiry-header">
@@ -776,15 +946,15 @@
         <form id="suraInquiryForm">
             <div class="inquiry-grid">
                 <div class="inquiry-field">
-                    <label style="color:var(--gold);"><i class="fas fa-user"></i> Full name *</label>
+                    <label><i class="fas fa-user"></i> Full name *</label>
                     <input type="text" id="inquiryName" placeholder="e.g. Alex Mugera" required>
                 </div>
                 <div class="inquiry-field">
-                    <label style="color:var(--gold);"><i class="fas fa-envelope"></i> Email *</label>
+                    <label><i class="fas fa-envelope"></i> Email *</label>
                     <input type="email" id="inquiryEmail" placeholder="alex@example.com" required>
                 </div>
                 <div class="inquiry-field">
-                    <label style="color:var(--gold);"><i class="fas fa-tag"></i> Interest</label>
+                    <label><i class="fas fa-tag"></i> Interest</label>
                     <select id="inquiryMembership">
                         <option value="Individual">Individual – basic</option>
                         <option value="Professional">Professional – business card & follow</option>
@@ -792,11 +962,11 @@
                     </select>
                 </div>
                 <div class="inquiry-field">
-                    <label style="color:var(--gold);"><i class="fas fa-clock"></i> Preferred contact</label>
+                    <label><i class="fas fa-clock"></i> Preferred contact</label>
                     <input type="text" id="inquiryTime" placeholder="e.g. mornings">
                 </div>
                 <div class="inquiry-field full-width">
-                    <label style="color:var(--gold);"><i class="fas fa-comment"></i> Goals / questions</label>
+                    <label><i class="fas fa-comment"></i> Goals / questions</label>
                     <textarea id="inquiryMessage" placeholder="Tell us about your vision..."></textarea>
                 </div>
             </div>
@@ -837,7 +1007,7 @@
         currentUser = user;
         updateUIForUser(user);
         if (user && user.email) {
-            document.getElementById('inquiryEmail') && (document.getElementById('inquiryEmail').value = user.email);
+            document.getElementById('inquiryEmail').value = user.email;
         }
     });
 
@@ -917,7 +1087,8 @@
         }
     };
     window.handleLogout = async () => {
-        try { await auth.signOut(); showElegantMessage('Logged out', 'success'); } catch (err) { showElegantMessage(err.message, 'info'); }
+        try { await auth.signOut(); showElegantMessage('Logged out', 'success'); } 
+        catch (err) { showElegantMessage(err.message, 'info'); }
     };
 
     window.toggleTheme = function() {
@@ -940,7 +1111,9 @@
         setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 1300);
     })();
 
-    window.toggleHamburger = function() { document.getElementById('hamburgerPanel').classList.toggle('open'); };
+    window.toggleHamburger = function() { 
+        document.getElementById('hamburgerPanel').classList.toggle('open'); 
+    };
     window.toggleMobileSearch = function() { 
         document.getElementById('mobileSearchOverlay').classList.toggle('open');
     };
@@ -962,30 +1135,44 @@
     window.goToSlide = (idx) => showSlide(idx);
     setInterval(() => changeSlide(1), 6000);
 
-    // inquiry form
+    // inquiry form submission
     document.getElementById('suraInquiryForm')?.addEventListener('submit', async function(e) {
         e.preventDefault();
         const btn = document.getElementById('inquirySubmitBtn');
-        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> sending...';
+        btn.disabled = true; 
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> sending...';
+        
         const name = document.getElementById('inquiryName').value.trim();
         const email = document.getElementById('inquiryEmail').value.trim();
         const interest = document.getElementById('inquiryMembership').value;
         const time = document.getElementById('inquiryTime').value;
         const msg = document.getElementById('inquiryMessage').value.trim();
+
+        if (!name || !email) {
+            showElegantMessage('Please fill required fields', 'info');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send inquiry';
+            return;
+        }
+
         try {
-            const ref = database.ref('sura_inquiries').push();
-            await ref.set({
-                name, email, interest, preferredTime: time || null, message: msg || '',
+            const inquiryRef = database.ref('sura_inquiries').push();
+            await inquiryRef.set({
+                name, email, interest,
+                preferredTime: time || null,
+                message: msg || '',
                 uid: currentUser ? currentUser.uid : null,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                status: 'new'
             });
             showElegantMessage('✅ Inquiry sent! We\'ll be in touch.', 'success');
             this.reset();
             if (currentUser?.email) document.getElementById('inquiryEmail').value = currentUser.email;
-        } catch (err) {
+        } catch (error) {
             showElegantMessage('❌ Failed to send. Try again.', 'info');
         } finally {
-            btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send inquiry';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send inquiry';
         }
     });
 
@@ -996,7 +1183,6 @@
         setTimeout(() => toast.classList.remove('show'), 3500);
     }
 
-    // Search functionality (simplified)
     window.performSearch = (query) => {
         if (!query?.trim()) return;
         showElegantMessage(`Searching: ${query}`, 'info');
