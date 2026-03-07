@@ -1,0 +1,2723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>I AM MUGERA - User Admin Panel</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/66rJN5PW/signature(1).png">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --black: #0a0a0a;
+            --white: #ffffff;
+            --gray: #f9f9f9;
+            --dark-gray: #1a1a1a;
+            --light-gray: #e8e8e8;
+            --gold: #ca8a04;
+            --gold-light: #fef3c7;
+            --gold-dark: #a16207;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --teal: #14b8a6;
+            --pink: #ec4899;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 15px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+        }
+
+        .professional-bg {
+            background: 
+                linear-gradient(135deg, 
+                    rgba(10, 10, 10, 0.92) 0%, 
+                    rgba(10, 10, 10, 0.88) 100%),
+                url('https://i.postimg.cc/Hn3fK4jT/20260206_1227_Image_Generation_remix_01kgs4ccqtf63rvv82pa8tmgzm.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        /* Login Page */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-2xl);
+            padding: 3.5rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: var(--shadow-2xl);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+            z-index: 1;
+            transform: translateY(0);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-2xl), 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .login-logo img {
+            height: 90px;
+            width: auto;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+        }
+
+        .login-logo h1 {
+            font-size: 2rem;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .login-logo p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+        }
+
+        .alert {
+            padding: 1.25rem 1.5rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1.75rem;
+            display: none;
+            border-left: 4px solid;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: var(--white);
+            box-shadow: var(--shadow-sm);
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-error {
+            border-left-color: var(--error);
+            background: linear-gradient(to right, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
+        }
+
+        .alert-success {
+            border-left-color: var(--success);
+            background: linear-gradient(to right, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+        }
+
+        .alert.show {
+            display: flex;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 1.75rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label i {
+            color: var(--gold);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 4px rgba(202, 138, 4, 0.25);
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: var(--transition);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(202, 138, 4, 0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid rgba(202, 138, 4, 0.4);
+            color: var(--gold);
+        }
+
+        .btn-outline:hover {
+            background: var(--gold);
+            color: var(--white);
+        }
+
+        .btn-sm {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Admin Panel */
+        .admin-container {
+            display: none;
+            min-height: 100vh;
+            background: 
+                linear-gradient(135deg, 
+                    rgba(10, 10, 10, 0.92) 0%, 
+                    rgba(10, 10, 10, 0.88) 100%),
+                url('https://i.postimg.cc/Hn3fK4jT/20260206_1227_Image_Generation_remix_01kgs4ccqtf63rvv82pa8tmgzm.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 2rem;
+            right: 2rem;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .sidebar-logo {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-logo img {
+            height: 70px;
+            width: auto;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+        }
+
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 0.25rem;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 2rem 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            position: relative;
+            font-weight: 500;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--gold);
+            transform: scaleY(0);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .nav-link:hover::before {
+            transform: scaleY(1);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(90deg, rgba(202, 138, 4, 0.2), transparent);
+            color: var(--gold);
+        }
+
+        .nav-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--gold);
+            color: var(--white);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--white);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 2px solid rgba(202, 138, 4, 0.4);
+            color: var(--gold);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: var(--gold);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(202, 138, 4, 0.4);
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 2px solid rgba(239, 68, 68, 0.4);
+            color: var(--error);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: var(--error);
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Page Content */
+        .page-content {
+            display: none;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+            border-color: rgba(202, 138, 4, 0.3);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(202, 138, 4, 0.2), rgba(161, 98, 7, 0.2));
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: var(--gold);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 0.25rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--white);
+            margin: 0;
+        }
+
+        .section-tools {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(202, 138, 4, 0.1);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(202, 138, 4, 0.2);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 180px;
+        }
+
+        .filter-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.875rem;
+            transition: var(--transition);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.25);
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow-sm);
+            background: rgba(255, 255, 255, 0.05);
+            margin-top: 1rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .data-table th {
+            background: rgba(202, 138, 4, 0.2);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gold);
+            border-bottom: 2px solid var(--gold);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-disabled {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-admin {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 0.375rem 0.75rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: var(--transition);
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .action-btn.view {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--info);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .action-btn.view:hover {
+            background: rgba(59, 130, 246, 0.3);
+        }
+
+        .action-btn.edit {
+            background: rgba(202, 138, 4, 0.2);
+            color: var(--gold);
+            border: 1px solid rgba(202, 138, 4, 0.3);
+        }
+
+        .action-btn.edit:hover {
+            background: rgba(202, 138, 4, 0.3);
+        }
+
+        .action-btn.delete {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .action-btn.delete:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .action-btn.disable {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .action-btn.enable {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .action-btn.make-admin {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(30px);
+            border-radius: var(--radius-2xl);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: var(--shadow-2xl);
+            animation: modalSlideIn 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--white);
+            margin: 0;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--white);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-content {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(30px);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(202, 138, 4, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--gold);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Notification */
+        .notification-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 9999;
+            max-width: 350px;
+        }
+
+        .notification {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideInRight 0.3s ease;
+            border-left: 4px solid;
+            color: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .notification.success {
+            border-left-color: var(--success);
+            background: linear-gradient(to right, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+        }
+
+        .notification.error {
+            border-left-color: var(--error);
+            background: linear-gradient(to right, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.05));
+        }
+
+        .notification.warning {
+            border-left-color: var(--warning);
+            background: linear-gradient(to right, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
+        }
+
+        .notification.info {
+            border-left-color: var(--info);
+            background: linear-gradient(to right, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05));
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+            color: var(--gold);
+        }
+
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--white);
+        }
+
+        .empty-state-text {
+            margin-bottom: 1.5rem;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .user-actions {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .section-tools {
+                justify-content: center;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .login-card {
+                padding: 2.5rem 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar-header {
+                padding: 1.5rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .header {
+                padding: 1.5rem;
+            }
+            
+            .content-section {
+                padding: 1.5rem;
+            }
+            
+            .modal {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="professional-bg">
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <img src="https://i.postimg.cc/Kzsb3tX6/I_AM_MUGERA.png" alt="I AM MUGERA">
+                <h1>User Admin Panel</h1>
+                <p>Firebase User Management System</p>
+            </div>
+            
+            <div id="authError" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText">Invalid credentials or session expired</span>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-envelope"></i>
+                    Admin Email
+                </label>
+                <input type="email" id="authEmail" class="form-input" placeholder="admin@iammugera.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-lock"></i>
+                    Password
+                </label>
+                <input type="password" id="authPassword" class="form-input" placeholder="••••••••" required>
+            </div>
+            
+            <button type="button" class="btn" id="authBtn">
+                <i class="fas fa-sign-in-alt"></i>
+                Sign In
+            </button>
+            
+            <p style="text-align: center; margin-top: 1.5rem; color: rgba(255, 255, 255, 0.7); font-size: 0.85rem;">
+                <i class="fas fa-shield-alt"></i> Secure Admin Access
+            </p>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <img src="https://i.postimg.cc/Kzsb3tX6/I_AM_MUGERA.png" alt="I AM MUGERA">
+                </div>
+                <h2 class="sidebar-title">User Admin</h2>
+                <p class="sidebar-subtitle">User Management System</p>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt nav-icon"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="users">
+                        <i class="fas fa-users nav-icon"></i>
+                        <span>All Users</span>
+                        <span class="nav-badge" id="userCount">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="admins">
+                        <i class="fas fa-user-shield nav-icon"></i>
+                        <span>Administrators</span>
+                        <span class="nav-badge" id="adminCount">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="activity">
+                        <i class="fas fa-history nav-icon"></i>
+                        <span>Activity Log</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div style="padding: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: auto;">
+                <p style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); text-align: center;">
+                    <i class="fas fa-lock"></i> Secure Session Active
+                </p>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div>
+                    <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                    <div class="page-subtitle">
+                        <i class="fas fa-users-cog"></i>
+                        <span id="pageSubtitle">User Management System</span>
+                    </div>
+                </div>
+                <div class="user-actions">
+                    <div class="user-avatar" id="userAvatar">
+                        A
+                    </div>
+                    <button class="logout-btn" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Page -->
+            <div id="dashboardPage" class="page-content">
+                <div class="dashboard-grid">
+                    <div class="stat-card" onclick="showPage('users')">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-value" id="totalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    
+                    <div class="stat-card" onclick="showPage('admins')">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div class="stat-value" id="totalAdmins">0</div>
+                        <div class="stat-label">Administrators</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-value" id="newUsersToday">0</div>
+                        <div class="stat-label">New Today</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="stat-value" id="activeUsers">0</div>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Recent Users</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="showPage('users')">
+                                <i class="fas fa-eye"></i>
+                                View All
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="showAddUserModal()">
+                                <i class="fas fa-plus"></i>
+                                Add User
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Display Name</th>
+                                    <th>Joined</th>
+                                    <th>Last Login</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentUsersTable">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- All Users Page -->
+            <div id="usersPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">User Management</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="exportUsers()">
+                                <i class="fas fa-file-export"></i>
+                                Export CSV
+                            </button>
+                            <button class="btn btn-sm" onclick="showAddUserModal()">
+                                <i class="fas fa-user-plus"></i>
+                                Add User
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="loadAllUsers()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label class="filter-label">Status</label>
+                            <select id="userStatusFilter" class="filter-select" onchange="filterUsers()">
+                                <option value="all">All Users</option>
+                                <option value="active">Active Only</option>
+                                <option value="disabled">Disabled Only</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Role</label>
+                            <select id="userRoleFilter" class="filter-select" onchange="filterUsers()">
+                                <option value="all">All Roles</option>
+                                <option value="admin">Admins</option>
+                                <option value="user">Regular Users</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label class="filter-label">Search</label>
+                            <input type="text" id="userSearch" class="filter-select" placeholder="Email or name..." onkeyup="filterUsers()">
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>UID</th>
+                                    <th>Email</th>
+                                    <th>Display Name</th>
+                                    <th>Joined</th>
+                                    <th>Last Login</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allUsersTable">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Administrators Page -->
+            <div id="adminsPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Administrators</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="exportAdmins()">
+                                <i class="fas fa-file-export"></i>
+                                Export CSV
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="loadAllUsers()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Display Name</th>
+                                    <th>Admin Since</th>
+                                    <th>Last Active</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminsTable">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Log Page -->
+            <div id="activityPage" class="page-content" style="display: none;">
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Activity Log</h2>
+                        <div class="section-tools">
+                            <button class="btn btn-sm" onclick="exportActivity()">
+                                <i class="fas fa-file-export"></i>
+                                Export Log
+                            </button>
+                            <button class="btn btn-outline btn-sm" onclick="loadActivityLog()">
+                                <i class="fas fa-sync-alt"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Action</th>
+                                    <th>Details</th>
+                                    <th>Performed By</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activityTable">
+                                <!-- Dynamic content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p style="color: var(--white); font-weight: 600;">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Add/Edit User Modal -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="userModalTitle">Add New User</h3>
+                <button class="modal-close" onclick="hideUserModal()">&times;</button>
+            </div>
+            <div id="userModalContent">
+                <!-- Dynamic form will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div class="modal-overlay" id="userDetailsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="userDetailsModalTitle">User Details</h3>
+                <button class="modal-close" onclick="hideUserDetailsModal()">&times;</button>
+            </div>
+            <div id="userDetailsModalContent">
+                <!-- Dynamic user details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+
+        // Initialize Firebase
+        let app;
+        let auth;
+        let database;
+        
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            database = firebase.database();
+            console.log("Firebase initialized successfully");
+        } catch (error) {
+            console.error("Firebase initialization error:", error);
+        }
+
+        // Global State
+        let currentUser = null;
+        let allUsers = [];
+        let filteredUsers = [];
+        let activityLog = [];
+
+        // Auth State Observer
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                console.log("User signed in:", user.email);
+                currentUser = user;
+                checkAdminStatus();
+            } else {
+                console.log("User signed out");
+                currentUser = null;
+                showLoginPage();
+            }
+        });
+
+        // Utility Functions
+        function showLoading(message = "Loading...") {
+            const loading = document.getElementById('loadingOverlay');
+            loading.querySelector('p').textContent = message;
+            loading.classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const icons = {
+                'success': 'check-circle',
+                'error': 'exclamation-circle',
+                'warning': 'exclamation-triangle',
+                'info': 'info-circle'
+            };
+            
+            notification.innerHTML = `
+                <i class="fas fa-${icons[type] || 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function showLoginPage() {
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+
+        function showPanel() {
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            updateUserInfo();
+        }
+
+        // Check if user is admin
+        async function checkAdminStatus() {
+            showLoading("Verifying admin privileges...");
+            
+            try {
+                // Check if user exists in admins list in database
+                const adminSnapshot = await database.ref(`admins/${currentUser.uid}`).once('value');
+                
+                if (adminSnapshot.val() === true) {
+                    console.log("Admin access granted");
+                    await loadAllUsers();
+                    await loadActivityLog();
+                    showPanel();
+                    showPage('dashboard');
+                } else {
+                    showNotification("Access denied: Not an administrator", "error");
+                    await auth.signOut();
+                    showLoginPage();
+                }
+                
+                hideLoading();
+            } catch (error) {
+                console.error("Admin check failed:", error);
+                showNotification("Failed to verify admin status", "error");
+                hideLoading();
+            }
+        }
+
+        // Create first admin (run this once manually)
+        async function createFirstAdmin(email, password) {
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Save user data
+                await database.ref(`users/${user.uid}`).set({
+                    email: user.email,
+                    displayName: '',
+                    createdAt: firebase.database.ServerValue.TIMESTAMP,
+                    lastLogin: firebase.database.ServerValue.TIMESTAMP,
+                    isAdmin: true,
+                    disabled: false
+                });
+                
+                // Add to admins list
+                await database.ref(`admins/${user.uid}`).set(true);
+                
+                console.log("First admin created successfully");
+                return true;
+            } catch (error) {
+                console.error("Error creating first admin:", error);
+                return false;
+            }
+        }
+
+        // Login
+        async function login(email, password) {
+            try {
+                showLoading("Authenticating...");
+                document.getElementById('authError').style.display = 'none';
+                
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                
+                // Update last login
+                await database.ref(`users/${currentUser.uid}/lastLogin`).set(firebase.database.ServerValue.TIMESTAMP);
+                
+                return true;
+            } catch (error) {
+                console.error("Login error:", error);
+                document.getElementById('authError').style.display = 'flex';
+                document.getElementById('errorText').textContent = error.message;
+                hideLoading();
+                return false;
+            }
+        }
+
+        // Logout
+        async function logout() {
+            try {
+                showLoading("Logging out...");
+                await auth.signOut();
+                
+                // Clear session
+                currentUser = null;
+                
+                // Reset UI
+                document.getElementById('adminPanel').style.display = 'none';
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('authEmail').value = '';
+                document.getElementById('authPassword').value = '';
+                document.getElementById('authError').style.display = 'none';
+                
+                hideLoading();
+                showNotification("Successfully logged out", "success");
+            } catch (error) {
+                console.error("Logout error:", error);
+                hideLoading();
+                showNotification("Logout failed", "error");
+            }
+        }
+
+        // Load all users from database
+        async function loadAllUsers() {
+            showLoading("Loading users...");
+            
+            try {
+                const snapshot = await database.ref('users').once('value');
+                const usersData = snapshot.val();
+                
+                if (!usersData) {
+                    allUsers = [];
+                } else {
+                    allUsers = Object.entries(usersData).map(([uid, data]) => ({
+                        uid: uid,
+                        email: data.email || '',
+                        displayName: data.displayName || '',
+                        phoneNumber: data.phoneNumber || '',
+                        photoURL: data.photoURL || '',
+                        emailVerified: data.emailVerified || false,
+                        disabled: data.disabled || false,
+                        createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
+                        lastLogin: data.lastLogin ? new Date(data.lastLogin) : null,
+                        isAdmin: data.isAdmin || false,
+                        bio: data.bio || '',
+                        location: data.location || '',
+                        website: data.website || ''
+                    }));
+                    
+                    // Sort by creation date (newest first)
+                    allUsers.sort((a, b) => b.createdAt - a.createdAt);
+                }
+                
+                filteredUsers = [...allUsers];
+                
+                // Update UI
+                updateDashboardStats();
+                updateRecentUsersTable();
+                updateAllUsersTable();
+                updateAdminsTable();
+                
+                hideLoading();
+                showNotification(`Loaded ${allUsers.length} users`, "success");
+                
+            } catch (error) {
+                console.error("Error loading users:", error);
+                hideLoading();
+                showNotification("Failed to load users: " + error.message, "error");
+            }
+        }
+
+        // Load activity log
+        async function loadActivityLog() {
+            try {
+                const snapshot = await database.ref('activityLog').once('value');
+                const logData = snapshot.val();
+                
+                if (!logData) {
+                    activityLog = [];
+                } else {
+                    activityLog = Object.entries(logData)
+                        .map(([id, data]) => ({
+                            id: id,
+                            timestamp: new Date(data.timestamp),
+                            action: data.action,
+                            details: data.details,
+                            performedBy: data.performedBy
+                        }))
+                        .sort((a, b) => b.timestamp - a.timestamp);
+                }
+                
+                updateActivityTable();
+            } catch (error) {
+                console.error("Error loading activity log:", error);
+            }
+        }
+
+        // Log activity
+        async function logActivity(action, details) {
+            try {
+                const logEntry = {
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    action: action,
+                    details: details,
+                    performedBy: currentUser?.email || 'system'
+                };
+                
+                await database.ref('activityLog').push(logEntry);
+                await loadActivityLog();
+            } catch (error) {
+                console.error("Error logging activity:", error);
+            }
+        }
+
+        // Update dashboard stats
+        function updateDashboardStats() {
+            const totalUsers = allUsers.length;
+            const totalAdmins = allUsers.filter(u => u.isAdmin).length;
+            
+            const today = new Date().toDateString();
+            const newToday = allUsers.filter(u => u.createdAt.toDateString() === today).length;
+            
+            const activeUsers = allUsers.filter(u => {
+                if (!u.lastLogin) return false;
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                return u.lastLogin > thirtyDaysAgo && !u.disabled;
+            }).length;
+            
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('totalAdmins').textContent = totalAdmins;
+            document.getElementById('newUsersToday').textContent = newToday;
+            document.getElementById('activeUsers').textContent = activeUsers;
+            
+            document.getElementById('userCount').textContent = totalUsers;
+            document.getElementById('adminCount').textContent = totalAdmins;
+        }
+
+        // Update recent users table
+        function updateRecentUsersTable() {
+            const tableBody = document.getElementById('recentUsersTable');
+            if (!tableBody) return;
+            
+            tableBody.innerHTML = '';
+            
+            const recentUsers = allUsers.slice(0, 5);
+            
+            if (recentUsers.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-users-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No users found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            recentUsers.forEach(user => {
+                const row = document.createElement('tr');
+                const created = user.createdAt.toLocaleDateString();
+                const lastLogin = user.lastLogin ? user.lastLogin.toLocaleDateString() : 'Never';
+                
+                row.innerHTML = `
+                    <td>${user.email || 'N/A'}</td>
+                    <td>${user.displayName || '—'}</td>
+                    <td>${created}</td>
+                    <td>${lastLogin}</td>
+                    <td>
+                        ${user.disabled ? 
+                            '<span class="status-badge status-disabled">Disabled</span>' : 
+                            user.isAdmin ? 
+                                '<span class="status-badge status-admin">Admin</span>' : 
+                                '<span class="status-badge status-active">Active</span>'
+                        }
+                    </td>
+                    <td>
+                        <button class="action-btn view" onclick="viewUserDetails('${user.uid}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn edit" onclick="editUser('${user.uid}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Update all users table
+        function updateAllUsersTable() {
+            const tableBody = document.getElementById('allUsersTable');
+            if (!tableBody) return;
+            
+            tableBody.innerHTML = '';
+            
+            if (filteredUsers.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-users-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No users match your filters</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            filteredUsers.forEach(user => {
+                const row = document.createElement('tr');
+                const created = user.createdAt.toLocaleDateString();
+                const lastLogin = user.lastLogin ? user.lastLogin.toLocaleDateString() : 'Never';
+                
+                row.innerHTML = `
+                    <td><code style="color: var(--gold);">${user.uid.substring(0, 8)}...</code></td>
+                    <td>${user.email || 'N/A'}</td>
+                    <td>${user.displayName || '—'}</td>
+                    <td>${created}</td>
+                    <td>${lastLogin}</td>
+                    <td>
+                        ${user.disabled ? 
+                            '<span class="status-badge status-disabled">Disabled</span>' : 
+                            user.isAdmin ? 
+                                '<span class="status-badge status-admin">Admin</span>' : 
+                                '<span class="status-badge status-active">Active</span>'
+                        }
+                        ${!user.emailVerified ? '<span class="status-badge status-pending">Unverified</span>' : ''}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" onclick="viewUserDetails('${user.uid}')" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="action-btn edit" onclick="editUser('${user.uid}')" title="Edit User">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            ${!user.isAdmin ? `
+                                <button class="action-btn make-admin" onclick="makeAdmin('${user.uid}')" title="Make Admin">
+                                    <i class="fas fa-user-shield"></i>
+                                </button>
+                            ` : ''}
+                            ${!user.disabled ? `
+                                <button class="action-btn disable" onclick="disableUser('${user.uid}')" title="Disable User">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                            ` : `
+                                <button class="action-btn enable" onclick="enableUser('${user.uid}')" title="Enable User">
+                                    <i class="fas fa-check-circle"></i>
+                                </button>
+                            `}
+                            <button class="action-btn delete" onclick="deleteUser('${user.uid}')" title="Delete User">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Update admins table
+        function updateAdminsTable() {
+            const tableBody = document.getElementById('adminsTable');
+            if (!tableBody) return;
+            
+            tableBody.innerHTML = '';
+            
+            const admins = allUsers.filter(u => u.isAdmin);
+            
+            if (admins.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-user-shield" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No administrators found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            admins.forEach(user => {
+                const row = document.createElement('tr');
+                const created = user.createdAt.toLocaleDateString();
+                const lastLogin = user.lastLogin ? user.lastLogin.toLocaleDateString() : 'Never';
+                
+                row.innerHTML = `
+                    <td>${user.email || 'N/A'}</td>
+                    <td>${user.displayName || '—'}</td>
+                    <td>${created}</td>
+                    <td>${lastLogin}</td>
+                    <td>
+                        <button class="action-btn edit" onclick="editUser('${user.uid}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="action-btn delete" onclick="removeAdmin('${user.uid}')">
+                            <i class="fas fa-user-minus"></i> Remove Admin
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Update activity table
+        function updateActivityTable() {
+            const tableBody = document.getElementById('activityTable');
+            if (!tableBody) return;
+            
+            tableBody.innerHTML = '';
+            
+            if (activityLog.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 3rem; color: rgba(255, 255, 255, 0.7);">
+                            <i class="fas fa-history" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            <p>No activity recorded yet</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            activityLog.slice(0, 50).forEach(activity => {
+                const row = document.createElement('tr');
+                const time = activity.timestamp.toLocaleString();
+                
+                row.innerHTML = `
+                    <td>${time}</td>
+                    <td><span class="status-badge" style="background: rgba(202, 138, 4, 0.2); color: var(--gold);">${activity.action}</span></td>
+                    <td>${activity.details}</td>
+                    <td>${activity.performedBy}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Filter users
+        function filterUsers() {
+            const statusFilter = document.getElementById('userStatusFilter').value;
+            const roleFilter = document.getElementById('userRoleFilter').value;
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+            
+            filteredUsers = allUsers.filter(user => {
+                // Status filter
+                if (statusFilter === 'active' && user.disabled) return false;
+                if (statusFilter === 'disabled' && !user.disabled) return false;
+                
+                // Role filter
+                if (roleFilter === 'admin' && !user.isAdmin) return false;
+                if (roleFilter === 'user' && user.isAdmin) return false;
+                
+                // Search filter
+                if (searchTerm) {
+                    const email = user.email?.toLowerCase() || '';
+                    const name = user.displayName?.toLowerCase() || '';
+                    const uid = user.uid.toLowerCase();
+                    
+                    if (!email.includes(searchTerm) && !name.includes(searchTerm) && !uid.includes(searchTerm)) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            updateAllUsersTable();
+        }
+
+        // Page Management
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.style.display = 'none';
+            });
+            
+            // Show selected page
+            const page = document.getElementById(pageId + 'Page');
+            if (page) {
+                page.style.display = 'block';
+                
+                // Update page title
+                const titles = {
+                    'dashboard': 'Dashboard',
+                    'users': 'User Management',
+                    'admins': 'Administrators',
+                    'activity': 'Activity Log'
+                };
+                
+                const subtitles = {
+                    'dashboard': 'User Management Dashboard',
+                    'users': 'View and manage all registered users',
+                    'admins': 'Manage administrator accounts',
+                    'activity': 'View admin activity log'
+                };
+                
+                document.getElementById('pageTitle').textContent = titles[pageId] || pageId;
+                document.getElementById('pageSubtitle').textContent = subtitles[pageId] || '';
+            }
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`.nav-link[data-page="${pageId}"]`)?.classList.add('active');
+        }
+
+        // Update user info in header
+        function updateUserInfo() {
+            const email = currentUser?.email || 'admin';
+            const name = email.split('@')[0];
+            document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+        }
+
+        // Show add user modal
+        function showAddUserModal() {
+            const form = `
+                <form id="addUserForm" onsubmit="createUser(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-input" name="email" required placeholder="user@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password *</label>
+                            <input type="password" class="form-input" name="password" required minlength="6" placeholder="••••••••">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Display Name</label>
+                            <input type="text" class="form-input" name="displayName" placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-input" name="phoneNumber" placeholder="+1234567890">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" name="isAdmin" style="accent-color: var(--gold);">
+                                Make this user an administrator
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" name="emailVerified" style="accent-color: var(--gold);">
+                                Mark email as verified
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="hideUserModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-user-plus"></i>
+                            Create User
+                        </button>
+                    </div>
+                </form>
+            `;
+            
+            document.getElementById('userModalTitle').textContent = 'Create New User';
+            document.getElementById('userModalContent').innerHTML = form;
+            document.getElementById('userModal').classList.add('active');
+        }
+
+        // Create new user
+        async function createUser(e) {
+            e.preventDefault();
+            showLoading("Creating user...");
+            
+            try {
+                const form = e.target;
+                const formData = new FormData(form);
+                
+                const email = formData.get('email');
+                const password = formData.get('password');
+                const displayName = formData.get('displayName') || '';
+                const phoneNumber = formData.get('phoneNumber') || '';
+                const isAdmin = formData.get('isAdmin') === 'on';
+                const emailVerified = formData.get('emailVerified') === 'on';
+                
+                // Create user in Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // Update profile
+                if (displayName) {
+                    await user.updateProfile({ displayName: displayName });
+                }
+                
+                if (emailVerified) {
+                    await user.sendEmailVerification();
+                }
+                
+                // Save user data to database
+                await database.ref(`users/${user.uid}`).set({
+                    email: email,
+                    displayName: displayName,
+                    phoneNumber: phoneNumber,
+                    emailVerified: emailVerified,
+                    createdAt: firebase.database.ServerValue.TIMESTAMP,
+                    lastLogin: null,
+                    isAdmin: isAdmin,
+                    disabled: false
+                });
+                
+                // If admin, add to admins list
+                if (isAdmin) {
+                    await database.ref(`admins/${user.uid}`).set(true);
+                }
+                
+                // Log activity
+                await logActivity('CREATE_USER', `Created user: ${email}`);
+                
+                // Reload users
+                await loadAllUsers();
+                
+                hideUserModal();
+                hideLoading();
+                showNotification(`User ${email} created successfully!`, "success");
+                
+            } catch (error) {
+                console.error("Error creating user:", error);
+                hideLoading();
+                showNotification("Failed to create user: " + error.message, "error");
+            }
+        }
+
+        // View user details
+        function viewUserDetails(uid) {
+            const user = allUsers.find(u => u.uid === uid);
+            if (!user) {
+                showNotification("User not found", "error");
+                return;
+            }
+            
+            const created = user.createdAt.toLocaleString();
+            const lastLogin = user.lastLogin ? user.lastLogin.toLocaleString() : 'Never';
+            
+            const content = `
+                <div style="line-height: 1.8; color: var(--white);">
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: var(--radius-lg);">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                            <div><strong>UID:</strong><br><code style="color: var(--gold);">${user.uid}</code></div>
+                            <div><strong>Email:</strong><br>${user.email || 'N/A'}</div>
+                            <div><strong>Display Name:</strong><br>${user.displayName || 'N/A'}</div>
+                            <div><strong>Phone:</strong><br>${user.phoneNumber || 'N/A'}</div>
+                            <div><strong>Email Verified:</strong><br>${user.emailVerified ? '✓ Yes' : '✗ No'}</div>
+                            <div><strong>Status:</strong><br>
+                                ${user.disabled ? 
+                                    '<span class="status-badge status-disabled">Disabled</span>' : 
+                                    user.isAdmin ? 
+                                        '<span class="status-badge status-admin">Admin</span>' : 
+                                        '<span class="status-badge status-active">Active</span>'
+                                }
+                            </div>
+                            <div><strong>Created:</strong><br>${created}</div>
+                            <div><strong>Last Login:</strong><br>${lastLogin}</div>
+                            <div><strong>Location:</strong><br>${user.location || 'Not set'}</div>
+                            <div><strong>Website:</strong><br>${user.website || 'Not set'}</div>
+                        </div>
+                        
+                        <div style="margin-top: 1rem;">
+                            <strong>Bio:</strong><br>
+                            <p style="color: rgba(255, 255, 255, 0.9);">${user.bio || 'No bio provided'}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" onclick="editUser('${user.uid}')">
+                        <i class="fas fa-edit"></i>
+                        Edit User
+                    </button>
+                    <button type="button" class="btn" onclick="hideUserDetailsModal()">
+                        Close
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('userDetailsModalTitle').textContent = `User: ${user.email || 'Details'}`;
+            document.getElementById('userDetailsModalContent').innerHTML = content;
+            document.getElementById('userDetailsModal').classList.add('active');
+        }
+
+        // Edit user
+        function editUser(uid) {
+            const user = allUsers.find(u => u.uid === uid);
+            if (!user) {
+                showNotification("User not found", "error");
+                return;
+            }
+            
+            const form = `
+                <form id="editUserForm" onsubmit="updateUser(event, '${uid}')">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" value="${user.email || ''}" readonly style="opacity: 0.7;">
+                            <small style="color: rgba(255, 255, 255, 0.6);">Email cannot be changed</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Display Name</label>
+                            <input type="text" class="form-input" name="displayName" value="${user.displayName || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-input" name="phoneNumber" value="${user.phoneNumber || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Location</label>
+                            <input type="text" class="form-input" name="location" value="${user.location || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Website</label>
+                            <input type="url" class="form-input" name="website" value="${user.website || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bio</label>
+                            <textarea class="form-input" name="bio" rows="3">${user.bio || ''}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" name="emailVerified" ${user.emailVerified ? 'checked' : ''} style="accent-color: var(--gold);">
+                                Email Verified
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" name="isAdmin" ${user.isAdmin ? 'checked' : ''} style="accent-color: var(--gold);">
+                                Administrator
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="hideUserModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn">
+                            <i class="fas fa-save"></i>
+                            Update User
+                        </button>
+                    </div>
+                </form>
+            `;
+            
+            document.getElementById('userModalTitle').textContent = `Edit User: ${user.email}`;
+            document.getElementById('userModalContent').innerHTML = form;
+            document.getElementById('userModal').classList.add('active');
+            hideUserDetailsModal();
+        }
+
+        // Update user
+        async function updateUser(e, uid) {
+            e.preventDefault();
+            showLoading("Updating user...");
+            
+            try {
+                const form = e.target;
+                const formData = new FormData(form);
+                
+                const user = allUsers.find(u => u.uid === uid);
+                if (!user) throw new Error("User not found");
+                
+                const updates = {
+                    displayName: formData.get('displayName') || '',
+                    phoneNumber: formData.get('phoneNumber') || '',
+                    location: formData.get('location') || '',
+                    website: formData.get('website') || '',
+                    bio: formData.get('bio') || '',
+                    emailVerified: formData.get('emailVerified') === 'on',
+                    isAdmin: formData.get('isAdmin') === 'on'
+                };
+                
+                // Update in database
+                await database.ref(`users/${uid}`).update(updates);
+                
+                // Handle admin status
+                if (updates.isAdmin) {
+                    await database.ref(`admins/${uid}`).set(true);
+                } else {
+                    await database.ref(`admins/${uid}`).remove();
+                }
+                
+                // Log activity
+                await logActivity('UPDATE_USER', `Updated user: ${user.email}`);
+                
+                // Reload users
+                await loadAllUsers();
+                
+                hideUserModal();
+                hideLoading();
+                showNotification(`User updated successfully!`, "success");
+                
+            } catch (error) {
+                console.error("Error updating user:", error);
+                hideLoading();
+                showNotification("Failed to update user: " + error.message, "error");
+            }
+        }
+
+        // Make user admin
+        async function makeAdmin(uid) {
+            if (!confirm("Are you sure you want to make this user an administrator?")) {
+                return;
+            }
+            
+            showLoading("Updating admin status...");
+            
+            try {
+                const user = allUsers.find(u => u.uid === uid);
+                if (!user) throw new Error("User not found");
+                
+                await database.ref(`users/${uid}/isAdmin`).set(true);
+                await database.ref(`admins/${uid}`).set(true);
+                
+                await logActivity('MAKE_ADMIN', `Made ${user.email} an administrator`);
+                
+                await loadAllUsers();
+                
+                hideLoading();
+                showNotification(`${user.email} is now an administrator`, "success");
+                
+            } catch (error) {
+                console.error("Error making admin:", error);
+                hideLoading();
+                showNotification("Failed to make admin: " + error.message, "error");
+            }
+        }
+
+        // Remove admin
+        async function removeAdmin(uid) {
+            if (!confirm("Are you sure you want to remove administrator privileges?")) {
+                return;
+            }
+            
+            showLoading("Removing admin privileges...");
+            
+            try {
+                const user = allUsers.find(u => u.uid === uid);
+                if (!user) throw new Error("User not found");
+                
+                await database.ref(`users/${uid}/isAdmin`).set(false);
+                await database.ref(`admins/${uid}`).remove();
+                
+                await logActivity('REMOVE_ADMIN', `Removed admin from ${user.email}`);
+                
+                await loadAllUsers();
+                
+                hideLoading();
+                showNotification(`Admin privileges removed from ${user.email}`, "success");
+                
+            } catch (error) {
+                console.error("Error removing admin:", error);
+                hideLoading();
+                showNotification("Failed to remove admin: " + error.message, "error");
+            }
+        }
+
+        // Disable user
+        async function disableUser(uid) {
+            if (!confirm("Are you sure you want to disable this user?")) {
+                return;
+            }
+            
+            showLoading("Disabling user...");
+            
+            try {
+                const user = allUsers.find(u => u.uid === uid);
+                if (!user) throw new Error("User not found");
+                
+                await database.ref(`users/${uid}/disabled`).set(true);
+                
+                await logActivity('DISABLE_USER', `Disabled user: ${user.email}`);
+                
+                await loadAllUsers();
+                
+                hideLoading();
+                showNotification(`User ${user.email} has been disabled`, "success");
+                
+            } catch (error) {
+                console.error("Error disabling user:", error);
+                hideLoading();
+                showNotification("Failed to disable user: " + error.message, "error");
+            }
+        }
+
+        // Enable user
+        async function enableUser(uid) {
+            if (!confirm("Are you sure you want to enable this user?")) {
+                return;
+            }
+            
+            showLoading("Enabling user...");
+            
+            try {
+                const user = allUsers.find(u => u.uid === uid);
+                if (!user) throw new Error("User not found");
+                
+                await database.ref(`users/${uid}/disabled`).set(false);
+                
+                await logActivity('ENABLE_USER', `Enabled user: ${user.email}`);
+                
+                await loadAllUsers();
+                
+                hideLoading();
+                showNotification(`User ${user.email} has been enabled`, "success");
+                
+            } catch (error) {
+                console.error("Error enabling user:", error);
+                hideLoading();
+                showNotification("Failed to enable user: " + error.message, "error");
+            }
+        }
+
+        // Delete user
+        async function deleteUser(uid) {
+            if (!confirm("⚠️ WARNING: This will permanently delete the user. This action cannot be undone. Continue?")) {
+                return;
+            }
+            
+            showLoading("Deleting user...");
+            
+            try {
+                const user = allUsers.find(u => u.uid === uid);
+                if (!user) throw new Error("User not found");
+                
+                // Delete from database
+                await database.ref(`users/${uid}`).remove();
+                await database.ref(`admins/${uid}`).remove();
+                
+                // Note: Cannot delete from Auth client-side, would need Cloud Function
+                // For now, we mark as deleted in database
+                
+                await logActivity('DELETE_USER', `Deleted user: ${user.email}`);
+                
+                await loadAllUsers();
+                
+                hideLoading();
+                showNotification(`User ${user.email} has been deleted`, "success");
+                
+            } catch (error) {
+                console.error("Error deleting user:", error);
+                hideLoading();
+                showNotification("Failed to delete user: " + error.message, "error");
+            }
+        }
+
+        // Export users to CSV
+        function exportUsers() {
+            if (allUsers.length === 0) {
+                showNotification("No users to export", "warning");
+                return;
+            }
+            
+            let csv = 'UID,Email,Display Name,Phone,Email Verified,Disabled,Admin,Created,Last Login,Location,Website,Bio\n';
+            
+            allUsers.forEach(user => {
+                const created = user.createdAt.toLocaleDateString();
+                const lastLogin = user.lastLogin ? user.lastLogin.toLocaleDateString() : 'Never';
+                
+                csv += `"${user.uid}","${user.email || ''}","${user.displayName || ''}","${user.phoneNumber || ''}",` +
+                       `"${user.emailVerified ? 'Yes' : 'No'}","${user.disabled ? 'Yes' : 'No'}","${user.isAdmin ? 'Yes' : 'No'}",` +
+                       `"${created}","${lastLogin}","${user.location || ''}","${user.website || ''}","${user.bio || ''}"\n`;
+            });
+            
+            downloadCSV(csv, `users_export_${new Date().toISOString().split('T')[0]}.csv`);
+            showNotification("Users exported successfully", "success");
+        }
+
+        // Export admins to CSV
+        function exportAdmins() {
+            const admins = allUsers.filter(u => u.isAdmin);
+            
+            if (admins.length === 0) {
+                showNotification("No administrators to export", "warning");
+                return;
+            }
+            
+            let csv = 'Email,Display Name,Phone,Admin Since,Last Login\n';
+            
+            admins.forEach(user => {
+                const created = user.createdAt.toLocaleDateString();
+                const lastLogin = user.lastLogin ? user.lastLogin.toLocaleDateString() : 'Never';
+                
+                csv += `"${user.email || ''}","${user.displayName || ''}","${user.phoneNumber || ''}","${created}","${lastLogin}"\n`;
+            });
+            
+            downloadCSV(csv, `admins_export_${new Date().toISOString().split('T')[0]}.csv`);
+            showNotification("Administrators exported successfully", "success");
+        }
+
+        // Export activity log
+        function exportActivity() {
+            if (activityLog.length === 0) {
+                showNotification("No activity to export", "warning");
+                return;
+            }
+            
+            let csv = 'Timestamp,Action,Details,Performed By\n';
+            
+            activityLog.forEach(activity => {
+                const time = activity.timestamp.toLocaleString();
+                csv += `"${time}","${activity.action}","${activity.details}","${activity.performedBy}"\n`;
+            });
+            
+            downloadCSV(csv, `activity_log_${new Date().toISOString().split('T')[0]}.csv`);
+            showNotification("Activity log exported successfully", "success");
+        }
+
+        // Download CSV file
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Hide modals
+        function hideUserModal() {
+            document.getElementById('userModal').classList.remove('active');
+        }
+
+        function hideUserDetailsModal() {
+            document.getElementById('userDetailsModal').classList.remove('active');
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Auth button
+            document.getElementById('authBtn').addEventListener('click', async () => {
+                const email = document.getElementById('authEmail').value.trim();
+                const password = document.getElementById('authPassword').value;
+                
+                if (!email || !password) {
+                    showNotification("Please enter both email and password", "error");
+                    return;
+                }
+                
+                await login(email, password);
+            });
+            
+            // Enter key in auth form
+            document.getElementById('authPassword').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('authBtn').click();
+                }
+            });
+            
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // Navigation links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.getAttribute('data-page');
+                    showPage(page);
+                });
+            });
+            
+            // Close modals on overlay click
+            document.getElementById('userModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('userModal')) {
+                    hideUserModal();
+                }
+            });
+            
+            document.getElementById('userDetailsModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('userDetailsModal')) {
+                    hideUserDetailsModal();
+                }
+            });
+            
+            // Close modals on ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    hideUserModal();
+                    hideUserDetailsModal();
+                }
+            });
+        }
+
+        // Initialize
+        function init() {
+            setupEventListeners();
+            showLoginPage();
+        }
+
+        // Start when page loads
+        window.addEventListener('DOMContentLoaded', init);
+
+        // Make functions globally available
+        window.showPage = showPage;
+        window.showAddUserModal = showAddUserModal;
+        window.hideUserModal = hideUserModal;
+        window.hideUserDetailsModal = hideUserDetailsModal;
+        window.viewUserDetails = viewUserDetails;
+        window.editUser = editUser;
+        window.makeAdmin = makeAdmin;
+        window.removeAdmin = removeAdmin;
+        window.disableUser = disableUser;
+        window.enableUser = enableUser;
+        window.deleteUser = deleteUser;
+        window.filterUsers = filterUsers;
+        window.exportUsers = exportUsers;
+        window.exportAdmins = exportAdmins;
+        window.exportActivity = exportActivity;
+        window.loadAllUsers = loadAllUsers;
+        window.loadActivityLog = loadActivityLog;
+    </script>
+</body>
+</html>
