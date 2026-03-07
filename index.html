@@ -15,7 +15,7 @@
     <meta name="msapplication-TileColor" content="#ca8a04">
     
     <!-- Version & Build -->
-    <meta name="version" content="5.24.0"> <!-- updated for inbox notifications -->
+    <meta name="version" content="5.24.0">
     <meta name="build-date" content="2025-03-07">
     
     <title>I AM MUGERA | Afrika Milele</title>
@@ -31,7 +31,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* ----- RESET & VARIABLES (kept exactly as original) ----- */
+        /* Keep all your existing styles exactly as they were */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         :root {
@@ -102,7 +102,6 @@
             --gradient-start: rgba(202,138,4,0.05);
             --gradient-end: rgba(255,255,255,0.5);
             
-            /* Hero section light theme fix */
             --hero-overlay: linear-gradient(135deg, rgba(255,245,235,0.92) 0%, rgba(255,255,255,0.95) 100%);
         }
 
@@ -127,7 +126,7 @@
             pointer-events: auto;
         }
         
-        /* ----- LOADING OVERLAY (unchanged) ----- */
+        /* Loading overlay */
         .loading-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -176,7 +175,7 @@
         }
         @keyframes blink { 50% { opacity: 0; } }
         
-        /* ----- INBOX NOTIFICATION BADGE STYLES ----- */
+        /* INBOX NOTIFICATION BADGE STYLES */
         .inbox-icon {
             position: relative;
             background: rgba(202,138,4,0.1);
@@ -232,12 +231,18 @@
         
         .panel-inbox-badge {
             position: relative;
-            display: inline-block;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
         }
         
         .panel-inbox-badge .inbox-badge {
-            top: -5px;
-            right: -10px;
+            position: relative;
+            top: 0;
+            right: 0;
+            margin-left: 8px;
+            animation: none;
         }
         
         @keyframes pulse {
@@ -246,7 +251,7 @@
             100% { transform: scale(1); }
         }
         
-        /* Rest of your existing styles (keep everything else exactly as in your original) */
+        /* Rest of your existing styles - keep everything else the same */
         .welcome-popup {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -1425,7 +1430,7 @@
             <div class="mobile-header-group">
                 <div class="mobile-search-icon" id="mobileSearchBtn"><i class="fas fa-search"></i></div>
                 <!-- Inbox icon in mobile header with badge -->
-                <a href="inbox.html" class="mobile-search-icon mobile-inbox-badge" style="text-decoration: none; position: relative;" id="mobileInboxLink">
+                <a href="inbox.html" class="mobile-search-icon" style="text-decoration: none; position: relative;" id="mobileInboxLink">
                     <i class="fas fa-inbox"></i>
                     <span class="inbox-badge" id="mobileInboxBadge" style="display: none;">0</span>
                 </a>
@@ -1459,9 +1464,9 @@
         </div>
         <div class="panel-quick-links">
             <!-- INBOX LINK IN PANEL WITH BADGE -->
-            <a href="inbox.html" class="panel-link panel-inbox-badge" onclick="toggleHamburger();" style="position: relative; justify-content: space-between;" id="panelInboxLink">
+            <a href="inbox.html" class="panel-link" onclick="toggleHamburger();" style="position: relative; display: flex; align-items: center; justify-content: space-between;" id="panelInboxLink">
                 <span><i class="fas fa-inbox"></i> MUGERA CHAT</span>
-                <span class="inbox-badge" id="panelInboxBadge" style="display: none; position: relative; top: 0; right: 0;">0</span>
+                <span class="inbox-badge" id="panelInboxBadge" style="display: none; position: relative; top: 0; right: 0; margin-left: 8px;">0</span>
             </a>
             <a href="#" class="panel-link" onclick="navigateToEyeOfMugera(); toggleHamburger();"><i class="far fa-newspaper"></i>THE IN-SIGHT</a>
             <a href="#" class="panel-link" onclick="navigateToInspiredMe(); toggleHamburger();"><i class="fas fa-seedling"></i>INSPIRE•ME</a>
@@ -1638,7 +1643,7 @@
     
     let database, auth, messaging;
     let currentUser = null;
-    let unreadMessagesListener = null;
+    let unreadMessagesRef = null;
     
     try {
         firebase.initializeApp(firebaseConfig);
@@ -1650,6 +1655,7 @@
 
     // ========== AUTH ==========
     auth?.onAuthStateChanged(user => {
+        console.log('Auth state changed:', user ? user.uid : 'No user');
         currentUser = user;
         if (user) {
             document.getElementById('welcomePopup').classList.add('hidden');
@@ -1665,9 +1671,9 @@
             updateUIForUser(null);
             
             // Remove listener if user logs out
-            if (unreadMessagesListener) {
-                unreadMessagesListener.off();
-                unreadMessagesListener = null;
+            if (unreadMessagesRef) {
+                unreadMessagesRef.off();
+                unreadMessagesRef = null;
             }
             
             // Hide all badges
@@ -1679,94 +1685,86 @@
     function setupUnreadMessagesListener(userId) {
         if (!database || !userId) return;
         
+        console.log('Setting up unread messages listener for user:', userId);
+        
         // Remove existing listener if any
-        if (unreadMessagesListener) {
-            unreadMessagesListener.off();
+        if (unreadMessagesRef) {
+            unreadMessagesRef.off();
         }
         
-        // Based on your database structure, we need to check both:
-        // 1. inboxMessages - general messages
-        // 2. messages - conversation messages
-        
-        let unreadCount = 0;
-        
-        // Listen to inboxMessages (general messages)
-        const inboxRef = database.ref('inboxMessages');
-        unreadMessagesListener = inboxRef.on('value', (snapshot) => {
-            unreadCount = 0;
+        // Listen to inboxMessages - based on your database, each message has a userId field
+        unreadMessagesRef = database.ref('inboxMessages');
+        unreadMessagesRef.on('value', (snapshot) => {
+            let unreadCount = 0;
             
             snapshot.forEach((childSnapshot) => {
                 const message = childSnapshot.val();
+                console.log('Checking message:', message);
+                
                 // Check if message is for current user and unread
-                // Based on your data structure, we need to determine how messages are linked to users
-                // In your inboxMessages, there's a userId field
+                // In your database, inboxMessages has: userId, read, text, timestamp, etc.
                 if (message.userId === userId && message.read === false) {
                     unreadCount++;
+                    console.log('Unread message found:', message);
                 }
             });
             
-            // Also check conversation messages if needed
-            checkConversationMessages(userId, unreadCount);
-        });
-    }
-    
-    function checkConversationMessages(userId, currentCount) {
-        // Check messages in conversations
-        const messagesRef = database.ref('messages');
-        messagesRef.once('value', (snapshot) => {
-            let totalUnread = currentCount;
-            
-            snapshot.forEach((conversationSnapshot) => {
-                const conversation = conversationSnapshot.val();
-                
-                // Iterate through messages in conversation
-                Object.values(conversation).forEach(message => {
-                    // Check if message is for current user and unread
-                    // You'll need to adjust this based on your actual message structure
-                    if (message.recipientId === userId && message.read === false) {
-                        totalUnread++;
-                    }
-                });
-            });
+            console.log('Total unread messages:', unreadCount);
             
             // Update all badges with total count
-            updateInboxBadges(totalUnread);
+            updateInboxBadges(unreadCount);
             
             // Also update document title
-            if (totalUnread > 0) {
-                document.title = `(${totalUnread}) I AM MUGERA`;
+            if (unreadCount > 0) {
+                document.title = `(${unreadCount}) I AM MUGERA`;
             } else {
                 document.title = 'I AM MUGERA | Afrika Milele';
             }
+        }, (error) => {
+            console.error('Error listening to messages:', error);
         });
     }
     
     // Function to update all inbox badges
     function updateInboxBadges(count) {
-        const badges = [
-            'desktopInboxBadge',
-            'mobileInboxBadge',
-            'panelInboxBadge'
-        ];
+        console.log('Updating badges with count:', count);
         
-        badges.forEach(badgeId => {
-            const badge = document.getElementById(badgeId);
-            if (badge) {
-                if (count > 0) {
-                    badge.textContent = count > 99 ? '99+' : count;
-                    badge.style.display = 'flex';
-                } else {
-                    badge.style.display = 'none';
-                }
+        const desktopBadge = document.getElementById('desktopInboxBadge');
+        const mobileBadge = document.getElementById('mobileInboxBadge');
+        const panelBadge = document.getElementById('panelInboxBadge');
+        
+        if (desktopBadge) {
+            if (count > 0) {
+                desktopBadge.textContent = count > 99 ? '99+' : count;
+                desktopBadge.style.display = 'flex';
+            } else {
+                desktopBadge.style.display = 'none';
             }
-        });
+        }
         
-        // Show toast for new messages (optional)
+        if (mobileBadge) {
+            if (count > 0) {
+                mobileBadge.textContent = count > 99 ? '99+' : count;
+                mobileBadge.style.display = 'flex';
+            } else {
+                mobileBadge.style.display = 'none';
+            }
+        }
+        
+        if (panelBadge) {
+            if (count > 0) {
+                panelBadge.textContent = count > 99 ? '99+' : count;
+                panelBadge.style.display = 'inline-flex';
+            } else {
+                panelBadge.style.display = 'none';
+            }
+        }
+        
+        // Show toast for new messages (with cooldown)
         if (count > 0) {
-            // Only show if we didn't just show it
             const lastShown = sessionStorage.getItem('lastMessageToast');
             const now = Date.now();
-            if (!lastShown || (now - parseInt(lastShown)) > 30000) { // 30 seconds cooldown
+            if (!lastShown || (now - parseInt(lastShown)) > 30000) {
                 showElegantMessage(`You have ${count} unread message${count > 1 ? 's' : ''}`, 'info');
                 sessionStorage.setItem('lastMessageToast', now.toString());
             }
@@ -1896,7 +1894,7 @@
         }
     });
 
-    // ========== SEARCH DATABASE (with Inbox) ==========
+    // ========== SEARCH DATABASE ==========
     const searchDatabase = [
         { title: "Eye of Mugera", category: "Journal", icon: "far fa-newspaper", keywords: ["news","eye","weekly","journal","articles"], url: "eye-of-mugera.html" },
         { title: "Inspired.Me Program", category: "Program", icon: "fas fa-seedling", keywords: ["inspired","program","holistic","wellness","mental","physical","financial","social"], url: "inspire-program.html" },
@@ -2203,6 +2201,23 @@
             }
         });
     }
+</script>
+
+<!-- Add a test message to verify the system works -->
+<script>
+    // For testing only - you can remove this after confirming it works
+    window.testNotification = function() {
+        if (currentUser) {
+            updateInboxBadges(3);
+            showElegantMessage('Test: Showing 3 unread messages', 'success');
+        } else {
+            showElegantMessage('Please login first', 'info');
+        }
+    };
+    
+    // Log to console to help debug
+    console.log('Inbox notification system loaded');
+    console.log('Current user:', currentUser);
 </script>
 </body>
 </html>
