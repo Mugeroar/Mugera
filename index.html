@@ -31,7 +31,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* Keep all your existing styles exactly as they were */
+        /* ----- RESET & VARIABLES ----- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         :root {
@@ -126,7 +126,7 @@
             pointer-events: auto;
         }
         
-        /* Loading overlay */
+        /* ----- LOADING OVERLAY ----- */
         .loading-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -175,7 +175,7 @@
         }
         @keyframes blink { 50% { opacity: 0; } }
         
-        /* INBOX NOTIFICATION BADGE STYLES */
+        /* ----- INBOX NOTIFICATION BADGE STYLES ----- */
         .inbox-icon {
             position: relative;
             background: rgba(202,138,4,0.1);
@@ -215,7 +215,6 @@
             padding: 0 4px;
             border: 2px solid var(--gold);
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            animation: pulse 2s infinite;
             z-index: 10;
         }
         
@@ -242,16 +241,9 @@
             top: 0;
             right: 0;
             margin-left: 8px;
-            animation: none;
         }
         
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        
-        /* Rest of your existing styles - keep everything else the same */
+        /* ----- WELCOME POPUP ----- */
         .welcome-popup {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -1378,19 +1370,11 @@
         <input type="text" class="modal-input" id="signupName" placeholder="Full Name" required>
         <input type="email" class="modal-input" id="signupEmail" placeholder="Email" required>
         <input type="password" class="modal-input" id="signupPassword" placeholder="Password (min. 6)" minlength="6">
-        <div class="password-strength">
-            <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
-            <div class="strength-text" id="strengthText">Enter password</div>
-        </div>
         <input type="password" class="modal-input" id="signupConfirm" placeholder="Confirm Password">
-        <div id="passwordMatch"></div>
         <button type="submit" class="modal-btn">Create Account</button>
         <div class="modal-error" id="signupError"></div>
         <div class="modal-success" id="signupSuccess"></div>
     </form>
-    <div class="modal-footer">
-        By signing in, you agree to our <a href="terms.html" style="color: var(--gold); text-decoration: underline;">Terms of Service</a>
-    </div>
 </div>
 
 <!-- LOADING OVERLAY -->
@@ -1578,7 +1562,7 @@
             </div>
             <!-- Courses Hub -->
             <div class="activity-card">
-                <img src="https://i.postimg.cc/zG2Dd7Rv/MUG(41).gif" alt="Web Development" class="card-image" loading="lazy">
+                <img src="https://i.postimg.cc/zG2Dd7Rv/MUG(41).gif" alt="Courses" class="card-image" loading="lazy">
                 <div class="card-content">
                     <span class="feature-badge dev-badge"><i class="fas fa-graduation-cap"></i> Soft Skills</span>
                     <h3>HEKIMA•HUB</h3>
@@ -1589,7 +1573,7 @@
         </div>
     </section>
 
-    <!-- Footer with inbox link -->
+    <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-logo">I AM MUGERA</div>
@@ -1627,7 +1611,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
 
 <script>
     // Firebase Config
@@ -1641,49 +1624,62 @@
         appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
     };
     
-    let database, auth, messaging;
+    // Initialize Firebase
+    let database, auth;
     let currentUser = null;
     let unreadMessagesRef = null;
+    let previousUnreadCount = 0;
     
     try {
         firebase.initializeApp(firebaseConfig);
         database = firebase.database();
         auth = firebase.auth();
-        messaging = firebase.messaging();
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error('Firebase initialization error:', e); 
+    }
 
-    // ========== AUTH ==========
-    auth?.onAuthStateChanged(user => {
-        console.log('Auth state changed:', user ? user.uid : 'No user');
-        currentUser = user;
-        if (user) {
-            document.getElementById('welcomePopup').classList.add('hidden');
-            document.getElementById('mainContent').classList.add('visible');
-            updateUIForUser(user);
+    // ========== AUTH STATE LISTENER ==========
+    if (auth) {
+        auth.onAuthStateChanged(user => {
+            console.log('Auth state changed:', user ? `User: ${user.uid}` : 'No user');
+            currentUser = user;
             
-            // Set up real-time listener for unread messages
-            setupUnreadMessagesListener(user.uid);
-            
-        } else {
-            document.getElementById('welcomePopup').classList.remove('hidden');
-            document.getElementById('mainContent').classList.remove('visible');
-            updateUIForUser(null);
-            
-            // Remove listener if user logs out
-            if (unreadMessagesRef) {
-                unreadMessagesRef.off();
-                unreadMessagesRef = null;
+            if (user) {
+                // User is logged in
+                document.getElementById('welcomePopup').classList.add('hidden');
+                document.getElementById('mainContent').classList.add('visible');
+                updateUIForUser(user);
+                
+                // Reset previous count
+                previousUnreadCount = 0;
+                
+                // Set up real-time listener for unread messages
+                setupUnreadMessagesListener(user.uid);
+                
+            } else {
+                // User is logged out
+                document.getElementById('welcomePopup').classList.remove('hidden');
+                document.getElementById('mainContent').classList.remove('visible');
+                updateUIForUser(null);
+                
+                // Remove listener if exists
+                if (unreadMessagesRef) {
+                    unreadMessagesRef.off();
+                    unreadMessagesRef = null;
+                }
+                
+                // Hide all badges
+                updateInboxBadges(0);
             }
-            
-            // Hide all badges
-            updateInboxBadges(0);
-        }
-    });
+        });
+    }
 
-    // ========== UNREAD MESSAGES REAL-TIME LISTENER ==========
+    // ========== UNREAD MESSAGES LISTENER ==========
     function setupUnreadMessagesListener(userId) {
-        if (!database || !userId) return;
+        if (!database || !userId) {
+            console.log('Cannot setup listener: no database or userId');
+            return;
+        }
         
         console.log('Setting up unread messages listener for user:', userId);
         
@@ -1692,29 +1688,42 @@
             unreadMessagesRef.off();
         }
         
-        // Listen to inboxMessages - based on your database, each message has a userId field
-        unreadMessagesRef = database.ref('inboxMessages');
+        // Listen to inboxMessages - filter by userId
+        unreadMessagesRef = database.ref('inboxMessages')
+            .orderByChild('userId')
+            .equalTo(userId);
+        
         unreadMessagesRef.on('value', (snapshot) => {
             let unreadCount = 0;
+            const messages = [];
             
             snapshot.forEach((childSnapshot) => {
                 const message = childSnapshot.val();
-                console.log('Checking message:', message);
-                
-                // Check if message is for current user and unread
-                // In your database, inboxMessages has: userId, read, text, timestamp, etc.
-                if (message.userId === userId && message.read === false) {
+                // Only count if read is false
+                if (message.read === false) {
                     unreadCount++;
-                    console.log('Unread message found:', message);
+                    messages.push({
+                        id: childSnapshot.key,
+                        ...message
+                    });
                 }
             });
             
-            console.log('Total unread messages:', unreadCount);
+            console.log(`Found ${unreadCount} unread messages for user ${userId}`);
             
-            // Update all badges with total count
+            // Check if this is a new message (count increased and we had a previous count)
+            if (unreadCount > previousUnreadCount && previousUnreadCount > 0) {
+                const newMessages = unreadCount - previousUnreadCount;
+                showElegantMessage(`📨 ${newMessages} new message${newMessages > 1 ? 's' : ''}`, 'info');
+            }
+            
+            // Update previous count
+            previousUnreadCount = unreadCount;
+            
+            // Update all badges
             updateInboxBadges(unreadCount);
             
-            // Also update document title
+            // Update document title
             if (unreadCount > 0) {
                 document.title = `(${unreadCount}) I AM MUGERA`;
             } else {
@@ -1725,62 +1734,39 @@
         });
     }
     
-    // Function to update all inbox badges
+    // ========== UPDATE INBOX BADGES ==========
     function updateInboxBadges(count) {
         console.log('Updating badges with count:', count);
         
-        const desktopBadge = document.getElementById('desktopInboxBadge');
-        const mobileBadge = document.getElementById('mobileInboxBadge');
-        const panelBadge = document.getElementById('panelInboxBadge');
+        const badges = {
+            desktop: document.getElementById('desktopInboxBadge'),
+            mobile: document.getElementById('mobileInboxBadge'),
+            panel: document.getElementById('panelInboxBadge')
+        };
         
-        if (desktopBadge) {
-            if (count > 0) {
-                desktopBadge.textContent = count > 99 ? '99+' : count;
-                desktopBadge.style.display = 'flex';
-            } else {
-                desktopBadge.style.display = 'none';
+        Object.values(badges).forEach(badge => {
+            if (badge) {
+                if (count > 0) {
+                    badge.textContent = count > 99 ? '99+' : count;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
             }
-        }
-        
-        if (mobileBadge) {
-            if (count > 0) {
-                mobileBadge.textContent = count > 99 ? '99+' : count;
-                mobileBadge.style.display = 'flex';
-            } else {
-                mobileBadge.style.display = 'none';
-            }
-        }
-        
-        if (panelBadge) {
-            if (count > 0) {
-                panelBadge.textContent = count > 99 ? '99+' : count;
-                panelBadge.style.display = 'inline-flex';
-            } else {
-                panelBadge.style.display = 'none';
-            }
-        }
-        
-        // Show toast for new messages (with cooldown)
-        if (count > 0) {
-            const lastShown = sessionStorage.getItem('lastMessageToast');
-            const now = Date.now();
-            if (!lastShown || (now - parseInt(lastShown)) > 30000) {
-                showElegantMessage(`You have ${count} unread message${count > 1 ? 's' : ''}`, 'info');
-                sessionStorage.setItem('lastMessageToast', now.toString());
-            }
-        }
+        });
     }
 
-    window.closeAllModals = () => {
-        document.getElementById('authModal').classList.remove('active');
-        document.getElementById('modalOverlay').classList.remove('active');
-        document.body.style.overflow = '';
-    };
-    
+    // ========== AUTH FUNCTIONS ==========
     window.openAuthModal = () => {
         document.getElementById('authModal').classList.add('active');
         document.getElementById('modalOverlay').classList.add('active');
         document.body.style.overflow = 'hidden';
+    };
+    
+    window.closeAllModals = () => {
+        document.getElementById('authModal').classList.remove('active');
+        document.getElementById('modalOverlay').classList.remove('active');
+        document.body.style.overflow = '';
     };
     
     window.switchAuthTab = (tab) => {
@@ -1795,13 +1781,22 @@
         const email = document.getElementById('loginEmail').value.trim();
         const password = document.getElementById('loginPassword').value;
         const errorEl = document.getElementById('loginError');
-        if (!email || !password) { errorEl.style.display = 'block'; errorEl.textContent = 'Fill all fields'; return; }
+        
+        if (!email || !password) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = 'Please fill all fields';
+            return;
+        }
+        
         try {
             await auth.signInWithEmailAndPassword(email, password);
             errorEl.style.display = 'none';
             closeAllModals();
             showElegantMessage('Login successful!', 'success');
-        } catch (err) { errorEl.style.display = 'block'; errorEl.textContent = err.message; }
+        } catch (err) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = err.message;
+        }
     };
     
     window.handleSignup = async (e) => {
@@ -1812,27 +1807,60 @@
         const confirm = document.getElementById('signupConfirm').value;
         const errorEl = document.getElementById('signupError');
         const successEl = document.getElementById('signupSuccess');
-        if (!name || !email || !password || !confirm) { errorEl.style.display = 'block'; errorEl.textContent = 'Fill all fields'; return; }
-        if (password !== confirm) { errorEl.style.display = 'block'; errorEl.textContent = 'Passwords do not match'; return; }
-        if (password.length < 6) { errorEl.style.display = 'block'; errorEl.textContent = 'Password min 6 characters'; return; }
+        
+        if (!name || !email || !password || !confirm) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = 'Please fill all fields';
+            return;
+        }
+        
+        if (password !== confirm) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = 'Passwords do not match';
+            return;
+        }
+        
+        if (password.length < 6) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = 'Password must be at least 6 characters';
+            return;
+        }
+        
         try {
             const cred = await auth.createUserWithEmailAndPassword(email, password);
             await cred.user.updateProfile({ displayName: name });
-            if (database) await database.ref('users/' + cred.user.uid).set({ name, email, createdAt: Date.now() });
+            
+            if (database) {
+                await database.ref('users/' + cred.user.uid).set({
+                    name,
+                    email,
+                    createdAt: Date.now()
+                });
+            }
+            
             errorEl.style.display = 'none';
             successEl.style.display = 'block';
-            successEl.textContent = 'Account created!';
-            setTimeout(() => { closeAllModals(); showElegantMessage('Welcome to I AM MUGERA!', 'success'); }, 1500);
-        } catch (err) { errorEl.style.display = 'block'; errorEl.textContent = err.message; }
+            successEl.textContent = 'Account created! Welcome to I AM MUGERA!';
+            
+            setTimeout(() => {
+                closeAllModals();
+                showElegantMessage('Welcome to I AM MUGERA!', 'success');
+            }, 1500);
+        } catch (err) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = err.message;
+        }
     };
     
     window.handleLogout = async () => {
-        try { 
-            await auth.signOut(); 
-            showElegantMessage('Logged out', 'success');
-            // Reset badges
+        try {
+            await auth.signOut();
+            showElegantMessage('Logged out successfully', 'success');
             updateInboxBadges(0);
-        } catch (err) { showElegantMessage(err.message, 'info'); }
+            previousUnreadCount = 0;
+        } catch (err) {
+            showElegantMessage(err.message, 'error');
+        }
     };
 
     function updateUIForUser(user) {
@@ -1844,9 +1872,11 @@
         const panelName = document.getElementById('panelUserName');
         const userNameSpan = document.getElementById('userDisplayNameDesktop');
         const userAvatar = document.getElementById('userAvatarDesktop');
+        
         if (user) {
             let dn = user.displayName || user.email?.split('@')[0] || 'Mugera';
             dn = dn.charAt(0).toUpperCase() + dn.slice(1);
+            
             if (userNameSpan) userNameSpan.textContent = dn;
             if (userAvatar) userAvatar.textContent = dn.charAt(0).toUpperCase();
             if (desktopMenu) desktopMenu.style.display = 'flex';
@@ -1869,7 +1899,7 @@
         const typingSpan = document.getElementById('typingText');
         const fullText = "DREAM | ASPIRE | INSPIRE";
         let index = 0;
-        typingSpan.textContent = '';
+        
         function typeNext() {
             if (index < fullText.length) {
                 typingSpan.textContent += fullText.charAt(index);
@@ -1879,22 +1909,37 @@
                 setTimeout(() => overlay.classList.add('hidden'), 1500);
             }
         }
+        
         setTimeout(typeNext, 400);
-        setTimeout(() => { if(!overlay.classList.contains('hidden')) overlay.classList.add('hidden'); }, 7000);
+        setTimeout(() => {
+            if (!overlay.classList.contains('hidden')) {
+                overlay.classList.add('hidden');
+            }
+        }, 7000);
     })();
 
-    // ========== SIDE PANEL NATURAL HIDE ==========
-    document.addEventListener('click', function(e) {
-        const panel = document.getElementById('hamburgerPanel');
-        const hamburgerBtn = document.getElementById('hamburgerBtn');
-        if (panel && panel.classList.contains('open')) {
-            if (!panel.contains(e.target) && !hamburgerBtn.contains(e.target)) {
-                panel.classList.remove('open');
-            }
+    // ========== TOAST MESSAGE ==========
+    window.showElegantMessage = function(text, type = 'info') {
+        const toast = document.getElementById('elegantToast');
+        const messageSpan = document.getElementById('toastMessage');
+        const icon = toast.querySelector('i');
+        
+        messageSpan.textContent = text;
+        
+        // Set icon based on type
+        if (type === 'success') {
+            icon.className = 'fas fa-check-circle';
+        } else if (type === 'error') {
+            icon.className = 'fas fa-exclamation-circle';
+        } else {
+            icon.className = 'fas fa-globe-africa';
         }
-    });
+        
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 4000);
+    };
 
-    // ========== SEARCH DATABASE ==========
+    // ========== SEARCH FUNCTIONALITY ==========
     const searchDatabase = [
         { title: "Eye of Mugera", category: "Journal", icon: "far fa-newspaper", keywords: ["news","eye","weekly","journal","articles"], url: "eye-of-mugera.html" },
         { title: "Inspired.Me Program", category: "Program", icon: "fas fa-seedling", keywords: ["inspired","program","holistic","wellness","mental","physical","financial","social"], url: "inspire-program.html" },
@@ -1903,34 +1948,31 @@
         { title: "DEV•HUB", category: "Services", icon: "fas fa-code", keywords: ["web","development","software","apps","coding","mugeradev","programming"], url: "mugeradev.html" },
         { title: "Inbox", category: "Messaging", icon: "fas fa-inbox", keywords: ["inbox","messages","chat","mail","private"], url: "inbox.html" },
         { title: "Voice Central", category: "Media", icon: "fas fa-microphone-alt", keywords: ["voice","central","conversations","podcast"], url: "mugera.html" },
-        { title: "Terms of Service", category: "Legal", icon: "fas fa-file-contract", keywords: ["terms","conditions","legal"], url: "terms.html" },
-        { title: "SURA PROFILE", category: "DIGITAL ID", icon: "fas fa-file-contract", keywords: ["sura","profile","portfolio"], url: "sura.html" },
-        { title: "HEKIMA•HUB", category: "COURSES", icon: "fas fa-university", keywords: ["school","class","course"], url: "courses.html" },
-        { title: "DATA ENTRY", category: "COURSES", icon: "fas fa-keyboard", keywords: ["entry","data entry","data"], url: "data-entry.html" },
-        { title: "WEB DEVELOPMENT", category: "COURSES", icon: "fas fa-code", keywords: ["web","website","development"], url: "web-dev.html" },
-        { title: "Privacy Policy", category: "Legal", icon: "fas fa-shield-alt", keywords: ["privacy","policy","data"], url: "privacy.html" }
+        { title: "HEKIMA•HUB", category: "COURSES", icon: "fas fa-university", keywords: ["school","class","course"], url: "courses.html" }
     ];
 
-    function debounce(func, wait) { let t; return function(...a) { clearTimeout(t); t = setTimeout(() => func(...a), wait); }; }
-
     window.performSearch = function(query) {
-        if (!query?.trim()) { showElegantMessage('Enter a search term', 'info'); return; }
+        if (!query?.trim()) {
+            showElegantMessage('Enter a search term', 'info');
+            return;
+        }
+        
         query = query.toLowerCase().trim();
         const results = searchDatabase.filter(item => 
             item.title.toLowerCase().includes(query) || 
             item.keywords.some(k => k.includes(query))
         );
         
-        if (results.length === 0) { 
-            showElegantMessage(`No results found for "${query}"`, 'info'); 
-            return; 
+        if (results.length === 0) {
+            showElegantMessage(`No results found for "${query}"`, 'info');
+            return;
         }
         
         if (results.length === 1) {
             showElegantMessage(`Found: ${results[0].title}`, 'success');
             setTimeout(() => window.location.href = results[0].url, 800);
         } else {
-            showElegantMessage(`Found ${results.length} results. Showing top matches.`, 'success');
+            showElegantMessage(`Found ${results.length} results`, 'success');
             setTimeout(() => window.location.href = results[0].url, 1000);
         }
     };
@@ -1938,50 +1980,61 @@
     function generateHints(query, containerId) {
         const container = document.getElementById(containerId);
         if (!container) return;
-        if (!query || query.length < 2) { 
-            container.classList.remove('show'); 
-            container.innerHTML = ''; 
-            return; 
+        
+        if (!query || query.length < 2) {
+            container.classList.remove('show');
+            container.innerHTML = '';
+            return;
         }
+        
         query = query.toLowerCase().trim();
         const matches = searchDatabase.filter(item => 
             item.title.toLowerCase().includes(query) || 
             item.keywords.some(k => k.includes(query))
         ).slice(0, 5);
         
-        if (matches.length === 0) { 
-            container.classList.remove('show'); 
-            container.innerHTML = ''; 
-            return; 
+        if (matches.length === 0) {
+            container.classList.remove('show');
+            container.innerHTML = '';
+            return;
         }
         
         let html = '';
         matches.forEach(m => {
-            html += `<div class="hint-item" onclick="selectHint('${m.title.replace(/'/g,"\\'")}', '${m.url}')">
+            html += `<div class="hint-item" onclick="selectHint('${m.title.replace(/'/g, "\\'")}', '${m.url}')">
                 <i class="${m.icon}"></i>
                 <span>${m.title}</span>
                 <span class="hint-category">${m.category}</span>
             </div>`;
         });
+        
         container.innerHTML = html;
         container.classList.add('show');
     }
 
-    window.selectHint = function(title, url) { 
-        window.location.href = url; 
+    window.selectHint = function(title, url) {
+        window.location.href = url;
     };
 
-    // Setup search listeners
-    const debouncedDesktop = debounce(function() { 
-        generateHints(document.getElementById('desktopSearchInput').value, 'desktopSearchHints'); 
+    // Search input listeners
+    const debouncedDesktop = debounce(function() {
+        generateHints(document.getElementById('desktopSearchInput')?.value, 'desktopSearchHints');
     }, 200);
     
-    const debouncedMobile = debounce(function() { 
-        generateHints(document.getElementById('mobileSearchInput').value, 'mobileSearchHints'); 
+    const debouncedMobile = debounce(function() {
+        generateHints(document.getElementById('mobileSearchInput')?.value, 'mobileSearchHints');
     }, 200);
 
     document.getElementById('desktopSearchInput')?.addEventListener('input', debouncedDesktop);
     document.getElementById('mobileSearchInput')?.addEventListener('input', debouncedMobile);
+
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), wait);
+        };
+    }
 
     // Close hints when clicking outside
     document.addEventListener('click', function(e) {
@@ -2001,6 +2054,7 @@
         const dayEl = document.getElementById('currentDayName');
         const statusText = document.getElementById('statusText');
         const statusIcon = document.getElementById('statusIcon');
+        
         if (!dayEl || !statusText || !statusIcon) return;
 
         const now = new Date();
@@ -2016,28 +2070,35 @@
         let statusClass = '';
         const dayLower = nairobiDay.toLowerCase();
         
-        const kenyanHolidays = [
-            '2025-01-01', '2025-04-18', '2025-04-21', '2025-05-01', '2025-06-01',
-            '2025-10-10', '2025-10-20', '2025-12-12', '2025-12-25', '2025-12-26'
-        ];
-        const todayKey = nairobiTime.toISOString().split('T')[0];
-        const isHoliday = kenyanHolidays.includes(todayKey);
-        
-        if (dayLower === 'sunday' || isHoliday) {
-            status = isHoliday ? 'Public Holiday' : 'Closed';
+        if (dayLower === 'sunday') {
+            status = 'Closed';
             statusClass = 'status-closed';
         } else {
             let openHour, closeHour;
             if (dayLower === 'saturday') {
-                openHour = 9.0; closeHour = 17.0;
+                openHour = 9.0;
+                closeHour = 17.0;
             } else {
-                openHour = 8.5; closeHour = 17.5;
+                openHour = 8.5;
+                closeHour = 17.5;
             }
-            if (currentTimeDecimal < openHour) { status = 'Opening Soon'; statusClass = 'status-soon'; }
-            else if (currentTimeDecimal >= openHour && currentTimeDecimal < (closeHour - 1)) { status = 'Open'; statusClass = 'status-open'; }
-            else if (currentTimeDecimal >= (closeHour - 1) && currentTimeDecimal < closeHour) { status = 'Closing Soon'; statusClass = 'status-closing'; }
-            else if (currentTimeDecimal >= closeHour) { status = 'Closed'; statusClass = 'status-closed'; }
-            else { status = 'Opening Soon'; statusClass = 'status-soon'; }
+            
+            if (currentTimeDecimal < openHour) {
+                status = 'Opening Soon';
+                statusClass = 'status-soon';
+            } else if (currentTimeDecimal >= openHour && currentTimeDecimal < (closeHour - 1)) {
+                status = 'Open';
+                statusClass = 'status-open';
+            } else if (currentTimeDecimal >= (closeHour - 1) && currentTimeDecimal < closeHour) {
+                status = 'Closing Soon';
+                statusClass = 'status-closing';
+            } else if (currentTimeDecimal >= closeHour) {
+                status = 'Closed';
+                statusClass = 'status-closed';
+            } else {
+                status = 'Opening Soon';
+                statusClass = 'status-soon';
+            }
         }
         
         statusText.textContent = status;
@@ -2050,23 +2111,39 @@
     updateHoursStatus();
     setInterval(updateHoursStatus, 60000);
 
-    // ========== TOAST ==========
-    window.showElegantMessage = function(text, type = 'info') {
-        const toast = document.getElementById('elegantToast');
-        document.getElementById('toastMessage').textContent = text;
-        toast.className = 'message-toast ' + type;
-        toast.querySelector('i').className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-globe-africa';
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 4000);
+    // ========== NAVIGATION ==========
+    window.navigateToEyeOfMugera = function() {
+        if (currentUser) window.location.href = 'eye-of-mugera.html';
+        else openAuthModal();
     };
-
-    // ========== NAVIGATION (with auth check) ==========
-    window.navigateToEyeOfMugera = function() { if (currentUser) window.location.href = 'eye-of-mugera.html'; else openAuthModal(); };
-    window.navigateToInspiredMe = function() { if (currentUser) window.location.href = 'inspire-program.html'; else openAuthModal(); };
-    window.navigateToShop = function() { if (currentUser) window.location.href = 'shop.html'; else openAuthModal(); };
-    window.navigateToWorkFit = function() { if (currentUser) window.location.href = 'workfit-club.html'; else openAuthModal(); };
-    window.navigateToWebDev = function() { if (currentUser) window.location.href = 'mugeradev.html'; else openAuthModal(); };
-    window.navigateToSection = function(section) { if (currentUser) document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' }); else openAuthModal(); };
+    
+    window.navigateToInspiredMe = function() {
+        if (currentUser) window.location.href = 'inspire-program.html';
+        else openAuthModal();
+    };
+    
+    window.navigateToShop = function() {
+        if (currentUser) window.location.href = 'shop.html';
+        else openAuthModal();
+    };
+    
+    window.navigateToWorkFit = function() {
+        if (currentUser) window.location.href = 'workfit-club.html';
+        else openAuthModal();
+    };
+    
+    window.navigateToWebDev = function() {
+        if (currentUser) window.location.href = 'mugeradev.html';
+        else openAuthModal();
+    };
+    
+    window.navigateToSection = function(section) {
+        if (currentUser) {
+            document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            openAuthModal();
+        }
+    };
     
     // Auth check for inbox links
     document.querySelectorAll('a[href="inbox.html"]').forEach(link => {
@@ -2080,7 +2157,10 @@
     });
 
     // ========== TOGGLES ==========
-    window.toggleHamburger = () => document.getElementById('hamburgerPanel').classList.toggle('open');
+    window.toggleHamburger = () => {
+        document.getElementById('hamburgerPanel').classList.toggle('open');
+    };
+    
     window.toggleMobileSearch = () => {
         const overlay = document.getElementById('mobileSearchOverlay');
         overlay.classList.toggle('open');
@@ -2092,132 +2172,71 @@
     document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
     document.getElementById('mobileSearchBtn')?.addEventListener('click', toggleMobileSearch);
 
-    // ========== THEME ==========
+    // Close panel when clicking outside
+    document.addEventListener('click', function(e) {
+        const panel = document.getElementById('hamburgerPanel');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        
+        if (panel && panel.classList.contains('open')) {
+            if (!panel.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                panel.classList.remove('open');
+            }
+        }
+    });
+
+    // ========== THEME TOGGLE ==========
     window.toggleTheme = function() {
         document.body.classList.toggle('light-theme');
         const icon = document.getElementById('panelThemeIcon');
-        if (document.body.classList.contains('light-theme')) { 
-            icon?.classList.replace('fa-moon','fa-sun'); 
-            localStorage.setItem('siteTheme','light'); 
-        } else { 
-            icon?.classList.replace('fa-sun','fa-moon'); 
-            localStorage.setItem('siteTheme','dark'); 
+        
+        if (document.body.classList.contains('light-theme')) {
+            icon?.classList.replace('fa-moon', 'fa-sun');
+            localStorage.setItem('siteTheme', 'light');
+        } else {
+            icon?.classList.replace('fa-sun', 'fa-moon');
+            localStorage.setItem('siteTheme', 'dark');
         }
     };
     
-    if (localStorage.getItem('siteTheme') === 'light') { 
-        document.body.classList.add('light-theme'); 
-        document.getElementById('panelThemeIcon')?.classList.replace('fa-moon','fa-sun'); 
+    // Load saved theme
+    if (localStorage.getItem('siteTheme') === 'light') {
+        document.body.classList.add('light-theme');
+        document.getElementById('panelThemeIcon')?.classList.replace('fa-moon', 'fa-sun');
     }
 
     // ========== PWA INSTALL ==========
     let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => { 
-        e.preventDefault(); 
-        deferredPrompt = e; 
-        document.getElementById('installButton').classList.add('show'); 
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('installButton').classList.add('show');
     });
     
     document.getElementById('installButton')?.addEventListener('click', async () => {
         document.getElementById('installButton').classList.remove('show');
-        if (deferredPrompt) { 
-            deferredPrompt.prompt(); 
-            await deferredPrompt.userChoice; 
-            deferredPrompt = null; 
-        }
-    });
-
-    // ========== INIT ==========
-    document.addEventListener('DOMContentLoaded', function() {
-        // Password strength setup
-        const pwd = document.getElementById('signupPassword');
-        if (pwd) pwd.addEventListener('input', function() {
-            const val = this.value;
-            const fill = document.getElementById('strengthFill');
-            const txt = document.getElementById('strengthText');
-            if (!val) { fill.style.width = '0'; txt.textContent = 'Enter password'; return; }
-            let strength = 0;
-            if (val.length >= 6) strength++;
-            if (val.length >= 8) strength++;
-            if (/[A-Z]/.test(val)) strength++;
-            if (/[0-9]/.test(val)) strength++;
-            if (/[^A-Za-z0-9]/.test(val)) strength++;
-            strength = Math.min(strength,4);
-            fill.style.width = (strength/4)*100 + '%';
-            const colors = ['#ef4444','#f59e0b','#f59e0b','#10b981','#10b981'];
-            fill.style.backgroundColor = colors[strength];
-            const texts = ['Too weak','Weak','Fair','Good','Strong'];
-            txt.textContent = texts[strength];
-        });
         
-        const conf = document.getElementById('signupConfirm');
-        if (conf) conf.addEventListener('input', function() {
-            const pwd = document.getElementById('signupPassword').value;
-            const match = document.getElementById('passwordMatch');
-            if (!this.value) match.innerHTML = '';
-            else if (pwd === this.value) match.innerHTML = '<span style="color:#10b981;"><i class="fas fa-check-circle"></i> Passwords match</span>';
-            else match.innerHTML = '<span style="color:#ef4444;"><i class="fas fa-exclamation-circle"></i> Passwords do not match</span>';
-        });
-    });
-    
-    // Add notification permission request
-    async function setupNotifications() {
-        try {
-            const permission = await Notification.requestPermission();
-            
-            if (permission === 'granted') {
-                console.log('Notification permission granted');
-                
-                const token = await messaging.getToken({
-                    vapidKey: 'BPtEuB4xDkM5dmjRVMvHW6oOwdqjUuYeTNoJdhlblVig5X2wHge_tclMAPId3RehWSyuK3_fVOTBK90LSlsoOtg'
-                });
-                
-                console.log('FCM Token:', token);
-                
-                if (currentUser && database) {
-                    await database.ref(`users/${currentUser.uid}/fcmTokens/${token}`).set(true);
-                }
-                
-                return token;
-            } else {
-                console.log('Notification permission denied');
-            }
-        } catch (error) {
-            console.error('Error setting up notifications:', error);
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
         }
-    }
-    
-    // Handle foreground messages
-    if (messaging) {
-        messaging.onMessage((payload) => {
-            console.log('Message received in foreground:', payload);
-            showElegantMessage(
-                payload.notification?.body || 'New message received',
-                'info'
-            );
-            // Refresh unread count
-            if (currentUser) {
-                setupUnreadMessagesListener(currentUser.uid);
-            }
-        });
-    }
-</script>
+    });
 
-<!-- Add a test message to verify the system works -->
-<script>
-    // For testing only - you can remove this after confirming it works
-    window.testNotification = function() {
+    // ========== TEST FUNCTION ==========
+    // You can run this in console to test: simulateNewMessage()
+    window.simulateNewMessage = function() {
         if (currentUser) {
-            updateInboxBadges(3);
-            showElegantMessage('Test: Showing 3 unread messages', 'success');
+            const currentBadge = document.getElementById('desktopInboxBadge');
+            const currentCount = currentBadge.style.display === 'flex' ? parseInt(currentBadge.textContent) || 0 : 0;
+            updateInboxBadges(currentCount + 1);
+            showElegantMessage('📨 Test: Simulated new message', 'success');
         } else {
             showElegantMessage('Please login first', 'info');
         }
     };
-    
-    // Log to console to help debug
+
     console.log('Inbox notification system loaded');
-    console.log('Current user:', currentUser);
 </script>
 </body>
 </html>
