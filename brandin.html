@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ca8a04">
+    <meta name="background-color" content="#0a0a0a">
+    <meta name="color-scheme" content="dark light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BrandIn Pages">
+    <meta name="application-name" content="BrandIn Pages">
+    <title>BrandIn · personal brand page</title>
+    <!-- favicon (using existing SURA placeholder) -->
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        /* === base & theme (same robust structure, adapted for BrandIn) === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --gold: #ca8a04; --gold-dark: #a16207; --gold-light: #fef3c7;
+            --bg-primary: #0a0a0a; --bg-secondary: #111111; --bg-card: rgba(20,20,20,0.8);
+            --text-primary: #ffffff; --text-secondary: #e0e0e0; --text-muted: #aaaaaa;
+            --border-light: #2a2a2a; --shadow-color: rgba(202,138,4,0.25);
+            --nav-bg: rgba(10,10,10,0.95); --card-bg: #151515;
+            --glass-bg: rgba(20,20,20,0.3); --glass-border: rgba(255,255,255,0.1);
+            --toast-bg: rgba(20,20,20,0.95); --toast-border: var(--gold);
+            --header-height: 70px; --input-bg: rgba(255,255,255,0.05);
+            --input-focus-bg: rgba(255,255,255,0.1);
+            --danger: #dc2626; --success: #10b981; --info: #2563eb;
+        }
+        body.light-theme {
+            --bg-primary: #f8f5f0; --bg-secondary: #ffffff; --bg-card: #ffffff;
+            --text-primary: #1a1a1a; --text-secondary: #2d2d2d; --text-muted: #555555;
+            --border-light: #dddddd; --shadow-color: rgba(202,138,4,0.4);
+            --nav-bg: rgba(255,255,255,0.95); --card-bg: #ffffff;
+            --glass-bg: rgba(255,255,255,0.2); --glass-border: rgba(255,255,255,0.3);
+            --input-bg: rgba(0,0,0,0.03); --input-focus-bg: rgba(0,0,0,0.05);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-top: var(--header-height);
+            transition: background 0.3s, color 0.2s;
+        }
+        /* header (same functional layout) */
+        .site-header {
+            position: fixed; top: 0; width: 100%; height: var(--header-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold); z-index: 2000; padding: 0 1rem;
+        }
+        .header-container {
+            max-width: 1400px; height: 100%; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .site-logo {
+            height: 48px; border-radius: 12px; border: 2px solid var(--gold);
+            padding: 2px; background: var(--bg-primary);
+            font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.5rem;
+            display: flex; align-items: center; gap: 0.4rem; color: var(--gold);
+        }
+        .site-logo i { font-size: 1.8rem; }
+        .header-desktop-actions { display: flex; align-items: center; gap: 1.5rem; }
+        .desktop-search {
+            position: relative; display: flex; align-items: center;
+            background: rgba(255,255,255,0.08); border: 1px solid var(--border-light);
+            border-radius: 40px; padding: 0.4rem 0.4rem 0.4rem 1.2rem;
+            min-width: 240px;
+        }
+        .desktop-search input {
+            background: transparent; border: none; color: var(--text-primary);
+            width: 100%; outline: none; padding: 0.5rem 0;
+        }
+        .desktop-search button {
+            background: var(--gold); border: none; width: 38px; height: 38px;
+            border-radius: 50%; color: black; cursor: pointer;
+        }
+        .user-menu, #loginButtonDesktop {
+            display: flex; align-items: center; gap: 0.5rem;
+            background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
+            border-radius: 40px; padding: 0.3rem 0.3rem 0.3rem 1rem;
+            cursor: pointer; position: relative;
+        }
+        .user-avatar {
+            background: var(--gold); color: #000; width: 35px; height: 35px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+        }
+        .logout-dropdown {
+            position: absolute; top: 120%; right: 0;
+            background: var(--card-bg); border: 1px solid var(--gold);
+            border-radius: 20px; padding: 0.5rem;
+            min-width: 120px; display: none; z-index: 1001;
+        }
+        .user-menu:hover .logout-dropdown { display: block; }
+        .logout-item {
+            padding: 0.7rem 1rem; color: var(--text-primary);
+            border-radius: 15px; display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+        }
+        .logout-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
+        .mobile-header-group { display: none; align-items: center; gap: 0.8rem; }
+        .mobile-search-icon, .hamburger-icon {
+            border: 1px solid var(--gold); color: var(--gold);
+            width: 42px; height: 42px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; cursor: pointer;
+        }
+        .mobile-search-icon:hover, .hamburger-icon:hover {
+            background: var(--gold); color: black;
+        }
+        .search-overlay {
+            position: fixed; top: 0; left: 0; width: 100%;
+            background: var(--nav-bg); backdrop-filter: blur(20px);
+            padding: 1rem; z-index: 2400;
+            transform: translateY(-100%); transition: 0.3s;
+            border-bottom: 2px solid var(--gold);
+        }
+        .search-overlay.open { transform: translateY(0); }
+        .search-row { display: flex; gap: 0.5rem; position: relative; }
+        .search-overlay input {
+            flex: 1; padding: 1rem 1.2rem; background: var(--bg-secondary);
+            border: 2px solid var(--gold); border-radius: 50px;
+            color: var(--text-primary);
+        }
+        .close-search { background: transparent; border: none; color: var(--text-muted); font-size: 2rem; width: 50px; cursor: pointer; }
+        .hamburger-panel {
+            position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
+            background: var(--nav-bg); backdrop-filter: blur(20px);
+            border-left: 1px solid var(--gold); padding: 2rem 1.5rem;
+            z-index: 2500; transition: right 0.3s ease;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        .hamburger-panel.open { right: 0; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; }
+        .panel-header h3 { font-family: 'Cinzel', serif; color: var(--gold); }
+        .close-panel { background: transparent; border: none; color: var(--text-muted); font-size: 1.8rem; cursor: pointer; }
+        .panel-quick-links { display: flex; flex-direction: column; gap: 0.5rem; margin: 2rem 0; }
+        .panel-link {
+            padding: 0.9rem 1rem; background: rgba(255,255,255,0.03);
+            border-radius: 30px; color: var(--text-primary); text-decoration: none;
+            display: flex; align-items: center; gap: 1rem;
+            border: 1px solid transparent;
+        }
+        .panel-link:hover { border-color: var(--gold); background: rgba(202,138,4,0.1); color: var(--gold); }
+        .panel-link i { width: 24px; color: var(--gold); }
+        .panel-theme-toggle {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 40px;
+            margin-top: auto; border: 1px solid var(--border-light);
+        }
+
+        /* hero (BrandIn specific) */
+        .hero-brand {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1f1a0c 100%);
+            padding: 4rem 2rem;
+            text-align: center;
+            border-bottom: 2px solid var(--gold);
+        }
+        .hero-brand h1 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        .hero-brand p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            color: var(--text-secondary);
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(202,138,4,0.2);
+            border: 1px solid var(--gold);
+            border-radius: 60px;
+            padding: 0.7rem 2rem;
+            font-size: 1.1rem;
+            backdrop-filter: blur(5px);
+        }
+
+        /* service cards (BrandIn features) */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        .service-card {
+            background: var(--card-bg);
+            border-radius: 40px;
+            padding: 2rem 1.5rem;
+            border: 1px solid var(--border-light);
+            transition: 0.3s;
+            text-align: center;
+        }
+        .service-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--gold);
+            box-shadow: 0 20px 40px var(--shadow-color);
+        }
+        .service-icon {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+        }
+        .service-card h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        .service-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 1.5rem;
+        }
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .section-sub {
+            text-align: center;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            font-size: 1.1rem;
+        }
+
+        /* package card (Basic) with inquiry */
+        .package-card {
+            background: var(--card-bg);
+            border-radius: 60px;
+            border: 2px solid var(--gold);
+            padding: 3rem 2.5rem;
+            max-width: 700px;
+            margin: 3rem auto;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+        }
+        .package-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .package-header i {
+            font-size: 3.5rem;
+            color: var(--gold);
+            background: rgba(202,138,4,0.1);
+            padding: 1rem;
+            border-radius: 80px;
+            border: 1px dashed var(--gold);
+        }
+        .package-header h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.8rem;
+            color: var(--gold);
+            margin: 1rem 0 0.3rem;
+        }
+        .package-price {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+        }
+        .package-feature-list {
+            list-style: none;
+            margin: 2rem 0;
+        }
+        .package-feature-list li {
+            padding: 0.9rem 0;
+            border-bottom: 1px dashed var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.1rem;
+        }
+        .package-feature-list i.fa-check-circle {
+            color: var(--gold);
+        }
+        .package-feature-list .soon {
+            opacity: 0.6;
+            text-decoration: line-through 1px #666;
+        }
+        .package-feature-list .soon i {
+            color: #666;
+        }
+        .premium-tag {
+            background: #1d4e6f;
+            border-radius: 30px;
+            padding: 0.2rem 1rem;
+            font-size: 0.8rem;
+            margin-left: 0.8rem;
+            color: #b4f0e0;
+            white-space: nowrap;
+        }
+        .package-inquiry-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 50px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        .package-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 60px;
+            color: var(--text-primary);
+            margin-bottom: 1.2rem;
+            font-size: 1rem;
+        }
+        .package-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: var(--input-focus-bg);
+            box-shadow: 0 0 0 3px rgba(202,138,4,0.2);
+        }
+        .package-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: var(--gold);
+            color: black;
+            border: none;
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            transition: 0.2s;
+        }
+        .package-btn:hover {
+            background: #b8860b;
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(202,138,4,0.4);
+        }
+
+        /* auth modal (same as before) */
+        .auth-modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: var(--card-bg); padding: 2.5rem; border-radius: 40px;
+            border: 2px solid var(--gold); z-index: 9500; max-width: 480px;
+            width: 92%; max-height: 90vh; overflow-y: auto; display: none;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+        }
+        .auth-modal.active { display: block; animation: modalFade 0.3s; }
+        @keyframes modalFade { from { opacity: 0; transform: translate(-50%, -55%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+        .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: transparent; border: none; color: var(--text-muted); font-size: 2rem; cursor: pointer; }
+        .modal-header { text-align: center; margin-bottom: 2rem; }
+        .modal-header i { font-size: 3rem; color: var(--gold); background: rgba(202,138,4,0.1); padding: 1rem; border-radius: 60px; margin-bottom: 1rem; }
+        .modal-header h3 { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--gold); }
+        .modal-tabs { display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; }
+        .modal-tab { flex: 1; padding: 0.9rem; background: transparent; border: 1px solid transparent; color: var(--text-muted); font-weight: 600; cursor: pointer; border-radius: 40px; }
+        .modal-tab.active { color: var(--gold); border-color: var(--gold); background: rgba(202,138,4,0.1); }
+        .modal-form { display: none; }
+        .modal-form.active { display: block; }
+        .modal-input { width: 100%; padding: 1rem 1.2rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 40px; color: var(--text-primary); margin-bottom: 1.2rem; }
+        .modal-input:focus { outline: none; border-color: var(--gold); background: var(--input-focus-bg); }
+        .modal-btn { width: 100%; padding: 1rem; background: var(--gold); color: black; border: none; border-radius: 40px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.7rem; }
+        .modal-error { color: var(--danger); font-size: 0.9rem; text-align: center; margin-top: 1rem; display: none; background: rgba(220,38,38,0.1); padding: 0.7rem; border-radius: 40px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9400; display: none; }
+        .modal-overlay.active { display: block; }
+
+        .footer {
+            background: var(--bg-secondary);
+            padding: 3rem 1.5rem;
+            text-align: center;
+            border-top: 1px solid var(--border-light);
+        }
+        .message-toast {
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--toast-bg); backdrop-filter: blur(12px);
+            border: 1px solid var(--gold); border-radius: 60px;
+            padding: 0.9rem 2rem; display: flex; align-items: center; gap: 1rem;
+            z-index: 10000; opacity: 0; visibility: hidden; transition: 0.4s;
+        }
+        .message-toast.show { opacity: 1; visibility: visible; }
+        @media (max-width:768px) {
+            .header-desktop-actions { display:none; }
+            .mobile-header-group { display:flex; }
+        }
+    </style>
+</head>
+<body>
+<!-- loading overlay (simple) -->
+<div id="loadingOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; display:flex; align-items:center; justify-content:center; z-index:10000; transition:0.5s;">
+    <div style="color:var(--gold); font-size:2rem;"><i class="fas fa-spinner fa-pulse"></i> BrandIn</div>
+</div>
+
+<!-- MODAL OVERLAY & AUTH MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeAllModals()"></div>
+<div class="auth-modal" id="authModal">
+    <button class="modal-close" onclick="closeAllModals()">&times;</button>
+    <div class="modal-header"><i class="fas fa-user-tie"></i><h3>BrandIn Account</h3></div>
+    <div class="modal-tabs">
+        <button class="modal-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button>
+        <button class="modal-tab" id="signupTab" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+    <form id="loginForm" class="modal-form active" onsubmit="handleLogin(event)">
+        <input type="email" class="modal-input" id="loginEmail" placeholder="Email" required>
+        <input type="password" class="modal-input" id="loginPassword" placeholder="Password" required>
+        <button type="submit" class="modal-btn"><i class="fas fa-sign-in-alt"></i> Login</button>
+        <div class="modal-error" id="loginError"></div>
+    </form>
+    <form id="signupForm" class="modal-form" onsubmit="handleSignup(event)">
+        <input type="text" class="modal-input" id="signupName" placeholder="Full name" required>
+        <input type="email" class="modal-input" id="signupEmail" placeholder="Email" required>
+        <input type="password" class="modal-input" id="signupPassword" placeholder="Password (min 6)" required minlength="6">
+        <input type="password" class="modal-input" id="signupConfirm" placeholder="Confirm password" required>
+        <button type="submit" class="modal-btn"><i class="fas fa-user-plus"></i> Create account</button>
+        <div class="modal-error" id="signupError"></div>
+    </form>
+</div>
+
+<!-- header -->
+<header class="site-header">
+    <div class="header-container">
+        <div class="site-logo"><i class="fas fa-id-badge"></i> BrandIn</div>
+        <div class="header-desktop-actions">
+            <div class="desktop-search">
+                <input type="text" placeholder="Search BrandIn..." id="desktopSearchInput">
+                <button onclick="showToast('Search feature coming soon')"><i class="fas fa-search"></i></button>
+            </div>
+            <div id="userMenuDesktop" class="user-menu" style="display:none;">
+                <span class="user-name" id="userDisplayNameDesktop">User</span>
+                <div class="user-avatar" id="userAvatarDesktop">U</div>
+                <div class="logout-dropdown">
+                    <div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                </div>
+            </div>
+            <div id="loginButtonDesktop" onclick="openAuthModal()" style="display:flex; align-items:center; gap:0.5rem; background:rgba(202,138,4,0.1); border:1px solid var(--gold); border-radius:40px; padding:0.3rem 1.2rem; cursor:pointer;">
+                <i class="fas fa-user-circle"></i><span>Account</span>
+            </div>
+        </div>
+        <div class="mobile-header-group">
+            <div class="mobile-search-icon" id="mobileSearchBtn"><i class="fas fa-search"></i></div>
+            <div class="hamburger-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></div>
+        </div>
+    </div>
+</header>
+
+<!-- mobile search overlay -->
+<div class="search-overlay" id="mobileSearchOverlay">
+    <div class="search-row">
+        <input type="text" placeholder="Search..." id="mobileSearchInput">
+        <button onclick="showToast('Search coming soon'); toggleMobileSearch();"><i class="fas fa-search"></i></button>
+        <button class="close-search" onclick="toggleMobileSearch()"><i class="fas fa-times"></i></button>
+    </div>
+</div>
+
+<!-- hamburger panel -->
+<div class="hamburger-panel" id="hamburgerPanel">
+    <div class="panel-header"><h3>BrandIn</h3><button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button></div>
+    <div class="panel-quick-links">
+        <a href="#" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-house"></i> Home</a>
+        <a href="#" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-envelope"></i> Contact</a>
+    </div>
+    <div class="panel-theme-toggle">
+        <span><i class="fas fa-palette"></i> Dark / Light</span>
+        <div onclick="toggleTheme()" style="width:45px; height:45px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer;">
+            <i class="fas fa-moon" id="panelThemeIcon"></i>
+        </div>
+    </div>
+</div>
+
+<!-- hero -->
+<section class="hero-brand">
+    <h1>BrandIn Pages</h1>
+    <p>Your personal branding hub – professional landing page, service cards, client community & shop</p>
+    <div class="hero-badge"><i class="fas fa-crown" style="color:var(--gold);"></i> One package now · Premium coming soon</div>
+</section>
+
+<div class="container">
+    <!-- service highlights (cards) -->
+    <div class="services-grid">
+        <div class="service-card"><i class="fas fa-laptop service-icon"></i><h3>Landing page</h3><p>Professional personal page to present yourself, bio, portfolio, and brand.</p></div>
+        <div class="service-card"><i class="fas fa-layer-group service-icon"></i><h3>Service cards</h3><p>Showcase your offerings with elegant cards, each with details & CTA.</p></div>
+        <div class="service-card"><i class="fas fa-paint-brush service-icon"></i><h3>Paint info</h3><p>Visual highlights: skills, projects, testimonials – your story, your style.</p></div>
+        <div class="service-card"><i class="fas fa-cart-shopping service-icon"></i><h3>Online shop</h3><p>Sell digital products, consultations, or physical goods directly.</p></div>
+        <div class="service-card"><i class="fas fa-comments service-icon"></i><h3>Client community</h3><p>Private space for your customers to interact (Premium).</p></div>
+    </div>
+
+    <!-- BASIC PACKAGE (only one available now) -->
+    <div class="package-card">
+        <div class="package-header">
+            <i class="fas fa-rocket"></i>
+            <h2>Basic</h2>
+            <div class="package-price">launch offer</div>
+        </div>
+        <ul class="package-feature-list">
+            <li><i class="fas fa-check-circle"></i> <strong>Professional landing page</strong> – fully branded</li>
+            <li><i class="fas fa-check-circle"></i> <strong>Service cards</strong> (up to 6 services)</li>
+            <li><i class="fas fa-check-circle"></i> <strong>Paint info integration</strong> – visual storytelling</li>
+            <li><i class="fas fa-check-circle"></i> <strong>Online shop</strong> – basic product listing</li>
+            <li><i class="fas fa-check-circle"></i> <strong>3 content updates per month</strong> (text/images)</li>
+            <li class="soon"><i class="fas fa-clock"></i> Community chat space <span class="premium-tag">Premium 2026</span></li>
+            <li class="soon"><i class="fas fa-chart-line"></i> 6 updates/month <span class="premium-tag">Premium</span></li>
+        </ul>
+        <!-- INQUIRY FORM (basic package signup, stores in Firebase) -->
+        <div class="package-inquiry-box">
+            <form onsubmit="submitBasicInquiry(event)">
+                <input type="text" class="package-input" placeholder="Your name" id="basicName" required>
+                <input type="email" class="package-input" placeholder="Email address" id="basicEmail" required>
+                <input type="text" class="package-input" placeholder="Phone / preferred contact (optional)" id="basicPhone">
+                <textarea class="package-input" placeholder="Brief about your brand / goals" rows="2" id="basicMessage"></textarea>
+                <button type="submit" class="package-btn"><i class="fas fa-paper-plane"></i> Get Basic</button>
+            </form>
+            <p style="text-align:center; margin-top:1rem; color:var(--text-muted);"><i class="fas fa-shield-alt"></i> We'll reach out within 24h to set up your page.</p>
+        </div>
+    </div>
+</div>
+
+<!-- footer -->
+<footer class="footer">
+    <p style="margin-bottom:0.5rem;"><i class="fas fa-id-badge"></i> BrandIn Pages · a division of I AM MUGERA</p>
+    <p>© 2026 I AM MUGERA · personal branding suite</p>
+</footer>
+
+<!-- toast -->
+<div id="elegantToast" class="message-toast"><i class="fas fa-globe-africa"></i><span id="toastMessage">message</span></div>
+
+<script>
+    // Firebase config (identical to original)
+    const firebaseConfig = {
+        apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+        authDomain: "mugera-e51cc.firebaseapp.com",
+        databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mugera-e51cc",
+        storageBucket: "mugera-e51cc.firebasestorage.app",
+        messagingSenderId: "1024868637509",
+        appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+    let currentUser = null;
+    auth.onAuthStateChanged((user) => {
+        currentUser = user;
+        updateUIForUser(user);
+        // Auto-fill basic form
+        if (user) {
+            const nameField = document.getElementById('basicName');
+            const emailField = document.getElementById('basicEmail');
+            if (nameField && !nameField.value) nameField.value = user.displayName || user.email?.split('@')[0] || '';
+            if (emailField && !emailField.value) emailField.value = user.email || '';
+        }
+    });
+
+    function updateUIForUser(user) {
+        const desktopMenu = document.getElementById('userMenuDesktop');
+        const desktopLogin = document.getElementById('loginButtonDesktop');
+        const userNameSpan = document.getElementById('userDisplayNameDesktop');
+        const userAvatar = document.getElementById('userAvatarDesktop');
+        if (user) {
+            let dn = user.displayName || user.email?.split('@')[0] || 'User';
+            dn = dn.charAt(0).toUpperCase() + dn.slice(1);
+            if (userNameSpan) userNameSpan.textContent = dn;
+            if (userAvatar) userAvatar.textContent = dn.charAt(0).toUpperCase();
+            if (desktopMenu) desktopMenu.style.display = 'flex';
+            if (desktopLogin) desktopLogin.style.display = 'none';
+        } else {
+            if (desktopMenu) desktopMenu.style.display = 'none';
+            if (desktopLogin) desktopLogin.style.display = 'flex';
+        }
+    }
+
+    window.closeAllModals = () => {
+        document.getElementById('authModal').classList.remove('active');
+        document.getElementById('modalOverlay').classList.remove('active');
+        document.body.style.overflow = '';
+    };
+    window.openAuthModal = () => {
+        document.getElementById('authModal').classList.add('active');
+        document.getElementById('modalOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+    window.switchAuthTab = (tab) => {
+        document.getElementById('loginTab').classList.toggle('active', tab==='login');
+        document.getElementById('signupTab').classList.toggle('active', tab==='signup');
+        document.getElementById('loginForm').classList.toggle('active', tab==='login');
+        document.getElementById('signupForm').classList.toggle('active', tab==='signup');
+    };
+    window.handleLogin = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const errorEl = document.getElementById('loginError');
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+            errorEl.style.display = 'none';
+            closeAllModals();
+            showToast('Login successful!');
+        } catch (err) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = err.message;
+        }
+    };
+    window.handleSignup = async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('signupName').value.trim();
+        const email = document.getElementById('signupEmail').value.trim();
+        const password = document.getElementById('signupPassword').value;
+        const confirm = document.getElementById('signupConfirm').value;
+        const errorEl = document.getElementById('signupError');
+        if (password !== confirm) {
+            errorEl.style.display = 'block'; errorEl.textContent = 'Passwords do not match'; return;
+        }
+        try {
+            const cred = await auth.createUserWithEmailAndPassword(email, password);
+            await cred.user.updateProfile({ displayName: name });
+            await database.ref('users/' + cred.user.uid).set({ name, email, createdAt: Date.now() });
+            errorEl.style.display = 'none';
+            showToast('Account created!');
+            closeAllModals();
+        } catch (err) {
+            errorEl.style.display = 'block'; errorEl.textContent = err.message;
+        }
+    };
+    window.handleLogout = async () => {
+        try { await auth.signOut(); showToast('Logged out'); } catch (err) { showToast(err.message); }
+    };
+
+    // BASIC PACKAGE INQUIRY (BrandIn)
+    window.submitBasicInquiry = async (event) => {
+        event.preventDefault();
+        const name = document.getElementById('basicName').value.trim();
+        const email = document.getElementById('basicEmail').value.trim();
+        const phone = document.getElementById('basicPhone').value.trim();
+        const msg = document.getElementById('basicMessage').value.trim();
+
+        if (!name || !email) { showToast('Please fill name and email'); return; }
+
+        const btn = event.target.querySelector('button');
+        const original = btn.innerHTML;
+        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> sending...';
+
+        try {
+            const ref = database.ref('brandin_inquiries').push();
+            await ref.set({
+                package: 'Basic',
+                name, email, phone: phone || null, message: msg || null,
+                uid: currentUser ? currentUser.uid : null,
+                timestamp: Date.now(),
+                status: 'new'
+            });
+            showToast('✅ Basic request sent! We\'ll contact you.');
+            event.target.reset();
+            // refill if logged in
+            if (currentUser) {
+                document.getElementById('basicName').value = currentUser.displayName || currentUser.email?.split('@')[0] || '';
+                document.getElementById('basicEmail').value = currentUser.email || '';
+            }
+        } catch (err) {
+            showToast('❌ Error, try again');
+        } finally {
+            btn.disabled = false; btn.innerHTML = original;
+        }
+    };
+
+    // helpers
+    window.showToast = (msg) => {
+        const toast = document.getElementById('elegantToast');
+        document.getElementById('toastMessage').innerText = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3500);
+    };
+
+    // theme / UI
+    window.toggleTheme = function() {
+        document.body.classList.toggle('light-theme');
+        const icon = document.getElementById('panelThemeIcon');
+        if (document.body.classList.contains('light-theme')) {
+            icon?.classList.replace('fa-moon','fa-sun');
+            localStorage.setItem('siteTheme','light');
+        } else {
+            icon?.classList.replace('fa-sun','fa-moon');
+            localStorage.setItem('siteTheme','dark');
+        }
+    };
+    (function() {
+        if (localStorage.getItem('siteTheme') === 'light') {
+            document.body.classList.add('light-theme');
+            document.getElementById('panelThemeIcon')?.classList.replace('fa-moon','fa-sun');
+        }
+        setTimeout(() => document.getElementById('loadingOverlay').style.opacity = '0', 600);
+        setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 1200);
+    })();
+
+    window.toggleHamburger = function() { document.getElementById('hamburgerPanel').classList.toggle('open'); };
+    window.toggleMobileSearch = function() { document.getElementById('mobileSearchOverlay').classList.toggle('open'); };
+    document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
+    document.getElementById('mobileSearchBtn')?.addEventListener('click', toggleMobileSearch);
+</script>
+</body>
+</html>
