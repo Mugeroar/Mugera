@@ -760,7 +760,9 @@
     window.goToSlide = (idx) => showSlide(idx);
     setInterval(() => changeSlide(1), 6000);
 
-    // Handle service link click: if not logged in, block and show auth
+    // Handle service link click: 
+    // → if not logged in, block and show auth modal
+    // → if logged in, allow navigation to .html page (no demo message)
     window.handleServiceLink = (event, serviceName) => {
         if (!currentUser) {
             event.preventDefault();
@@ -768,9 +770,8 @@
             openAuthModal();
             return false;
         }
-        // If logged in, allow navigation (demo: show message)
-        showElegantMessage(`Welcome to ${serviceName} (demo: page would open)`, 'success');
-        return false; // prevent actual href for demo
+        // Logged in: allow the browser to follow the href (vpay.html etc.)
+        return true;  // ← allows default navigation
     };
 
     // general inquiry
