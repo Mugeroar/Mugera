@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -25,7 +25,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --gold: #ca8a04; --gold-dark: #a16207; --gold-light: #fef3c7;
-            --bg-primary: #0a0a0a; --bg-secondary: #111111; --bg-card: rgba(20,20,20,0.8);
+            --bg-primary: #0a0a0a; --bg-secondary: #111111; --bg-card: #151515;
             --text-primary: #ffffff; --text-secondary: #e0e0e0; --text-muted: #aaaaaa;
             --border-light: #2a2a2a; --shadow-color: rgba(202,138,4,0.25);
             --nav-bg: rgba(10,10,10,0.95); --card-bg: #151515;
@@ -35,6 +35,7 @@
             --header-height: 70px; --input-bg: rgba(255,255,255,0.05);
             --input-focus-bg: rgba(255,255,255,0.1);
             --danger: #dc2626; --success: #10b981;
+            --hero-overlay-dark: linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(20,20,20,0.75) 100%);
         }
         body.light-theme {
             --bg-primary: #f8f5f0; --bg-secondary: #ffffff; --bg-card: #ffffff;
@@ -43,7 +44,7 @@
             --nav-bg: rgba(255,255,255,0.95); --card-bg: #ffffff;
             --glass-bg: rgba(255,255,255,0.2); --glass-border: rgba(255,255,255,0.3);
             --input-bg: rgba(0,0,0,0.03); --input-focus-bg: rgba(0,0,0,0.05);
-            --hero-overlay-light: linear-gradient(135deg, rgba(255,245,235,0.75) 0%, rgba(255,255,255,0.7) 100%);
+            --hero-overlay-light: linear-gradient(135deg, rgba(255,245,235,0.85) 0%, rgba(255,255,255,0.8) 100%);
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -53,6 +54,7 @@
             padding-top: var(--header-height);
             transition: background 0.3s, color 0.2s;
         }
+        /* header */
         .site-header {
             position: fixed; top: 0; width: 100%; height: var(--header-height);
             background: var(--nav-bg); backdrop-filter: blur(10px);
@@ -80,7 +82,9 @@
         .desktop-search button {
             background: var(--gold); border: none; width: 38px; height: 38px;
             border-radius: 50%; color: black; cursor: pointer;
+            transition: 0.2s;
         }
+        .desktop-search button:hover { background: #b8860b; transform: scale(1.05); }
         .user-menu, #loginButtonDesktop {
             display: flex; align-items: center; gap: 0.5rem;
             background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
@@ -112,7 +116,9 @@
             width: 42px; height: 42px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.3rem; cursor: pointer;
+            transition: all 0.2s;
         }
+        .mobile-search-icon:hover, .hamburger-icon:hover { background: var(--gold); color: black; }
         .search-overlay {
             position: fixed; top: 0; left: 0; width: 100%;
             background: var(--nav-bg); backdrop-filter: blur(20px);
@@ -139,147 +145,96 @@
         }
         .hamburger-panel.open { right: 0; }
         .panel-header { display: flex; justify-content: space-between; align-items: center; }
+        .panel-header h3 { font-family: 'Cinzel', serif; color: var(--gold); }
+        .close-panel { background: transparent; border: none; color: var(--text-muted); font-size: 1.8rem; cursor: pointer; }
+        .panel-quick-links { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
+        .panel-link {
+            padding: 0.9rem 1rem; background: rgba(255,255,255,0.03); border-radius: 30px;
+            color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 1rem;
+            border: 1px solid transparent; transition: 0.2s;
+        }
+        .panel-link:hover { border-color: var(--gold); background: rgba(202,138,4,0.1); color: var(--gold); }
+        .panel-link i { width: 24px; color: var(--gold); }
         .panel-theme-toggle {
             display: flex; align-items: center; justify-content: space-between;
             padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 40px;
             margin-top: auto; border: 1px solid var(--border-light);
         }
-        /* hero slider */
+        /* hero slider (WorkFit style) */
         .hero-slider {
             position: relative;
-            height: 70vh;
-            min-height: 500px;
+            height: 80vh;
+            min-height: 600px;
             overflow: hidden;
         }
-        .slide-container {
-            height: 100%;
-            position: relative;
-        }
+        .slide-container { height: 100%; position: relative; }
         .slide {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-size: cover; background-position: center;
-            opacity: 0;
-            transition: opacity 0.8s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
+            opacity: 0; transition: opacity 0.8s ease;
+            display: flex; align-items: center; justify-content: center; text-align: center;
         }
         .slide.active { opacity: 1; }
         .slide-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(20,20,20,0.6) 100%);
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--hero-overlay-dark);
         }
         body.light-theme .slide-overlay { background: var(--hero-overlay-light); }
         .slide-content {
-            position: relative;
-            z-index: 10;
-            max-width: 800px;
-            padding: 2rem;
+            position: relative; z-index: 10; max-width: 800px; padding: 2rem;
         }
         .slide-content h2 {
             font-family: 'Cinzel', serif;
             font-size: clamp(2.5rem, 5vw, 4rem);
-            color: var(--gold);
-            margin-bottom: 1rem;
+            color: var(--gold); margin-bottom: 1rem;
             text-shadow: 0 2px 15px rgba(0,0,0,0.5);
         }
-        body.light-theme .slide-content h2 {
-            text-shadow: 0 2px 8px rgba(255,255,255,0.8), 0 2px 12px rgba(202,138,4,0.3);
-            color: #b8860b;
-        }
+        body.light-theme .slide-content h2 { text-shadow: 0 2px 8px rgba(255,255,255,0.8); color: #b8860b; }
         .slide-content p {
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
-            color: var(--text-secondary);
+            font-size: 1.3rem; margin-bottom: 2rem; color: var(--text-secondary);
         }
-        body.light-theme .slide-content p {
-            color: #1a1a1a; font-weight: 500; text-shadow: 0 1px 3px rgba(255,255,255,0.5);
-        }
+        body.light-theme .slide-content p { color: #1a1a1a; font-weight: 500; }
         .slide-btn {
-            background: var(--gold);
-            color: black;
-            border: none;
-            border-radius: 50px;
-            padding: 1rem 2.5rem;
-            font-size: 1.2rem;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(202,138,4,0.4);
-            transition: 0.3s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.7rem;
+            background: var(--gold); color: black; border: none; border-radius: 50px;
+            padding: 1rem 2.5rem; font-size: 1.2rem; font-weight: 600; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(202,138,4,0.4); transition: 0.3s;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 0.7rem;
         }
-        .slide-btn:hover {
-            background: #b8860b;
-            transform: translateY(-4px);
-            box-shadow: 0 15px 30px rgba(202,138,4,0.5);
-        }
+        .slide-btn:hover { background: #b8860b; transform: translateY(-4px); box-shadow: 0 15px 30px rgba(202,138,4,0.5); }
         .slider-nav {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 1rem;
-            z-index: 20;
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 1rem; z-index: 20;
         }
         .slider-dot {
-            width: 14px; height: 14px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.4);
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: 0.2s;
+            width: 14px; height: 14px; border-radius: 50%;
+            background: rgba(255,255,255,0.4); border: 2px solid transparent;
+            cursor: pointer; transition: 0.2s;
         }
-        .slider-dot.active {
-            background: var(--gold);
-            transform: scale(1.3);
-            border-color: white;
-        }
+        .slider-dot.active { background: var(--gold); transform: scale(1.3); border-color: white; }
         .slider-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(5px);
-            color: white;
-            width: 50px; height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            cursor: pointer;
-            z-index: 20;
-            border: 1px solid var(--gold);
-            transition: 0.2s;
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); color: white;
+            width: 50px; height: 50px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center; font-size: 1.8rem;
+            cursor: pointer; z-index: 20; border: 1px solid var(--gold); transition: 0.2s;
         }
         .slider-arrow:hover { background: var(--gold); color: black; }
         body.light-theme .slider-arrow { background: rgba(255,255,255,0.7); color: #1a1a1a; }
-        .prev { left: 20px; }
-        .next { right: 20px; }
-        @media (max-width: 768px) {
+        .prev { left: 20px; } .next { right: 20px; }
+        @media (max-width:768px) {
             .slider-arrow { width: 40px; height: 40px; font-size: 1.3rem; }
-            .prev { left: 10px; }
-            .next { right: 10px; }
+            .prev { left: 10px; } .next { right: 10px; }
         }
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 4rem 1.5rem;
+            max-width: 1200px; margin: 0 auto; padding: 4rem 1.5rem;
         }
         .section-title {
-            font-family: 'Cinzel', serif;
-            font-size: 2.2rem;
-            color: var(--gold);
-            text-align: center;
-            margin-bottom: 1rem;
+            font-family: 'Cinzel', serif; font-size: 2.5rem; color: var(--gold);
+            text-align: center; margin-bottom: 1rem;
+        }
+        .section-sub {
+            text-align: center; color: var(--text-muted); max-width: 700px;
+            margin: 0 auto 3rem; font-size: 1.1rem;
         }
         /* ===== WORKFIT-STYLE CARD GRID (full width, bold) ===== */
         .workfit-grid {
@@ -293,12 +248,13 @@
             border-radius: 40px;
             border: 1px solid var(--border-light);
             overflow: hidden;
-            transition: 0.3s;
+            transition: all 0.3s ease;
             box-shadow: 0 15px 30px -10px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             text-decoration: none;
             color: inherit;
+            height: 100%;
         }
         .workfit-card:hover {
             transform: translateY(-10px);
@@ -306,7 +262,7 @@
             box-shadow: 0 25px 50px var(--shadow-color);
         }
         .workfit-card .card-image {
-            height: 220px;
+            height: 240px;
             background-size: cover;
             background-position: center;
             position: relative;
@@ -316,110 +272,99 @@
             position: absolute;
             bottom: 0; left: 0; right: 0;
             background: linear-gradient(transparent, rgba(0,0,0,0.9));
-            padding: 1.5rem;
+            padding: 1.8rem 1.5rem 1.2rem;
             color: white;
             font-family: 'Cinzel', serif;
-            font-size: 2.2rem;
+            font-size: 2.4rem;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 0.7rem;
+            gap: 0.8rem;
         }
         .workfit-card .card-image-overlay i {
             color: var(--gold);
-            font-size: 2.2rem;
+            font-size: 2.4rem;
         }
         .workfit-card .card-content {
             padding: 2rem 2rem 2.5rem;
             background: var(--card-bg);
             flex: 1;
+            display: flex;
+            flex-direction: column;
         }
         .workfit-card .feature-list {
             list-style: none;
-            margin: 1.5rem 0;
+            margin: 0 0 1.8rem 0;
+            flex: 1;
         }
         .workfit-card .feature-list li {
-            padding: 0.7rem 0;
+            padding: 0.8rem 0;
             display: flex;
             align-items: center;
             gap: 1rem;
             border-bottom: 1px dashed var(--border-light);
+            font-size: 1rem;
         }
+        .workfit-card .feature-list li:last-child { border-bottom: none; }
         .workfit-card .feature-list i {
             color: var(--gold);
             width: 24px;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
         }
         .workfit-card .category-tag {
             display: inline-block;
             background: rgba(202,138,4,0.15);
             border: 1px solid var(--gold);
             border-radius: 30px;
-            padding: 0.3rem 1.2rem;
+            padding: 0.4rem 1.4rem;
             font-size: 0.9rem;
-            margin-top: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-top: 0.5rem;
+            align-self: flex-start;
+            color: var(--gold);
         }
+        /* inquiry section */
         .inquiry-section {
             background: linear-gradient(145deg, var(--bg-secondary), var(--bg-primary));
             border-radius: 60px;
             border: 1px solid var(--gold);
             padding: 3rem;
             margin-top: 4rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
         }
+        .inquiry-section h2 { font-family: 'Cinzel'; color: var(--gold); margin-bottom: 1.5rem; text-align: center; }
         .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
+            display: flex; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 1.5rem;
         }
         .form-group {
             flex: 1 1 250px;
         }
         .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: var(--gold);
-            font-weight: 500;
+            display: block; margin-bottom: 0.5rem; color: var(--gold); font-weight: 500;
         }
         .form-control {
-            width: 100%;
-            padding: 0.9rem 1.2rem;
-            background: var(--input-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 30px;
-            color: var(--text-primary);
-            transition: 0.2s;
+            width: 100%; padding: 0.9rem 1.2rem; background: var(--input-bg);
+            border: 1px solid var(--border-light); border-radius: 30px;
+            color: var(--text-primary); transition: 0.2s;
         }
         .form-control:focus {
-            outline: none;
-            border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(202,138,4,0.2);
+            outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(202,138,4,0.2);
         }
         select.form-control {
             appearance: none;
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ca8a04'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 1.2rem center;
-            background-size: 1.5rem;
+            background-repeat: no-repeat; background-position: right 1.2rem center; background-size: 1.5rem;
         }
         .submit-btn {
-            background: var(--gold);
-            color: black;
-            border: none;
-            border-radius: 50px;
-            padding: 1rem 3rem;
-            font-size: 1.2rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.8rem;
+            background: var(--gold); color: black; border: none; border-radius: 50px;
+            padding: 1rem 3rem; font-size: 1.2rem; font-weight: 600; cursor: pointer;
+            transition: 0.3s; display: inline-flex; align-items: center; gap: 0.8rem;
+            box-shadow: 0 8px 20px rgba(202,138,4,0.3);
         }
+        .submit-btn:hover { background: #b8860b; transform: scale(1.02); box-shadow: 0 15px 30px rgba(202,138,4,0.5); }
         .footer {
-            background: var(--bg-secondary);
-            padding: 3rem 1.5rem;
-            text-align: center;
+            background: var(--bg-secondary); padding: 3rem 1.5rem; text-align: center;
             border-top: 1px solid var(--border-light);
         }
         .footer a { color: var(--gold); text-decoration: none; }
@@ -462,8 +407,9 @@
         @media (max-width:768px) {
             .header-desktop-actions { display:none; }
             .mobile-header-group { display:flex; }
-            .hero-slider { height:50vh; min-height:400px; }
+            .hero-slider { height:60vh; min-height:500px; }
             .workfit-grid { grid-template-columns: 1fr; }
+            .container { padding: 3rem 1.5rem; }
         }
     </style>
 </head>
@@ -543,13 +489,13 @@
             <button class="panel-logout" onclick="handleLogout(); toggleHamburger();" style="background:transparent; border:1px solid var(--gold); border-radius:40px; padding:0.7rem;"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
     </div>
-    <div class="panel-quick-links" style="display:flex; flex-direction:column; gap:0.5rem;">
-        <a href="#" class="panel-link" style="padding:0.9rem 1rem; background:rgba(255,255,255,0.03); border-radius:30px; color:var(--text-primary); text-decoration:none; display:flex; align-items:center; gap:1rem;" onclick="if(!currentUser){event.preventDefault(); openAuthModal();} else window.location.href='inbox.html';"><i class="fas fa-inbox"></i>MUGERA CHAT</a>
-        <a href="#" class="panel-link" style="padding:0.9rem 1rem; background:rgba(255,255,255,0.03); border-radius:30px; color:var(--text-primary); text-decoration:none; display:flex; align-items:center; gap:1rem;" onclick="if(!currentUser){event.preventDefault(); openAuthModal();} else window.location.href='eye-of-mugera.html';"><i class="far fa-newspaper"></i>THE IN-SIGHT</a>
-        <a href="#" class="panel-link" style="padding:0.9rem 1rem; background:rgba(255,255,255,0.03); border-radius:30px; color:var(--text-primary); text-decoration:none; display:flex; align-items:center; gap:1rem;" onclick="if(!currentUser){event.preventDefault(); openAuthModal();} else window.location.href='inspire-program.html';"><i class="fas fa-seedling"></i>INSPIRE•ME</a>
-        <a href="#" class="panel-link" style="padding:0.9rem 1rem; background:rgba(255,255,255,0.03); border-radius:30px; color:var(--text-primary); text-decoration:none; display:flex; align-items:center; gap:1rem;" onclick="if(!currentUser){event.preventDefault(); openAuthModal();} else window.location.href='shop.html';"><i class="fas fa-store"></i>THE HERITAGE</a>
-        <a href="#" class="panel-link" style="padding:0.9rem 1rem; background:rgba(255,255,255,0.03); border-radius:30px; color:var(--text-primary); text-decoration:none; display:flex; align-items:center; gap:1rem;" onclick="if(!currentUser){event.preventDefault(); openAuthModal();} else window.location.href='workfit-club.html';"><i class="fas fa-dumbbell"></i>WORKFIT</a>
-        <a href="#" class="panel-link" style="padding:0.9rem 1rem; background:rgba(255,255,255,0.03); border-radius:30px; color:var(--text-primary); text-decoration:none; display:flex; align-items:center; gap:1rem;" onclick="if(!currentUser){event.preventDefault(); openAuthModal();} else window.location.href='mugeradev.html';"><i class="fas fa-code"></i>DEV•MUGERA</a>
+    <div class="panel-quick-links">
+        <a href="#" class="panel-link" onclick="if(!currentUser){event.preventDefault(); openAuthModal();} else window.location.href='inbox.html';"><i class="fas fa-inbox"></i>MUGERA CHAT</a>
+        <a href="#" class="panel-link" onclick="if(!currentUser){event.preventDefault(); openAuthModal();} else window.location.href='eye-of-mugera.html';"><i class="far fa-newspaper"></i>THE IN-SIGHT</a>
+        <a href="#" class="panel-link" onclick="if(!currentUser){event.preventDefault(); openAuthModal();} else window.location.href='inspire-program.html';"><i class="fas fa-seedling"></i>INSPIRE•ME</a>
+        <a href="#" class="panel-link" onclick="if(!currentUser){event.preventDefault(); openAuthModal();} else window.location.href='shop.html';"><i class="fas fa-store"></i>THE HERITAGE</a>
+        <a href="#" class="panel-link" onclick="if(!currentUser){event.preventDefault(); openAuthModal();} else window.location.href='workfit-club.html';"><i class="fas fa-dumbbell"></i>WORKFIT</a>
+        <a href="#" class="panel-link" onclick="if(!currentUser){event.preventDefault(); openAuthModal();} else window.location.href='mugeradev.html';"><i class="fas fa-code"></i>DEV•MUGERA</a>
     </div>
     <div class="panel-theme-toggle">
         <span><i class="fas fa-palette"></i> Dark / Light</span>
@@ -573,6 +519,8 @@
 
 <!-- ========== THREE WORKFIT-STYLE SERVICE CARDS ========== -->
 <div class="container">
+    <h2 class="section-title">Our Services</h2>
+    <p class="section-sub">Explore our premium digital solutions, crafted with the same bold vision as WorkFit Club.</p>
     <div class="workfit-grid">
         <!-- V-PAY Card (Finance) -->
         <a href="vpay.html" class="workfit-card" id="vpay-card" onclick="return handleServiceLink(event, 'V-PAY')">
@@ -584,6 +532,7 @@
                     <li><i class="fas fa-check-circle"></i> Digital receipts & tickets</li>
                     <li><i class="fas fa-check-circle"></i> Bill payments & wallet</li>
                     <li><i class="fas fa-check-circle"></i> Transaction history</li>
+                    <li><i class="fas fa-check-circle"></i> Secure & instant</li>
                 </ul>
                 <span class="category-tag">Finance</span>
             </div>
@@ -599,6 +548,7 @@
                     <li><i class="fas fa-check-circle"></i> Digital portfolio & CV</li>
                     <li><i class="fas fa-check-circle"></i> Enterprise profile</li>
                     <li><i class="fas fa-check-circle"></i> PWA ready</li>
+                    <li><i class="fas fa-check-circle"></i> Client showcase</li>
                 </ul>
                 <span class="category-tag">Professional</span>
             </div>
@@ -607,13 +557,14 @@
         <!-- BrandIn Card (Personal Branding) -->
         <a href="brandin.html" class="workfit-card" id="brandin-card" onclick="return handleServiceLink(event, 'BrandIn')">
             <div class="card-image" style="background-image:url('https://i.postimg.cc/PJjWTfC1/medfit.webp');">
-                <div class="card-image-overlay"><i class="fas fa-crown"></i> BrandIn Pages</div>
+                <div class="card-image-overlay"><i class="fas fa-crown"></i> BrandIn</div>
             </div>
             <div class="card-content">
                 <ul class="feature-list">
                     <li><i class="fas fa-check-circle"></i> Personal profile & community</li>
                     <li><i class="fas fa-check-circle"></i> Online shop</li>
                     <li><i class="fas fa-check-circle"></i> Custom service cards</li>
+                    <li><i class="fas fa-check-circle"></i> Branding suite</li>
                 </ul>
                 <span class="category-tag">Personal</span>
             </div>
@@ -624,10 +575,23 @@
 <!-- general inquiry section -->
 <div class="container" id="inquiry">
     <div class="inquiry-section">
-        <h2 style="font-family:'Cinzel'; color:var(--gold); margin-bottom:1rem; text-align:center;">🚀 general project inquiry</h2>
+        <h2>🚀 General Project Inquiry</h2>
         <form id="devInquiryForm">
-            <div class="form-row"><div class="form-group"><label>Full name *</label><input type="text" class="form-control" id="inquiryName" required></div><div class="form-group"><label>Email *</label><input type="email" class="form-control" id="inquiryEmail" required></div></div>
-            <div class="form-row"><div class="form-group"><label>Service interest *</label><select class="form-control" id="inquiryService"><option value="V-PAY">V-PAY</option><option value="SURA">SURA</option><option value="BrandIn">BrandIn</option><option value="Other">Other / custom</option></select></div><div class="form-group"><label>Preferred schedule</label><input type="date" class="form-control" id="inquiryDate"></div></div>
+            <div class="form-row">
+                <div class="form-group"><label>Full name *</label><input type="text" class="form-control" id="inquiryName" required></div>
+                <div class="form-group"><label>Email *</label><input type="email" class="form-control" id="inquiryEmail" required></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group"><label>Service interest *</label>
+                    <select class="form-control" id="inquiryService">
+                        <option value="V-PAY">V-PAY</option>
+                        <option value="SURA">SURA</option>
+                        <option value="BrandIn">BrandIn</option>
+                        <option value="Other">Other / custom</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Preferred schedule</label><input type="date" class="form-control" id="inquiryDate"></div>
+            </div>
             <div class="form-group"><label>Brief description</label><textarea class="form-control" rows="4" id="inquiryMessage"></textarea></div>
             <div style="text-align:center;"><button type="submit" class="submit-btn" id="inquirySubmitBtn"><i class="fas fa-paper-plane"></i> request callback</button></div>
         </form>
