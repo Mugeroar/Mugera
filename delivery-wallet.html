@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">        
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#ca8a04">
     <meta name="background-color" content="#0a0a0a">
     <meta name="color-scheme" content="dark light">
@@ -17,6 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
+        /* [Keep all the CSS from previous version - it's correct] */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --gold: #ca8a04;
@@ -82,7 +83,7 @@
             min-height: 100vh;
         }
 
-        /* Header - same style as assistant portal */
+        /* Header */
         .site-header {
             position: fixed; top: 0; width: 100%; height: var(--header-height);
             background: var(--nav-bg); backdrop-filter: blur(10px);
@@ -144,7 +145,6 @@
         }
         .hamburger-icon:hover { background: var(--gold); color: black; }
 
-        /* Hamburger panel */
         .hamburger-panel {
             position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
             background: var(--nav-bg); backdrop-filter: blur(20px);
@@ -231,7 +231,6 @@
             margin: 0 auto;
         }
 
-        /* Dashboard Header */
         .dashboard-header {
             margin-bottom: 2.5rem;
         }
@@ -251,7 +250,7 @@
             color: var(--gold);
         }
 
-        /* Wallet Balance Card */
+        /* Wallet Card */
         .wallet-card {
             background: linear-gradient(135deg, rgba(202,138,4,0.2), rgba(20,20,20,0.8));
             border: 2px solid var(--gold);
@@ -480,21 +479,6 @@
             border-color: var(--gold);
         }
 
-        .search-input {
-            padding: 0.6rem 1.2rem;
-            background: var(--input-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 30px;
-            color: var(--text-primary);
-            min-width: 250px;
-            flex: 1;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--gold);
-        }
-
         /* Tables */
         .table-container {
             background: rgba(255, 255, 255, 0.03);
@@ -568,7 +552,7 @@
             border: 1px solid rgba(220, 38, 38, 0.3);
         }
 
-        /* Delivery Fee Badge */
+        /* Fee Badge */
         .fee-badge {
             background: rgba(202, 138, 4, 0.1);
             color: var(--gold);
@@ -698,31 +682,6 @@
             border-bottom: none;
         }
 
-        .payment-method-option {
-            padding: 1rem;
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .payment-method-option:hover {
-            border-color: var(--gold);
-            background: rgba(202,138,4,0.05);
-        }
-        .payment-method-option.selected {
-            border-color: var(--gold);
-            background: rgba(202,138,4,0.1);
-        }
-        .payment-method-option input[type="radio"] {
-            accent-color: var(--gold);
-            width: 18px;
-            height: 18px;
-        }
-
         /* Loading and Toast */
         .loading-overlay {
             position: fixed;
@@ -789,7 +748,6 @@
             .wallet-actions { flex-direction: column; }
             .wallet-btn { width: 100%; justify-content: center; }
             .filters { flex-direction: column; }
-            .search-input { min-width: auto; }
             .table-container { overflow-x: auto; }
             table { min-width: 800px; }
         }
@@ -804,7 +762,7 @@
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Modal for viewing order details -->
+    <!-- Modal for viewing delivery details -->
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
     <div class="modal" id="detailsModal">
         <div class="modal-header">
@@ -974,10 +932,11 @@
             </select>
             <select class="filter-select" id="statusFilter">
                 <option value="all">All Status</option>
-                <option value="completed">Completed</option>
                 <option value="pending">Pending</option>
                 <option value="processing">Processing</option>
                 <option value="approved">Approved</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
             </select>
             <button class="action-btn" onclick="refreshWallet()"><i class="fas fa-sync-alt"></i> Refresh</button>
         </div>
@@ -1056,8 +1015,6 @@
         let cashouts = [];
         let filteredDeliveries = [];
         let filteredCashouts = [];
-        let selectedPaymentMethod = null;
-        let cashoutAmount = 0;
 
         // ========== AUTH STATE LISTENER ==========
         auth.onAuthStateChanged(async (user) => {
@@ -1112,15 +1069,15 @@
             showLoading(true);
             
             try {
-                await Promise.all([
-                    loadDeliveries(),
-                    loadCashouts()
-                ]);
-                
+                // Load deliveries first
+                await loadDeliveries();
+                // Then load cashouts
+                await loadCashouts();
+                // Update wallet calculations
                 updateWallet();
+                // Apply filters
                 applyFilters();
                 updateLastUpdated();
-                showToast('Wallet updated', 'success');
             } catch (error) {
                 console.error('Error loading wallet data:', error);
                 showToast('Error loading data', 'error');
@@ -1135,23 +1092,30 @@
                 const snapshot = await database.ref('orders').once('value');
                 const data = snapshot.val() || {};
                 
-                deliveries = Object.entries(data)
-                    .map(([id, order]) => ({
-                        id,
-                        orderId: id,
-                        date: order.deliveryDate || order.orderDate || null,
-                        customerName: order.userName || order.fullName || 'Unknown',
-                        deliveryFee: order.deliveryFee || 150, // Default delivery fee
-                        status: order.status || 'pending',
-                        completed: order.status === 'delivered',
-                        timestamp: order.deliveryDate ? new Date(order.deliveryDate).getTime() : 
-                                  (order.orderDate ? new Date(order.orderDate).getTime() : 0)
-                    }))
-                    .filter(order => order.assignedTo === currentAssistant?.id && order.status === 'delivered');
+                deliveries = [];
+                
+                // Loop through all orders
+                Object.entries(data).forEach(([id, order]) => {
+                    // Check if this order is assigned to current assistant AND is delivered
+                    if (order.assignedTo === currentAssistant?.id && order.status === 'delivered') {
+                        deliveries.push({
+                            id: id,
+                            orderId: id,
+                            date: order.deliveryDate || order.orderDate || null,
+                            customerName: order.userName || order.fullName || 'Unknown',
+                            deliveryFee: order.deliveryFee || 150, // Default delivery fee
+                            status: 'delivered',
+                            timestamp: order.deliveryDate ? new Date(order.deliveryDate).getTime() : 
+                                      (order.orderDate ? new Date(order.orderDate).getTime() : Date.now())
+                        });
+                    }
+                });
 
                 // Sort by date (newest first)
                 deliveries.sort((a, b) => b.timestamp - a.timestamp);
                 filteredDeliveries = [...deliveries];
+                
+                console.log(`Loaded ${deliveries.length} completed deliveries for assistant`);
                 
             } catch (error) {
                 console.error('Error loading deliveries:', error);
@@ -1161,22 +1125,27 @@
         // Load cashout history for this assistant
         async function loadCashouts() {
             try {
-                const snapshot = await database.ref('cashout_requests')
-                    .orderByChild('assistantId')
-                    .equalTo(currentAssistant?.id)
-                    .once('value');
-                
+                const snapshot = await database.ref('cashout_requests').once('value');
                 const data = snapshot.val() || {};
                 
-                cashouts = Object.entries(data).map(([id, request]) => ({
-                    id,
-                    ...request,
-                    timestamp: request.timestamp || Date.now()
-                }));
+                cashouts = [];
+                
+                // Loop through all cashout requests
+                Object.entries(data).forEach(([id, request]) => {
+                    if (request.assistantId === currentAssistant?.id) {
+                        cashouts.push({
+                            id: id,
+                            ...request,
+                            timestamp: request.timestamp || Date.now()
+                        });
+                    }
+                });
 
                 // Sort by date (newest first)
                 cashouts.sort((a, b) => b.timestamp - a.timestamp);
                 filteredCashouts = [...cashouts];
+                
+                console.log(`Loaded ${cashouts.length} cashout requests for assistant`);
                 
             } catch (error) {
                 console.error('Error loading cashouts:', error);
@@ -1185,7 +1154,7 @@
 
         // ========== UPDATE WALLET ==========
         function updateWallet() {
-            // Calculate total earned from deliveries
+            // Calculate total earned from deliveries (all completed deliveries)
             const totalEarned = deliveries.reduce((sum, d) => sum + (d.deliveryFee || 150), 0);
             
             // Calculate total cashed out (only approved/completed cashouts)
@@ -1198,6 +1167,8 @@
             
             // Update UI
             document.getElementById('walletBalance').textContent = `KSh ${availableBalance.toLocaleString()}`;
+            document.getElementById('walletSub').innerHTML = `Earnings from ${deliveries.length} completed deliveries`;
+            
             document.getElementById('totalEarned').textContent = `KSh ${totalEarned.toLocaleString()}`;
             document.getElementById('totalCashout').textContent = `KSh ${totalCashout.toLocaleString()}`;
             document.getElementById('totalDeliveries').textContent = deliveries.length;
@@ -1205,8 +1176,7 @@
             const avg = deliveries.length > 0 ? Math.round(totalEarned / deliveries.length) : 150;
             document.getElementById('avgPerDelivery').textContent = `KSh ${avg}`;
             
-            // Store for cashout modal
-            cashoutAmount = availableBalance;
+            console.log(`Wallet updated - Earned: ${totalEarned}, Cashed out: ${totalCashout}, Balance: ${availableBalance}`);
         }
 
         // ========== APPLY FILTERS ==========
@@ -1214,20 +1184,23 @@
             const historyFilter = document.getElementById('historyFilter').value;
             const statusFilter = document.getElementById('statusFilter').value;
 
-            // Filter deliveries based on history filter
+            // Filter deliveries
             if (historyFilter === 'earnings') {
                 filteredDeliveries = [...deliveries];
+                filteredCashouts = [];
             } else if (historyFilter === 'cashouts') {
                 filteredDeliveries = [];
+                filteredCashouts = cashouts.filter(c => {
+                    if (statusFilter === 'all') return true;
+                    return c.status === statusFilter;
+                });
             } else {
                 filteredDeliveries = [...deliveries];
+                filteredCashouts = cashouts.filter(c => {
+                    if (statusFilter === 'all') return true;
+                    return c.status === statusFilter;
+                });
             }
-
-            // Filter cashouts
-            filteredCashouts = cashouts.filter(c => {
-                if (statusFilter === 'all') return true;
-                return c.status === statusFilter;
-            });
 
             renderDeliveries();
             renderCashouts();
@@ -1337,14 +1310,21 @@
 
         // ========== CASHOUT FUNCTIONS ==========
         window.openCashoutModal = function() {
-            if (cashoutAmount < 100) {
+            // Get current balance
+            const totalEarned = deliveries.reduce((sum, d) => sum + (d.deliveryFee || 150), 0);
+            const totalCashout = cashouts
+                .filter(c => c.status === 'approved' || c.status === 'completed')
+                .reduce((sum, c) => sum + (c.amount || 0), 0);
+            const availableBalance = totalEarned - totalCashout;
+            
+            if (availableBalance < 100) {
                 showToast('Minimum cashout amount is KSh 100', 'warning');
                 return;
             }
 
             const content = `
                 <div style="text-align: center; margin-bottom: 1.5rem;">
-                    <div class="cashout-amount">KSh ${cashoutAmount.toLocaleString()}</div>
+                    <div class="cashout-amount">KSh ${availableBalance.toLocaleString()}</div>
                     <p style="color: var(--text-muted);">Available balance</p>
                 </div>
 
@@ -1375,7 +1355,13 @@
         };
 
         window.submitCashoutRequest = async function() {
-            if (cashoutAmount < 100) {
+            const totalEarned = deliveries.reduce((sum, d) => sum + (d.deliveryFee || 150), 0);
+            const totalCashout = cashouts
+                .filter(c => c.status === 'approved' || c.status === 'completed')
+                .reduce((sum, c) => sum + (c.amount || 0), 0);
+            const availableBalance = totalEarned - totalCashout;
+            
+            if (availableBalance < 100) {
                 showToast('Minimum cashout amount is KSh 100', 'warning');
                 return;
             }
@@ -1387,7 +1373,7 @@
                     assistantId: currentAssistant.id,
                     assistantName: currentAssistant.name,
                     assistantPhone: currentAssistant.phone,
-                    amount: cashoutAmount,
+                    amount: availableBalance,
                     paymentMethod: 'M-Pesa',
                     status: 'pending',
                     timestamp: firebase.database.ServerValue.TIMESTAMP,
@@ -1398,7 +1384,11 @@
 
                 showToast('Cashout request submitted successfully!', 'success');
                 closeCashoutModal();
+                
+                // Reload cashouts to show the new request
                 await loadCashouts();
+                updateWallet();
+                applyFilters();
                 
             } catch (error) {
                 console.error('Error submitting cashout:', error);
@@ -1486,7 +1476,6 @@
         };
 
         window.showProfile = function() {
-            // Navigate to profile page or scroll
             showToast('Profile page coming soon', 'info');
         };
 
