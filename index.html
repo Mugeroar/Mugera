@@ -416,7 +416,22 @@
             border-top: 8px solid var(--gold);
         }
         
-        /* Existing styles continue below (keeping all your original styles) */
+        /* Mobile optimized tutorial */
+        .tutorial-mobile-highlight {
+            position: relative;
+            z-index: 9550;
+        }
+        
+        .tutorial-mobile-instruction {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(202,138,4,0.1);
+            border-radius: 20px;
+            margin: 1rem 0;
+            border: 1px solid var(--gold);
+        }
+        
+        /* Existing styles continue below */
         /* INBOX NOTIFICATION BADGE STYLES */
         .inbox-icon {
             position: relative;
@@ -1916,23 +1931,30 @@
     // Tutorial System Variables
     let tutorialActive = false;
     let tutorialStep = 0;
+    
+    // Device detection
+    const isMobile = window.innerWidth <= 768;
+    
+    // Tutorial steps with device-specific highlights
     const tutorialSteps = [
         {
             title: '👋 Welcome to I AM MUGERA!',
-            content: 'Let\'s take a quick 2-minute tour to help you get started. You\'ll learn how to navigate and use all the key features.',
+            content: 'Let\'s take a quick tour to help you get started. You\'ll learn how to navigate and use all the key features.',
             highlight: null,
             tooltip: null
         },
         {
             title: '🔍 Smart Search',
-            content: 'Use the search bar to quickly find any service, course, or content. Type "eye", "shop", or "workfit" and see instant suggestions!',
-            highlight: 'desktopSearchContainer',
-            tooltip: 'Start typing to see suggestions'
+            content: isMobile ? 
+                'Tap the search icon to find any service, course, or content. Type "eye", "shop", or "workfit" and see instant suggestions!' :
+                'Use the search bar to quickly find any service, course, or content. Type "eye", "shop", or "workfit" and see instant suggestions!',
+            highlight: isMobile ? 'mobileSearchBtn' : 'desktopSearchContainer',
+            tooltip: isMobile ? 'Tap to search' : 'Start typing to see suggestions'
         },
         {
             title: '📬 Your Inbox',
             content: 'The inbox shows your messages and notifications. The red badge shows unread messages. You\'ll get real-time updates here!',
-            highlight: 'desktopInboxLink',
+            highlight: isMobile ? 'mobileInboxLink' : 'desktopInboxLink',
             tooltip: 'Real-time notifications'
         },
         {
@@ -1954,10 +1976,12 @@
             tooltip: 'Dark/Light mode'
         },
         {
-            title: '📱 Mobile Menu',
-            content: 'On mobile, use this menu to access everything: inbox, services, theme toggle, and more.',
-            highlight: 'hamburgerBtn',
-            tooltip: 'Access all features'
+            title: isMobile ? '📱 Mobile Menu' : '📱 Navigation Menu',
+            content: isMobile ? 
+                'Tap the hamburger menu to access everything: inbox, services, theme toggle, and more.' :
+                'Use the side panel menu to quickly navigate to all sections.',
+            highlight: isMobile ? 'hamburgerBtn' : 'hamburgerBtn',
+            tooltip: isMobile ? 'Tap to open menu' : 'Click to open menu'
         },
         {
             title: '🚀 Ready to Explore!',
@@ -2078,6 +2102,7 @@
         content.innerHTML = `
             <h3><i class="fas fa-${getStepIcon(tutorialStep)}"></i> ${step.title}</h3>
             <p>${step.content}</p>
+            ${step.highlight && isMobile ? '<div class="tutorial-mobile-instruction"><i class="fas fa-hand-pointer"></i> Look for the highlighted element above</div>' : ''}
         `;
         
         // Remove all highlights and tooltips
@@ -2098,7 +2123,14 @@
                     const tooltip = document.createElement('div');
                     tooltip.className = 'tutorial-tooltip';
                     tooltip.textContent = step.tooltip;
-                    tooltip.style.top = `${rect.top - 40}px`;
+                    
+                    // Position tooltip based on element position
+                    if (rect.top > 100) {
+                        tooltip.style.top = `${rect.top - 40}px`;
+                    } else {
+                        tooltip.style.top = `${rect.bottom + 20}px`;
+                    }
+                    
                     tooltip.style.left = `${rect.left + rect.width/2}px`;
                     tooltip.id = 'tutorialTooltip';
                     document.body.appendChild(tooltip);
@@ -2683,6 +2715,14 @@
         panelLinks.appendChild(restartTutorialLink);
     }
 
+    // Update isMobile on resize
+    window.addEventListener('resize', function() {
+        const newIsMobile = window.innerWidth <= 768;
+        if (newIsMobile !== isMobile) {
+            location.reload(); // Reload to update tutorial steps for new device
+        }
+    });
+
     // ========== TOGGLES ==========
     window.toggleHamburger = () => {
         document.getElementById('hamburgerPanel').classList.toggle('open');
@@ -2762,7 +2802,7 @@
         }
     };
 
-    console.log('Inbox notification system loaded with interactive tutorial');
+    console.log('Inbox notification system loaded with device-aware interactive tutorial');
 </script>
 </body>
 </html>
