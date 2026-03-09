@@ -15,8 +15,8 @@
     <meta name="msapplication-TileColor" content="#ca8a04">
     
     <!-- Version & Build -->
-    <meta name="version" content="5.24.0">
-    <meta name="build-date" content="2025-03-07">
+    <meta name="version" content="5.25.0">
+    <meta name="build-date" content="2025-03-09">
     
     <title>I AM MUGERA | Afrika Milele</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
@@ -78,6 +78,12 @@
             --status-soon: #f59e0b;
             --status-closing: #ef4444;
             --status-closed: #6b7280;
+
+            /* Tutorial specific colors */
+            --tutorial-overlay: rgba(0,0,0,0.85);
+            --tutorial-card: rgba(30,30,30,0.98);
+            --tutorial-highlight: rgba(202,138,4,0.3);
+            --tutorial-pulse: rgba(202,138,4,0.6);
         }
 
         body.light-theme {
@@ -103,6 +109,11 @@
             --gradient-end: rgba(255,255,255,0.5);
             
             --hero-overlay: linear-gradient(135deg, rgba(255,245,235,0.92) 0%, rgba(255,255,255,0.95) 100%);
+            
+            /* Light theme tutorial */
+            --tutorial-overlay: rgba(255,255,255,0.92);
+            --tutorial-card: rgba(255,255,255,0.98);
+            --tutorial-highlight: rgba(202,138,4,0.2);
         }
 
         body {
@@ -175,7 +186,238 @@
         }
         @keyframes blink { 50% { opacity: 0; } }
         
-        /* ----- INBOX NOTIFICATION BADGE STYLES ----- */
+        /* ----- TUTORIAL SYSTEM STYLES ----- */
+        .tutorial-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--tutorial-overlay);
+            backdrop-filter: blur(8px);
+            z-index: 9500;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .tutorial-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .tutorial-card {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            max-width: 450px;
+            width: 90%;
+            background: var(--tutorial-card);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--gold);
+            border-radius: 40px;
+            padding: 1.8rem;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(202,138,4,0.3) inset;
+            z-index: 9600;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-primary);
+        }
+        
+        body.light-theme .tutorial-card {
+            background: rgba(255,255,255,0.98);
+            color: #1a1a1a;
+        }
+        
+        .tutorial-card.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .tutorial-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tutorial-steps {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .tutorial-step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: all 0.3s;
+        }
+        
+        .tutorial-step-dot.active {
+            background: var(--gold);
+            transform: scale(1.3);
+            box-shadow: 0 0 15px var(--gold);
+        }
+        
+        .tutorial-step-dot.completed {
+            background: var(--success);
+        }
+        
+        .tutorial-skip {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+        
+        .tutorial-skip:hover {
+            color: var(--gold);
+            background: rgba(202,138,4,0.1);
+        }
+        
+        .tutorial-content {
+            text-align: left;
+            margin-bottom: 1.8rem;
+        }
+        
+        .tutorial-content h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .tutorial-content p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+        
+        .tutorial-content i {
+            color: var(--gold);
+            margin-right: 0.5rem;
+        }
+        
+        .tutorial-highlight {
+            background: var(--tutorial-highlight);
+            border: 2px dashed var(--gold);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-weight: 500;
+        }
+        
+        .tutorial-actions {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: flex-end;
+        }
+        
+        .tutorial-btn {
+            padding: 0.7rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 0.9rem;
+        }
+        
+        .tutorial-btn-primary {
+            background: var(--gold);
+            color: black;
+        }
+        
+        .tutorial-btn-primary:hover {
+            background: var(--gold-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(202,138,4,0.3);
+        }
+        
+        .tutorial-btn-secondary {
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+        }
+        
+        .tutorial-btn-secondary:hover {
+            background: rgba(202,138,4,0.1);
+        }
+        
+        .tutorial-pulse {
+            animation: pulse 2s infinite;
+            position: relative;
+            z-index: 9550;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 var(--tutorial-pulse);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(202,138,4,0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(202,138,4,0);
+            }
+        }
+        
+        .tutorial-arrow {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 2px solid var(--gold);
+            border-left: 0;
+            border-bottom: 0;
+            transform: rotate(45deg);
+            animation: bounce 1s infinite;
+            z-index: 9550;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: rotate(45deg) translate(0, 0); }
+            50% { transform: rotate(45deg) translate(5px, 5px); }
+        }
+        
+        .tutorial-tooltip {
+            position: absolute;
+            background: var(--gold);
+            color: black;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 9550;
+            white-space: nowrap;
+            pointer-events: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .tutorial-tooltip::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid var(--gold);
+        }
+        
+        /* Existing styles continue below (keeping all your original styles) */
+        /* INBOX NOTIFICATION BADGE STYLES */
         .inbox-icon {
             position: relative;
             background: rgba(202,138,4,0.1);
@@ -1326,6 +1568,18 @@
             .mobile-header-group { display:flex; } 
             .footer-links { gap: 1rem; }
             .footer-links a { font-size: 0.85rem; }
+            
+            .tutorial-card {
+                bottom: 20px;
+                width: 95%;
+                padding: 1.5rem;
+            }
+            
+            .tutorial-tooltip {
+                white-space: normal;
+                max-width: 200px;
+                font-size: 0.75rem;
+            }
         }
     </style>
 </head>
@@ -1377,6 +1631,35 @@
     </form>
 </div>
 
+<!-- TUTORIAL OVERLAY SYSTEM -->
+<div class="tutorial-overlay" id="tutorialOverlay"></div>
+<div class="tutorial-card" id="tutorialCard">
+    <div class="tutorial-progress">
+        <div class="tutorial-steps" id="tutorialSteps">
+            <span class="tutorial-step-dot active"></span>
+            <span class="tutorial-step-dot"></span>
+            <span class="tutorial-step-dot"></span>
+            <span class="tutorial-step-dot"></span>
+            <span class="tutorial-step-dot"></span>
+            <span class="tutorial-step-dot"></span>
+            <span class="tutorial-step-dot"></span>
+            <span class="tutorial-step-dot"></span>
+        </div>
+        <span class="tutorial-skip" onclick="skipTutorial()">Skip Tour <i class="fas fa-times"></i></span>
+    </div>
+    <div class="tutorial-content" id="tutorialContent">
+        <h3><i class="fas fa-compass"></i> Welcome to I AM MUGERA!</h3>
+        <p>Let's take a quick tour to help you get started. We'll show you all the key features in just 2 minutes.</p>
+        <div class="tutorial-highlight">
+            <i class="fas fa-lightbulb"></i> You can skip or restart this tour anytime from the menu.
+        </div>
+    </div>
+    <div class="tutorial-actions">
+        <button class="tutorial-btn tutorial-btn-secondary" onclick="previousTutorialStep()" id="tutorialPrevBtn">Previous</button>
+        <button class="tutorial-btn tutorial-btn-primary" onclick="nextTutorialStep()" id="tutorialNextBtn">Start Tour</button>
+    </div>
+</div>
+
 <!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loadingOverlay">
     <img src="https://i.postimg.cc/bwkN851g/20260304-1008-Image-Generation-remix-01kjvtr63ce54v1awen6j4n88x-1.webp" alt="I AM MUGERA Logo" class="loading-logo">
@@ -1388,9 +1671,9 @@
 <!-- MAIN PAGE CONTENT -->
 <main id="mainContent" class="page-content">
     <!-- HEADER with INBOX and notification badges -->
-    <header class="site-header">
+    <header class="site-header" id="siteHeader">
         <div class="header-container">
-            <img src="https://i.postimg.cc/T10385m6/20260304-0949-Image-Generation-remix-01kjvspyrkf078efwbh09qxkag-1.webp" alt="I AM MUGERA" class="site-logo">
+            <img src="https://i.postimg.cc/T10385m6/20260304-0949-Image-Generation-remix-01kjvspyrkf078efwbh09qxkag-1.webp" alt="I AM MUGERA" class="site-logo" id="siteLogo">
             <div class="header-desktop-actions">
                 <!-- INBOX ICON WITH NOTIFICATION BADGE - DESKTOP -->
                 <a href="inbox.html" class="inbox-icon" title="Inbox" id="desktopInboxLink">
@@ -1459,7 +1742,7 @@
             <a href="#" class="panel-link" onclick="navigateToWebDev(); toggleHamburger();"><i class="fas fa-code"></i>DEV•MUGERA</a>
             <a href="#" class="panel-link" onclick="navigateToSection('activities'); toggleHamburger();"><i class="fas fa-compass"></i>ACTIVITIES</a>
         </div>
-        <div class="panel-theme-toggle">
+        <div class="panel-theme-toggle" id="themeToggle">
             <span><i class="fas fa-palette"></i> Dark / Light</span>
             <div id="panelThemeToggle" style="width:45px; height:45px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="toggleTheme()">
                 <i class="fas fa-moon" id="panelThemeIcon"></i>
@@ -1468,7 +1751,7 @@
     </div>
 
     <!-- Hero Section with HOURS CARD -->
-    <section class="hero-section">
+    <section class="hero-section" id="heroSection">
         <div class="hero-container">
             <h1 class="main-title">I AM MUGERA</h1>
             <p class="main-sub">DREAM · ASPIRE · INNOVATE · INSPIRE</p>
@@ -1509,9 +1792,9 @@
     <!-- Activities Section -->
     <section class="activities-section" id="activities">
         <div class="section-header"><h2>Explore the Camp</h2><p>Discover the pillars of I AM MUGERA — each crafted to inspire and uplift.</p></div>
-        <div class="activities-grid">
+        <div class="activities-grid" id="activitiesGrid">
             <!-- Eye of Mugera -->
-            <div class="activity-card">
+            <div class="activity-card" id="activityEye">
                 <img src="https://i.postimg.cc/kgcRrtMJ/MUG(20).gif" alt="Eye of Mugera" class="card-image" loading="lazy">
                 <div class="card-content">
                     <span class="feature-badge"><i class="far fa-newspaper"></i> Weekly Journals</span>
@@ -1521,7 +1804,7 @@
                 </div>
             </div>
             <!-- Inspired.Me -->
-            <div class="activity-card">
+            <div class="activity-card" id="activityInspired">
                 <img src="https://i.postimg.cc/gkrZZKp0/MUG(26).gif" alt="Inspired.Me" class="card-image" loading="lazy">
                 <div class="card-content">
                     <span class="feature-badge inspired-badge"><i class="fas fa-seedling"></i> Whole Person</span>
@@ -1531,7 +1814,7 @@
                 </div>
             </div>
             <!-- African Heritage Shop -->
-            <div class="activity-card">
+            <div class="activity-card" id="activityShop">
                 <img src="https://i.postimg.cc/mDcwVGfD/MUG(23).gif" alt="shop" class="card-image" loading="lazy">
                 <div class="card-content">
                     <span class="feature-badge"><i class="fas fa-store"></i> Shop</span>
@@ -1541,7 +1824,7 @@
                 </div>
             </div>
             <!-- WorkFit Club -->
-            <div class="activity-card">
+            <div class="activity-card" id="activityWorkfit">
                 <img src="https://i.postimg.cc/fWxRmKfz/MUG(16).gif" alt="Workfit" class="card-image" loading="lazy">
                 <div class="card-content">
                     <span class="feature-badge workfit-badge"><i class="fas fa-dumbbell"></i> Wellness</span>
@@ -1551,7 +1834,7 @@
                 </div>
             </div>
             <!-- Web Development (MugeraDev) -->
-            <div class="activity-card">
+            <div class="activity-card" id="activityDev">
                 <img src="https://i.postimg.cc/gJs30WjJ/MUG(15).gif.gif" alt="Web Development" class="card-image" loading="lazy">
                 <div class="card-content">
                     <span class="feature-badge dev-badge"><i class="fas fa-code"></i> Development</span>
@@ -1561,7 +1844,7 @@
                 </div>
             </div>
             <!-- Courses Hub -->
-            <div class="activity-card">
+            <div class="activity-card" id="activityCourses">
                 <img src="https://i.postimg.cc/zG2Dd7Rv/MUG(41).gif" alt="Courses" class="card-image" loading="lazy">
                 <div class="card-content">
                     <span class="feature-badge dev-badge"><i class="fas fa-graduation-cap"></i> Soft Skills</span>
@@ -1574,7 +1857,7 @@
     </section>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" id="footer">
         <div class="footer-content">
             <div class="footer-logo">I AM MUGERA</div>
             <div class="footer-links">
@@ -1630,6 +1913,60 @@
     let unreadMessagesRef = null;
     let previousUnreadCount = 0;
     
+    // Tutorial System Variables
+    let tutorialActive = false;
+    let tutorialStep = 0;
+    const tutorialSteps = [
+        {
+            title: '👋 Welcome to I AM MUGERA!',
+            content: 'Let\'s take a quick 2-minute tour to help you get started. You\'ll learn how to navigate and use all the key features.',
+            highlight: null,
+            tooltip: null
+        },
+        {
+            title: '🔍 Smart Search',
+            content: 'Use the search bar to quickly find any service, course, or content. Type "eye", "shop", or "workfit" and see instant suggestions!',
+            highlight: 'desktopSearchContainer',
+            tooltip: 'Start typing to see suggestions'
+        },
+        {
+            title: '📬 Your Inbox',
+            content: 'The inbox shows your messages and notifications. The red badge shows unread messages. You\'ll get real-time updates here!',
+            highlight: 'desktopInboxLink',
+            tooltip: 'Real-time notifications'
+        },
+        {
+            title: '⏰ Operating Hours',
+            content: 'Check our current status here. Green = Open, Yellow = Closing Soon, Red = Closed. Click for full hours.',
+            highlight: 'hoursMiniCard',
+            tooltip: 'Click to see all hours'
+        },
+        {
+            title: '🏕️ Explore the Camp',
+            content: 'This is our core! All services begin here: THE IN-SIGHT (journals), INSPIRE•ME (wellness), THE HERITAGE (shop), WORKFIT (fitness), DEV•HUB (tech), and HEKIMA•HUB (courses).',
+            highlight: 'activitiesGrid',
+            tooltip: 'Your journey starts here'
+        },
+        {
+            title: '🎨 Theme Toggle',
+            content: 'Switch between dark and light mode anytime. Your preference is saved for next time!',
+            highlight: 'themeToggle',
+            tooltip: 'Dark/Light mode'
+        },
+        {
+            title: '📱 Mobile Menu',
+            content: 'On mobile, use this menu to access everything: inbox, services, theme toggle, and more.',
+            highlight: 'hamburgerBtn',
+            tooltip: 'Access all features'
+        },
+        {
+            title: '🚀 Ready to Explore!',
+            content: 'You\'re all set! Remember: you can restart this tour anytime from the menu. Now go ahead and explore I AM MUGERA!',
+            highlight: null,
+            tooltip: null
+        }
+    ];
+    
     try {
         firebase.initializeApp(firebaseConfig);
         database = firebase.database();
@@ -1656,6 +1993,9 @@
                 // Set up real-time listener for unread messages
                 setupUnreadMessagesListener(user.uid);
                 
+                // Check if this is a new user (first login) and start tutorial
+                checkAndStartTutorial(user);
+                
             } else {
                 // User is logged out
                 document.getElementById('welcomePopup').classList.remove('hidden');
@@ -1673,6 +2013,171 @@
             }
         });
     }
+
+    // ========== TUTORIAL SYSTEM ==========
+    function checkAndStartTutorial(user) {
+        if (!user) return;
+        
+        // Check if user has seen tutorial before
+        const tutorialCompleted = localStorage.getItem(`tutorial_${user.uid}`);
+        
+        if (!tutorialCompleted) {
+            // Start tutorial after a short delay to ensure UI is ready
+            setTimeout(() => {
+                startTutorial();
+            }, 1500);
+        }
+    }
+
+    function startTutorial() {
+        if (!currentUser) return;
+        
+        tutorialActive = true;
+        tutorialStep = 0;
+        
+        // Show overlay and tutorial card
+        document.getElementById('tutorialOverlay').classList.add('active');
+        document.getElementById('tutorialCard').classList.add('show');
+        
+        // Update tutorial content
+        updateTutorialStep();
+    }
+
+    function updateTutorialStep() {
+        const step = tutorialSteps[tutorialStep];
+        const content = document.getElementById('tutorialContent');
+        const nextBtn = document.getElementById('tutorialNextBtn');
+        const prevBtn = document.getElementById('tutorialPrevBtn');
+        const steps = document.querySelectorAll('.tutorial-step-dot');
+        
+        // Update step dots
+        steps.forEach((dot, index) => {
+            dot.classList.remove('active', 'completed');
+            if (index < tutorialStep) {
+                dot.classList.add('completed');
+            } else if (index === tutorialStep) {
+                dot.classList.add('active');
+            }
+        });
+        
+        // Update button text
+        if (tutorialStep === tutorialSteps.length - 1) {
+            nextBtn.textContent = 'Finish Tour';
+        } else if (tutorialStep === 0) {
+            nextBtn.textContent = 'Start Tour';
+        } else {
+            nextBtn.textContent = 'Next';
+        }
+        
+        // Update prev button state
+        prevBtn.disabled = tutorialStep === 0;
+        prevBtn.style.opacity = tutorialStep === 0 ? '0.5' : '1';
+        prevBtn.style.cursor = tutorialStep === 0 ? 'not-allowed' : 'pointer';
+        
+        // Update content
+        content.innerHTML = `
+            <h3><i class="fas fa-${getStepIcon(tutorialStep)}"></i> ${step.title}</h3>
+            <p>${step.content}</p>
+        `;
+        
+        // Remove all highlights and tooltips
+        removeHighlights();
+        
+        // Add highlight if needed
+        if (step.highlight) {
+            const element = document.getElementById(step.highlight);
+            if (element) {
+                element.classList.add('tutorial-pulse');
+                
+                // Scroll element into view if needed
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Add tooltip if specified
+                if (step.tooltip) {
+                    const rect = element.getBoundingClientRect();
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tutorial-tooltip';
+                    tooltip.textContent = step.tooltip;
+                    tooltip.style.top = `${rect.top - 40}px`;
+                    tooltip.style.left = `${rect.left + rect.width/2}px`;
+                    tooltip.id = 'tutorialTooltip';
+                    document.body.appendChild(tooltip);
+                }
+            }
+        }
+    }
+
+    function getStepIcon(step) {
+        const icons = ['compass', 'search', 'inbox', 'clock', 'map', 'palette', 'bars', 'rocket'];
+        return icons[step] || 'star';
+    }
+
+    function removeHighlights() {
+        // Remove pulse class from all elements
+        document.querySelectorAll('.tutorial-pulse').forEach(el => {
+            el.classList.remove('tutorial-pulse');
+        });
+        
+        // Remove tooltip if exists
+        const tooltip = document.getElementById('tutorialTooltip');
+        if (tooltip) tooltip.remove();
+    }
+
+    window.nextTutorialStep = function() {
+        if (!tutorialActive) return;
+        
+        if (tutorialStep < tutorialSteps.length - 1) {
+            tutorialStep++;
+            updateTutorialStep();
+        } else {
+            // Finish tutorial
+            finishTutorial();
+        }
+    };
+
+    window.previousTutorialStep = function() {
+        if (!tutorialActive || tutorialStep === 0) return;
+        
+        tutorialStep--;
+        updateTutorialStep();
+    };
+
+    function finishTutorial() {
+        if (currentUser) {
+            localStorage.setItem(`tutorial_${currentUser.uid}`, 'completed');
+        }
+        
+        tutorialActive = false;
+        document.getElementById('tutorialOverlay').classList.remove('active');
+        document.getElementById('tutorialCard').classList.remove('show');
+        removeHighlights();
+        
+        showElegantMessage('🎉 Tutorial completed! Welcome to I AM MUGERA!', 'success');
+    }
+
+    window.skipTutorial = function() {
+        if (currentUser) {
+            localStorage.setItem(`tutorial_${currentUser.uid}`, 'skipped');
+        }
+        
+        tutorialActive = false;
+        document.getElementById('tutorialOverlay').classList.remove('active');
+        document.getElementById('tutorialCard').classList.remove('show');
+        removeHighlights();
+        
+        showElegantMessage('Tour skipped. You can restart anytime from the menu!', 'info');
+    };
+
+    window.restartTutorial = function() {
+        if (!currentUser) {
+            openAuthModal();
+            return;
+        }
+        
+        // Remove saved preference
+        localStorage.removeItem(`tutorial_${currentUser.uid}`);
+        startTutorial();
+    };
 
     // ========== UNREAD MESSAGES LISTENER ==========
     function setupUnreadMessagesListener(userId) {
@@ -2163,6 +2668,21 @@
         });
     });
 
+    // Add restart tutorial to panel menu
+    const panelLinks = document.querySelector('.panel-quick-links');
+    if (panelLinks) {
+        const restartTutorialLink = document.createElement('a');
+        restartTutorialLink.href = '#';
+        restartTutorialLink.className = 'panel-link';
+        restartTutorialLink.onclick = function(e) {
+            e.preventDefault();
+            restartTutorial();
+            toggleHamburger();
+        };
+        restartTutorialLink.innerHTML = '<i class="fas fa-graduation-cap"></i>Restart Tour';
+        panelLinks.appendChild(restartTutorialLink);
+    }
+
     // ========== TOGGLES ==========
     window.toggleHamburger = () => {
         document.getElementById('hamburgerPanel').classList.toggle('open');
@@ -2231,7 +2751,6 @@
     });
 
     // ========== TEST FUNCTION ==========
-    // You can run this in console to test: simulateNewMessage()
     window.simulateNewMessage = function() {
         if (currentUser) {
             const currentBadge = document.getElementById('desktopInboxBadge');
@@ -2243,7 +2762,7 @@
         }
     };
 
-    console.log('Inbox notification system loaded');
+    console.log('Inbox notification system loaded with interactive tutorial');
 </script>
 </body>
 </html>
