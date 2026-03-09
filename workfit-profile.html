@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ca8a04">
+    <meta name="background-color" content="#0a0a0a">
+    <meta name="color-scheme" content="dark light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WorkFit Club">
+    <meta name="application-name" content="WorkFit Club">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>WorkFit Club · My Profile</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        /* same base styles as main page — ensure consistency */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --gold: #ca8a04; --gold-dark: #a16207; --gold-light: #fef3c7;
+            --bg-primary: #0a0a0a; --bg-secondary: #111111; --bg-card: rgba(20,20,20,0.8);
+            --text-primary: #ffffff; --text-secondary: #e0e0e0; --text-muted: #aaaaaa;
+            --border-light: #2a2a2a; --shadow-color: rgba(202,138,4,0.25);
+            --nav-bg: rgba(10,10,10,0.95); --card-bg: #151515;
+            --glass-bg: rgba(20,20,20,0.3); --glass-border: rgba(255,255,255,0.1);
+            --input-bg: rgba(255,255,255,0.05); --input-focus-bg: rgba(255,255,255,0.1);
+            --danger: #dc2626; --success: #10b981;
+        }
+        body.light-theme {
+            --bg-primary: #f8f5f0; --bg-secondary: #ffffff; --bg-card: #ffffff;
+            --text-primary: #1a1a1a; --text-secondary: #2d2d2d; --text-muted: #555555;
+            --border-light: #dddddd; --shadow-color: rgba(202,138,4,0.4);
+            --nav-bg: rgba(255,255,255,0.95); --card-bg: #ffffff;
+            --input-bg: rgba(0,0,0,0.03); --input-focus-bg: rgba(0,0,0,0.05);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-top: 70px;
+            transition: background 0.3s, color 0.2s;
+        }
+        /* header (same as original) */
+        .site-header {
+            position: fixed; top: 0; width: 100%; height: 70px;
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold); z-index: 2000; padding: 0 1rem;
+        }
+        .header-container {
+            max-width: 1400px; height: 100%; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .site-logo {
+            height: 48px; border-radius: 12px; border: 2px solid var(--gold);
+            padding: 2px; background: var(--bg-primary);
+        }
+        .header-desktop-actions { display: flex; align-items: center; gap: 1.5rem; }
+        .desktop-search {
+            position: relative; display: flex; align-items: center;
+            background: rgba(255,255,255,0.08); border: 1px solid var(--border-light);
+            border-radius: 40px; padding: 0.4rem 0.4rem 0.4rem 1.2rem;
+            min-width: 260px;
+        }
+        .desktop-search input {
+            background: transparent; border: none; color: var(--text-primary);
+            width: 100%; outline: none; padding: 0.5rem 0;
+        }
+        .desktop-search button {
+            background: var(--gold); border: none; width: 38px; height: 38px;
+            border-radius: 50%; color: black; cursor: pointer;
+            transition: 0.2s;
+        }
+        .desktop-search button:hover { background: #b8860b; transform: scale(1.05); }
+        .user-menu, #loginButtonDesktop {
+            display: flex; align-items: center; gap: 0.5rem;
+            background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
+            border-radius: 40px; padding: 0.3rem 0.3rem 0.3rem 1rem;
+            cursor: pointer; position: relative;
+        }
+        .user-avatar {
+            background: var(--gold); color: #000; width: 35px; height: 35px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+        }
+        .logout-dropdown {
+            position: absolute; top: 120%; right: 0;
+            background: var(--card-bg); border: 1px solid var(--gold);
+            border-radius: 20px; padding: 0.5rem;
+            min-width: 120px; display: none; z-index: 1001;
+        }
+        .user-menu:hover .logout-dropdown { display: block; }
+        .logout-item {
+            padding: 0.7rem 1rem; color: var(--text-primary);
+            border-radius: 15px; transition: 0.2s;
+            display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+        }
+        .logout-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
+        .mobile-header-group { display: none; align-items: center; gap: 0.8rem; }
+        .mobile-search-icon, .hamburger-icon {
+            border: 1px solid var(--gold); color: var(--gold);
+            width: 42px; height: 42px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .mobile-search-icon:hover, .hamburger-icon:hover { background: var(--gold); color: black; }
+        .hamburger-panel {
+            position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
+            background: var(--nav-bg); backdrop-filter: blur(20px);
+            border-left: 1px solid var(--gold); padding: 2rem 1.5rem;
+            z-index: 2500; transition: right 0.3s ease; display: flex; flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        .hamburger-panel.open { right: 0; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; }
+        .panel-header h3 { font-family: 'Cinzel', serif; color: var(--gold); }
+        .close-panel { background: transparent; border: none; color: var(--text-muted); font-size: 1.8rem; cursor: pointer; }
+        .panel-quick-links { display: flex; flex-direction: column; gap: 0.5rem; margin: 2rem 0; }
+        .panel-link { padding: 0.9rem 1rem; background: rgba(255,255,255,0.03); border-radius: 30px; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 1rem; transition: 0.2s; border: 1px solid transparent; }
+        .panel-link:hover { border-color: var(--gold); background: rgba(202,138,4,0.1); color: var(--gold); }
+        .panel-link i { width: 24px; color: var(--gold); }
+        .panel-theme-toggle { display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 40px; margin-top: auto; border: 1px solid var(--border-light); }
+
+        /* Profile page specific */
+        .profile-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        .profile-card {
+            background: var(--card-bg);
+            border: 1px solid var(--gold);
+            border-radius: 60px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            border-bottom: 1px dashed var(--border-light);
+            padding-bottom: 2rem;
+            margin-bottom: 2rem;
+        }
+        .profile-avatar-large {
+            width: 100px;
+            height: 100px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 800;
+            color: #000;
+            border: 4px solid var(--gold-light);
+        }
+        .profile-name h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 0.3rem;
+        }
+        .profile-email {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .subscription-section {
+            background: rgba(202,138,4,0.05);
+            border-radius: 40px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid var(--border-light);
+        }
+        .subscription-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .subscription-card {
+            background: var(--bg-primary);
+            border-radius: 30px;
+            padding: 1.5rem;
+            border: 1px solid var(--gold);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .sub-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .sub-badge {
+            background: var(--gold);
+            color: black;
+            padding: 0.2rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 700;
+            display: inline-block;
+            width: fit-content;
+        }
+        .sub-plan {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        .sub-since {
+            color: var(--text-muted);
+        }
+        .sub-action {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .sub-action button {
+            background: transparent;
+            border: 2px solid var(--gold);
+            border-radius: 50px;
+            padding: 0.8rem 2rem;
+            font-weight: 600;
+            color: var(--gold);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .sub-action button:hover {
+            background: var(--gold);
+            color: black;
+        }
+        .no-sub-card {
+            background: rgba(220,38,38,0.05);
+            border: 1px dashed var(--danger);
+            border-radius: 30px;
+            padding: 2rem;
+            text-align: center;
+        }
+        .packages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .mini-package {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .mini-package:hover {
+            border-color: var(--gold);
+            transform: scale(1.02);
+        }
+        .mini-package i {
+            font-size: 2rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(202,138,4,0.3);
+            border-radius: 50%;
+            border-top-color: var(--gold);
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .toast-message {
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--toast-bg, #1a1a1a); backdrop-filter: blur(12px);
+            border: 1px solid var(--gold); border-radius: 60px;
+            padding: 0.9rem 2rem; display: flex; align-items: center; gap: 1rem;
+            z-index: 10000; opacity: 0; visibility: hidden; transition: 0.4s;
+        }
+        .toast-message.show { opacity: 1; visibility: visible; }
+        .auth-modal { /* same styles as main but copied for completeness, omitted brevity */ }
+        @media (max-width:768px) {
+            .header-desktop-actions { display:none; }
+            .mobile-header-group { display:flex; }
+            .profile-header { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- loading overlay (quick) -->
+    <div class="loading-overlay" id="loadingOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; display:flex; align-items:center; justify-content:center; z-index:10000; transition:0.5s;">
+        <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" style="max-width:200px; border-radius:30px;" alt="WorkFit">
+    </div>
+
+    <!-- header (reduced copy from main) -->
+    <header class="site-header">
+        <div class="header-container">
+            <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" alt="WorkFit" class="site-logo">
+            <div class="header-desktop-actions">
+                <div class="desktop-search" id="desktopSearchContainer">
+                    <input type="text" placeholder="Search..." id="desktopSearchInput" autocomplete="off">
+                    <button onclick="performSearchDesktop()"><i class="fas fa-search"></i></button>
+                </div>
+                <div id="userMenuDesktop" class="user-menu" style="display:none;">
+                    <span class="user-name" id="userDisplayNameDesktop">User</span>
+                    <div class="user-avatar" id="userAvatarDesktop">U</div>
+                    <div class="logout-dropdown"><div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div></div>
+                </div>
+                <div id="loginButtonDesktop" onclick="openAuthModal()" style="display:flex; align-items:center; gap:0.5rem; background:rgba(202,138,4,0.1); border:1px solid var(--gold); border-radius:40px; padding:0.3rem 1.2rem; cursor:pointer;">
+                    <i class="fas fa-user-circle"></i><span>Account</span>
+                </div>
+            </div>
+            <div class="mobile-header-group">
+                <div class="mobile-search-icon" id="mobileSearchBtn"><i class="fas fa-search"></i></div>
+                <div class="hamburger-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></div>
+            </div>
+        </div>
+    </header>
+    <!-- mobile search & hamburger panels omitted for brevity but can be added same as main -->
+
+    <!-- PROFILE PAGE CONTENT -->
+    <div class="profile-container" id="profilePage">
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar-large" id="profileAvatar">U</div>
+                <div class="profile-name">
+                    <h1 id="profileDisplayName">Loading...</h1>
+                    <div class="profile-email"><i class="fas fa-envelope"></i> <span id="profileEmail">—</span></div>
+                </div>
+            </div>
+
+            <!-- MEMBERSHIP / SUBSCRIPTION SECTION -->
+            <div class="subscription-section">
+                <div class="subscription-title">
+                    <i class="fas fa-crown"></i> My Membership
+                </div>
+                <div id="subscriptionStatusArea">
+                    <!-- dynamic content: either subscription details or subscribe call-to-action -->
+                    <div style="text-align:center; padding:2rem;"><div class="loading-spinner"></div><p style="margin-top:1rem;">Loading subscription...</p></div>
+                </div>
+            </div>
+
+            <!-- quick package selector for unsubscribed / change plan -->
+            <div id="packageSelectorArea" style="display: none;">
+                <h3 style="color:var(--gold); margin-bottom:1rem;"><i class="fas fa-tags"></i> Available plans</h3>
+                <div class="packages-grid" id="availablePackagesGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- toast -->
+    <div id="profileToast" class="toast-message"><i class="fas fa-bell"></i><span id="toastText">message</span></div>
+
+    <!-- auth modal (minimal copy) & overlays (not essential but placeholder) -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeAllModals()" style="display:none;"></div>
+    <div class="auth-modal" id="authModal" style="display:none;">[...auth modal would be identical to main, omitted for brevity...]</div>
+
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+        let currentUser = null;
+        let currentSubscription = null; // will hold { plan, timestamp, etc }
+
+        // UI elements
+        const profileNameEl = document.getElementById('profileDisplayName');
+        const profileEmailEl = document.getElementById('profileEmail');
+        const profileAvatarEl = document.getElementById('profileAvatar');
+        const subStatusArea = document.getElementById('subscriptionStatusArea');
+        const packageSelectorArea = document.getElementById('packageSelectorArea');
+
+        // Listen auth state
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            updateUIForUser(user);
+            if (user) {
+                // populate profile
+                const dn = user.displayName || user.email?.split('@')[0] || 'Member';
+                profileNameEl.textContent = dn;
+                profileEmailEl.textContent = user.email;
+                profileAvatarEl.textContent = dn.charAt(0).toUpperCase();
+
+                // fetch subscription from database
+                await loadUserSubscription(user.uid);
+            } else {
+                // not logged in: show prompt
+                profileNameEl.textContent = 'Welcome, guest';
+                profileEmailEl.textContent = 'Please log in';
+                profileAvatarEl.textContent = '?';
+                subStatusArea.innerHTML = `<div class="no-sub-card"><i class="fas fa-lock" style="font-size:3rem; color:var(--gold);"></i><p style="margin:1rem 0;">You need to be logged in to view or manage your membership.</p><button onclick="openAuthModal()" class="sub-action" style="background:var(--gold); color:black; border:none; padding:0.8rem 2rem; border-radius:50px; font-weight:600; cursor:pointer;"><i class="fas fa-sign-in-alt"></i> Login / Sign up</button></div>`;
+                packageSelectorArea.style.display = 'none';
+            }
+            // fade loading overlay
+            document.getElementById('loadingOverlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('loadingOverlay').style.display = 'none', 500);
+        });
+
+        async function loadUserSubscription(uid) {
+            try {
+                // Query package_signups for this user, get latest (by timestamp)
+                const snapshot = await database.ref('package_signups')
+                    .orderByChild('uid')
+                    .equalTo(uid)
+                    .once('value');
+                
+                const subs = [];
+                snapshot.forEach(child => {
+                    subs.push({ id: child.key, ...child.val() });
+                });
+                // sort descending by timestamp (latest first)
+                subs.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+                
+                if (subs.length > 0) {
+                    currentSubscription = subs[0]; // most recent signup as "active" subscription
+                    renderSubscriptionActive(currentSubscription);
+                } else {
+                    currentSubscription = null;
+                    renderNoSubscription();
+                }
+            } catch (err) {
+                console.error(err);
+                subStatusArea.innerHTML = `<div class="no-sub-card"><i class="fas fa-exclamation-triangle"></i> Error loading subscription. Try again later.</div>`;
+            }
+        }
+
+        function renderSubscriptionActive(sub) {
+            const plan = sub.package || 'Unknown plan';
+            const timestamp = sub.timestamp ? new Date(sub.timestamp).toLocaleDateString() : 'N/A';
+            subStatusArea.innerHTML = `
+                <div class="subscription-card">
+                    <div class="sub-info">
+                        <span class="sub-badge"><i class="fas fa-check-circle"></i> Active</span>
+                        <div class="sub-plan">${plan}</div>
+                        <div class="sub-since"><i class="fas fa-calendar-alt"></i> subscribed since ${timestamp}</div>
+                    </div>
+                    <div class="sub-action">
+                        <button onclick="changePlanPrompt()"><i class="fas fa-exchange-alt"></i> Change plan</button>
+                        <button onclick="cancelSubscriptionPrompt()" style="border-color:var(--danger); color:var(--danger);"><i class="fas fa-ban"></i> Cancel</button>
+                    </div>
+                </div>
+            `;
+            packageSelectorArea.style.display = 'block';
+            renderAvailablePackages(plan); // highlight current
+        }
+
+        function renderNoSubscription() {
+            subStatusArea.innerHTML = `
+                <div class="no-sub-card">
+                    <i class="fas fa-crown" style="font-size:3rem; color:var(--gold);"></i>
+                    <h3 style="margin:1rem 0;">You are not subscribed yet</h3>
+                    <p style="color:var(--text-muted); margin-bottom:1.5rem;">Choose a membership below and start your fitness journey.</p>
+                </div>
+            `;
+            packageSelectorArea.style.display = 'block';
+            renderAvailablePackages(null);
+        }
+
+        function renderAvailablePackages(currentPlan = null) {
+            const packages = [
+                { name: 'Fit Fam', icon: 'fa-users', desc: 'Family guided' },
+                { name: 'Fit-Solo', icon: 'fa-user', desc: 'Individual + gym' },
+                { name: 'FIT-FURNACE', icon: 'fa-fire', desc: 'Group led' },
+                { name: 'Sporting Programs', icon: 'fa-futbol', desc: 'Coaching' },
+                { name: 'Med-Fit', icon: 'fa-stethoscope', desc: 'Coming soon' }
+            ];
+            let html = '';
+            packages.forEach(p => {
+                const isCurrent = currentPlan && (currentPlan.includes(p.name) || p.name.includes(currentPlan));
+                html += `<div class="mini-package" onclick="subscribeToPlan('${p.name}')" style="${isCurrent ? 'border-color:var(--gold); background:rgba(202,138,4,0.1);' : ''}">
+                    <i class="fas ${p.icon}"></i>
+                    <div style="font-weight:700; margin:0.3rem 0;">${p.name}</div>
+                    <small style="color:var(--text-muted);">${p.desc}</small>
+                    ${isCurrent ? '<span style="display:block; margin-top:0.5rem; color:var(--gold);"><i class="fas fa-check"></i> Current</span>' : ''}
+                </div>`;
+            });
+            document.getElementById('availablePackagesGrid').innerHTML = html;
+        }
+
+        // Subscribe to a plan: writes to package_signups (like the mini forms)
+        window.subscribeToPlan = async function(planName) {
+            if (!currentUser) {
+                showToast('Please login first', 'info');
+                openAuthModal();
+                return;
+            }
+            // For Med-Fit, we might warn
+            if (planName === 'Med-Fit') {
+                showToast('Med-Fit is coming soon. You can still register interest.', 'info');
+            }
+            // For FIT-FURNACE, need location. For simplicity, default to Uthiru.
+            let finalPlan = planName;
+            if (planName === 'FIT-FURNACE') {
+                const location = prompt('Choose location: Uthiru or Lavington', 'Uthiru');
+                if (location && (location.toLowerCase().includes('uthiru') || location.toLowerCase().includes('lavington'))) {
+                    finalPlan = `FIT-FURNACE (${location})`;
+                } else {
+                    showToast('No location selected, defaulting to Uthiru', 'info');
+                    finalPlan = 'FIT-FURNACE (Uthiru)';
+                }
+            }
+            try {
+                await database.ref('package_signups').push({
+                    package: finalPlan,
+                    name: currentUser.displayName || currentUser.email,
+                    email: currentUser.email,
+                    uid: currentUser.uid,
+                    timestamp: Date.now()
+                });
+                showToast(`✅ Subscribed to ${finalPlan}`, 'success');
+                // reload subscription
+                await loadUserSubscription(currentUser.uid);
+            } catch (err) {
+                showToast('Error: ' + err.message, 'error');
+            }
+        };
+
+        window.changePlanPrompt = function() {
+            showToast('Select a new plan from the grid below', 'info');
+        };
+
+        window.cancelSubscriptionPrompt = async function() {
+            if (!currentSubscription) return;
+            if (confirm('Are you sure you want to cancel your membership? This cannot be undone.')) {
+                // In this demo we don't actually delete, we mark or just warn. For simplicity, we'll just show message.
+                // Real implementation would perhaps set a "cancelled" flag, but for demo we'll just tell user to contact.
+                showToast('Cancellation not automated. Please contact support.', 'info');
+            }
+        };
+
+        // Helper functions (copy from main)
+        function updateUIForUser(user) {
+            const desktopMenu = document.getElementById('userMenuDesktop');
+            const desktopLogin = document.getElementById('loginButtonDesktop');
+            const userNameSpan = document.getElementById('userDisplayNameDesktop');
+            const userAvatar = document.getElementById('userAvatarDesktop');
+            if (user) {
+                let dn = user.displayName || user.email?.split('@')[0] || 'Mugera';
+                dn = dn.charAt(0).toUpperCase() + dn.slice(1);
+                if (userNameSpan) userNameSpan.textContent = dn;
+                if (userAvatar) userAvatar.textContent = dn.charAt(0).toUpperCase();
+                if (desktopMenu) desktopMenu.style.display = 'flex';
+                if (desktopLogin) desktopLogin.style.display = 'none';
+            } else {
+                if (desktopMenu) desktopMenu.style.display = 'none';
+                if (desktopLogin) desktopLogin.style.display = 'flex';
+            }
+        }
+
+        window.handleLogout = async () => {
+            try { await auth.signOut(); showToast('Logged out', 'success'); } catch (err) { showToast(err.message, 'error'); }
+        };
+
+        // stub auth modal functions (same as main)
+        window.openAuthModal = function() {
+            // Minimal placeholder – main page already has full modal, but for profile we include a simplified version.
+            alert('Please use the account button on the main page to login. (Modal not duplicated for brevity, but works if you copy the full modal HTML).');
+        };
+        window.closeAllModals = function() {};
+
+        function showToast(msg, type = 'info') {
+            const toast = document.getElementById('profileToast');
+            document.getElementById('toastText').innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Hamburger etc (minimal)
+        document.getElementById('hamburgerBtn')?.addEventListener('click', ()=>{
+            document.getElementById('hamburgerPanel')?.classList.toggle('open');
+        });
+        window.toggleHamburger = ()=> document.getElementById('hamburgerPanel')?.classList.toggle('open');
+        // theme toggle (copy)
+        window.toggleTheme = function() {
+            document.body.classList.toggle('light-theme');
+            const icon = document.getElementById('panelThemeIcon');
+            if (document.body.classList.contains('light-theme')) {
+                icon?.classList.replace('fa-moon','fa-sun');
+                localStorage.setItem('siteTheme','light');
+            } else {
+                icon?.classList.replace('fa-sun','fa-moon');
+                localStorage.setItem('siteTheme','dark');
+            }
+        };
+        (function() {
+            if (localStorage.getItem('siteTheme') === 'light') {
+                document.body.classList.add('light-theme');
+                document.getElementById('panelThemeIcon')?.classList.replace('fa-moon','fa-sun');
+            }
+        })();
+
+        // search placeholder
+        window.performSearchDesktop = function() {
+            let q = document.getElementById('desktopSearchInput').value;
+            if(q) alert('Search would redirect to main page results.');
+        };
+    </script>
+    <!-- include minimal hamburger panel for completeness -->
+    <div class="hamburger-panel" id="hamburgerPanel">
+        <div class="panel-header"><h3>WorkFit</h3><button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button></div>
+        <div class="panel-quick-links">
+            <a href="#" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-heartbeat"></i> Fitness</a>
+            <a href="#" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-futbol"></i> Sports</a>
+            <a href="#" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-calendar-check"></i> Join</a>
+        </div>
+        <div class="panel-theme-toggle">
+            <span><i class="fas fa-palette"></i> Dark / Light</span>
+            <div onclick="toggleTheme()" style="width:45px; height:45px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                <i class="fas fa-moon" id="panelThemeIcon"></i>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
