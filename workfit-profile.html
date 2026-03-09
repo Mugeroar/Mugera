@@ -2,558 +2,520 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#ca8a04">
-    <meta name="background-color" content="#0a0a0a">
-    <meta name="color-scheme" content="dark light">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="WorkFit Club">
-    <meta name="application-name" content="WorkFit Club">
-    <title>WorkFit · Member Dashboard</title>
-    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+    <title>I AM MUGERA · my profile</title>
+    <!-- fonts & icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Firebase SDKs -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&family=Cinzel:wght@400..700&display=swap" rel="stylesheet">
+    <!-- firebase compat -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin:0; padding:0; box-sizing:border-box; }
         :root {
-            --gold: #ca8a04; --gold-dark: #a16207; --gold-light: #fef3c7;
-            --bg-primary: #0a0a0a; --bg-secondary: #111111; --bg-card: rgba(20,20,20,0.8);
-            --text-primary: #ffffff; --text-secondary: #e0e0e0; --text-muted: #aaaaaa;
-            --border-light: #2a2a2a; --shadow-color: rgba(202,138,4,0.25);
-            --nav-bg: rgba(10,10,10,0.95); --card-bg: #151515;
-            --input-bg: rgba(255,255,255,0.05); --input-focus-bg: rgba(255,255,255,0.1);
-            --danger: #dc2626; --success: #10b981;
+            --gold: #ca8a04; --gold-dark:#a16207; --gold-light:#fef3c7;
+            --bg:#0a0a0a; --bg-card:#151515; --text:#fff; --text-muted:#aaa;
+            --border:#2a2a2a; --shadow:rgba(202,138,4,0.2);
+            --danger:#dc2626; --success:#10b981; --info:#3b82f6;
         }
-        body.light-theme {
-            --bg-primary: #f8f5f0; --bg-secondary: #ffffff; --bg-card: #ffffff;
-            --text-primary: #1a1a1a; --text-secondary: #2d2d2d; --text-muted: #555555;
-            --border-light: #dddddd; --shadow-color: rgba(202,138,4,0.4);
-            --nav-bg: rgba(255,255,255,0.95); --card-bg: #ffffff;
-            --input-bg: rgba(0,0,0,0.03); --input-focus-bg: rgba(0,0,0,0.05);
+        body.light {
+            --bg:#f8f5f0; --bg-card:#ffffff; --text:#1a1a1a; --text-muted:#555;
+            --border:#ddd; --shadow:rgba(202,138,4,0.3);
         }
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            padding-top: 70px;
-            transition: background 0.3s, color 0.2s;
+            background: var(--bg); color: var(--text);
+            padding: 2rem 1.5rem;
+            transition: background 0.2s;
         }
-        /* header (minimal, reused from main) */
-        .site-header {
-            position: fixed; top: 0; width: 100%; height: 70px;
-            background: var(--nav-bg); backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--gold); z-index: 2000; padding: 0 1rem;
-        }
-        .header-container {
-            max-width: 1400px; height: 100%; margin: 0 auto;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-        .site-logo { height: 48px; border-radius: 12px; border: 2px solid var(--gold); padding: 2px; background: var(--bg-primary); }
-        .header-desktop-actions { display: flex; align-items: center; gap: 1.5rem; }
-        .user-menu, #loginButtonDesktop {
-            display: flex; align-items: center; gap: 0.5rem;
-            background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
-            border-radius: 40px; padding: 0.3rem 0.3rem 0.3rem 1rem;
-            cursor: pointer; position: relative;
-        }
-        .user-avatar { background: var(--gold); color: #000; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .logout-dropdown { position: absolute; top: 120%; right: 0; background: var(--card-bg); border: 1px solid var(--gold); border-radius: 20px; padding: 0.5rem; min-width: 120px; display: none; z-index: 1001; }
-        .user-menu:hover .logout-dropdown { display: block; }
-        .logout-item { padding: 0.7rem 1rem; color: var(--text-primary); border-radius: 15px; transition: 0.2s; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
-        .logout-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
-        .mobile-header-group { display: none; align-items: center; gap: 0.8rem; }
-        .hamburger-icon { border: 1px solid var(--gold); color: var(--gold); width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; cursor: pointer; }
-
-        /* dashboard container */
         .dashboard {
-            max-width: 1300px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
+            max-width: 1400px; margin: 0 auto;
         }
-        /* hero stats */
-        .hero-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
+        /* header with theme toggle */
+        .profile-header {
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            background: var(--bg-card); border-radius: 40px;
+            padding: 1.5rem 2rem; border: 1px solid var(--gold);
+        }
+        .user-badge {
+            display: flex; align-items: center; gap: 1.5rem;
+        }
+        .avatar {
+            width: 80px; height: 80px;
+            background: var(--gold); color: #000;
+            border-radius: 50%; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 2.5rem; font-weight: 700;
+            border: 3px solid var(--gold-light);
+        }
+        .user-info h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem; color: var(--gold);
+        }
+        .user-info .email {
+            color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;
+            margin-top: 0.2rem;
+        }
+        .theme-toggle {
+            background: rgba(202,138,4,0.1);
+            border: 1px solid var(--gold); border-radius: 60px;
+            padding: 0.5rem 1.2rem; display: flex; align-items: center; gap: 0.7rem;
+            cursor: pointer;
+        }
+        .theme-toggle i { color: var(--gold); font-size: 1.2rem; }
+        /* stat cards */
+        .stat-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(170px,1fr));
+            gap: 1.5rem; margin-bottom: 2.5rem;
         }
         .stat-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 40px;
-            padding: 1.8rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1.2rem;
-            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.5);
-            transition: 0.2s;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 30px; padding: 1.5rem 1rem;
+            display: flex; align-items: center; gap: 1rem;
+            transition: 0.2s; box-shadow: 0 10px 20px -10px var(--shadow);
         }
-        .stat-card:hover { border-color: var(--gold); transform: translateY(-4px); }
+        .stat-card:hover { border-color: var(--gold); }
         .stat-icon {
-            width: 60px; height: 60px;
-            background: rgba(202,138,4,0.1);
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: var(--gold);
+            width: 50px; height: 50px;
+            background: rgba(202,138,4,0.1); border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; color: var(--gold);
         }
-        .stat-content h3 { font-size: 2rem; font-weight: 800; line-height: 1.2; }
-        .stat-content p { color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
-
+        .stat-content h3 { font-size: 1.8rem; font-weight: 700; line-height: 1.2; }
+        .stat-content p { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
         /* section titles */
         .section-title {
             font-family: 'Cinzel', serif;
-            font-size: 2rem;
-            color: var(--gold);
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+            font-size: 1.8rem; color: var(--gold);
+            margin: 2rem 0 1.5rem; display: flex; align-items: center; gap: 1rem;
         }
-        /* booking row */
-        .booking-panel {
-            background: var(--bg-secondary);
-            border-radius: 60px;
-            border: 1px solid var(--gold);
-            padding: 2rem;
-            margin-bottom: 3rem;
+        .section-title i { font-size: 1.8rem; }
+        /* cards grid */
+        .cards-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem; margin-bottom: 1.5rem;
         }
-        .booking-form {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.2rem;
-            align-items: flex-end;
-        }
-        .form-group {
-            flex: 1 1 180px;
-        }
-        .form-group label {
-            display: block;
-            font-size: 0.8rem;
-            color: var(--gold);
-            margin-bottom: 0.3rem;
-            font-weight: 600;
-        }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 0.8rem 1.2rem;
-            background: var(--input-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 30px;
-            color: var(--text-primary);
-            font-size: 1rem;
-        }
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: var(--gold);
-        }
-        .book-btn {
-            background: var(--gold);
-            color: black;
-            border: none;
-            border-radius: 50px;
-            padding: 0.9rem 2.2rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.7rem;
+        .item-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 30px; padding: 1.5rem;
             transition: 0.2s;
-            font-size: 1rem;
         }
-        .book-btn:hover { background: #b8860b; transform: scale(1.02); }
-
-        /* upcoming schedule grid */
-        .schedule-grid, .history-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
+        .item-card:hover { border-color: var(--gold); }
+        .card-badge {
+            display: inline-block; padding: 0.2rem 1rem;
+            border-radius: 30px; font-size: 0.75rem; font-weight: 600;
+            background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
+            margin-bottom: 1rem;
         }
-        .session-card {
-            background: var(--card-bg);
-            border-radius: 30px;
-            border: 1px solid var(--border-light);
-            padding: 1.5rem;
-            transition: 0.2s;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+        .card-title {
+            font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;
+            display: flex; align-items: center; gap: 0.5rem;
         }
-        .session-card:hover { border-color: var(--gold); transform: translateY(-4px); }
-        .session-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            border-bottom: 1px dashed var(--border-light);
-            padding-bottom: 0.8rem;
+        .card-title i { color: var(--gold); width: 1.5rem; }
+        .card-meta {
+            color: var(--text-muted); font-size: 0.9rem;
+            display: flex; flex-wrap: wrap; gap: 1rem;
+            margin: 1rem 0;
         }
-        .session-icon {
-            background: rgba(202,138,4,0.1);
-            width: 45px; height: 45px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            color: var(--gold);
-        }
-        .session-title {
-            font-weight: 700;
-            font-size: 1.2rem;
-        }
-        .session-detail {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-        .session-detail i {
-            width: 20px;
-            color: var(--gold);
-        }
+        .card-meta span { display: flex; align-items: center; gap: 0.3rem; }
         .status-badge {
-            align-self: flex-start;
-            background: rgba(16,185,129,0.15);
-            border: 1px solid var(--success);
-            color: var(--success);
-            padding: 0.2rem 1rem;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            font-weight: 600;
+            font-size: 0.75rem; padding: 0.15rem 1rem; border-radius: 30px;
+            font-weight: 600; display: inline-block;
         }
-        .history-badge {
-            background: rgba(220,38,38,0.1);
-            border-color: var(--danger);
-            color: var(--text-muted);
+        .status-active { background: rgba(16,185,129,0.15); color: var(--success); border:1px solid var(--success); }
+        .status-pending { background: rgba(202,138,4,0.15); color: var(--gold); border:1px solid var(--gold); }
+        .status-cancelled, .status-expired { background: rgba(220,38,38,0.1); color: var(--danger); border:1px solid var(--danger); }
+        .pill-info { background: rgba(59,130,246,0.1); color: var(--info); border:1px solid var(--info); }
+        /* order items */
+        .order-items { margin: 1rem 0; padding-left: 0.5rem; }
+        .order-item { font-size: 0.9rem; border-bottom: 1px dashed var(--border); padding: 0.3rem 0; }
+        /* loading */
+        .loading-spinner {
+            display: inline-block; width: 40px; height: 40px;
+            border: 3px solid rgba(202,138,4,0.2); border-top-color: var(--gold);
+            border-radius: 50%; animation: spin 1s infinite;
         }
-        /* message toast */
-        .toast-dash {
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .toast {
             position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
-            background: var(--card-bg); backdrop-filter: blur(12px);
-            border: 1px solid var(--gold); border-radius: 60px;
-            padding: 0.9rem 2rem; display: flex; align-items: center; gap: 1rem;
-            z-index: 10000; opacity: 0; visibility: hidden; transition: 0.4s;
+            background: var(--bg-card); border: 1px solid var(--gold);
+            border-radius: 60px; padding: 0.8rem 2rem;
+            display: flex; align-items: center; gap: 1rem;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5); z-index: 9999;
+            opacity: 0; visibility: hidden; transition: 0.3s;
         }
-        .toast-dash.show { opacity: 1; visibility: visible; }
-
-        @media (max-width:768px) {
-            .header-desktop-actions { display:none; }
-            .mobile-header-group { display:flex; }
-            .booking-form { flex-direction: column; align-items: stretch; }
+        .toast.show { opacity: 1; visibility: visible; }
+        @media (max-width:600px) {
+            .profile-header { flex-direction: column; align-items: start; }
         }
     </style>
 </head>
 <body>
-    <header class="site-header">
-        <div class="header-container">
-            <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" alt="WorkFit" class="site-logo">
-            <div class="header-desktop-actions">
-                <div id="userMenuDesktop" class="user-menu" style="display:none;">
-                    <span class="user-name" id="userDisplayNameDesktop">User</span>
-                    <div class="user-avatar" id="userAvatarDesktop">U</div>
-                    <div class="logout-dropdown"><div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div></div>
-                </div>
-                <div id="loginButtonDesktop" onclick="openAuthModal()" style="display:flex; align-items:center; gap:0.5rem; background:rgba(202,138,4,0.1); border:1px solid var(--gold); border-radius:40px; padding:0.3rem 1.2rem; cursor:pointer;">
-                    <i class="fas fa-user-circle"></i><span>Account</span>
-                </div>
-            </div>
-            <div class="mobile-header-group">
-                <div class="hamburger-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></div>
+<div class="dashboard" id="dashboardMain">
+    <!-- profile header -->
+    <div class="profile-header">
+        <div class="user-badge">
+            <div class="avatar" id="avatar">M</div>
+            <div class="user-info">
+                <h1 id="displayName">Mugera</h1>
+                <div class="email"><i class="fas fa-envelope"></i> <span id="userEmail">loading...</span></div>
+                <div style="margin-top:0.5rem;"><span class="status-badge status-active" id="membershipBadge">member</span></div>
             </div>
         </div>
-    </header>
-
-    <!-- Dashboard Main -->
-    <div class="dashboard" id="dashboardMain">
-        <!-- Hero Stats -->
-        <div class="hero-stats" id="statsContainer">
-            <div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-check"></i></div><div class="stat-content"><h3 id="statBookings">0</h3><p>total bookings</p></div></div>
-            <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-content"><h3 id="statUpcoming">0</h3><p>upcoming</p></div></div>
-            <div class="stat-card"><div class="stat-icon"><i class="fas fa-history"></i></div><div class="stat-content"><h3 id="statPast">0</h3><p>past sessions</p></div></div>
-            <div class="stat-card"><div class="stat-icon"><i class="fas fa-crown"></i></div><div class="stat-content"><h3 id="statPlan">-</h3><p>current plan</p></div></div>
+        <div class="theme-toggle" onclick="toggleTheme()">
+            <i class="fas fa-palette"></i>
+            <span>light/dark</span>
+            <i class="fas fa-moon" id="themeIcon"></i>
         </div>
-
-        <!-- Booking Section -->
-        <div class="booking-panel">
-            <h2 class="section-title"><i class="fas fa-pen-alt"></i> Book a session</h2>
-            <div class="booking-form" id="bookingForm">
-                <div class="form-group">
-                    <label><i class="fas fa-dumbbell"></i> Session type</label>
-                    <select id="sessionType">
-                        <option value="Fit-Solo">Fit-Solo (guided)</option>
-                        <option value="Fit Fam">Fit Fam (family)</option>
-                        <option value="FIT-FURNACE (Uthiru)">FIT-FURNACE Uthiru</option>
-                        <option value="FIT-FURNACE (Lavington)">FIT-FURNACE Lavington</option>
-                        <option value="Sporting">Sporting (coaching)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-calendar-day"></i> Date</label>
-                    <input type="date" id="bookingDate" value="">
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-clock"></i> Time</label>
-                    <select id="bookingTime">
-                        <option value="07:00">7:00 AM</option>
-                        <option value="09:00">9:00 AM</option>
-                        <option value="11:00">11:00 AM</option>
-                        <option value="15:00">3:00 PM</option>
-                        <option value="17:00">5:00 PM</option>
-                        <option value="18:30">6:30 PM</option>
-                    </select>
-                </div>
-                <button class="book-btn" id="bookSessionBtn"><i class="fas fa-check-circle"></i> Book now</button>
-            </div>
-        </div>
-
-        <!-- Upcoming schedule -->
-        <h2 class="section-title"><i class="fas fa-calendar-alt"></i> Your schedule</h2>
-        <div id="upcomingContainer" class="schedule-grid"><p style="color:var(--text-muted);">Loading schedule...</p></div>
-
-        <!-- History -->
-        <h2 class="section-title"><i class="fas fa-history"></i> Activity history</h2>
-        <div id="historyContainer" class="history-grid"><p style="color:var(--text-muted);">Loading history...</p></div>
     </div>
 
-    <!-- Simple auth modal (placeholder) -->
-    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9499;"></div>
-    <div class="auth-modal" id="authModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:var(--card-bg); padding:2rem; border-radius:30px; border:2px solid var(--gold); z-index:9500; max-width:400px; width:90%;">
-        <button onclick="closeModal()" style="float:right; background:none; border:none; color:var(--text-muted); font-size:1.5rem;">&times;</button>
-        <h3 style="color:var(--gold); margin-bottom:1rem;">Login / Signup</h3>
-        <p style="color:var(--text-muted); margin-bottom:1rem;">Use main page for full auth. For demo, enter any email:</p>
-        <input type="email" id="dummyEmail" placeholder="email" class="form-group" style="width:100%; margin-bottom:1rem; padding:0.8rem;">
-        <button onclick="fakeLogin()" class="book-btn" style="width:100%;">Continue as guest</button>
-    </div>
+    <!-- stats row (dynamic) -->
+    <div class="stat-grid" id="statsContainer"></div>
 
-    <div id="dashToast" class="toast-dash"><i class="fas fa-info-circle"></i><span id="toastMsg">Message</span></div>
+    <!-- ===== MAIN ACTIVITY SECTIONS ===== -->
+    <!-- 1. Memberships & Subscriptions -->
+    <div class="section-title"><i class="fas fa-crown"></i> My Memberships & subscriptions</div>
+    <div class="cards-grid" id="membershipsGrid"></div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
-            authDomain: "mugera-e51cc.firebaseapp.com",
-            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "mugera-e51cc",
-            storageBucket: "mugera-e51cc.firebasestorage.app",
-            messagingSenderId: "1024868637509",
-            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const auth = firebase.auth();
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    <!-- 2. Package signups / WorkFit specific -->
+    <div class="section-title"><i class="fas fa-dumbbell"></i> WorkFit packages</div>
+    <div class="cards-grid" id="packagesGrid"></div>
 
-        let currentUser = null;
-        let userBookings = []; // all bookings from RTDB
-        let userSubscription = null;
+    <!-- 3. Store Orders -->
+    <div class="section-title"><i class="fas fa-shopping-bag"></i> Order history</div>
+    <div class="cards-grid" id="ordersGrid"></div>
 
-        // DOM elements
-        const statBookings = document.getElementById('statBookings');
-        const statUpcoming = document.getElementById('statUpcoming');
-        const statPast = document.getElementById('statPast');
-        const statPlan = document.getElementById('statPlan');
-        const upcomingDiv = document.getElementById('upcomingContainer');
-        const historyDiv = document.getElementById('historyContainer');
-        const bookBtn = document.getElementById('bookSessionBtn');
-        const sessionType = document.getElementById('sessionType');
-        const bookingDate = document.getElementById('bookingDate');
-        const bookingTime = document.getElementById('bookingTime');
+    <!-- 4. Community & Impact -->
+    <div class="section-title"><i class="fas fa-users"></i> Community & activities</div>
+    <div class="cards-grid" id="communityGrid"></div>
 
-        // Set default date to today
-        const today = new Date().toISOString().split('T')[0];
-        bookingDate.value = today;
+    <!-- 5. Inquiries & waitlists -->
+    <div class="section-title"><i class="fas fa-envelope-open-text"></i> Inquiries & waitlist</div>
+    <div class="cards-grid" id="inquiriesGrid"></div>
 
-        auth.onAuthStateChanged(async (user) => {
+    <!-- 6. Partnerships & Submissions -->
+    <div class="section-title"><i class="fas fa-handshake"></i> Partnerships & contributions</div>
+    <div class="cards-grid" id="partnershipGrid"></div>
+</div>
+
+<!-- toast -->
+<div id="globalToast" class="toast"><i class="fas fa-bell"></i> <span id="toastMsg">message</span></div>
+
+<script>
+    // Firebase config (same as export)
+    const firebaseConfig = {
+        apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+        authDomain: "mugera-e51cc.firebaseapp.com",
+        databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mugera-e51cc",
+        storageBucket: "mugera-e51cc.firebasestorage.app",
+        messagingSenderId: "1024868637509",
+        appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
+
+    let currentUser = null;
+    let userEmail = '';
+    let userId = '';
+
+    // Store all fetched data
+    let dbData = {
+        subscriptions: [],       // from /subscriptions
+        package_signups: [],     // from /package_signups
+        orders: [],              // from /orders + user-specific
+        partnerships: [],
+        inquiries: [],           // workfit_inquiries, brandin_inquiries, course_inquiries, etc
+        waitlists: [],
+        community: [],           // posts, impact_updates, connections, etc
+        submissions: []
+    };
+
+    // ---------- auth state ----------
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
             currentUser = user;
-            updateUIForUser(user);
-            if (user) {
-                await Promise.all([loadSubscription(user.uid), loadBookings(user.uid)]);
-            } else {
-                // guest view: show demo placeholders
-                document.getElementById('statsContainer').innerHTML = `<div class="stat-card" style="grid-column:1/-1; text-align:center; padding:2rem;"><i class="fas fa-lock" style="font-size:3rem; color:var(--gold);"></i><h3 style="margin:1rem 0;">Please log in to view dashboard</h3><button onclick="openAuthModal()" class="book-btn" style="margin:0 auto;">Login / Sign up</button></div>`;
-                upcomingDiv.innerHTML = ''; historyDiv.innerHTML = '';
-            }
-        });
-
-        async function loadSubscription(uid) {
-            const snap = await database.ref('package_signups').orderByChild('uid').equalTo(uid).once('value');
-            const subs = [];
-            snap.forEach(child => subs.push({ id: child.key, ...child.val() }));
-            subs.sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
-            userSubscription = subs[0] || null;
-            if (userSubscription) {
-                statPlan.innerText = userSubscription.package.substring(0,12) + '…';
-            } else {
-                statPlan.innerText = 'No plan';
-            }
+            userEmail = user.email || '';
+            userId = user.uid;
+            updateProfileUI(user);
+            await fetchAllUserData();
+        } else {
+            // demo mode: show placeholder, but we can still load sample using known emails? 
+            // for presentation, we can set a default user (e.g., mosesemugera@gmail.com)
+            // we'll fake a user for demonstration based on common emails from export.
+            useDemoUser();
         }
+    });
 
-        async function loadBookings(uid) {
-            const snap = await database.ref('workfit_bookings').orderByChild('uid').equalTo(uid).once('value');
-            userBookings = [];
-            snap.forEach(child => userBookings.push({ id: child.key, ...child.val() }));
-            // sort by date descending (latest first)
-            userBookings.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
-            renderStatsAndLists();
-        }
+    function useDemoUser() {
+        // pick a common email from export: "mosesemugera@gmail.com"
+        userEmail = "mosesemugera@gmail.com";
+        userId = "3LtLhdjdPjenTsGAr8Lw9hsBOKS2"; // from export
+        document.getElementById('displayName').innerText = "Moses Mugera";
+        document.getElementById('userEmail').innerText = userEmail;
+        document.getElementById('avatar').innerText = "M";
+        fetchAllUserData();
+    }
 
-        function renderStatsAndLists() {
-            const now = Date.now();
-            const upcoming = userBookings.filter(b => b.timestamp > now);
-            const past = userBookings.filter(b => b.timestamp <= now);
-            statBookings.innerText = userBookings.length;
-            statUpcoming.innerText = upcoming.length;
-            statPast.innerText = past.length;
+    async function fetchAllUserData() {
+        showToast('Loading your profile...', 'info');
+        try {
+            // parallel fetches from relevant paths
+            const [
+                subsSnap, pkgSnap, ordersSnap, partnersSnap, 
+                workfitInqSnap, brandinSnap, courseInqSnap, waitlistSnap,
+                impactSnap, postsSnap, submissionsSnap
+            ] = await Promise.all([
+                database.ref('subscriptions').once('value'),
+                database.ref('package_signups').once('value'),
+                database.ref('orders').once('value'),
+                database.ref('partnerships').once('value'),
+                database.ref('workfit_inquiries').once('value'),
+                database.ref('brandin_inquiries').once('value'),
+                database.ref('course_inquiries').once('value'),
+                database.ref('waitlists').once('value'),
+                database.ref('impact_updates').once('value'),
+                database.ref('feed_posts').once('value'),
+                database.ref('submissions').once('value')
+            ]);
 
-            // Render upcoming (next 3, sorted ascending)
-            const upcomingSorted = [...upcoming].sort((a,b) => a.timestamp - b.timestamp);
-            upcomingDiv.innerHTML = '';
-            if (upcomingSorted.length === 0) upcomingDiv.innerHTML = '<p style="color:var(--text-muted);">No upcoming sessions. Book one above!</p>';
-            else {
-                upcomingSorted.slice(0,5).forEach(b => renderSessionCard(b, 'upcoming'));
-            }
-
-            // Render history (last 5)
-            const pastSorted = [...past].sort((a,b) => b.timestamp - a.timestamp);
-            historyDiv.innerHTML = '';
-            if (pastSorted.length === 0) historyDiv.innerHTML = '<p style="color:var(--text-muted);">No past activity yet.</p>';
-            else {
-                pastSorted.slice(0,5).forEach(b => renderSessionCard(b, 'past'));
-            }
-        }
-
-        function renderSessionCard(booking, type) {
-            const dateStr = new Date(booking.timestamp).toLocaleString('en-US', { weekday:'short', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
-            const container = type === 'upcoming' ? upcomingDiv : historyDiv;
-            const card = document.createElement('div');
-            card.className = 'session-card';
-            card.innerHTML = `
-                <div class="session-header">
-                    <div class="session-icon"><i class="fas ${booking.icon || 'fa-dumbbell'}"></i></div>
-                    <div class="session-title">${booking.sessionType || 'WorkFit'}</div>
-                </div>
-                <div class="session-detail"><i class="fas fa-calendar"></i> ${dateStr}</div>
-                <div class="session-detail"><i class="fas fa-map-pin"></i> ${booking.location || 'Main gym'}</div>
-                <span class="status-badge ${type === 'past' ? 'history-badge' : ''}">${type === 'upcoming' ? 'confirmed' : 'completed'}</span>
-            `;
-            container.appendChild(card);
-        }
-
-        // BOOKING handler
-        bookBtn.addEventListener('click', async () => {
-            if (!currentUser) {
-                showToast('Please login first', 'info');
-                openAuthModal();
-                return;
-            }
-            const type = sessionType.value;
-            const date = bookingDate.value;
-            const time = bookingTime.value;
-            if (!date) { showToast('Select a date', 'warn'); return; }
-            // combine date + time into timestamp
-            const dateTimeStr = `${date}T${time}:00`;
-            const timestamp = new Date(dateTimeStr).getTime();
-            if (timestamp < Date.now()) {
-                showToast('Cannot book in the past', 'warn');
-                return;
-            }
-
-            // extract location if any
-            let location = 'Uthiru/Lavington';
-            if (type.includes('Uthiru')) location = 'Uthiru';
-            else if (type.includes('Lavington')) location = 'Lavington';
-
-            try {
-                const newBookingRef = database.ref('workfit_bookings').push();
-                await newBookingRef.set({
-                    uid: currentUser.uid,
-                    sessionType: type,
-                    bookingDate: date,
-                    bookingTime: time,
-                    timestamp: timestamp,
-                    location: location,
-                    createdAt: Date.now(),
-                    status: 'upcoming'
-                });
-                showToast('Session booked successfully!', 'success');
-                // reload bookings
-                await loadBookings(currentUser.uid);
-            } catch (err) {
-                showToast('Error: ' + err.message, 'error');
-            }
-        });
-
-        // helper
-        function showToast(msg, type = 'info') {
-            const toast = document.getElementById('dashToast');
-            document.getElementById('toastMsg').innerText = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        // Auth UI (mirror)
-        function updateUIForUser(user) {
-            const desktopMenu = document.getElementById('userMenuDesktop');
-            const desktopLogin = document.getElementById('loginButtonDesktop');
-            const userNameSpan = document.getElementById('userDisplayNameDesktop');
-            const userAvatar = document.getElementById('userAvatarDesktop');
-            if (user) {
-                let dn = user.displayName || user.email?.split('@')[0] || 'Mugera';
-                dn = dn.charAt(0).toUpperCase() + dn.slice(1);
-                if (userNameSpan) userNameSpan.textContent = dn;
-                if (userAvatar) userAvatar.textContent = dn.charAt(0).toUpperCase();
-                if (desktopMenu) desktopMenu.style.display = 'flex';
-                if (desktopLogin) desktopLogin.style.display = 'none';
-            } else {
-                if (desktopMenu) desktopMenu.style.display = 'none';
-                if (desktopLogin) desktopLogin.style.display = 'flex';
-            }
-        }
-
-        window.handleLogout = async () => {
-            try { await auth.signOut(); window.location.reload(); } catch (err) { showToast(err.message); }
-        };
-
-        // modals (stub)
-        window.openAuthModal = function() {
-            document.getElementById('modalOverlay').style.display = 'block';
-            document.getElementById('authModal').style.display = 'block';
-        };
-        window.closeModal = function() {
-            document.getElementById('modalOverlay').style.display = 'none';
-            document.getElementById('authModal').style.display = 'none';
-        };
-        window.fakeLogin = function() {
-            const email = document.getElementById('dummyEmail').value || 'demo@workfit.com';
-            // sign in anonymously? For demo, just set currentUser-like
-            auth.signInAnonymously().catch(() => {
-                // fallback: fake user
-                currentUser = { uid: 'fake'+Date.now(), email: email };
-                updateUIForUser(currentUser);
-                closeModal();
-                loadBookings(currentUser.uid);
-                loadSubscription(currentUser.uid);
+            // filter by email or userId
+            const emailMatch = (val) => val.email === userEmail || val.userId === userId || val.uid === userId;
+            
+            // subscriptions
+            dbData.subscriptions = [];
+            subsSnap.forEach(child => {
+                const sub = child.val();
+                if (sub.email === userEmail || sub.userId === userId) {
+                    dbData.subscriptions.push({ id: child.key, ...sub });
+                }
             });
-        };
-        // hamburger
-        document.getElementById('hamburgerBtn')?.addEventListener('click', ()=>{
-            alert('Navigation panel would open (same as main site)');
-        });
 
-        // initial
-        if (!auth.currentUser) {
-            // show guest stats but login required message already via onAuthStateChanged
+            // package_signups
+            dbData.package_signups = [];
+            pkgSnap.forEach(child => {
+                const p = child.val();
+                if (p.email === userEmail || p.uid === userId) {
+                    dbData.package_signups.push({ id: child.key, ...p });
+                }
+            });
+
+            // orders (from /orders, also /users/[uid]/orders maybe)
+            dbData.orders = [];
+            ordersSnap.forEach(child => {
+                const o = child.val();
+                // order may have userEmail, userId, or be inside users
+                if (o.userEmail === userEmail || o.userId === userId || o.email === userEmail) {
+                    dbData.orders.push({ id: child.key, ...o });
+                }
+            });
+
+            // partnerships
+            dbData.partnerships = [];
+            partnersSnap.forEach(child => {
+                const p = child.val();
+                if (p.email === userEmail || p.userId === userId) {
+                    dbData.partnerships.push({ id: child.key, ...p });
+                }
+            });
+
+            // inquiries combined
+            dbData.inquiries = [];
+            workfitInqSnap.forEach(c => { let v = c.val(); if (v.email === userEmail || v.uid === userId) dbData.inquiries.push({ type: 'workfit', id: c.key, ...v }); });
+            brandinSnap.forEach(c => { let v = c.val(); if (v.email === userEmail || v.uid === userId) dbData.inquiries.push({ type: 'brandin', id: c.key, ...v }); });
+            courseInqSnap.forEach(c => { let v = c.val(); if (v.email === userEmail || v.uid === userId) dbData.inquiries.push({ type: 'course', id: c.key, ...v }); });
+
+            // waitlists
+            dbData.waitlists = [];
+            waitlistSnap.forEach(child => {
+                let w = child.val();
+                if (w.email === userEmail) dbData.waitlists.push({ id: child.key, ...w });
+            });
+
+            // community: impact_updates, feed_posts where userId matches
+            dbData.community = [];
+            impactSnap.forEach(c => { let v = c.val(); if (v.userId === userId || v.userId === currentUser?.uid) dbData.community.push({ type: 'impact', id: c.key, ...v }); });
+            postsSnap.forEach(c => { let v = c.val(); if (v.userId === userId) dbData.community.push({ type: 'post', id: c.key, ...v }); });
+
+            // submissions
+            dbData.submissions = [];
+            submissionsSnap.forEach(c => { let v = c.val(); if (v.userId === userId) dbData.submissions.push({ id: c.key, ...v }); });
+
+            renderAllSections();
+        } catch (err) {
+            console.error(err);
+            showToast('Error loading data', 'error');
         }
-    </script>
+    }
+
+    function renderAllSections() {
+        renderStats();
+        renderMemberships();
+        renderPackages();
+        renderOrders();
+        renderCommunity();
+        renderInquiriesWaitlist();
+        renderPartnershipsSubmissions();
+    }
+
+    function renderStats() {
+        const totalSubs = dbData.subscriptions.length;
+        const totalPackages = dbData.package_signups.length;
+        const totalOrders = dbData.orders.length;
+        const totalCommunity = dbData.community.length;
+        const container = document.getElementById('statsContainer');
+        container.innerHTML = `
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-crown"></i></div><div class="stat-content"><h3>${totalSubs}</h3><p>subscriptions</p></div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-dumbbell"></i></div><div class="stat-content"><h3>${totalPackages}</h3><p>fitness pkgs</p></div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-box"></i></div><div class="stat-content"><h3>${totalOrders}</h3><p>orders</p></div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-content"><h3>${totalCommunity}</h3><p>community acts</p></div></div>
+        `;
+    }
+
+    function renderMemberships() {
+        let html = '';
+        if (dbData.subscriptions.length === 0) html = '<div class="item-card"><i class="fas fa-info-circle"></i> No active subscriptions.</div>';
+        else {
+            dbData.subscriptions.forEach(sub => {
+                const status = sub.status || 'active';
+                const statusClass = status === 'active' ? 'status-active' : (status === 'pending' ? 'status-pending' : 'status-cancelled');
+                html += `<div class="item-card">
+                    <span class="card-badge ${statusClass}">${status}</span>
+                    <div class="card-title"><i class="fas fa-tag"></i> ${sub.tier || 'Membership'}</div>
+                    <div class="card-meta">
+                        <span><i class="fas fa-calendar"></i> started ${new Date(sub.startDate||sub.timestamp).toLocaleDateString()}</span>
+                        <span><i class="fas fa-coins"></i> ${sub.amount || '—'} ${sub.currency || ''}</span>
+                    </div>
+                    ${sub.currentPeriodEnd ? `<div><i class="fas fa-hourglass-half"></i> renews ${new Date(sub.currentPeriodEnd).toLocaleDateString()}</div>` : ''}
+                </div>`;
+            });
+        }
+        document.getElementById('membershipsGrid').innerHTML = html;
+    }
+
+    function renderPackages() {
+        let html = '';
+        if (dbData.package_signups.length === 0) html = '<div class="item-card">No WorkFit package signups yet.</div>';
+        else {
+            dbData.package_signups.forEach(pkg => {
+                html += `<div class="item-card">
+                    <span class="card-badge status-pending">${pkg.package || 'package'}</span>
+                    <div class="card-title"><i class="fas fa-user-check"></i> ${pkg.name}</div>
+                    <div class="card-meta"><span><i class="fas fa-envelope"></i> ${pkg.email}</span></div>
+                    <div><i class="fas fa-clock"></i> ${new Date(pkg.timestamp).toLocaleString()}</div>
+                    ${pkg.status ? `<span class="status-badge status-pending">${pkg.status}</span>` : ''}
+                </div>`;
+            });
+        }
+        document.getElementById('packagesGrid').innerHTML = html;
+    }
+
+    function renderOrders() {
+        let html = '';
+        if (dbData.orders.length === 0) html = '<div class="item-card">No orders found.</div>';
+        else {
+            dbData.orders.sort((a,b) => (b.timestamp||0) - (a.timestamp||0)).forEach(order => {
+                const items = order.items ? order.items.map(i => `${i.name || 'item'} x${i.quantity || 1}`).join(', ') : order.productName || 'order';
+                const status = order.status || 'pending';
+                const statusClass = status === 'delivered' ? 'status-active' : (status === 'cancelled' ? 'status-cancelled' : 'status-pending');
+                html += `<div class="item-card">
+                    <span class="card-badge ${statusClass}">${status}</span>
+                    <div class="card-title"><i class="fas fa-box-open"></i> Order #${order.id?.substring(0,8)||''}</div>
+                    <div class="card-meta"><span><i class="fas fa-calendar"></i> ${new Date(order.orderDate||order.timestamp).toLocaleDateString()}</span>
+                    <span><i class="fas fa-money-bill"></i> KSh ${order.total || order.totalAmount || order.amount || ''}</span></div>
+                    <div class="order-items"><i class="fas fa-cart-plus"></i> ${items}</div>
+                </div>`;
+            });
+        }
+        document.getElementById('ordersGrid').innerHTML = html;
+    }
+
+    function renderCommunity() {
+        let html = '';
+        if (dbData.community.length === 0) html = '<div class="item-card">No community activity yet.</div>';
+        else {
+            dbData.community.slice(0,6).forEach(act => {
+                const type = act.type === 'post' ? '📝 post' : '🌟 impact';
+                html += `<div class="item-card">
+                    <div class="card-title"><i class="fas ${act.type==='post'?'fa-pen':'fa-star'}"></i> ${type}</div>
+                    <div>${act.content || act.message || 'update'}</div>
+                    <div class="card-meta"><span><i class="fas fa-heart" style="color:var(--gold);"></i> ${act.likes||0} likes</span></div>
+                    <div style="color:var(--text-muted); font-size:0.8rem;">${new Date(act.timestamp).toLocaleString()}</div>
+                </div>`;
+            });
+        }
+        document.getElementById('communityGrid').innerHTML = html;
+    }
+
+    function renderInquiriesWaitlist() {
+        let combined = [...dbData.inquiries, ...dbData.waitlists.map(w => ({...w, type:'waitlist'}))];
+        if (combined.length === 0) document.getElementById('inquiriesGrid').innerHTML = '<div class="item-card">No inquiries or waitlist entries.</div>';
+        else {
+            let html = '';
+            combined.slice(0,5).forEach(item => {
+                html += `<div class="item-card">
+                    <span class="card-badge pill-info">${item.type || 'inquiry'}</span>
+                    <div class="card-title"><i class="fas fa-question-circle"></i> ${item.membershipInterest || item.plan || item.course || 'inquiry'}</div>
+                    <div>${item.message || item.notes || ''}</div>
+                    <div class="card-meta">${new Date(item.timestamp||item.submittedAt||Date.now()).toLocaleString()}</div>
+                </div>`;
+            });
+            document.getElementById('inquiriesGrid').innerHTML = html;
+        }
+    }
+
+    function renderPartnershipsSubmissions() {
+        let items = [...dbData.partnerships.map(p => ({...p, cat:'partnership'})), ...dbData.submissions.map(s => ({...s, cat:'submission'}))];
+        if (items.length === 0) document.getElementById('partnershipGrid').innerHTML = '<div class="item-card">No partnerships or challenge submissions.</div>';
+        else {
+            let html = '';
+            items.slice(0,5).forEach(i => {
+                html += `<div class="item-card">
+                    <span class="card-badge">${i.cat}</span>
+                    <div class="card-title"><i class="fas fa-hand-holding-heart"></i> ${i.reason || i.stepTitle || 'partnership'}</div>
+                    <div>${i.amount ? 'KSh '+i.amount : ''} ${i.paymentMethod || ''}</div>
+                    <div class="card-meta">${new Date(i.timestamp||i.submittedAt||Date.now()).toLocaleString()}</div>
+                </div>`;
+            });
+            document.getElementById('partnershipGrid').innerHTML = html;
+        }
+    }
+
+    function updateProfileUI(user) {
+        document.getElementById('displayName').innerText = user.displayName || user.email?.split('@')[0] || 'Member';
+        document.getElementById('userEmail').innerText = user.email || '';
+        document.getElementById('avatar').innerText = (user.displayName || user.email || 'M').charAt(0).toUpperCase();
+    }
+
+    // theme toggle
+    window.toggleTheme = function() {
+        document.body.classList.toggle('light');
+        const icon = document.getElementById('themeIcon');
+        if (document.body.classList.contains('light')) {
+            icon.classList.replace('fa-moon', 'fa-sun');
+        } else {
+            icon.classList.replace('fa-sun', 'fa-moon');
+        }
+    };
+
+    function showToast(msg, type) {
+        const toast = document.getElementById('globalToast');
+        document.getElementById('toastMsg').innerText = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // initial demo if no auth
+    window.onload = () => {
+        // if no user, useDemoUser will be called after auth check fails, but we call it after a short delay if no user
+        setTimeout(() => {
+            if (!currentUser) useDemoUser();
+        }, 500);
+    };
+</script>
 </body>
 </html>
