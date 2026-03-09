@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ca8a04">
+    <meta name="background-color" content="#0a0a0a">
+    <meta name="color-scheme" content="dark light">
+    <title>DELIVERY ASSISTANT · I AM MUGERA</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --gold: #ca8a04;
+            --gold-dark: #a16207;
+            --gold-light: #fef3c7;
+            --danger: #dc2626;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --pink: #ec4899;
+            --teal: #14b8a6;
+            
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: rgba(20,20,20,0.8);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border-light: #2a2a2a;
+            --shadow-color: rgba(202,138,4,0.25);
+            --nav-bg: rgba(10,10,10,0.95);
+            --card-bg: #151515;
+            --glass-bg: rgba(20,20,20,0.3);
+            --glass-border: rgba(255,255,255,0.1);
+            --glass-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            --toast-bg: rgba(20,20,20,0.95);
+            --toast-border: var(--gold);
+            --header-height: 70px;
+            --input-bg: rgba(255,255,255,0.05);
+            --input-focus-bg: rgba(255,255,255,0.1);
+            
+            /* Order Status Colors */
+            --status-pending: #f59e0b;
+            --status-confirmed: #3b82f6;
+            --status-processing: #8b5cf6;
+            --status-out-for-delivery: #8b5cf6;
+            --status-delivered: #10b981;
+            --status-cancelled: #ef4444;
+        }
+
+        body.light-theme {
+            --bg-primary: #f8f5f0;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #2d2d2d;
+            --text-muted: #555555;
+            --border-light: #dddddd;
+            --shadow-color: rgba(202,138,4,0.4);
+            --nav-bg: rgba(255,255,255,0.95);
+            --card-bg: #ffffff;
+            --input-bg: rgba(0,0,0,0.03);
+            --input-focus-bg: rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-top: var(--header-height);
+            transition: background 0.3s, color 0.2s;
+            min-height: 100vh;
+        }
+
+        /* Header - same style as other pages */
+        .site-header {
+            position: fixed; top: 0; width: 100%; height: var(--header-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold); z-index: 2000; padding: 0 1rem;
+        }
+        .header-container {
+            max-width: 1400px; height: 100%; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .site-logo {
+            height: 48px; border-radius: 12px; border: 2px solid var(--gold);
+            padding: 2px; background: var(--bg-primary);
+            content: url('https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp');
+        }
+        .assistant-badge {
+            background: var(--teal);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 30px;
+            margin-left: 0.5rem;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+        .header-desktop-actions { display: flex; align-items: center; gap: 1.5rem; }
+        
+        .user-menu {
+            display: flex; align-items: center; gap: 0.5rem;
+            background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
+            border-radius: 40px; padding: 0.3rem 0.3rem 0.3rem 1rem;
+            cursor: pointer; position: relative;
+        }
+        .user-avatar {
+            background: var(--gold); color: #000; width: 35px; height: 35px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+        }
+        .logout-dropdown {
+            position: absolute; top: 120%; right: 0;
+            background: var(--card-bg); border: 1px solid var(--gold);
+            border-radius: 20px; padding: 0.5rem;
+            min-width: 120px; display: none; z-index: 1001;
+        }
+        .user-menu:hover .logout-dropdown { display: block; }
+        .logout-item {
+            padding: 0.7rem 1rem; color: var(--text-primary);
+            border-radius: 15px; transition: 0.2s;
+            display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+        }
+        .logout-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
+        
+        .mobile-header-group { display: none; align-items: center; gap: 0.8rem; }
+        .hamburger-icon {
+            border: 1px solid var(--gold); color: var(--gold);
+            width: 42px; height: 42px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; cursor: pointer; transition: all 0.2s;
+        }
+        .hamburger-icon:hover { background: var(--gold); color: black; }
+
+        /* Hamburger panel */
+        .hamburger-panel {
+            position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
+            background: var(--nav-bg); backdrop-filter: blur(20px);
+            border-left: 1px solid var(--gold); padding: 2rem 1.5rem;
+            z-index: 2500; transition: right 0.3s ease; display: flex; flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        .hamburger-panel.open { right: 0; }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;
+        }
+        .panel-header h3 { font-family: 'Cinzel', serif; color: var(--gold); }
+        .close-panel {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1.8rem; cursor: pointer; line-height: 1;
+        }
+        .panel-user-area {
+            background: rgba(202,138,4,0.05);
+            border-radius: 30px;
+            padding: 1rem;
+            border: 1px solid var(--border-light);
+            margin: 1.5rem 0;
+        }
+        .panel-user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .panel-avatar {
+            width: 48px; height: 48px;
+            background: var(--gold); color: black;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.2rem;
+        }
+        .panel-user-name {
+            font-weight: 600;
+            color: var(--gold);
+        }
+        .panel-logout {
+            width: 100%;
+            padding: 0.7rem;
+            background: transparent;
+            border: 1px solid var(--gold);
+            border-radius: 40px;
+            color: var(--gold);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .panel-logout:hover {
+            background: var(--gold);
+            color: black;
+        }
+        .panel-quick-links {
+            display: flex; flex-direction: column; gap: 0.5rem;
+        }
+        .panel-link {
+            padding: 0.9rem 1rem; background: rgba(255,255,255,0.03);
+            border-radius: 30px; color: var(--text-primary); text-decoration: none;
+            display: flex; align-items: center; gap: 1rem; transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .panel-link:hover {
+            border-color: var(--gold); background: rgba(202,138,4,0.1); color: var(--gold);
+        }
+        .panel-link i { width: 24px; color: var(--gold); }
+        .panel-theme-toggle {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 40px;
+            margin-top: auto; border: 1px solid var(--border-light);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            margin-bottom: 2.5rem;
+        }
+        .dashboard-header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+        .dashboard-header p {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dashboard-header p i {
+            color: var(--gold);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(202, 138, 4, 0.2);
+            border-radius: 30px;
+            padding: 1.8rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 20px 40px rgba(202, 138, 4, 0.15);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .stat-title {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(202, 138, 4, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--gold);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-footer {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Assistant Profile Card */
+        .profile-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: rgba(202, 138, 4, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--gold);
+            border: 3px solid var(--gold);
+        }
+
+        .profile-info h2 {
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-details {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .detail-item i {
+            color: var(--gold);
+            width: 20px;
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(202, 138, 4, 0.3);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .section-title i {
+            font-size: 1.8rem;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .action-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(202, 138, 4, 0.1);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            color: var(--gold);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .action-btn:hover {
+            background: var(--gold);
+            color: black;
+        }
+
+        .action-btn.success {
+            border-color: var(--success);
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .action-btn.success:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        .action-btn.warning {
+            border-color: var(--warning);
+            color: var(--warning);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .action-btn.warning:hover {
+            background: var(--warning);
+            color: white;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            border: 1px solid rgba(202, 138, 4, 0.2);
+        }
+
+        .filter-select {
+            padding: 0.6rem 1.2rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            min-width: 150px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .search-input {
+            padding: 0.6rem 1.2rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            color: var(--text-primary);
+            min-width: 250px;
+            flex: 1;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        /* Tables */
+        .table-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(202, 138, 4, 0.2);
+            border-radius: 30px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 1.2rem 1.5rem;
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(202, 138, 4, 0.1);
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(202, 138, 4, 0.05);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            text-transform: capitalize;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-confirmed {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--info);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .status-processing, .status-out-for-delivery {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .status-delivered {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-cancelled {
+            background: rgba(220, 38, 38, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }
+
+        /* Table actions */
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .table-btn {
+            padding: 0.4rem 0.8rem;
+            border: 1px solid transparent;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .table-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .table-btn.accept:hover {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .table-btn.reject:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .table-btn.navigate:hover {
+            border-color: var(--info);
+            color: var(--info);
+        }
+
+        .table-btn.complete:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9499;
+            display: none;
+        }
+        .modal-overlay.active { display: block; }
+        .modal {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 30px;
+            border: 2px solid var(--gold);
+            z-index: 9500;
+            max-width: 500px;
+            width: 90%;
+            display: none;
+        }
+        .modal.active { display: block; animation: modalFadeIn 0.3s; }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translate(-50%,-60%); }
+            to { opacity: 1; transform: translate(-50%,-50%); }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .modal-header h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+        }
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+        .modal-field {
+            margin-bottom: 1rem;
+        }
+        .modal-field label {
+            display: block;
+            color: var(--gold);
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+        .modal-field .field-value {
+            padding: 0.8rem;
+            background: var(--input-bg);
+            border-radius: 12px;
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* Status Update Modal */
+        .status-option {
+            padding: 1rem;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .status-option:hover {
+            border-color: var(--gold);
+            background: rgba(202,138,4,0.05);
+        }
+        .status-option.selected {
+            border-color: var(--gold);
+            background: rgba(202,138,4,0.1);
+        }
+        .status-option input[type="radio"] {
+            accent-color: var(--gold);
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Proof of Delivery Modal */
+        .proof-upload-area {
+            border: 2px dashed var(--gold);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            cursor: pointer;
+        }
+        .proof-upload-area:hover {
+            background: rgba(202,138,4,0.05);
+        }
+        .proof-upload-area i {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        .proof-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 1rem;
+            border-radius: 10px;
+            display: none;
+        }
+
+        /* Loading and Toast */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+        }
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(202,138,4,0.2);
+            border-radius: 50%;
+            border-top-color: var(--gold);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .toast-container {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 10001;
+        }
+        .toast {
+            background: rgba(20,20,20,0.95);
+            backdrop-filter: blur(10px);
+            border-left: 4px solid var(--gold);
+            border-radius: 20px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+            animation: slideInRight 0.3s ease;
+            border: 1px solid rgba(202,138,4,0.3);
+        }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast.info { border-left-color: var(--info); }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .header-desktop-actions { display: none; }
+            .mobile-header-group { display: flex; }
+            .main-content { padding: 1rem; }
+            .filters { flex-direction: column; }
+            .search-input { min-width: auto; }
+            .table-container { overflow-x: auto; }
+            table { min-width: 800px; }
+            .profile-card { flex-direction: column; text-align: center; }
+            .profile-details { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Modal for viewing order details -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+    <div class="modal" id="detailsModal">
+        <div class="modal-header">
+            <h3 id="modalTitle">Order Details</h3>
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Dynamic content -->
+        </div>
+        <div class="modal-actions">
+            <button class="action-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Modal for updating status -->
+    <div class="modal-overlay" id="statusModalOverlay" onclick="closeStatusModal()"></div>
+    <div class="modal" id="statusModal">
+        <div class="modal-header">
+            <h3>Update Delivery Status</h3>
+            <button class="modal-close" onclick="closeStatusModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="statusModalBody">
+            <!-- Dynamic content -->
+        </div>
+        <div class="modal-actions">
+            <button class="action-btn" onclick="closeStatusModal()">Cancel</button>
+            <button class="action-btn success" onclick="confirmStatusUpdate()">Update Status</button>
+        </div>
+    </div>
+
+    <!-- Modal for proof of delivery -->
+    <div class="modal-overlay" id="proofModalOverlay" onclick="closeProofModal()"></div>
+    <div class="modal" id="proofModal">
+        <div class="modal-header">
+            <h3>Proof of Delivery</h3>
+            <button class="modal-close" onclick="closeProofModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="proofModalBody">
+            <p style="margin-bottom: 1rem;">Upload a photo as proof of delivery</p>
+            <div class="proof-upload-area" id="proofUploadArea" onclick="triggerFileUpload()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Click to upload photo</p>
+                <p style="font-size: 0.8rem; margin-top: 0.5rem;">or drag and drop</p>
+                <input type="file" id="proofFile" accept="image/*" style="display: none;" onchange="previewProofImage(event)">
+            </div>
+            <img id="proofPreview" class="proof-preview" src="" alt="Preview">
+            <div style="margin-top: 1rem;">
+                <label class="form-label">Customer Name</label>
+                <input type="text" class="form-control" id="proofCustomerName" placeholder="Enter customer name">
+            </div>
+            <div style="margin-top: 1rem;">
+                <label class="form-label">Additional Notes</label>
+                <textarea class="form-control" id="proofNotes" rows="2" placeholder="Any notes about delivery"></textarea>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="action-btn" onclick="closeProofModal()">Cancel</button>
+            <button class="action-btn success" onclick="submitProofOfDelivery()">Complete Delivery</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-container">
+            <div style="display: flex; align-items: center;">
+                <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" alt="I AM MUGERA" class="site-logo">
+                <span class="assistant-badge" id="headerAssistantBadge" style="display: none;">ASSISTANT</span>
+            </div>
+            <div class="header-desktop-actions">
+                <div id="userMenuDesktop" class="user-menu" style="display:none;">
+                    <span class="user-name" id="userDisplayNameDesktop">Assistant</span>
+                    <div class="user-avatar" id="userAvatarDesktop">A</div>
+                    <div class="logout-dropdown">
+                        <div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                    </div>
+                </div>
+                <div id="loginButtonDesktop" onclick="openAuthModal()" style="display:flex; align-items:center; gap:0.5rem; background:rgba(202,138,4,0.1); border:1px solid var(--gold); border-radius:40px; padding:0.3rem 1.2rem; cursor:pointer;">
+                    <i class="fas fa-user-circle"></i><span>Login</span>
+                </div>
+            </div>
+            <div class="mobile-header-group">
+                <div class="hamburger-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hamburger panel -->
+    <div class="hamburger-panel" id="hamburgerPanel">
+        <div class="panel-header">
+            <h3>Assistant Menu</h3>
+            <button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="panel-user-area" id="panelUserArea">
+            <div id="panelLoggedOut" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                <div style="text-align: center; color: var(--text-muted);"><i class="fas fa-user-circle" style="font-size: 3rem;"></i></div>
+                <button class="panel-logout" onclick="openAuthModal(); toggleHamburger();"><i class="fas fa-sign-in-alt"></i> Login</button>
+            </div>
+            <div id="panelLoggedIn" style="display: none; flex-direction: column; gap: 0.8rem;">
+                <div class="panel-user-info">
+                    <div class="panel-avatar" id="panelAvatar">A</div>
+                    <span class="panel-user-name" id="panelUserName">Assistant</span>
+                </div>
+                <button class="panel-logout" onclick="handleLogout(); toggleHamburger();"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </div>
+        <div class="panel-quick-links">
+            <a href="#" class="panel-link" onclick="showSection('active'); toggleHamburger();"><i class="fas fa-truck"></i> Active Deliveries</a>
+            <a href="#" class="panel-link" onclick="showSection('completed'); toggleHamburger();"><i class="fas fa-check-circle"></i> Completed</a>
+            <a href="#" class="panel-link" onclick="showSection('all'); toggleHamburger();"><i class="fas fa-list"></i> All Deliveries</a>
+            <a href="#" class="panel-link" onclick="showProfile(); toggleHamburger();"><i class="fas fa-user-cog"></i> My Profile</a>
+        </div>
+        <div class="panel-theme-toggle">
+            <span><i class="fas fa-palette"></i> Dark / Light</span>
+            <div onclick="toggleTheme()" style="width:45px; height:45px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                <i class="fas fa-moon" id="panelThemeIcon"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="authModalOverlay" onclick="closeAuthModal()"></div>
+    <div class="auth-modal" id="authModal" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: var(--card-bg); padding: 2rem; border-radius: 30px; border: 2px solid var(--gold); z-index: 9500; max-width: 450px; width: 90%; display: none;">
+        <button class="modal-close" onclick="closeAuthModal()" style="position: absolute; top: 1rem; right: 1rem; background: transparent; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+        <div class="modal-header" style="text-align: center; margin-bottom: 2rem;">
+            <i class="fas fa-truck" style="font-size: 3rem; color: var(--gold); margin-bottom: 1rem;"></i>
+            <h3 style="font-family: 'Cinzel', serif; color: var(--gold);">Assistant Login</h3>
+            <p style="color: var(--text-muted);">Enter your credentials</p>
+        </div>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Email</label>
+                <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Password</label>
+                <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+            </div>
+            <div class="modal-error" id="loginError" style="color: var(--danger); text-align: center; margin-bottom: 1rem; display: none;"></div>
+            <button type="submit" class="btn" style="width: 100%; padding: 1rem; background: var(--gold); color: black; border: none; border-radius: 30px; font-weight: 600; cursor: pointer;">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+        <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.85rem;">
+            <i class="fas fa-shield-alt"></i> Only verified delivery assistants can access
+        </p>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1>Delivery Assistant Portal</h1>
+            <p><i class="fas fa-calendar-alt"></i> <span id="currentDate"></span> | <span id="dataLastUpdated">Loading...</span></p>
+        </div>
+
+        <!-- Assistant Profile Card (hidden initially) -->
+        <div class="profile-card" id="profileCard" style="display: none;">
+            <div class="profile-avatar" id="profileAvatar">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div class="profile-info">
+                <h2 id="profileName">Loading...</h2>
+                <p id="profileEmail"></p>
+                <div class="profile-details">
+                    <span class="detail-item"><i class="fas fa-phone"></i> <span id="profilePhone">-</span></span>
+                    <span class="detail-item"><i class="fas fa-motorcycle"></i> <span id="profileVehicle">-</span></span>
+                    <span class="detail-item"><i class="fas fa-map-marker-alt"></i> <span id="profileZone">-</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid" id="statsGrid" style="display: none;">
+            <!-- Active Deliveries -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Active Deliveries</span>
+                    <div class="stat-icon"><i class="fas fa-truck"></i></div>
+                </div>
+                <div class="stat-value" id="activeDeliveries">0</div>
+                <div class="stat-footer">
+                    Currently assigned to you
+                </div>
+            </div>
+
+            <!-- Completed Today -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Completed Today</span>
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                </div>
+                <div class="stat-value" id="completedToday">0</div>
+                <div class="stat-footer">
+                    Deliveries finished today
+                </div>
+            </div>
+
+            <!-- Total Earnings -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Total Delivered</span>
+                    <div class="stat-icon"><i class="fas fa-box"></i></div>
+                </div>
+                <div class="stat-value" id="totalDelivered">0</div>
+                <div class="stat-footer">
+                    All-time deliveries
+                </div>
+            </div>
+
+            <!-- Success Rate -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Success Rate</span>
+                    <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                </div>
+                <div class="stat-value" id="successRate">100%</div>
+                <div class="stat-footer">
+                    On-time delivery rate
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters" id="filtersSection" style="display: none;">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search by order ID, customer name, address...">
+            <select class="filter-select" id="statusFilter">
+                <option value="all">All Status</option>
+                <option value="out-for-delivery">Out for Delivery</option>
+                <option value="delivered">Delivered</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="processing">Processing</option>
+            </select>
+            <button class="action-btn" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+
+        <!-- Deliveries Section -->
+        <div class="section-header" id="deliveriesHeader" style="display: none;">
+            <div class="section-title">
+                <i class="fas fa-truck" id="deliveriesIcon"></i>
+                <span id="deliveriesTitle">My Deliveries</span>
+            </div>
+            <div class="section-actions">
+                <button class="action-btn" onclick="showSection('active')"><i class="fas fa-clock"></i> Active</button>
+                <button class="action-btn" onclick="showSection('completed')"><i class="fas fa-check-circle"></i> Completed</button>
+                <button class="action-btn" onclick="showSection('all')"><i class="fas fa-list"></i> All</button>
+            </div>
+        </div>
+
+        <!-- Deliveries Table -->
+        <div class="table-container" id="tableContainer" style="display: none;">
+            <table id="deliveriesTable">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Address</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="deliveriesTableBody">
+                    <tr><td colspan="8" style="text-align: center;">Loading your deliveries...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- No Access Message (shown when not logged in or not verified) -->
+        <div class="profile-card" id="noAccessMessage" style="text-align: center; padding: 3rem;">
+            <i class="fas fa-truck" style="font-size: 4rem; color: var(--gold); margin-bottom: 1rem;"></i>
+            <h2 style="color: var(--gold); margin-bottom: 1rem;">Delivery Assistant Portal</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+                Please login with your assistant credentials to access your deliveries and manage your routes.
+            </p>
+            <button class="action-btn" onclick="openAuthModal()" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                <i class="fas fa-sign-in-alt"></i> Login as Assistant
+            </button>
+        </div>
+    </main>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        // Global state
+        let currentUser = null;
+        let currentAssistant = null;
+        let assignedOrders = [];
+        let filteredOrders = [];
+        let currentOrderId = null;
+        let selectedStatus = null;
+        let proofImageData = null;
+
+        // ========== AUTH STATE LISTENER ==========
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const isAssistant = await checkIfAssistant(user);
+                if (isAssistant) {
+                    currentUser = user;
+                    showAssistantUI();
+                    loadAssistantData();
+                    startAutoRefresh();
+                } else {
+                    // User is logged in but not a verified assistant
+                    showNotVerifiedUI();
+                    await auth.signOut();
+                }
+            } else {
+                // User is logged out
+                showLoginUI();
+            }
+        });
+
+        // Check if user is a verified delivery assistant
+        async function checkIfAssistant(user) {
+            try {
+                // Check in delivery_assistants node
+                const assistantSnapshot = await database.ref(`delivery_assistants/${user.uid}`).once('value');
+                
+                if (assistantSnapshot.exists()) {
+                    const assistantData = assistantSnapshot.val();
+                    // Check if assistant is active/verified
+                    if (assistantData.status === 'active' || assistantData.verified === true) {
+                        currentAssistant = {
+                            id: user.uid,
+                            ...assistantData
+                        };
+                        return true;
+                    }
+                }
+                
+                // Also check by email as fallback
+                const allAssistantsSnapshot = await database.ref('delivery_assistants').once('value');
+                const allAssistants = allAssistantsSnapshot.val() || {};
+                
+                for (let [uid, assistant] of Object.entries(allAssistants)) {
+                    if (assistant.email && assistant.email.toLowerCase() === user.email.toLowerCase()) {
+                        if (assistant.status === 'active' || assistant.verified === true) {
+                            currentAssistant = {
+                                id: uid,
+                                ...assistant
+                            };
+                            return true;
+                        }
+                    }
+                }
+                
+                return false;
+            } catch (error) {
+                console.error('Error checking assistant status:', error);
+                return false;
+            }
+        }
+
+        // ========== UI STATE MANAGEMENT ==========
+        function showLoginUI() {
+            document.getElementById('profileCard').style.display = 'none';
+            document.getElementById('statsGrid').style.display = 'none';
+            document.getElementById('filtersSection').style.display = 'none';
+            document.getElementById('deliveriesHeader').style.display = 'none';
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('noAccessMessage').style.display = 'block';
+            document.getElementById('headerAssistantBadge').style.display = 'none';
+            
+            // Update user menu
+            document.getElementById('userMenuDesktop').style.display = 'none';
+            document.getElementById('loginButtonDesktop').style.display = 'flex';
+            document.getElementById('panelLoggedOut').style.display = 'flex';
+            document.getElementById('panelLoggedIn').style.display = 'none';
+        }
+
+        function showNotVerifiedUI() {
+            document.getElementById('profileCard').style.display = 'none';
+            document.getElementById('statsGrid').style.display = 'none';
+            document.getElementById('filtersSection').style.display = 'none';
+            document.getElementById('deliveriesHeader').style.display = 'none';
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('noAccessMessage').style.display = 'block';
+            document.getElementById('headerAssistantBadge').style.display = 'none';
+            
+            // Update message
+            document.getElementById('noAccessMessage').innerHTML = `
+                <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: var(--danger); margin-bottom: 1rem;"></i>
+                <h2 style="color: var(--danger); margin-bottom: 1rem;">Access Denied</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">
+                    Your account is not verified as a delivery assistant.<br>
+                    Please contact the administrator for verification.
+                </p>
+                <button class="action-btn" onclick="handleLogout()" style="padding: 1rem 2rem;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            `;
+            
+            document.getElementById('userMenuDesktop').style.display = 'none';
+            document.getElementById('loginButtonDesktop').style.display = 'none';
+        }
+
+        function showAssistantUI() {
+            document.getElementById('profileCard').style.display = 'flex';
+            document.getElementById('statsGrid').style.display = 'grid';
+            document.getElementById('filtersSection').style.display = 'flex';
+            document.getElementById('deliveriesHeader').style.display = 'flex';
+            document.getElementById('tableContainer').style.display = 'block';
+            document.getElementById('noAccessMessage').style.display = 'none';
+            document.getElementById('headerAssistantBadge').style.display = 'inline-block';
+            
+            // Update user menu
+            document.getElementById('userMenuDesktop').style.display = 'flex';
+            document.getElementById('loginButtonDesktop').style.display = 'none';
+            document.getElementById('panelLoggedOut').style.display = 'none';
+            document.getElementById('panelLoggedIn').style.display = 'flex';
+            
+            // Update user info
+            updateUserUI(currentUser);
+            updateAssistantProfile();
+        }
+
+        function updateUserUI(user) {
+            const name = currentAssistant?.name || user.displayName || user.email?.split('@')[0] || 'Assistant';
+            const initial = name.charAt(0).toUpperCase();
+            
+            document.getElementById('userDisplayNameDesktop').textContent = name;
+            document.getElementById('userAvatarDesktop').textContent = initial;
+            document.getElementById('panelAvatar').textContent = initial;
+            document.getElementById('panelUserName').textContent = name;
+        }
+
+        function updateAssistantProfile() {
+            if (currentAssistant) {
+                document.getElementById('profileName').textContent = currentAssistant.name || 'Delivery Assistant';
+                document.getElementById('profileEmail').textContent = currentUser?.email || '';
+                document.getElementById('profilePhone').textContent = currentAssistant.phone || '-';
+                document.getElementById('profileVehicle').textContent = currentAssistant.vehicle || 'Motorcycle';
+                document.getElementById('profileZone').textContent = currentAssistant.zone || 'Nairobi';
+            }
+        }
+
+        // ========== LOAD ASSISTANT DATA ==========
+        async function loadAssistantData() {
+            showLoading(true);
+            
+            try {
+                await loadAssignedOrders();
+                applyFilters();
+                updateStats();
+                updateLastUpdated();
+                showToast('Deliveries loaded', 'success');
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showToast('Error loading data', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Load orders assigned to this assistant
+        async function loadAssignedOrders() {
+            if (!currentAssistant) return;
+
+            try {
+                const snapshot = await database.ref('orders').once('value');
+                const data = snapshot.val() || {};
+                
+                assignedOrders = Object.entries(data)
+                    .map(([id, order]) => ({
+                        id,
+                        orderId: id,
+                        orderDate: order.orderDate || order.timestamp || null,
+                        userName: order.userName || order.fullName || 'Unknown',
+                        userEmail: order.userEmail || order.email || '',
+                        userPhone: order.userPhone || order.phone || '',
+                        deliveryAddress: order.deliveryAddress || order.address || '',
+                        deliveryDate: order.deliveryDate || null,
+                        paymentMethod: order.paymentMethod || '',
+                        status: order.status || 'pending',
+                        total: order.total || order.totalAmount || 0,
+                        items: order.items || [],
+                        assignedTo: order.assignedTo,
+                        assignedName: order.assignedName,
+                        statusHistory: order.statusHistory || []
+                    }))
+                    .filter(order => order.assignedTo === currentAssistant.id);
+
+                // Sort by date (newest first)
+                assignedOrders.sort((a, b) => {
+                    const dateA = a.orderDate ? new Date(a.orderDate).getTime() : 0;
+                    const dateB = b.orderDate ? new Date(b.orderDate).getTime() : 0;
+                    return dateB - dateA;
+                });
+
+                filteredOrders = [...assignedOrders];
+                
+            } catch (error) {
+                console.error('Error loading assigned orders:', error);
+            }
+        }
+
+        // ========== UPDATE STATS ==========
+        function updateStats() {
+            const today = new Date().toDateString();
+            
+            // Active deliveries (out for delivery)
+            const active = assignedOrders.filter(o => 
+                o.status === 'out-for-delivery' || o.status === 'processing'
+            ).length;
+            
+            document.getElementById('activeDeliveries').textContent = active;
+            
+            // Completed today
+            const completedToday = assignedOrders.filter(o => 
+                o.status === 'delivered' && 
+                o.deliveryDate && 
+                new Date(o.deliveryDate).toDateString() === today
+            ).length;
+            
+            document.getElementById('completedToday').textContent = completedToday;
+            
+            // Total delivered
+            const totalDelivered = assignedOrders.filter(o => o.status === 'delivered').length;
+            document.getElementById('totalDelivered').textContent = totalDelivered;
+            
+            // Success rate (delivered vs assigned)
+            const totalAssigned = assignedOrders.length;
+            const rate = totalAssigned > 0 ? Math.round((totalDelivered / totalAssigned) * 100) : 100;
+            document.getElementById('successRate').textContent = rate + '%';
+        }
+
+        // ========== APPLY FILTERS ==========
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            filteredOrders = assignedOrders.filter(order => {
+                // Search filter
+                const matchesSearch = 
+                    order.id?.toLowerCase().includes(searchTerm) ||
+                    order.userName?.toLowerCase().includes(searchTerm) ||
+                    order.deliveryAddress?.toLowerCase().includes(searchTerm) ||
+                    order.userPhone?.toLowerCase().includes(searchTerm);
+                
+                // Status filter
+                const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+                
+                return matchesSearch && matchesStatus;
+            });
+
+            renderDeliveries();
+        }
+
+        // ========== RENDER DELIVERIES ==========
+        function renderDeliveries() {
+            const tbody = document.getElementById('deliveriesTableBody');
+            
+            if (filteredOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No deliveries found</td></tr>';
+                return;
+            }
+
+            let html = '';
+            filteredOrders.forEach(order => {
+                const date = order.orderDate ? new Date(order.orderDate).toLocaleDateString() : 'N/A';
+                const statusClass = `status-${order.status}`;
+                const itemCount = order.items ? order.items.reduce((sum, item) => sum + (item.quantity || 1), 0) : 1;
+                
+                html += `
+                    <tr>
+                        <td>#${order.id.slice(-8)}</td>
+                        <td>${date}</td>
+                        <td>
+                            <strong>${order.userName}</strong><br>
+                            <small>${order.userPhone || ''}</small>
+                        </td>
+                        <td>${order.deliveryAddress || 'N/A'}</td>
+                        <td>${itemCount} items</td>
+                        <td>KSh ${(order.total || 0).toLocaleString()}</td>
+                        <td><span class="status-badge ${statusClass}">${order.status}</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="table-btn view" onclick="viewOrderDetails('${order.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${order.status === 'out-for-delivery' ? `
+                                    <button class="table-btn navigate" onclick="navigateToCustomer('${order.deliveryAddress}')" title="Navigate">
+                                        <i class="fas fa-map-marked-alt"></i>
+                                    </button>
+                                    <button class="table-btn complete" onclick="openProofModal('${order.id}')" title="Mark Delivered">
+                                        <i class="fas fa-check-circle"></i>
+                                    </button>
+                                ` : ''}
+                                ${order.status === 'pending' || order.status === 'confirmed' ? `
+                                    <button class="table-btn accept" onclick="acceptDelivery('${order.id}')" title="Accept Delivery">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="table-btn reject" onclick="rejectDelivery('${order.id}')" title="Reject">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                ` : ''}
+                                ${order.status === 'delivered' ? `
+                                    <button class="table-btn view" onclick="viewProofOfDelivery('${order.id}')" title="View Proof">
+                                        <i class="fas fa-camera"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // ========== SECTION NAVIGATION ==========
+        window.showSection = function(section) {
+            let filtered = [];
+            
+            if (section === 'active') {
+                filtered = assignedOrders.filter(o => 
+                    o.status === 'out-for-delivery' || o.status === 'processing' || o.status === 'pending' || o.status === 'confirmed'
+                );
+                document.getElementById('deliveriesTitle').textContent = 'Active Deliveries';
+                document.getElementById('deliveriesIcon').className = 'fas fa-truck';
+            } else if (section === 'completed') {
+                filtered = assignedOrders.filter(o => o.status === 'delivered');
+                document.getElementById('deliveriesTitle').textContent = 'Completed Deliveries';
+                document.getElementById('deliveriesIcon').className = 'fas fa-check-circle';
+            } else {
+                filtered = [...assignedOrders];
+                document.getElementById('deliveriesTitle').textContent = 'All Deliveries';
+                document.getElementById('deliveriesIcon').className = 'fas fa-list';
+            }
+            
+            filteredOrders = filtered;
+            renderDeliveries();
+        };
+
+        // ========== VIEW ORDER DETAILS ==========
+        window.viewOrderDetails = function(orderId) {
+            const order = assignedOrders.find(o => o.id === orderId);
+            if (!order) return;
+
+            const date = order.orderDate ? new Date(order.orderDate).toLocaleString() : 'N/A';
+            const items = order.items || [];
+            let itemsHtml = '';
+            
+            items.forEach(item => {
+                itemsHtml += `
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-light);">
+                        <div>
+                            <strong>${item.name || 'Product'}</strong>
+                            <div style="font-size: 0.85rem;">Qty: ${item.quantity || 1}</div>
+                        </div>
+                        <div>KSh ${((item.price || 0) * (item.quantity || 1)).toLocaleString()}</div>
+                    </div>
+                `;
+            });
+
+            const content = `
+                <div class="modal-field">
+                    <label>Order ID</label>
+                    <div class="field-value">#${order.id}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Order Date</label>
+                    <div class="field-value">${date}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Customer</label>
+                    <div class="field-value">
+                        <strong>${order.userName}</strong><br>
+                        📞 ${order.userPhone || 'N/A'}<br>
+                        📍 ${order.deliveryAddress || 'N/A'}
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label>Payment</label>
+                    <div class="field-value">
+                        Method: ${order.paymentMethod || 'N/A'}<br>
+                        Status: <span class="status-badge status-${order.status}">${order.status}</span>
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label>Delivery</label>
+                    <div class="field-value">
+                        Date: ${order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : 'N/A'}<br>
+                        Status: ${order.status}
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label>Items (${items.length})</label>
+                    <div class="field-value">
+                        ${itemsHtml}
+                        <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 2px solid var(--gold);">
+                            <span><strong>Total:</strong></span>
+                            <span>KSh ${(order.total || 0).toLocaleString()}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modalTitle').textContent = 'Order Details';
+            document.getElementById('modalBody').innerHTML = content;
+            document.getElementById('detailsModal').classList.add('active');
+            document.getElementById('modalOverlay').classList.add('active');
+        };
+
+        // ========== ACCEPT DELIVERY ==========
+        window.acceptDelivery = async function(orderId) {
+            if (!confirm('Accept this delivery?')) return;
+            
+            showLoading(true);
+            
+            try {
+                await database.ref(`orders/${orderId}`).update({
+                    status: 'out-for-delivery',
+                    acceptedAt: new Date().toISOString(),
+                    statusHistory: [
+                        ...(assignedOrders.find(o => o.id === orderId)?.statusHistory || []),
+                        {
+                            status: 'out-for-delivery',
+                            timestamp: new Date().toISOString(),
+                            note: 'Accepted by delivery assistant'
+                        }
+                    ]
+                });
+
+                showToast('Delivery accepted', 'success');
+                await loadAssistantData();
+                showSection('active');
+                
+            } catch (error) {
+                console.error('Error accepting delivery:', error);
+                showToast('Failed to accept delivery', 'error');
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        // ========== REJECT DELIVERY ==========
+        window.rejectDelivery = async function(orderId) {
+            if (!confirm('Are you sure you want to reject this delivery?')) return;
+            
+            const reason = prompt('Please provide a reason for rejection:');
+            if (!reason) return;
+            
+            showLoading(true);
+            
+            try {
+                await database.ref(`orders/${orderId}`).update({
+                    status: 'pending',
+                    assignedTo: null,
+                    assignedName: null,
+                    statusHistory: [
+                        ...(assignedOrders.find(o => o.id === orderId)?.statusHistory || []),
+                        {
+                            status: 'pending',
+                            timestamp: new Date().toISOString(),
+                            note: `Rejected by assistant: ${reason}`
+                        }
+                    ]
+                });
+
+                showToast('Delivery rejected', 'warning');
+                await loadAssistantData();
+                
+            } catch (error) {
+                console.error('Error rejecting delivery:', error);
+                showToast('Failed to reject delivery', 'error');
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        // ========== NAVIGATE TO CUSTOMER ==========
+        window.navigateToCustomer = function(address) {
+            if (!address) {
+                showToast('No address provided', 'warning');
+                return;
+            }
+            
+            // Open Google Maps with the address
+            const encodedAddress = encodeURIComponent(address);
+            window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+        };
+
+        // ========== PROOF OF DELIVERY ==========
+        window.openProofModal = function(orderId) {
+            currentOrderId = orderId;
+            document.getElementById('proofModal').classList.add('active');
+            document.getElementById('proofModalOverlay').classList.add('active');
+        };
+
+        window.triggerFileUpload = function() {
+            document.getElementById('proofFile').click();
+        };
+
+        window.previewProofImage = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('proofPreview').src = e.target.result;
+                    document.getElementById('proofPreview').style.display = 'block';
+                    proofImageData = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        window.submitProofOfDelivery = async function() {
+            const customerName = document.getElementById('proofCustomerName').value.trim();
+            const notes = document.getElementById('proofNotes').value.trim();
+            
+            if (!customerName) {
+                showToast('Please enter customer name', 'warning');
+                return;
+            }
+            
+            if (!proofImageData) {
+                showToast('Please upload proof photo', 'warning');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                // Save proof to Firebase Storage (simplified - in production use Firebase Storage)
+                // For now, we'll just update the order status
+                await database.ref(`orders/${currentOrderId}`).update({
+                    status: 'delivered',
+                    deliveryDate: new Date().toISOString(),
+                    deliveryProof: {
+                        customerName: customerName,
+                        notes: notes,
+                        timestamp: new Date().toISOString(),
+                        // In production, you'd store the image URL from Firebase Storage
+                        hasPhoto: true
+                    },
+                    statusHistory: [
+                        ...(assignedOrders.find(o => o.id === currentOrderId)?.statusHistory || []),
+                        {
+                            status: 'delivered',
+                            timestamp: new Date().toISOString(),
+                            note: `Delivered to ${customerName}`
+                        }
+                    ]
+                });
+
+                showToast('Delivery completed!', 'success');
+                closeProofModal();
+                await loadAssistantData();
+                showSection('completed');
+                
+            } catch (error) {
+                console.error('Error completing delivery:', error);
+                showToast('Failed to complete delivery', 'error');
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        window.closeProofModal = function() {
+            document.getElementById('proofModal').classList.remove('active');
+            document.getElementById('proofModalOverlay').classList.remove('active');
+            document.getElementById('proofFile').value = '';
+            document.getElementById('proofPreview').style.display = 'none';
+            document.getElementById('proofCustomerName').value = '';
+            document.getElementById('proofNotes').value = '';
+            proofImageData = null;
+            currentOrderId = null;
+        };
+
+        window.viewProofOfDelivery = function(orderId) {
+            showToast('Proof of delivery feature coming soon', 'info');
+        };
+
+        // ========== AUTH FUNCTIONS ==========
+        window.openAuthModal = function() {
+            document.getElementById('authModal').style.display = 'block';
+            document.getElementById('authModalOverlay').classList.add('active');
+        };
+
+        window.closeAuthModal = function() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('authModalOverlay').classList.remove('active');
+            document.getElementById('loginError').style.display = 'none';
+        };
+
+        window.handleLogin = async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorEl = document.getElementById('loginError');
+            
+            if (!email || !password) {
+                errorEl.style.display = 'block';
+                errorEl.textContent = 'Please enter email and password';
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                errorEl.style.display = 'none';
+                await auth.signInWithEmailAndPassword(email, password);
+                closeAuthModal();
+                
+            } catch (error) {
+                errorEl.style.display = 'block';
+                errorEl.textContent = error.message;
+                showLoading(false);
+            }
+        };
+
+        window.handleLogout = async function() {
+            try {
+                showLoading(true);
+                await auth.signOut();
+                showToast('Logged out', 'success');
+            } catch (error) {
+                showToast('Logout failed', 'error');
+                showLoading(false);
+            }
+        };
+
+        // ========== UTILITY FUNCTIONS ==========
+        window.refreshData = function() {
+            if (currentAssistant) {
+                loadAssistantData();
+            }
+        };
+
+        window.showProfile = function() {
+            // Scroll to profile card
+            document.getElementById('profileCard').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.closeModal = function() {
+            document.getElementById('detailsModal').classList.remove('active');
+            document.getElementById('modalOverlay').classList.remove('active');
+        };
+
+        window.closeStatusModal = function() {
+            document.getElementById('statusModal').classList.remove('active');
+            document.getElementById('statusModalOverlay').classList.remove('active');
+        };
+
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').classList.toggle('active', show);
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+            toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function updateLastUpdated() {
+            document.getElementById('dataLastUpdated').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+        }
+
+        function updateCurrentDate() {
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+            });
+        }
+
+        function startAutoRefresh() {
+            updateCurrentDate();
+            setInterval(() => {
+                if (currentAssistant) {
+                    loadAssistantData();
+                }
+            }, 300000); // Refresh every 5 minutes
+        }
+
+        // ========== EVENT LISTENERS ==========
+        document.getElementById('searchInput')?.addEventListener('input', applyFilters);
+        document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
+
+        // ========== TOGGLE HAMBURGER ==========
+        window.toggleHamburger = function() {
+            document.getElementById('hamburgerPanel').classList.toggle('open');
+        };
+
+        document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
+
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('hamburgerPanel');
+            const btn = document.getElementById('hamburgerBtn');
+            if (panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
+                panel.classList.remove('open');
+            }
+        });
+
+        // ========== THEME TOGGLE ==========
+        window.toggleTheme = function() {
+            document.body.classList.toggle('light-theme');
+            const icon = document.getElementById('panelThemeIcon');
+            icon.classList.toggle('fa-moon', !document.body.classList.contains('light-theme'));
+            icon.classList.toggle('fa-sun', document.body.classList.contains('light-theme'));
+            localStorage.setItem('siteTheme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+        };
+
+        if (localStorage.getItem('siteTheme') === 'light') {
+            document.body.classList.add('light-theme');
+            document.getElementById('panelThemeIcon').classList.replace('fa-moon', 'fa-sun');
+        }
+    </script>
+</body>
+</html>
