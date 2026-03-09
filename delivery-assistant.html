@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">        
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#ca8a04">
     <meta name="background-color" content="#0a0a0a">
     <meta name="color-scheme" content="dark light">
@@ -49,13 +49,11 @@
             --input-bg: rgba(255,255,255,0.05);
             --input-focus-bg: rgba(255,255,255,0.1);
             
-            /* Order Status Colors */
+            /* Status Colors */
             --status-pending: #f59e0b;
-            --status-confirmed: #3b82f6;
-            --status-processing: #8b5cf6;
-            --status-out-for-delivery: #8b5cf6;
-            --status-delivered: #10b981;
-            --status-cancelled: #ef4444;
+            --status-approved: #10b981;
+            --status-rejected: #ef4444;
+            --status-pending-verification: #8b5cf6;
         }
 
         body.light-theme {
@@ -378,6 +376,105 @@
             width: 20px;
         }
 
+        /* Status Cards */
+        .status-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .status-title {
+            font-size: 1.5rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .status-message {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Request Form */
+        .request-form {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Verification Badges */
+        .verification-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .badge-pending {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+            border: 1px solid var(--purple);
+        }
+
+        .badge-approved {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .badge-rejected {
+            background: rgba(220, 38, 38, 0.15);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
         /* Section Headers */
         .section-header {
             display: flex;
@@ -433,17 +530,6 @@
 
         .action-btn.success:hover {
             background: var(--success);
-            color: white;
-        }
-
-        .action-btn.warning {
-            border-color: var(--warning);
-            color: var(--warning);
-            background: rgba(245, 158, 11, 0.1);
-        }
-
-        .action-btn.warning:hover {
-            background: var(--warning);
             color: white;
         }
 
@@ -544,13 +630,25 @@
             border: 1px solid rgba(245, 158, 11, 0.3);
         }
 
-        .status-confirmed {
-            background: rgba(59, 130, 246, 0.15);
-            color: var(--info);
-            border: 1px solid rgba(59, 130, 246, 0.3);
+        .status-approved, .status-active {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
-        .status-processing, .status-out-for-delivery {
+        .status-rejected {
+            background: rgba(220, 38, 38, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }
+
+        .status-pending-verification {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+            border: 1px solid var(--purple);
+        }
+
+        .status-out-for-delivery {
             background: rgba(139, 92, 246, 0.15);
             color: var(--purple);
             border: 1px solid rgba(139, 92, 246, 0.3);
@@ -560,12 +658,6 @@
             background: rgba(16, 185, 129, 0.15);
             color: var(--success);
             border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .status-cancelled {
-            background: rgba(220, 38, 38, 0.15);
-            color: var(--danger);
-            border: 1px solid rgba(220, 38, 38, 0.3);
         }
 
         /* Table actions */
@@ -683,32 +775,6 @@
             justify-content: flex-end;
         }
 
-        /* Status Update Modal */
-        .status-option {
-            padding: 1rem;
-            border: 1px solid var(--border-light);
-            border-radius: 12px;
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .status-option:hover {
-            border-color: var(--gold);
-            background: rgba(202,138,4,0.05);
-        }
-        .status-option.selected {
-            border-color: var(--gold);
-            background: rgba(202,138,4,0.1);
-        }
-        .status-option input[type="radio"] {
-            accent-color: var(--gold);
-            width: 18px;
-            height: 18px;
-        }
-
         /* Proof of Delivery Modal */
         .proof-upload-area {
             border: 2px dashed var(--gold);
@@ -802,6 +868,7 @@
             table { min-width: 800px; }
             .profile-card { flex-direction: column; text-align: center; }
             .profile-details { justify-content: center; }
+            .form-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -826,22 +893,6 @@
         </div>
         <div class="modal-actions">
             <button class="action-btn" onclick="closeModal()">Close</button>
-        </div>
-    </div>
-
-    <!-- Modal for updating status -->
-    <div class="modal-overlay" id="statusModalOverlay" onclick="closeStatusModal()"></div>
-    <div class="modal" id="statusModal">
-        <div class="modal-header">
-            <h3>Update Delivery Status</h3>
-            <button class="modal-close" onclick="closeStatusModal()"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="modal-body" id="statusModalBody">
-            <!-- Dynamic content -->
-        </div>
-        <div class="modal-actions">
-            <button class="action-btn" onclick="closeStatusModal()">Cancel</button>
-            <button class="action-btn success" onclick="confirmStatusUpdate()">Update Status</button>
         </div>
     </div>
 
@@ -940,10 +991,16 @@
         <button class="modal-close" onclick="closeAuthModal()" style="position: absolute; top: 1rem; right: 1rem; background: transparent; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
         <div class="modal-header" style="text-align: center; margin-bottom: 2rem;">
             <i class="fas fa-truck" style="font-size: 3rem; color: var(--gold); margin-bottom: 1rem;"></i>
-            <h3 style="font-family: 'Cinzel', serif; color: var(--gold);">Assistant Login</h3>
-            <p style="color: var(--text-muted);">Enter your credentials</p>
+            <h3 style="font-family: 'Cinzel', serif; color: var(--gold);">Delivery Assistant</h3>
+            <p style="color: var(--text-muted);">Login or request access</p>
         </div>
-        <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="auth-tabs" style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+            <button class="auth-tab" id="loginAuthTab" onclick="switchAuthTab('login')" style="flex: 1; padding: 1rem; background: transparent; border: 1px solid var(--gold); border-radius: 30px; color: var(--text-muted); cursor: pointer;">Login</button>
+            <button class="auth-tab active" id="requestAuthTab" onclick="switchAuthTab('request')" style="flex: 1; padding: 1rem; background: transparent; border: 1px solid var(--gold); border-radius: 30px; color: var(--text-muted); cursor: pointer;">Request Access</button>
+        </div>
+        
+        <!-- Login Form -->
+        <form id="loginForm" onsubmit="handleLogin(event)" style="display: none;">
             <div class="form-group" style="margin-bottom: 1.5rem;">
                 <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Email</label>
                 <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
@@ -957,9 +1014,56 @@
                 <i class="fas fa-sign-in-alt"></i> Login
             </button>
         </form>
-        <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.85rem;">
-            <i class="fas fa-shield-alt"></i> Only verified delivery assistants can access
-        </p>
+        
+        <!-- Request Access Form -->
+        <form id="requestForm" onsubmit="handleRequestAccess(event)">
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Full Name *</label>
+                <input type="text" class="form-control" id="requestName" placeholder="Enter your full name" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Email *</label>
+                <input type="email" class="form-control" id="requestEmail" placeholder="Enter your email" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Phone Number *</label>
+                <input type="tel" class="form-control" id="requestPhone" placeholder="e.g. 0712 345 678" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+            </div>
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Vehicle Type *</label>
+                    <select class="form-control" id="requestVehicle" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+                        <option value="">Select</option>
+                        <option value="Motorcycle">Motorcycle</option>
+                        <option value="Bicycle">Bicycle</option>
+                        <option value="Car">Car</option>
+                        <option value="Van">Van</option>
+                        <option value="Truck">Truck</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Delivery Zone *</label>
+                    <select class="form-control" id="requestZone" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+                        <option value="">Select</option>
+                        <option value="Nairobi Central">Nairobi Central</option>
+                        <option value="Westlands">Westlands</option>
+                        <option value="Kilimani">Kilimani</option>
+                        <option value="Lavington">Lavington</option>
+                        <option value="Karen">Karen</option>
+                        <option value="Eastlands">Eastlands</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Why do you want to be a delivery assistant?</label>
+                <textarea class="form-control" id="requestReason" rows="3" placeholder="Tell us why you'd like to join..." style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 20px; color: var(--text-primary);"></textarea>
+            </div>
+            <div class="modal-error" id="requestError" style="color: var(--danger); text-align: center; margin-bottom: 1rem; display: none;"></div>
+            <button type="submit" class="btn" style="width: 100%; padding: 1rem; background: var(--gold); color: black; border: none; border-radius: 30px; font-weight: 600; cursor: pointer;">
+                <i class="fas fa-paper-plane"></i> Submit Request
+            </button>
+        </form>
     </div>
 
     <!-- Main Content -->
@@ -970,7 +1074,7 @@
             <p><i class="fas fa-calendar-alt"></i> <span id="currentDate"></span> | <span id="dataLastUpdated">Loading...</span></p>
         </div>
 
-        <!-- Assistant Profile Card (hidden initially) -->
+        <!-- Assistant Profile Card (visible when approved) -->
         <div class="profile-card" id="profileCard" style="display: none;">
             <div class="profile-avatar" id="profileAvatar">
                 <i class="fas fa-user-tie"></i>
@@ -982,11 +1086,36 @@
                     <span class="detail-item"><i class="fas fa-phone"></i> <span id="profilePhone">-</span></span>
                     <span class="detail-item"><i class="fas fa-motorcycle"></i> <span id="profileVehicle">-</span></span>
                     <span class="detail-item"><i class="fas fa-map-marker-alt"></i> <span id="profileZone">-</span></span>
+                    <span class="detail-item"><i class="fas fa-certificate"></i> <span id="profileStatus" class="status-badge status-approved">Approved</span></span>
                 </div>
             </div>
         </div>
 
-        <!-- Stats Grid -->
+        <!-- Pending Verification Card -->
+        <div class="status-card" id="pendingVerificationCard" style="display: none;">
+            <div class="status-icon"><i class="fas fa-clock"></i></div>
+            <h2 class="status-title">Verification Pending</h2>
+            <p class="status-message">
+                Your request to become a delivery assistant is currently under review. 
+                You will be notified once your account is verified. This usually takes 1-2 business days.
+            </p>
+            <div class="verification-badge badge-pending" style="display: inline-block; margin-bottom: 1rem;">PENDING VERIFICATION</div>
+            <p style="color: var(--text-muted);">Requested on: <span id="requestDate"></span></p>
+        </div>
+
+        <!-- Rejected Card -->
+        <div class="status-card" id="rejectedCard" style="display: none;">
+            <div class="status-icon"><i class="fas fa-times-circle" style="color: var(--danger);"></i></div>
+            <h2 class="status-title" style="color: var(--danger);">Request Not Approved</h2>
+            <p class="status-message" id="rejectionReason">
+                Your request to become a delivery assistant was not approved at this time.
+            </p>
+            <button class="action-btn" onclick="openAuthModal('request')">
+                <i class="fas fa-redo"></i> Submit New Request
+            </button>
+        </div>
+
+        <!-- Stats Grid (visible when approved) -->
         <div class="stats-grid" id="statsGrid" style="display: none;">
             <!-- Active Deliveries -->
             <div class="stat-card">
@@ -1012,7 +1141,7 @@
                 </div>
             </div>
 
-            <!-- Total Earnings -->
+            <!-- Total Delivered -->
             <div class="stat-card">
                 <div class="stat-header">
                     <span class="stat-title">Total Delivered</span>
@@ -1032,12 +1161,12 @@
                 </div>
                 <div class="stat-value" id="successRate">100%</div>
                 <div class="stat-footer">
-                    On-time delivery rate
+                    Delivery completion rate
                 </div>
             </div>
         </div>
 
-        <!-- Filters -->
+        <!-- Filters (visible when approved) -->
         <div class="filters" id="filtersSection" style="display: none;">
             <input type="text" class="search-input" id="searchInput" placeholder="Search by order ID, customer name, address...">
             <select class="filter-select" id="statusFilter">
@@ -1051,7 +1180,7 @@
             <button class="action-btn" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
         </div>
 
-        <!-- Deliveries Section -->
+        <!-- Deliveries Section (visible when approved) -->
         <div class="section-header" id="deliveriesHeader" style="display: none;">
             <div class="section-title">
                 <i class="fas fa-truck" id="deliveriesIcon"></i>
@@ -1064,7 +1193,7 @@
             </div>
         </div>
 
-        <!-- Deliveries Table -->
+        <!-- Deliveries Table (visible when approved) -->
         <div class="table-container" id="tableContainer" style="display: none;">
             <table id="deliveriesTable">
                 <thead>
@@ -1085,16 +1214,21 @@
             </table>
         </div>
 
-        <!-- No Access Message (shown when not logged in or not verified) -->
-        <div class="profile-card" id="noAccessMessage" style="text-align: center; padding: 3rem;">
+        <!-- Welcome Message (shown when not logged in) -->
+        <div class="profile-card" id="welcomeMessage" style="text-align: center; padding: 3rem;">
             <i class="fas fa-truck" style="font-size: 4rem; color: var(--gold); margin-bottom: 1rem;"></i>
             <h2 style="color: var(--gold); margin-bottom: 1rem;">Delivery Assistant Portal</h2>
             <p style="color: var(--text-muted); margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;">
-                Please login with your assistant credentials to access your deliveries and manage your routes.
+                Join our team of delivery assistants. Login to manage your deliveries or request access to become a verified assistant.
             </p>
-            <button class="action-btn" onclick="openAuthModal()" style="padding: 1rem 2rem; font-size: 1.1rem;">
-                <i class="fas fa-sign-in-alt"></i> Login as Assistant
-            </button>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button class="action-btn" onclick="openAuthModal('login')" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                <button class="action-btn success" onclick="openAuthModal('request')" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                    <i class="fas fa-user-plus"></i> Request Access
+                </button>
+            </div>
         </div>
     </main>
 
@@ -1118,81 +1252,92 @@
         // Global state
         let currentUser = null;
         let currentAssistant = null;
+        let assistantStatus = null; // 'approved', 'pending', 'rejected', null
         let assignedOrders = [];
         let filteredOrders = [];
         let currentOrderId = null;
-        let selectedStatus = null;
         let proofImageData = null;
 
         // ========== AUTH STATE LISTENER ==========
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                const isAssistant = await checkIfAssistant(user);
-                if (isAssistant) {
-                    currentUser = user;
-                    showAssistantUI();
-                    loadAssistantData();
-                    startAutoRefresh();
-                } else {
-                    // User is logged in but not a verified assistant
-                    showNotVerifiedUI();
-                    await auth.signOut();
-                }
+                currentUser = user;
+                await checkAssistantStatus(user);
             } else {
                 // User is logged out
-                showLoginUI();
+                showWelcomeUI();
             }
         });
 
-        // Check if user is a verified delivery assistant
-        async function checkIfAssistant(user) {
+        // Check assistant status in database
+        async function checkAssistantStatus(user) {
             try {
                 // Check in delivery_assistants node
                 const assistantSnapshot = await database.ref(`delivery_assistants/${user.uid}`).once('value');
                 
                 if (assistantSnapshot.exists()) {
                     const assistantData = assistantSnapshot.val();
-                    // Check if assistant is active/verified
-                    if (assistantData.status === 'active' || assistantData.verified === true) {
+                    currentAssistant = {
+                        id: user.uid,
+                        ...assistantData
+                    };
+                    
+                    // Check verification status
+                    if (assistantData.verified === true || assistantData.status === 'active') {
+                        assistantStatus = 'approved';
+                        showAssistantUI();
+                        loadAssistantData();
+                    } else if (assistantData.status === 'pending' || assistantData.verified === false) {
+                        assistantStatus = 'pending';
+                        showPendingUI(assistantData);
+                    } else if (assistantData.status === 'rejected') {
+                        assistantStatus = 'rejected';
+                        showRejectedUI(assistantData);
+                    } else {
+                        // Unknown status, treat as pending
+                        assistantStatus = 'pending';
+                        showPendingUI(assistantData);
+                    }
+                } else {
+                    // Check if user has a pending request
+                    const requestSnapshot = await database.ref('assistant_requests').orderByChild('email').equalTo(user.email).once('value');
+                    
+                    if (requestSnapshot.exists()) {
+                        // User has a pending request
+                        const requests = requestSnapshot.val();
+                        const requestId = Object.keys(requests)[0];
+                        const requestData = requests[requestId];
+                        
                         currentAssistant = {
-                            id: user.uid,
-                            ...assistantData
+                            id: requestId,
+                            ...requestData
                         };
-                        return true;
+                        assistantStatus = 'pending';
+                        showPendingUI(requestData);
+                    } else {
+                        // No record found - show welcome UI
+                        showWelcomeUI();
                     }
                 }
                 
-                // Also check by email as fallback
-                const allAssistantsSnapshot = await database.ref('delivery_assistants').once('value');
-                const allAssistants = allAssistantsSnapshot.val() || {};
+                updateUserUI(user);
                 
-                for (let [uid, assistant] of Object.entries(allAssistants)) {
-                    if (assistant.email && assistant.email.toLowerCase() === user.email.toLowerCase()) {
-                        if (assistant.status === 'active' || assistant.verified === true) {
-                            currentAssistant = {
-                                id: uid,
-                                ...assistant
-                            };
-                            return true;
-                        }
-                    }
-                }
-                
-                return false;
             } catch (error) {
                 console.error('Error checking assistant status:', error);
-                return false;
+                showWelcomeUI();
             }
         }
 
         // ========== UI STATE MANAGEMENT ==========
-        function showLoginUI() {
+        function showWelcomeUI() {
+            document.getElementById('welcomeMessage').style.display = 'block';
             document.getElementById('profileCard').style.display = 'none';
+            document.getElementById('pendingVerificationCard').style.display = 'none';
+            document.getElementById('rejectedCard').style.display = 'none';
             document.getElementById('statsGrid').style.display = 'none';
             document.getElementById('filtersSection').style.display = 'none';
             document.getElementById('deliveriesHeader').style.display = 'none';
             document.getElementById('tableContainer').style.display = 'none';
-            document.getElementById('noAccessMessage').style.display = 'block';
             document.getElementById('headerAssistantBadge').style.display = 'none';
             
             // Update user menu
@@ -1202,49 +1347,69 @@
             document.getElementById('panelLoggedIn').style.display = 'none';
         }
 
-        function showNotVerifiedUI() {
+        function showPendingUI(assistantData) {
+            document.getElementById('welcomeMessage').style.display = 'none';
             document.getElementById('profileCard').style.display = 'none';
+            document.getElementById('pendingVerificationCard').style.display = 'block';
+            document.getElementById('rejectedCard').style.display = 'none';
             document.getElementById('statsGrid').style.display = 'none';
             document.getElementById('filtersSection').style.display = 'none';
             document.getElementById('deliveriesHeader').style.display = 'none';
             document.getElementById('tableContainer').style.display = 'none';
-            document.getElementById('noAccessMessage').style.display = 'block';
             document.getElementById('headerAssistantBadge').style.display = 'none';
             
-            // Update message
-            document.getElementById('noAccessMessage').innerHTML = `
-                <i class="fas fa-exclamation-triangle" style="font-size: 4rem; color: var(--danger); margin-bottom: 1rem;"></i>
-                <h2 style="color: var(--danger); margin-bottom: 1rem;">Access Denied</h2>
-                <p style="color: var(--text-muted); margin-bottom: 2rem;">
-                    Your account is not verified as a delivery assistant.<br>
-                    Please contact the administrator for verification.
-                </p>
-                <button class="action-btn" onclick="handleLogout()" style="padding: 1rem 2rem;">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-            `;
+            // Show request date
+            if (assistantData.timestamp) {
+                const date = new Date(assistantData.timestamp).toLocaleDateString();
+                document.getElementById('requestDate').textContent = date;
+            } else {
+                document.getElementById('requestDate').textContent = 'Recently';
+            }
             
-            document.getElementById('userMenuDesktop').style.display = 'none';
+            document.getElementById('userMenuDesktop').style.display = 'flex';
             document.getElementById('loginButtonDesktop').style.display = 'none';
+            document.getElementById('panelLoggedOut').style.display = 'none';
+            document.getElementById('panelLoggedIn').style.display = 'flex';
+        }
+
+        function showRejectedUI(assistantData) {
+            document.getElementById('welcomeMessage').style.display = 'none';
+            document.getElementById('profileCard').style.display = 'none';
+            document.getElementById('pendingVerificationCard').style.display = 'none';
+            document.getElementById('rejectedCard').style.display = 'block';
+            document.getElementById('statsGrid').style.display = 'none';
+            document.getElementById('filtersSection').style.display = 'none';
+            document.getElementById('deliveriesHeader').style.display = 'none';
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('headerAssistantBadge').style.display = 'none';
+            
+            // Show rejection reason if available
+            if (assistantData.rejectionReason) {
+                document.getElementById('rejectionReason').textContent = assistantData.rejectionReason;
+            }
+            
+            document.getElementById('userMenuDesktop').style.display = 'flex';
+            document.getElementById('loginButtonDesktop').style.display = 'none';
+            document.getElementById('panelLoggedOut').style.display = 'none';
+            document.getElementById('panelLoggedIn').style.display = 'flex';
         }
 
         function showAssistantUI() {
+            document.getElementById('welcomeMessage').style.display = 'none';
             document.getElementById('profileCard').style.display = 'flex';
+            document.getElementById('pendingVerificationCard').style.display = 'none';
+            document.getElementById('rejectedCard').style.display = 'none';
             document.getElementById('statsGrid').style.display = 'grid';
             document.getElementById('filtersSection').style.display = 'flex';
             document.getElementById('deliveriesHeader').style.display = 'flex';
             document.getElementById('tableContainer').style.display = 'block';
-            document.getElementById('noAccessMessage').style.display = 'none';
             document.getElementById('headerAssistantBadge').style.display = 'inline-block';
             
-            // Update user menu
             document.getElementById('userMenuDesktop').style.display = 'flex';
             document.getElementById('loginButtonDesktop').style.display = 'none';
             document.getElementById('panelLoggedOut').style.display = 'none';
             document.getElementById('panelLoggedIn').style.display = 'flex';
             
-            // Update user info
-            updateUserUI(currentUser);
             updateAssistantProfile();
         }
 
@@ -1268,8 +1433,160 @@
             }
         }
 
+        // ========== AUTH FUNCTIONS ==========
+        window.openAuthModal = function(tab = 'login') {
+            document.getElementById('authModal').style.display = 'block';
+            document.getElementById('authModalOverlay').classList.add('active');
+            switchAuthTab(tab);
+        };
+
+        window.closeAuthModal = function() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('authModalOverlay').classList.remove('active');
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('requestError').style.display = 'none';
+        };
+
+        window.switchAuthTab = function(tab) {
+            const loginTab = document.getElementById('loginAuthTab');
+            const requestTab = document.getElementById('requestAuthTab');
+            const loginForm = document.getElementById('loginForm');
+            const requestForm = document.getElementById('requestForm');
+            
+            if (tab === 'login') {
+                loginTab.classList.add('active');
+                requestTab.classList.remove('active');
+                loginForm.style.display = 'block';
+                requestForm.style.display = 'none';
+            } else {
+                requestTab.classList.add('active');
+                loginTab.classList.remove('active');
+                requestForm.style.display = 'block';
+                loginForm.style.display = 'none';
+            }
+        };
+
+        window.handleLogin = async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorEl = document.getElementById('loginError');
+            
+            if (!email || !password) {
+                errorEl.style.display = 'block';
+                errorEl.textContent = 'Please enter email and password';
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                errorEl.style.display = 'none';
+                await auth.signInWithEmailAndPassword(email, password);
+                closeAuthModal();
+                
+            } catch (error) {
+                errorEl.style.display = 'block';
+                errorEl.textContent = error.message;
+                showLoading(false);
+            }
+        };
+
+        window.handleRequestAccess = async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('requestName').value.trim();
+            const email = document.getElementById('requestEmail').value.trim();
+            const phone = document.getElementById('requestPhone').value.trim();
+            const vehicle = document.getElementById('requestVehicle').value;
+            const zone = document.getElementById('requestZone').value;
+            const reason = document.getElementById('requestReason').value.trim();
+            const errorEl = document.getElementById('requestError');
+            
+            if (!name || !email || !phone || !vehicle || !zone) {
+                errorEl.style.display = 'block';
+                errorEl.textContent = 'Please fill in all required fields';
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                // First, create the user account if they don't exist
+                let user = currentUser;
+                
+                if (!user) {
+                    // Generate a temporary password (in production, send email to set password)
+                    const tempPassword = Math.random().toString(36).slice(-8);
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, tempPassword);
+                    user = userCredential.user;
+                    
+                    // Update profile with name
+                    await user.updateProfile({ displayName: name });
+                }
+                
+                // Save request to assistant_requests node
+                const requestData = {
+                    name,
+                    email,
+                    phone,
+                    vehicle,
+                    zone,
+                    reason: reason || '',
+                    userId: user.uid,
+                    status: 'pending',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    requestedAt: new Date().toISOString()
+                };
+                
+                await database.ref('assistant_requests').push(requestData);
+                
+                // Also save to delivery_assistants with pending status
+                await database.ref(`delivery_assistants/${user.uid}`).set({
+                    name,
+                    email,
+                    phone,
+                    vehicle,
+                    zone,
+                    status: 'pending',
+                    verified: false,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                showToast('Request submitted successfully! You will be notified once verified.', 'success');
+                closeAuthModal();
+                
+                // Refresh auth state
+                await checkAssistantStatus(user);
+                
+            } catch (error) {
+                console.error('Error submitting request:', error);
+                errorEl.style.display = 'block';
+                errorEl.textContent = error.message;
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        window.handleLogout = async function() {
+            try {
+                showLoading(true);
+                await auth.signOut();
+                currentAssistant = null;
+                assistantStatus = null;
+                showWelcomeUI();
+                showToast('Logged out', 'success');
+            } catch (error) {
+                showToast('Logout failed', 'error');
+                showLoading(false);
+            }
+        };
+
         // ========== LOAD ASSISTANT DATA ==========
         async function loadAssistantData() {
+            if (!currentAssistant || assistantStatus !== 'approved') return;
+            
             showLoading(true);
             
             try {
@@ -1424,9 +1741,6 @@
                                     <button class="table-btn accept" onclick="acceptDelivery('${order.id}')" title="Accept Delivery">
                                         <i class="fas fa-check"></i>
                                     </button>
-                                    <button class="table-btn reject" onclick="rejectDelivery('${order.id}')" title="Reject">
-                                        <i class="fas fa-times"></i>
-                                    </button>
                                 ` : ''}
                                 ${order.status === 'delivered' ? `
                                     <button class="table-btn view" onclick="viewProofOfDelivery('${order.id}')" title="View Proof">
@@ -1464,6 +1778,10 @@
             
             filteredOrders = filtered;
             renderDeliveries();
+        };
+
+        window.showProfile = function() {
+            document.getElementById('profileCard').scrollIntoView({ behavior: 'smooth' });
         };
 
         // ========== VIEW ORDER DETAILS ==========
@@ -1536,6 +1854,11 @@
             document.getElementById('modalOverlay').classList.add('active');
         };
 
+        window.closeModal = function() {
+            document.getElementById('detailsModal').classList.remove('active');
+            document.getElementById('modalOverlay').classList.remove('active');
+        };
+
         // ========== ACCEPT DELIVERY ==========
         window.acceptDelivery = async function(orderId) {
             if (!confirm('Accept this delivery?')) return;
@@ -1568,41 +1891,6 @@
             }
         };
 
-        // ========== REJECT DELIVERY ==========
-        window.rejectDelivery = async function(orderId) {
-            if (!confirm('Are you sure you want to reject this delivery?')) return;
-            
-            const reason = prompt('Please provide a reason for rejection:');
-            if (!reason) return;
-            
-            showLoading(true);
-            
-            try {
-                await database.ref(`orders/${orderId}`).update({
-                    status: 'pending',
-                    assignedTo: null,
-                    assignedName: null,
-                    statusHistory: [
-                        ...(assignedOrders.find(o => o.id === orderId)?.statusHistory || []),
-                        {
-                            status: 'pending',
-                            timestamp: new Date().toISOString(),
-                            note: `Rejected by assistant: ${reason}`
-                        }
-                    ]
-                });
-
-                showToast('Delivery rejected', 'warning');
-                await loadAssistantData();
-                
-            } catch (error) {
-                console.error('Error rejecting delivery:', error);
-                showToast('Failed to reject delivery', 'error');
-            } finally {
-                showLoading(false);
-            }
-        };
-
         // ========== NAVIGATE TO CUSTOMER ==========
         window.navigateToCustomer = function(address) {
             if (!address) {
@@ -1610,7 +1898,6 @@
                 return;
             }
             
-            // Open Google Maps with the address
             const encodedAddress = encodeURIComponent(address);
             window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
         };
@@ -1656,8 +1943,6 @@
             showLoading(true);
             
             try {
-                // Save proof to Firebase Storage (simplified - in production use Firebase Storage)
-                // For now, we'll just update the order status
                 await database.ref(`orders/${currentOrderId}`).update({
                     status: 'delivered',
                     deliveryDate: new Date().toISOString(),
@@ -1665,7 +1950,6 @@
                         customerName: customerName,
                         notes: notes,
                         timestamp: new Date().toISOString(),
-                        // In production, you'd store the image URL from Firebase Storage
                         hasPhoto: true
                     },
                     statusHistory: [
@@ -1703,79 +1987,14 @@
         };
 
         window.viewProofOfDelivery = function(orderId) {
-            showToast('Proof of delivery feature coming soon', 'info');
-        };
-
-        // ========== AUTH FUNCTIONS ==========
-        window.openAuthModal = function() {
-            document.getElementById('authModal').style.display = 'block';
-            document.getElementById('authModalOverlay').classList.add('active');
-        };
-
-        window.closeAuthModal = function() {
-            document.getElementById('authModal').style.display = 'none';
-            document.getElementById('authModalOverlay').classList.remove('active');
-            document.getElementById('loginError').style.display = 'none';
-        };
-
-        window.handleLogin = async function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const errorEl = document.getElementById('loginError');
-            
-            if (!email || !password) {
-                errorEl.style.display = 'block';
-                errorEl.textContent = 'Please enter email and password';
-                return;
-            }
-            
-            showLoading(true);
-            
-            try {
-                errorEl.style.display = 'none';
-                await auth.signInWithEmailAndPassword(email, password);
-                closeAuthModal();
-                
-            } catch (error) {
-                errorEl.style.display = 'block';
-                errorEl.textContent = error.message;
-                showLoading(false);
-            }
-        };
-
-        window.handleLogout = async function() {
-            try {
-                showLoading(true);
-                await auth.signOut();
-                showToast('Logged out', 'success');
-            } catch (error) {
-                showToast('Logout failed', 'error');
-                showLoading(false);
-            }
+            showToast('Proof of delivery details coming soon', 'info');
         };
 
         // ========== UTILITY FUNCTIONS ==========
         window.refreshData = function() {
-            if (currentAssistant) {
+            if (assistantStatus === 'approved') {
                 loadAssistantData();
             }
-        };
-
-        window.showProfile = function() {
-            // Scroll to profile card
-            document.getElementById('profileCard').scrollIntoView({ behavior: 'smooth' });
-        };
-
-        window.closeModal = function() {
-            document.getElementById('detailsModal').classList.remove('active');
-            document.getElementById('modalOverlay').classList.remove('active');
-        };
-
-        window.closeStatusModal = function() {
-            document.getElementById('statusModal').classList.remove('active');
-            document.getElementById('statusModalOverlay').classList.remove('active');
         };
 
         function showLoading(show) {
@@ -1807,7 +2026,7 @@
         function startAutoRefresh() {
             updateCurrentDate();
             setInterval(() => {
-                if (currentAssistant) {
+                if (assistantStatus === 'approved') {
                     loadAssistantData();
                 }
             }, 300000); // Refresh every 5 minutes
@@ -1845,6 +2064,9 @@
             document.body.classList.add('light-theme');
             document.getElementById('panelThemeIcon').classList.replace('fa-moon', 'fa-sun');
         }
+
+        // Initialize date
+        updateCurrentDate();
     </script>
 </body>
 </html>
