@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ca8a04">
+    <meta name="background-color" content="#0a0a0a">
+    <meta name="color-scheme" content="dark light">
+    <title>DELIVERY ASSISTANT · Wallet</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --gold: #ca8a04;
+            --gold-dark: #a16207;
+            --gold-light: #fef3c7;
+            --danger: #dc2626;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --pink: #ec4899;
+            --teal: #14b8a6;
+            
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: rgba(20,20,20,0.8);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border-light: #2a2a2a;
+            --shadow-color: rgba(202,138,4,0.25);
+            --nav-bg: rgba(10,10,10,0.95);
+            --card-bg: #151515;
+            --glass-bg: rgba(20,20,20,0.3);
+            --glass-border: rgba(255,255,255,0.1);
+            --glass-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            --toast-bg: rgba(20,20,20,0.95);
+            --toast-border: var(--gold);
+            --header-height: 70px;
+            --input-bg: rgba(255,255,255,0.05);
+            --input-focus-bg: rgba(255,255,255,0.1);
+            
+            /* Status Colors */
+            --status-pending: #f59e0b;
+            --status-approved: #10b981;
+            --status-processing: #8b5cf6;
+            --status-completed: #10b981;
+            --status-cancelled: #ef4444;
+        }
+
+        body.light-theme {
+            --bg-primary: #f8f5f0;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #2d2d2d;
+            --text-muted: #555555;
+            --border-light: #dddddd;
+            --shadow-color: rgba(202,138,4,0.4);
+            --nav-bg: rgba(255,255,255,0.95);
+            --card-bg: #ffffff;
+            --input-bg: rgba(0,0,0,0.03);
+            --input-focus-bg: rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-top: var(--header-height);
+            transition: background 0.3s, color 0.2s;
+            min-height: 100vh;
+        }
+
+        /* Header - same style as assistant portal */
+        .site-header {
+            position: fixed; top: 0; width: 100%; height: var(--header-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold); z-index: 2000; padding: 0 1rem;
+        }
+        .header-container {
+            max-width: 1400px; height: 100%; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .site-logo {
+            height: 48px; border-radius: 12px; border: 2px solid var(--gold);
+            padding: 2px; background: var(--bg-primary);
+            content: url('https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp');
+        }
+        .assistant-badge {
+            background: var(--teal);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 30px;
+            margin-left: 0.5rem;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+        .header-desktop-actions { display: flex; align-items: center; gap: 1.5rem; }
+        
+        .user-menu {
+            display: flex; align-items: center; gap: 0.5rem;
+            background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
+            border-radius: 40px; padding: 0.3rem 0.3rem 0.3rem 1rem;
+            cursor: pointer; position: relative;
+        }
+        .user-avatar {
+            background: var(--gold); color: #000; width: 35px; height: 35px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+        }
+        .logout-dropdown {
+            position: absolute; top: 120%; right: 0;
+            background: var(--card-bg); border: 1px solid var(--gold);
+            border-radius: 20px; padding: 0.5rem;
+            min-width: 120px; display: none; z-index: 1001;
+        }
+        .user-menu:hover .logout-dropdown { display: block; }
+        .logout-item {
+            padding: 0.7rem 1rem; color: var(--text-primary);
+            border-radius: 15px; transition: 0.2s;
+            display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+        }
+        .logout-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
+        
+        .mobile-header-group { display: none; align-items: center; gap: 0.8rem; }
+        .hamburger-icon {
+            border: 1px solid var(--gold); color: var(--gold);
+            width: 42px; height: 42px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; cursor: pointer; transition: all 0.2s;
+        }
+        .hamburger-icon:hover { background: var(--gold); color: black; }
+
+        /* Hamburger panel */
+        .hamburger-panel {
+            position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
+            background: var(--nav-bg); backdrop-filter: blur(20px);
+            border-left: 1px solid var(--gold); padding: 2rem 1.5rem;
+            z-index: 2500; transition: right 0.3s ease; display: flex; flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        .hamburger-panel.open { right: 0; }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;
+        }
+        .panel-header h3 { font-family: 'Cinzel', serif; color: var(--gold); }
+        .close-panel {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1.8rem; cursor: pointer; line-height: 1;
+        }
+        .panel-user-area {
+            background: rgba(202,138,4,0.05);
+            border-radius: 30px;
+            padding: 1rem;
+            border: 1px solid var(--border-light);
+            margin: 1.5rem 0;
+        }
+        .panel-user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .panel-avatar {
+            width: 48px; height: 48px;
+            background: var(--gold); color: black;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.2rem;
+        }
+        .panel-user-name {
+            font-weight: 600;
+            color: var(--gold);
+        }
+        .panel-logout {
+            width: 100%;
+            padding: 0.7rem;
+            background: transparent;
+            border: 1px solid var(--gold);
+            border-radius: 40px;
+            color: var(--gold);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .panel-logout:hover {
+            background: var(--gold);
+            color: black;
+        }
+        .panel-quick-links {
+            display: flex; flex-direction: column; gap: 0.5rem;
+        }
+        .panel-link {
+            padding: 0.9rem 1rem; background: rgba(255,255,255,0.03);
+            border-radius: 30px; color: var(--text-primary); text-decoration: none;
+            display: flex; align-items: center; gap: 1rem; transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .panel-link:hover {
+            border-color: var(--gold); background: rgba(202,138,4,0.1); color: var(--gold);
+        }
+        .panel-link i { width: 24px; color: var(--gold); }
+        .panel-theme-toggle {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 40px;
+            margin-top: auto; border: 1px solid var(--border-light);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            margin-bottom: 2.5rem;
+        }
+        .dashboard-header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+        .dashboard-header p {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dashboard-header p i {
+            color: var(--gold);
+        }
+
+        /* Wallet Balance Card */
+        .wallet-card {
+            background: linear-gradient(135deg, rgba(202,138,4,0.2), rgba(20,20,20,0.8));
+            border: 2px solid var(--gold);
+            border-radius: 40px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wallet-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(202,138,4,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .wallet-label {
+            color: var(--text-muted);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .wallet-balance {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+            line-height: 1;
+        }
+
+        .wallet-sub {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .wallet-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+        }
+
+        .wallet-btn {
+            padding: 1rem 2rem;
+            background: transparent;
+            border: 2px solid var(--gold);
+            border-radius: 50px;
+            color: var(--gold);
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .wallet-btn:hover {
+            background: var(--gold);
+            color: black;
+        }
+
+        .wallet-btn.primary {
+            background: var(--gold);
+            color: black;
+        }
+
+        .wallet-btn.primary:hover {
+            background: #b8860b;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(202,138,4,0.3);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(202, 138, 4, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(202,138,4,0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-footer {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(202, 138, 4, 0.3);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .section-title i {
+            font-size: 1.8rem;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .action-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(202, 138, 4, 0.1);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            color: var(--gold);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .action-btn:hover {
+            background: var(--gold);
+            color: black;
+        }
+
+        .action-btn.success {
+            border-color: var(--success);
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .action-btn.success:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            border: 1px solid rgba(202, 138, 4, 0.2);
+        }
+
+        .filter-select {
+            padding: 0.6rem 1.2rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            min-width: 150px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .search-input {
+            padding: 0.6rem 1.2rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            color: var(--text-primary);
+            min-width: 250px;
+            flex: 1;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        /* Tables */
+        .table-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(202, 138, 4, 0.2);
+            border-radius: 30px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 1.2rem 1.5rem;
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(202, 138, 4, 0.1);
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(202, 138, 4, 0.05);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            text-transform: capitalize;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-processing {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .status-approved, .status-completed {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-cancelled {
+            background: rgba(220, 38, 38, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }
+
+        /* Delivery Fee Badge */
+        .fee-badge {
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--gold);
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Table actions */
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .table-btn {
+            padding: 0.4rem 0.8rem;
+            border: 1px solid transparent;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .table-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .table-btn.view:hover {
+            border-color: var(--info);
+            color: var(--info);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9499;
+            display: none;
+        }
+        .modal-overlay.active { display: block; }
+        .modal {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 30px;
+            border: 2px solid var(--gold);
+            z-index: 9500;
+            max-width: 500px;
+            width: 90%;
+            display: none;
+        }
+        .modal.active { display: block; animation: modalFadeIn 0.3s; }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translate(-50%,-60%); }
+            to { opacity: 1; transform: translate(-50%,-50%); }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .modal-header h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+        }
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+        .modal-field {
+            margin-bottom: 1rem;
+        }
+        .modal-field label {
+            display: block;
+            color: var(--gold);
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+        .modal-field .field-value {
+            padding: 0.8rem;
+            background: var(--input-bg);
+            border-radius: 12px;
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* Cashout Modal */
+        .cashout-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .cashout-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px dashed var(--border-light);
+        }
+
+        .cashout-detail:last-child {
+            border-bottom: none;
+        }
+
+        .payment-method-option {
+            padding: 1rem;
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .payment-method-option:hover {
+            border-color: var(--gold);
+            background: rgba(202,138,4,0.05);
+        }
+        .payment-method-option.selected {
+            border-color: var(--gold);
+            background: rgba(202,138,4,0.1);
+        }
+        .payment-method-option input[type="radio"] {
+            accent-color: var(--gold);
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Loading and Toast */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+        }
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(202,138,4,0.2);
+            border-radius: 50%;
+            border-top-color: var(--gold);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .toast-container {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 10001;
+        }
+        .toast {
+            background: rgba(20,20,20,0.95);
+            backdrop-filter: blur(10px);
+            border-left: 4px solid var(--gold);
+            border-radius: 20px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+            animation: slideInRight 0.3s ease;
+            border: 1px solid rgba(202,138,4,0.3);
+        }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast.info { border-left-color: var(--info); }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .header-desktop-actions { display: none; }
+            .mobile-header-group { display: flex; }
+            .main-content { padding: 1rem; }
+            .wallet-balance { font-size: 3rem; }
+            .wallet-actions { flex-direction: column; }
+            .wallet-btn { width: 100%; justify-content: center; }
+            .filters { flex-direction: column; }
+            .search-input { min-width: auto; }
+            .table-container { overflow-x: auto; }
+            table { min-width: 800px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Modal for viewing order details -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+    <div class="modal" id="detailsModal">
+        <div class="modal-header">
+            <h3 id="modalTitle">Delivery Details</h3>
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Dynamic content -->
+        </div>
+        <div class="modal-actions">
+            <button class="action-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Modal for cashout request -->
+    <div class="modal-overlay" id="cashoutModalOverlay" onclick="closeCashoutModal()"></div>
+    <div class="modal" id="cashoutModal">
+        <div class="modal-header">
+            <h3>Request Cashout</h3>
+            <button class="modal-close" onclick="closeCashoutModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="cashoutModalBody">
+            <!-- Dynamic content -->
+        </div>
+        <div class="modal-actions">
+            <button class="action-btn" onclick="closeCashoutModal()">Cancel</button>
+            <button class="action-btn success" onclick="submitCashoutRequest()">Submit Request</button>
+        </div>
+    </div>
+
+    <!-- Modal for cashout history details -->
+    <div class="modal-overlay" id="historyModalOverlay" onclick="closeHistoryModal()"></div>
+    <div class="modal" id="historyModal">
+        <div class="modal-header">
+            <h3>Cashout Details</h3>
+            <button class="modal-close" onclick="closeHistoryModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="historyModalBody">
+            <!-- Dynamic content -->
+        </div>
+        <div class="modal-actions">
+            <button class="action-btn" onclick="closeHistoryModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-container">
+            <div style="display: flex; align-items: center;">
+                <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" alt="I AM MUGERA" class="site-logo">
+                <span class="assistant-badge" id="headerAssistantBadge">ASSISTANT</span>
+            </div>
+            <div class="header-desktop-actions">
+                <div id="userMenuDesktop" class="user-menu">
+                    <span class="user-name" id="userDisplayNameDesktop">Assistant</span>
+                    <div class="user-avatar" id="userAvatarDesktop">A</div>
+                    <div class="logout-dropdown">
+                        <div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mobile-header-group">
+                <div class="hamburger-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hamburger panel -->
+    <div class="hamburger-panel" id="hamburgerPanel">
+        <div class="panel-header">
+            <h3>Assistant Menu</h3>
+            <button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="panel-user-area">
+            <div class="panel-user-info">
+                <div class="panel-avatar" id="panelAvatar">A</div>
+                <span class="panel-user-name" id="panelUserName">Assistant</span>
+            </div>
+            <button class="panel-logout" onclick="handleLogout(); toggleHamburger();"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+        <div class="panel-quick-links">
+            <a href="assistant-dashboard.html" class="panel-link"><i class="fas fa-truck"></i> My Deliveries</a>
+            <a href="assistant-wallet.html" class="panel-link"><i class="fas fa-wallet"></i> My Wallet</a>
+            <a href="#" class="panel-link" onclick="openCashoutModal(); toggleHamburger();"><i class="fas fa-money-bill-wave"></i> Request Cashout</a>
+            <a href="#" class="panel-link" onclick="showProfile(); toggleHamburger();"><i class="fas fa-user-cog"></i> My Profile</a>
+        </div>
+        <div class="panel-theme-toggle">
+            <span><i class="fas fa-palette"></i> Dark / Light</span>
+            <div onclick="toggleTheme()" style="width:45px; height:45px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                <i class="fas fa-moon" id="panelThemeIcon"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1>My Wallet</h1>
+            <p><i class="fas fa-calendar-alt"></i> <span id="currentDate"></span> | <span id="dataLastUpdated">Loading...</span></p>
+        </div>
+
+        <!-- Wallet Balance Card -->
+        <div class="wallet-card">
+            <div class="wallet-label">Available Balance</div>
+            <div class="wallet-balance" id="walletBalance">KSh 0</div>
+            <div class="wallet-sub" id="walletSub">Earnings from completed deliveries</div>
+            <div class="wallet-actions">
+                <button class="wallet-btn primary" onclick="openCashoutModal()">
+                    <i class="fas fa-money-bill-wave"></i> Request Cashout
+                </button>
+                <button class="wallet-btn" onclick="refreshWallet()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <!-- Total Earned -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Total Earned</span>
+                    <div class="stat-icon"><i class="fas fa-coins"></i></div>
+                </div>
+                <div class="stat-value" id="totalEarned">KSh 0</div>
+                <div class="stat-footer">Lifetime earnings</div>
+            </div>
+
+            <!-- Cashout Total -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Cashout Total</span>
+                    <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                </div>
+                <div class="stat-value" id="totalCashout">KSh 0</div>
+                <div class="stat-footer">Amount withdrawn</div>
+            </div>
+
+            <!-- Deliveries Count -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Deliveries</span>
+                    <div class="stat-icon"><i class="fas fa-box"></i></div>
+                </div>
+                <div class="stat-value" id="totalDeliveries">0</div>
+                <div class="stat-footer">Completed deliveries</div>
+            </div>
+
+            <!-- Average per Delivery -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Avg per Delivery</span>
+                    <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                </div>
+                <div class="stat-value" id="avgPerDelivery">KSh 150</div>
+                <div class="stat-footer">Standard delivery fee</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <select class="filter-select" id="historyFilter">
+                <option value="all">All History</option>
+                <option value="earnings">Earnings Only</option>
+                <option value="cashouts">Cashouts Only</option>
+            </select>
+            <select class="filter-select" id="statusFilter">
+                <option value="all">All Status</option>
+                <option value="completed">Completed</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="approved">Approved</option>
+            </select>
+            <button class="action-btn" onclick="refreshWallet()"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+
+        <!-- Recent Deliveries Section -->
+        <div class="section-header">
+            <div class="section-title">
+                <i class="fas fa-box"></i>
+                Recent Deliveries
+            </div>
+        </div>
+        <div class="table-container">
+            <table id="deliveriesTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Delivery Fee</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="deliveriesTableBody">
+                    <tr><td colspan="6" style="text-align: center;">Loading deliveries...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Cashout History Section -->
+        <div class="section-header">
+            <div class="section-title">
+                <i class="fas fa-history"></i>
+                Cashout History
+            </div>
+        </div>
+        <div class="table-container">
+            <table id="cashoutsTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Payment Method</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="cashoutsTableBody">
+                    <tr><td colspan="5" style="text-align: center;">Loading cashout history...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        // Global state
+        let currentUser = null;
+        let currentAssistant = null;
+        let deliveries = [];
+        let cashouts = [];
+        let filteredDeliveries = [];
+        let filteredCashouts = [];
+        let selectedPaymentMethod = null;
+        let cashoutAmount = 0;
+
+        // ========== AUTH STATE LISTENER ==========
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const isAssistant = await checkIfAssistant(user);
+                if (isAssistant) {
+                    currentUser = user;
+                    updateUserUI(user);
+                    loadWalletData();
+                    startAutoRefresh();
+                } else {
+                    window.location.href = 'assistant-login.html';
+                }
+            } else {
+                window.location.href = 'assistant-login.html';
+            }
+        });
+
+        async function checkIfAssistant(user) {
+            try {
+                const assistantSnapshot = await database.ref(`delivery_assistants/${user.uid}`).once('value');
+                
+                if (assistantSnapshot.exists()) {
+                    const assistantData = assistantSnapshot.val();
+                    if (assistantData.status === 'active' || assistantData.verified === true) {
+                        currentAssistant = {
+                            id: user.uid,
+                            ...assistantData
+                        };
+                        return true;
+                    }
+                }
+                return false;
+            } catch (error) {
+                console.error('Error checking assistant status:', error);
+                return false;
+            }
+        }
+
+        function updateUserUI(user) {
+            const name = currentAssistant?.name || user.displayName || user.email?.split('@')[0] || 'Assistant';
+            const initial = name.charAt(0).toUpperCase();
+            
+            document.getElementById('userDisplayNameDesktop').textContent = name;
+            document.getElementById('userAvatarDesktop').textContent = initial;
+            document.getElementById('panelAvatar').textContent = initial;
+            document.getElementById('panelUserName').textContent = name;
+        }
+
+        // ========== LOAD WALLET DATA ==========
+        async function loadWalletData() {
+            showLoading(true);
+            
+            try {
+                await Promise.all([
+                    loadDeliveries(),
+                    loadCashouts()
+                ]);
+                
+                updateWallet();
+                applyFilters();
+                updateLastUpdated();
+                showToast('Wallet updated', 'success');
+            } catch (error) {
+                console.error('Error loading wallet data:', error);
+                showToast('Error loading data', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Load completed deliveries for this assistant
+        async function loadDeliveries() {
+            try {
+                const snapshot = await database.ref('orders').once('value');
+                const data = snapshot.val() || {};
+                
+                deliveries = Object.entries(data)
+                    .map(([id, order]) => ({
+                        id,
+                        orderId: id,
+                        date: order.deliveryDate || order.orderDate || null,
+                        customerName: order.userName || order.fullName || 'Unknown',
+                        deliveryFee: order.deliveryFee || 150, // Default delivery fee
+                        status: order.status || 'pending',
+                        completed: order.status === 'delivered',
+                        timestamp: order.deliveryDate ? new Date(order.deliveryDate).getTime() : 
+                                  (order.orderDate ? new Date(order.orderDate).getTime() : 0)
+                    }))
+                    .filter(order => order.assignedTo === currentAssistant?.id && order.status === 'delivered');
+
+                // Sort by date (newest first)
+                deliveries.sort((a, b) => b.timestamp - a.timestamp);
+                filteredDeliveries = [...deliveries];
+                
+            } catch (error) {
+                console.error('Error loading deliveries:', error);
+            }
+        }
+
+        // Load cashout history for this assistant
+        async function loadCashouts() {
+            try {
+                const snapshot = await database.ref('cashout_requests')
+                    .orderByChild('assistantId')
+                    .equalTo(currentAssistant?.id)
+                    .once('value');
+                
+                const data = snapshot.val() || {};
+                
+                cashouts = Object.entries(data).map(([id, request]) => ({
+                    id,
+                    ...request,
+                    timestamp: request.timestamp || Date.now()
+                }));
+
+                // Sort by date (newest first)
+                cashouts.sort((a, b) => b.timestamp - a.timestamp);
+                filteredCashouts = [...cashouts];
+                
+            } catch (error) {
+                console.error('Error loading cashouts:', error);
+            }
+        }
+
+        // ========== UPDATE WALLET ==========
+        function updateWallet() {
+            // Calculate total earned from deliveries
+            const totalEarned = deliveries.reduce((sum, d) => sum + (d.deliveryFee || 150), 0);
+            
+            // Calculate total cashed out (only approved/completed cashouts)
+            const totalCashout = cashouts
+                .filter(c => c.status === 'approved' || c.status === 'completed')
+                .reduce((sum, c) => sum + (c.amount || 0), 0);
+            
+            // Available balance = total earned - total cashed out
+            const availableBalance = totalEarned - totalCashout;
+            
+            // Update UI
+            document.getElementById('walletBalance').textContent = `KSh ${availableBalance.toLocaleString()}`;
+            document.getElementById('totalEarned').textContent = `KSh ${totalEarned.toLocaleString()}`;
+            document.getElementById('totalCashout').textContent = `KSh ${totalCashout.toLocaleString()}`;
+            document.getElementById('totalDeliveries').textContent = deliveries.length;
+            
+            const avg = deliveries.length > 0 ? Math.round(totalEarned / deliveries.length) : 150;
+            document.getElementById('avgPerDelivery').textContent = `KSh ${avg}`;
+            
+            // Store for cashout modal
+            cashoutAmount = availableBalance;
+        }
+
+        // ========== APPLY FILTERS ==========
+        function applyFilters() {
+            const historyFilter = document.getElementById('historyFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            // Filter deliveries based on history filter
+            if (historyFilter === 'earnings') {
+                filteredDeliveries = [...deliveries];
+            } else if (historyFilter === 'cashouts') {
+                filteredDeliveries = [];
+            } else {
+                filteredDeliveries = [...deliveries];
+            }
+
+            // Filter cashouts
+            filteredCashouts = cashouts.filter(c => {
+                if (statusFilter === 'all') return true;
+                return c.status === statusFilter;
+            });
+
+            renderDeliveries();
+            renderCashouts();
+        }
+
+        // ========== RENDER DELIVERIES ==========
+        function renderDeliveries() {
+            const tbody = document.getElementById('deliveriesTableBody');
+            
+            if (filteredDeliveries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No completed deliveries found</td></tr>';
+                return;
+            }
+
+            let html = '';
+            filteredDeliveries.slice(0, 20).forEach(delivery => {
+                const date = delivery.date ? new Date(delivery.date).toLocaleDateString() : 'N/A';
+                
+                html += `
+                    <tr>
+                        <td>${date}</td>
+                        <td>#${delivery.id.slice(-8)}</td>
+                        <td>${delivery.customerName}</td>
+                        <td><span class="fee-badge">KSh ${(delivery.deliveryFee || 150).toLocaleString()}</span></td>
+                        <td><span class="status-badge status-completed">Completed</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="table-btn view" onclick="viewDeliveryDetails('${delivery.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // ========== RENDER CASHOUTS ==========
+        function renderCashouts() {
+            const tbody = document.getElementById('cashoutsTableBody');
+            
+            if (filteredCashouts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No cashout history found</td></tr>';
+                return;
+            }
+
+            let html = '';
+            filteredCashouts.forEach(cashout => {
+                const date = cashout.timestamp ? new Date(cashout.timestamp).toLocaleDateString() : 'N/A';
+                const statusClass = `status-${cashout.status}`;
+                
+                html += `
+                    <tr>
+                        <td>${date}</td>
+                        <td>KSh ${(cashout.amount || 0).toLocaleString()}</td>
+                        <td>${cashout.paymentMethod || 'M-Pesa'}</td>
+                        <td><span class="status-badge ${statusClass}">${cashout.status}</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="table-btn view" onclick="viewCashoutDetails('${cashout.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // ========== VIEW DELIVERY DETAILS ==========
+        window.viewDeliveryDetails = function(orderId) {
+            const order = deliveries.find(d => d.id === orderId);
+            if (!order) return;
+
+            const content = `
+                <div class="modal-field">
+                    <label>Order ID</label>
+                    <div class="field-value">#${order.id}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Delivery Date</label>
+                    <div class="field-value">${order.date ? new Date(order.date).toLocaleString() : 'N/A'}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Customer</label>
+                    <div class="field-value">${order.customerName}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Delivery Fee Earned</label>
+                    <div class="field-value">KSh ${(order.deliveryFee || 150).toLocaleString()}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Status</label>
+                    <div class="field-value"><span class="status-badge status-completed">Completed</span></div>
+                </div>
+            `;
+
+            document.getElementById('modalTitle').textContent = 'Delivery Details';
+            document.getElementById('modalBody').innerHTML = content;
+            document.getElementById('detailsModal').classList.add('active');
+            document.getElementById('modalOverlay').classList.add('active');
+        };
+
+        // ========== CASHOUT FUNCTIONS ==========
+        window.openCashoutModal = function() {
+            if (cashoutAmount < 100) {
+                showToast('Minimum cashout amount is KSh 100', 'warning');
+                return;
+            }
+
+            const content = `
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div class="cashout-amount">KSh ${cashoutAmount.toLocaleString()}</div>
+                    <p style="color: var(--text-muted);">Available balance</p>
+                </div>
+
+                <div class="cashout-detail">
+                    <span>Payment Method</span>
+                    <span class="fee-badge">M-Pesa</span>
+                </div>
+                <div class="cashout-detail">
+                    <span>Phone Number</span>
+                    <span>${currentAssistant?.phone || 'Not set'}</span>
+                </div>
+                <div class="cashout-detail">
+                    <span>Processing Time</span>
+                    <span>1-2 business days</span>
+                </div>
+
+                <div style="margin: 1.5rem 0; padding: 1rem; background: rgba(16,185,129,0.1); border-radius: 12px;">
+                    <p style="color: var(--success);">
+                        <i class="fas fa-info-circle"></i> 
+                        Once confirmed by admin, the amount will be sent to your registered M-Pesa number.
+                    </p>
+                </div>
+            `;
+
+            document.getElementById('cashoutModalBody').innerHTML = content;
+            document.getElementById('cashoutModal').classList.add('active');
+            document.getElementById('cashoutModalOverlay').classList.add('active');
+        };
+
+        window.submitCashoutRequest = async function() {
+            if (cashoutAmount < 100) {
+                showToast('Minimum cashout amount is KSh 100', 'warning');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const cashoutData = {
+                    assistantId: currentAssistant.id,
+                    assistantName: currentAssistant.name,
+                    assistantPhone: currentAssistant.phone,
+                    amount: cashoutAmount,
+                    paymentMethod: 'M-Pesa',
+                    status: 'pending',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    requestedAt: new Date().toISOString()
+                };
+
+                await database.ref('cashout_requests').push(cashoutData);
+
+                showToast('Cashout request submitted successfully!', 'success');
+                closeCashoutModal();
+                await loadCashouts();
+                
+            } catch (error) {
+                console.error('Error submitting cashout:', error);
+                showToast('Failed to submit request', 'error');
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        window.closeCashoutModal = function() {
+            document.getElementById('cashoutModal').classList.remove('active');
+            document.getElementById('cashoutModalOverlay').classList.remove('active');
+        };
+
+        // ========== VIEW CASHOUT DETAILS ==========
+        window.viewCashoutDetails = function(cashoutId) {
+            const cashout = cashouts.find(c => c.id === cashoutId);
+            if (!cashout) return;
+
+            const date = cashout.timestamp ? new Date(cashout.timestamp).toLocaleString() : 'N/A';
+            const statusClass = `status-${cashout.status}`;
+
+            let statusNote = '';
+            if (cashout.status === 'approved') {
+                statusNote = '<p style="color: var(--success);">Your request has been approved and is being processed.</p>';
+            } else if (cashout.status === 'completed') {
+                statusNote = '<p style="color: var(--success);">Payment has been sent to your M-Pesa.</p>';
+            } else if (cashout.status === 'processing') {
+                statusNote = '<p style="color: var(--purple);">Your request is being processed.</p>';
+            } else if (cashout.status === 'cancelled') {
+                statusNote = `<p style="color: var(--danger);">${cashout.rejectionReason || 'Request was cancelled'}</p>`;
+            }
+
+            const content = `
+                <div class="modal-field">
+                    <label>Request Date</label>
+                    <div class="field-value">${date}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Amount</label>
+                    <div class="field-value">KSh ${(cashout.amount || 0).toLocaleString()}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Payment Method</label>
+                    <div class="field-value">${cashout.paymentMethod || 'M-Pesa'}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Phone Number</label>
+                    <div class="field-value">${cashout.assistantPhone || currentAssistant?.phone || 'N/A'}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Status</label>
+                    <div class="field-value"><span class="status-badge ${statusClass}">${cashout.status}</span></div>
+                </div>
+                ${statusNote ? `
+                <div class="modal-field">
+                    <label>Status Note</label>
+                    <div class="field-value">${statusNote}</div>
+                </div>` : ''}
+                ${cashout.processedAt ? `
+                <div class="modal-field">
+                    <label>Processed Date</label>
+                    <div class="field-value">${new Date(cashout.processedAt).toLocaleString()}</div>
+                </div>` : ''}
+                ${cashout.processedBy ? `
+                <div class="modal-field">
+                    <label>Processed By</label>
+                    <div class="field-value">${cashout.processedBy}</div>
+                </div>` : ''}
+            `;
+
+            document.getElementById('historyModalBody').innerHTML = content;
+            document.getElementById('historyModal').classList.add('active');
+            document.getElementById('historyModalOverlay').classList.add('active');
+        };
+
+        window.closeHistoryModal = function() {
+            document.getElementById('historyModal').classList.remove('active');
+            document.getElementById('historyModalOverlay').classList.remove('active');
+        };
+
+        // ========== UTILITY FUNCTIONS ==========
+        window.refreshWallet = function() {
+            loadWalletData();
+        };
+
+        window.showProfile = function() {
+            // Navigate to profile page or scroll
+            showToast('Profile page coming soon', 'info');
+        };
+
+        window.closeModal = function() {
+            document.getElementById('detailsModal').classList.remove('active');
+            document.getElementById('modalOverlay').classList.remove('active');
+        };
+
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').classList.toggle('active', show);
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+            toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function updateLastUpdated() {
+            document.getElementById('dataLastUpdated').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+        }
+
+        function updateCurrentDate() {
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+            });
+        }
+
+        function startAutoRefresh() {
+            updateCurrentDate();
+            setInterval(() => {
+                loadWalletData();
+            }, 300000); // Refresh every 5 minutes
+        }
+
+        // ========== EVENT LISTENERS ==========
+        document.getElementById('historyFilter')?.addEventListener('change', applyFilters);
+        document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
+
+        // ========== HANDLE LOGOUT ==========
+        window.handleLogout = async () => {
+            try {
+                showLoading(true);
+                await auth.signOut();
+                window.location.href = 'assistant-login.html';
+            } catch (error) {
+                showToast('Logout failed', 'error');
+                showLoading(false);
+            }
+        };
+
+        // ========== TOGGLE HAMBURGER ==========
+        window.toggleHamburger = function() {
+            document.getElementById('hamburgerPanel').classList.toggle('open');
+        };
+
+        document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
+
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('hamburgerPanel');
+            const btn = document.getElementById('hamburgerBtn');
+            if (panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
+                panel.classList.remove('open');
+            }
+        });
+
+        // ========== THEME TOGGLE ==========
+        window.toggleTheme = function() {
+            document.body.classList.toggle('light-theme');
+            const icon = document.getElementById('panelThemeIcon');
+            icon.classList.toggle('fa-moon', !document.body.classList.contains('light-theme'));
+            icon.classList.toggle('fa-sun', document.body.classList.contains('light-theme'));
+            localStorage.setItem('siteTheme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+        };
+
+        if (localStorage.getItem('siteTheme') === 'light') {
+            document.body.classList.add('light-theme');
+            document.getElementById('panelThemeIcon').classList.replace('fa-moon', 'fa-sun');
+        }
+    </script>
+</body>
+</html>
