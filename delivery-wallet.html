@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#ca8a04">
     <meta name="background-color" content="#0a0a0a">
     <meta name="color-scheme" content="dark light">
-    <title>DELIVERY ASSISTANT · Wallet</title>
+    <title>My Wallet · I AM MUGERA</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,7 +17,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        /* [Keep all the CSS from previous version - it's correct] */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --gold: #ca8a04;
@@ -30,6 +29,8 @@
             --purple: #8b5cf6;
             --pink: #ec4899;
             --teal: #14b8a6;
+            --blue: #3b82f6;
+            --orange: #f97316;
             
             --bg-primary: #0a0a0a;
             --bg-secondary: #111111;
@@ -98,9 +99,7 @@
             padding: 2px; background: var(--bg-primary);
             content: url('https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp');
         }
-        .assistant-badge {
-            background: var(--teal);
-            color: white;
+        .role-badge {
             font-size: 0.7rem;
             font-weight: 600;
             padding: 0.25rem 0.75rem;
@@ -108,6 +107,14 @@
             margin-left: 0.5rem;
             display: inline-block;
             text-transform: uppercase;
+        }
+        .role-badge.delivery {
+            background: var(--teal);
+            color: white;
+        }
+        .role-badge.driver {
+            background: var(--blue);
+            color: white;
         }
         .header-desktop-actions { display: flex; align-items: center; gap: 1.5rem; }
         
@@ -121,6 +128,10 @@
             background: var(--gold); color: #000; width: 35px; height: 35px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-weight: bold;
+        }
+        .user-name {
+            color: var(--gold); font-weight: 500; font-size: 0.9rem;
+            max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .logout-dropdown {
             position: absolute; top: 120%; right: 0;
@@ -766,7 +777,7 @@
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
     <div class="modal" id="detailsModal">
         <div class="modal-header">
-            <h3 id="modalTitle">Delivery Details</h3>
+            <h3 id="modalTitle">Earning Details</h3>
             <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-body" id="modalBody">
@@ -813,12 +824,12 @@
         <div class="header-container">
             <div style="display: flex; align-items: center;">
                 <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" alt="I AM MUGERA" class="site-logo">
-                <span class="assistant-badge" id="headerAssistantBadge">ASSISTANT</span>
+                <span class="role-badge" id="headerRoleBadge">ASSISTANT</span>
             </div>
             <div class="header-desktop-actions">
                 <div id="userMenuDesktop" class="user-menu">
-                    <span class="user-name" id="userDisplayNameDesktop">Assistant</span>
-                    <div class="user-avatar" id="userAvatarDesktop">A</div>
+                    <span class="user-name" id="userDisplayNameDesktop">User</span>
+                    <div class="user-avatar" id="userAvatarDesktop">U</div>
                     <div class="logout-dropdown">
                         <div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
                     </div>
@@ -833,21 +844,20 @@
     <!-- Hamburger panel -->
     <div class="hamburger-panel" id="hamburgerPanel">
         <div class="panel-header">
-            <h3>Assistant Menu</h3>
+            <h3>Menu</h3>
             <button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button>
         </div>
         <div class="panel-user-area">
             <div class="panel-user-info">
-                <div class="panel-avatar" id="panelAvatar">A</div>
-                <span class="panel-user-name" id="panelUserName">Assistant</span>
+                <div class="panel-avatar" id="panelAvatar">U</div>
+                <span class="panel-user-name" id="panelUserName">User</span>
             </div>
             <button class="panel-logout" onclick="handleLogout(); toggleHamburger();"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
         <div class="panel-quick-links">
-            <a href="assistant-dashboard.html" class="panel-link"><i class="fas fa-truck"></i> My Deliveries</a>
-            <a href="assistant-wallet.html" class="panel-link"><i class="fas fa-wallet"></i> My Wallet</a>
+            <a href="assistant-dashboard.html" class="panel-link" id="dashboardLink"><i class="fas fa-truck"></i> My Dashboard</a>
             <a href="#" class="panel-link" onclick="openCashoutModal(); toggleHamburger();"><i class="fas fa-money-bill-wave"></i> Request Cashout</a>
-            <a href="#" class="panel-link" onclick="showProfile(); toggleHamburger();"><i class="fas fa-user-cog"></i> My Profile</a>
+            <a href="#" class="panel-link" onclick="refreshWallet(); toggleHamburger();"><i class="fas fa-sync-alt"></i> Refresh</a>
         </div>
         <div class="panel-theme-toggle">
             <span><i class="fas fa-palette"></i> Dark / Light</span>
@@ -869,7 +879,7 @@
         <div class="wallet-card">
             <div class="wallet-label">Available Balance</div>
             <div class="wallet-balance" id="walletBalance">KSh 0</div>
-            <div class="wallet-sub" id="walletSub">Earnings from completed deliveries</div>
+            <div class="wallet-sub" id="walletSub">Earnings from completed tasks</div>
             <div class="wallet-actions">
                 <button class="wallet-btn primary" onclick="openCashoutModal()">
                     <i class="fas fa-money-bill-wave"></i> Request Cashout
@@ -902,24 +912,24 @@
                 <div class="stat-footer">Amount withdrawn</div>
             </div>
 
-            <!-- Deliveries Count -->
+            <!-- Tasks Count -->
             <div class="stat-card">
                 <div class="stat-header">
-                    <span class="stat-title">Deliveries</span>
-                    <div class="stat-icon"><i class="fas fa-box"></i></div>
+                    <span class="stat-title">Completed Tasks</span>
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
                 </div>
-                <div class="stat-value" id="totalDeliveries">0</div>
-                <div class="stat-footer">Completed deliveries</div>
+                <div class="stat-value" id="totalTasks">0</div>
+                <div class="stat-footer">Deliveries & Rides</div>
             </div>
 
-            <!-- Average per Delivery -->
+            <!-- Average per Task -->
             <div class="stat-card">
                 <div class="stat-header">
-                    <span class="stat-title">Avg per Delivery</span>
+                    <span class="stat-title">Avg per Task</span>
                     <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
                 </div>
-                <div class="stat-value" id="avgPerDelivery">KSh 150</div>
-                <div class="stat-footer">Standard delivery fee</div>
+                <div class="stat-value" id="avgPerTask">KSh 0</div>
+                <div class="stat-footer">Average earning</div>
             </div>
         </div>
 
@@ -941,27 +951,27 @@
             <button class="action-btn" onclick="refreshWallet()"><i class="fas fa-sync-alt"></i> Refresh</button>
         </div>
 
-        <!-- Recent Deliveries Section -->
+        <!-- Recent Earnings Section -->
         <div class="section-header">
             <div class="section-title">
-                <i class="fas fa-box"></i>
-                Recent Deliveries
+                <i class="fas fa-history"></i>
+                Recent Earnings
             </div>
         </div>
         <div class="table-container">
-            <table id="deliveriesTable">
+            <table id="earningsTable">
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Order ID</th>
+                        <th>Type</th>
+                        <th>ID</th>
                         <th>Customer</th>
-                        <th>Delivery Fee</th>
-                        <th>Status</th>
+                        <th>Amount</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="deliveriesTableBody">
-                    <tr><td colspan="6" style="text-align: center;">Loading deliveries...</td></tr>
+                <tbody id="earningsTableBody">
+                    <tr><td colspan="6" style="text-align: center;">Loading earnings...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -969,7 +979,7 @@
         <!-- Cashout History Section -->
         <div class="section-header">
             <div class="section-title">
-                <i class="fas fa-history"></i>
+                <i class="fas fa-money-bill-wave"></i>
                 Cashout History
             </div>
         </div>
@@ -1010,58 +1020,84 @@
 
         // Global state
         let currentUser = null;
-        let currentAssistant = null;
-        let deliveries = [];
+        let currentWorker = null;
+        let workerType = null; // 'delivery' or 'driver'
+        let earnings = [];
         let cashouts = [];
-        let filteredDeliveries = [];
+        let filteredEarnings = [];
         let filteredCashouts = [];
 
         // ========== AUTH STATE LISTENER ==========
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                const isAssistant = await checkIfAssistant(user);
-                if (isAssistant) {
+                const workerInfo = await checkWorkerStatus(user);
+                if (workerInfo) {
                     currentUser = user;
+                    currentWorker = workerInfo.data;
+                    workerType = workerInfo.type;
                     updateUserUI(user);
+                    updateRoleBadge();
                     loadWalletData();
                     startAutoRefresh();
                 } else {
-                    window.location.href = 'assistant-login.html';
+                    window.location.href = 'unauthorized.html';
                 }
             } else {
-                window.location.href = 'assistant-login.html';
+                window.location.href = 'login.html';
             }
         });
 
-        async function checkIfAssistant(user) {
+        async function checkWorkerStatus(user) {
             try {
+                // Check if delivery assistant
                 const assistantSnapshot = await database.ref(`delivery_assistants/${user.uid}`).once('value');
-                
                 if (assistantSnapshot.exists()) {
-                    const assistantData = assistantSnapshot.val();
-                    if (assistantData.status === 'active' || assistantData.verified === true) {
-                        currentAssistant = {
-                            id: user.uid,
-                            ...assistantData
-                        };
-                        return true;
+                    const data = assistantSnapshot.val();
+                    if (data.status === 'active' || data.verified === true) {
+                        return { type: 'delivery', data: { id: user.uid, ...data } };
                     }
                 }
-                return false;
+
+                // Check if driver
+                const driverSnapshot = await database.ref(`drivers/${user.uid}`).once('value');
+                if (driverSnapshot.exists()) {
+                    const data = driverSnapshot.val();
+                    if (data.status === 'active' || data.verified === true) {
+                        return { type: 'driver', data: { id: user.uid, ...data } };
+                    }
+                }
+
+                return null;
             } catch (error) {
-                console.error('Error checking assistant status:', error);
-                return false;
+                console.error('Error checking worker status:', error);
+                return null;
             }
         }
 
+        function updateRoleBadge() {
+            const badge = document.getElementById('headerRoleBadge');
+            badge.textContent = workerType === 'driver' ? 'DRIVER' : 'ASSISTANT';
+            badge.className = `role-badge ${workerType === 'driver' ? 'driver' : 'delivery'}`;
+        }
+
         function updateUserUI(user) {
-            const name = currentAssistant?.name || user.displayName || user.email?.split('@')[0] || 'Assistant';
+            const name = currentWorker?.name || user.displayName || user.email?.split('@')[0] || 'User';
             const initial = name.charAt(0).toUpperCase();
             
             document.getElementById('userDisplayNameDesktop').textContent = name;
             document.getElementById('userAvatarDesktop').textContent = initial;
             document.getElementById('panelAvatar').textContent = initial;
             document.getElementById('panelUserName').textContent = name;
+            
+            // Update dashboard link based on worker type
+            const dashboardLink = document.getElementById('dashboardLink');
+            if (workerType === 'driver') {
+                dashboardLink.href = 'driver-dashboard.html';
+                dashboardLink.innerHTML = '<i class="fas fa-car"></i> My Dashboard';
+            } else {
+                dashboardLink.href = 'assistant-dashboard.html';
+                dashboardLink.innerHTML = '<i class="fas fa-truck"></i> My Dashboard';
+            }
         }
 
         // ========== LOAD WALLET DATA ==========
@@ -1069,13 +1105,9 @@
             showLoading(true);
             
             try {
-                // Load deliveries first
-                await loadDeliveries();
-                // Then load cashouts
+                await loadEarnings();
                 await loadCashouts();
-                // Update wallet calculations
                 updateWallet();
-                // Apply filters
                 applyFilters();
                 updateLastUpdated();
             } catch (error) {
@@ -1086,43 +1118,65 @@
             }
         }
 
-        // Load completed deliveries for this assistant
-        async function loadDeliveries() {
+        // Load earnings based on worker type
+        async function loadEarnings() {
+            earnings = [];
+            
             try {
-                const snapshot = await database.ref('orders').once('value');
-                const data = snapshot.val() || {};
-                
-                deliveries = [];
-                
-                // Loop through all orders
-                Object.entries(data).forEach(([id, order]) => {
-                    // Check if this order is assigned to current assistant AND is delivered
-                    if (order.assignedTo === currentAssistant?.id && order.status === 'delivered') {
-                        deliveries.push({
-                            id: id,
-                            orderId: id,
-                            date: order.deliveryDate || order.orderDate || null,
-                            customerName: order.userName || order.fullName || 'Unknown',
-                            deliveryFee: order.deliveryFee || 150, // Default delivery fee
-                            status: 'delivered',
-                            timestamp: order.deliveryDate ? new Date(order.deliveryDate).getTime() : 
-                                      (order.orderDate ? new Date(order.orderDate).getTime() : Date.now())
-                        });
-                    }
-                });
+                if (workerType === 'delivery') {
+                    // Load delivery earnings from orders
+                    const snapshot = await database.ref('orders').once('value');
+                    const data = snapshot.val() || {};
+                    
+                    Object.entries(data).forEach(([id, order]) => {
+                        if (order.assignedTo === currentWorker?.id && order.status === 'delivered') {
+                            earnings.push({
+                                id: id,
+                                type: 'delivery',
+                                date: order.deliveryDate || order.orderDate || new Date().toISOString(),
+                                customerName: order.userName || order.fullName || 'Unknown',
+                                amount: order.deliveryFee || 150,
+                                status: 'completed',
+                                details: order,
+                                timestamp: order.deliveryDate ? new Date(order.deliveryDate).getTime() : 
+                                          (order.orderDate ? new Date(order.orderDate).getTime() : Date.now())
+                            });
+                        }
+                    });
+                } else if (workerType === 'driver') {
+                    // Load driver earnings from pickme_rides
+                    const snapshot = await database.ref('pickme_rides').once('value');
+                    const data = snapshot.val() || {};
+                    
+                    Object.entries(data).forEach(([id, ride]) => {
+                        if (ride.driver?.id === currentWorker?.id && ride.status === 'completed') {
+                            earnings.push({
+                                id: id,
+                                type: 'ride',
+                                date: ride.completedAt || ride.bookingDate || new Date().toISOString(),
+                                customerName: ride.customer?.name || ride.userName || 'Unknown',
+                                amount: ride.fare || 200,
+                                status: 'completed',
+                                details: ride,
+                                timestamp: ride.completedAt ? new Date(ride.completedAt).getTime() : 
+                                          (ride.bookingDate ? new Date(ride.bookingDate).getTime() : Date.now())
+                            });
+                        }
+                    });
+                }
 
                 // Sort by date (newest first)
-                deliveries.sort((a, b) => b.timestamp - a.timestamp);
-                filteredDeliveries = [...deliveries];
+                earnings.sort((a, b) => b.timestamp - a.timestamp);
+                filteredEarnings = [...earnings];
                 
-                console.log(`Loaded ${deliveries.length} completed deliveries for assistant`);
+                console.log(`Loaded ${earnings.length} earnings for ${workerType}`);
                 
             } catch (error) {
-                console.error('Error loading deliveries:', error);
+                console.error('Error loading earnings:', error);
             }
         }
 
-        // Load cashout history for this assistant
+        // Load cashout history
         async function loadCashouts() {
             try {
                 const snapshot = await database.ref('cashout_requests').once('value');
@@ -1130,9 +1184,8 @@
                 
                 cashouts = [];
                 
-                // Loop through all cashout requests
                 Object.entries(data).forEach(([id, request]) => {
-                    if (request.assistantId === currentAssistant?.id) {
+                    if (request.workerId === currentWorker?.id) {
                         cashouts.push({
                             id: id,
                             ...request,
@@ -1141,11 +1194,10 @@
                     }
                 });
 
-                // Sort by date (newest first)
                 cashouts.sort((a, b) => b.timestamp - a.timestamp);
                 filteredCashouts = [...cashouts];
                 
-                console.log(`Loaded ${cashouts.length} cashout requests for assistant`);
+                console.log(`Loaded ${cashouts.length} cashout requests`);
                 
             } catch (error) {
                 console.error('Error loading cashouts:', error);
@@ -1154,27 +1206,28 @@
 
         // ========== UPDATE WALLET ==========
         function updateWallet() {
-            // Calculate total earned from deliveries (all completed deliveries)
-            const totalEarned = deliveries.reduce((sum, d) => sum + (d.deliveryFee || 150), 0);
+            // Calculate total earned from completed tasks
+            const totalEarned = earnings.reduce((sum, e) => sum + (e.amount || 0), 0);
             
-            // Calculate total cashed out (only approved/completed cashouts)
+            // Calculate total cashed out (approved/completed cashouts)
             const totalCashout = cashouts
                 .filter(c => c.status === 'approved' || c.status === 'completed')
                 .reduce((sum, c) => sum + (c.amount || 0), 0);
             
-            // Available balance = total earned - total cashed out
+            // Available balance
             const availableBalance = totalEarned - totalCashout;
+            
+            // Average per task
+            const avgPerTask = earnings.length > 0 ? Math.round(totalEarned / earnings.length) : 0;
             
             // Update UI
             document.getElementById('walletBalance').textContent = `KSh ${availableBalance.toLocaleString()}`;
-            document.getElementById('walletSub').innerHTML = `Earnings from ${deliveries.length} completed deliveries`;
+            document.getElementById('walletSub').innerHTML = `Earnings from ${earnings.length} completed ${workerType === 'driver' ? 'rides' : 'deliveries'}`;
             
             document.getElementById('totalEarned').textContent = `KSh ${totalEarned.toLocaleString()}`;
             document.getElementById('totalCashout').textContent = `KSh ${totalCashout.toLocaleString()}`;
-            document.getElementById('totalDeliveries').textContent = deliveries.length;
-            
-            const avg = deliveries.length > 0 ? Math.round(totalEarned / deliveries.length) : 150;
-            document.getElementById('avgPerDelivery').textContent = `KSh ${avg}`;
+            document.getElementById('totalTasks').textContent = earnings.length;
+            document.getElementById('avgPerTask').textContent = `KSh ${avgPerTask}`;
             
             console.log(`Wallet updated - Earned: ${totalEarned}, Cashed out: ${totalCashout}, Balance: ${availableBalance}`);
         }
@@ -1184,51 +1237,51 @@
             const historyFilter = document.getElementById('historyFilter').value;
             const statusFilter = document.getElementById('statusFilter').value;
 
-            // Filter deliveries
             if (historyFilter === 'earnings') {
-                filteredDeliveries = [...deliveries];
+                filteredEarnings = [...earnings];
                 filteredCashouts = [];
             } else if (historyFilter === 'cashouts') {
-                filteredDeliveries = [];
+                filteredEarnings = [];
                 filteredCashouts = cashouts.filter(c => {
                     if (statusFilter === 'all') return true;
                     return c.status === statusFilter;
                 });
             } else {
-                filteredDeliveries = [...deliveries];
+                filteredEarnings = [...earnings];
                 filteredCashouts = cashouts.filter(c => {
                     if (statusFilter === 'all') return true;
                     return c.status === statusFilter;
                 });
             }
 
-            renderDeliveries();
+            renderEarnings();
             renderCashouts();
         }
 
-        // ========== RENDER DELIVERIES ==========
-        function renderDeliveries() {
-            const tbody = document.getElementById('deliveriesTableBody');
+        // ========== RENDER EARNINGS ==========
+        function renderEarnings() {
+            const tbody = document.getElementById('earningsTableBody');
             
-            if (filteredDeliveries.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No completed deliveries found</td></tr>';
+            if (filteredEarnings.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No earnings found</td></tr>';
                 return;
             }
 
             let html = '';
-            filteredDeliveries.slice(0, 20).forEach(delivery => {
-                const date = delivery.date ? new Date(delivery.date).toLocaleDateString() : 'N/A';
+            filteredEarnings.slice(0, 20).forEach(earning => {
+                const date = earning.date ? new Date(earning.date).toLocaleDateString() : 'N/A';
+                const typeIcon = earning.type === 'ride' ? '🚗' : '📦';
                 
                 html += `
                     <tr>
                         <td>${date}</td>
-                        <td>#${delivery.id.slice(-8)}</td>
-                        <td>${delivery.customerName}</td>
-                        <td><span class="fee-badge">KSh ${(delivery.deliveryFee || 150).toLocaleString()}</span></td>
-                        <td><span class="status-badge status-completed">Completed</span></td>
+                        <td>${typeIcon} ${earning.type === 'ride' ? 'Ride' : 'Delivery'}</td>
+                        <td>#${earning.id.slice(-8)}</td>
+                        <td>${earning.customerName}</td>
+                        <td><span class="fee-badge">KSh ${(earning.amount || 0).toLocaleString()}</span></td>
                         <td>
                             <div class="table-actions">
-                                <button class="table-btn view" onclick="viewDeliveryDetails('${delivery.id}')" title="View Details">
+                                <button class="table-btn view" onclick="viewEarningDetails('${earning.id}', '${earning.type}')" title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
@@ -1274,44 +1327,75 @@
             tbody.innerHTML = html;
         }
 
-        // ========== VIEW DELIVERY DETAILS ==========
-        window.viewDeliveryDetails = function(orderId) {
-            const order = deliveries.find(d => d.id === orderId);
-            if (!order) return;
+        // ========== VIEW EARNING DETAILS ==========
+        window.viewEarningDetails = function(itemId, type) {
+            const earning = earnings.find(e => e.id === itemId);
+            if (!earning) return;
 
-            const content = `
-                <div class="modal-field">
-                    <label>Order ID</label>
-                    <div class="field-value">#${order.id}</div>
-                </div>
-                <div class="modal-field">
-                    <label>Delivery Date</label>
-                    <div class="field-value">${order.date ? new Date(order.date).toLocaleString() : 'N/A'}</div>
-                </div>
-                <div class="modal-field">
-                    <label>Customer</label>
-                    <div class="field-value">${order.customerName}</div>
-                </div>
-                <div class="modal-field">
-                    <label>Delivery Fee Earned</label>
-                    <div class="field-value">KSh ${(order.deliveryFee || 150).toLocaleString()}</div>
-                </div>
-                <div class="modal-field">
-                    <label>Status</label>
-                    <div class="field-value"><span class="status-badge status-completed">Completed</span></div>
-                </div>
-            `;
+            let details = '';
+            
+            if (type === 'delivery') {
+                details = `
+                    <div class="modal-field">
+                        <label>Delivery ID</label>
+                        <div class="field-value">#${earning.id}</div>
+                    </div>
+                    <div class="modal-field">
+                        <label>Delivery Date</label>
+                        <div class="field-value">${earning.date ? new Date(earning.date).toLocaleString() : 'N/A'}</div>
+                    </div>
+                    <div class="modal-field">
+                        <label>Customer</label>
+                        <div class="field-value">${earning.customerName}</div>
+                    </div>
+                    <div class="modal-field">
+                        <label>Delivery Address</label>
+                        <div class="field-value">${earning.details?.deliveryAddress || 'N/A'}</div>
+                    </div>
+                    <div class="modal-field">
+                        <label>Delivery Fee Earned</label>
+                        <div class="field-value">KSh ${(earning.amount || 0).toLocaleString()}</div>
+                    </div>
+                `;
+            } else {
+                details = `
+                    <div class="modal-field">
+                        <label>Ride ID</label>
+                        <div class="field-value">#${earning.id}</div>
+                    </div>
+                    <div class="modal-field">
+                        <label>Ride Date</label>
+                        <div class="field-value">${earning.date ? new Date(earning.date).toLocaleString() : 'N/A'}</div>
+                    </div>
+                    <div class="modal-field">
+                        <label>Customer</label>
+                        <div class="field-value">${earning.customerName}</div>
+                    </div>
+                    <div class="modal-field">
+                        <label>Pickup</label>
+                        <div class="field-value">${earning.details?.pickup?.address || 'N/A'}</div>
+                    </div>
+                    <div class="modal-field">
+                        <label>Dropoff</label>
+                        <div class="field-value">${earning.details?.dropoff?.address || 'N/A'}</div>
+                    </div>
+                    <div class="modal-field">
+                        <label>Fare Earned</label>
+                        <div class="field-value">KSh ${(earning.amount || 0).toLocaleString()}</div>
+                    </div>
+                `;
+            }
 
-            document.getElementById('modalTitle').textContent = 'Delivery Details';
-            document.getElementById('modalBody').innerHTML = content;
+            document.getElementById('modalTitle').textContent = `${type === 'ride' ? 'Ride' : 'Delivery'} Details`;
+            document.getElementById('modalBody').innerHTML = details;
             document.getElementById('detailsModal').classList.add('active');
             document.getElementById('modalOverlay').classList.add('active');
         };
 
         // ========== CASHOUT FUNCTIONS ==========
         window.openCashoutModal = function() {
-            // Get current balance
-            const totalEarned = deliveries.reduce((sum, d) => sum + (d.deliveryFee || 150), 0);
+            // Calculate available balance
+            const totalEarned = earnings.reduce((sum, e) => sum + (e.amount || 0), 0);
             const totalCashout = cashouts
                 .filter(c => c.status === 'approved' || c.status === 'completed')
                 .reduce((sum, c) => sum + (c.amount || 0), 0);
@@ -1334,7 +1418,7 @@
                 </div>
                 <div class="cashout-detail">
                     <span>Phone Number</span>
-                    <span>${currentAssistant?.phone || 'Not set'}</span>
+                    <span>${currentWorker?.phone || 'Not set'}</span>
                 </div>
                 <div class="cashout-detail">
                     <span>Processing Time</span>
@@ -1355,7 +1439,7 @@
         };
 
         window.submitCashoutRequest = async function() {
-            const totalEarned = deliveries.reduce((sum, d) => sum + (d.deliveryFee || 150), 0);
+            const totalEarned = earnings.reduce((sum, e) => sum + (e.amount || 0), 0);
             const totalCashout = cashouts
                 .filter(c => c.status === 'approved' || c.status === 'completed')
                 .reduce((sum, c) => sum + (c.amount || 0), 0);
@@ -1370,9 +1454,10 @@
 
             try {
                 const cashoutData = {
-                    assistantId: currentAssistant.id,
-                    assistantName: currentAssistant.name,
-                    assistantPhone: currentAssistant.phone,
+                    workerId: currentWorker.id,
+                    workerName: currentWorker.name,
+                    workerType: workerType,
+                    workerPhone: currentWorker.phone,
                     amount: availableBalance,
                     paymentMethod: 'M-Pesa',
                     status: 'pending',
@@ -1385,7 +1470,6 @@
                 showToast('Cashout request submitted successfully!', 'success');
                 closeCashoutModal();
                 
-                // Reload cashouts to show the new request
                 await loadCashouts();
                 updateWallet();
                 applyFilters();
@@ -1437,7 +1521,7 @@
                 </div>
                 <div class="modal-field">
                     <label>Phone Number</label>
-                    <div class="field-value">${cashout.assistantPhone || currentAssistant?.phone || 'N/A'}</div>
+                    <div class="field-value">${cashout.workerPhone || currentWorker?.phone || 'N/A'}</div>
                 </div>
                 <div class="modal-field">
                     <label>Status</label>
@@ -1453,11 +1537,6 @@
                     <label>Processed Date</label>
                     <div class="field-value">${new Date(cashout.processedAt).toLocaleString()}</div>
                 </div>` : ''}
-                ${cashout.processedBy ? `
-                <div class="modal-field">
-                    <label>Processed By</label>
-                    <div class="field-value">${cashout.processedBy}</div>
-                </div>` : ''}
             `;
 
             document.getElementById('historyModalBody').innerHTML = content;
@@ -1470,18 +1549,14 @@
             document.getElementById('historyModalOverlay').classList.remove('active');
         };
 
-        // ========== UTILITY FUNCTIONS ==========
-        window.refreshWallet = function() {
-            loadWalletData();
-        };
-
-        window.showProfile = function() {
-            showToast('Profile page coming soon', 'info');
-        };
-
         window.closeModal = function() {
             document.getElementById('detailsModal').classList.remove('active');
             document.getElementById('modalOverlay').classList.remove('active');
+        };
+
+        // ========== UTILITY FUNCTIONS ==========
+        window.refreshWallet = function() {
+            loadWalletData();
         };
 
         function showLoading(show) {
@@ -1526,7 +1601,7 @@
             try {
                 showLoading(true);
                 await auth.signOut();
-                window.location.href = 'assistant-login.html';
+                window.location.href = 'login.html';
             } catch (error) {
                 showToast('Logout failed', 'error');
                 showLoading(false);
