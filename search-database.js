@@ -59,10 +59,10 @@ const SEARCH_DATABASE = [
         url: "sura.html" 
     },
     { 
-        title: "DELIVERY", 
+        title: "DELIVERY ASSISTANT", 
         category: "JOB", 
         icon: "fas fa-truck", 
-        keywords: ["delivery","deliver","package","driver","deliverer"], 
+        keywords: ["delivery","deliver","package","driver","deliverer","assistant"], 
         url: "delivery-assistant.html" 
     },
     { 
@@ -112,6 +112,13 @@ const SEARCH_DATABASE = [
         category: "SERVICE", 
         icon: "fas fa-truck", 
         keywords: ["pick","up","delivery","deliver"], 
+        url: "pickup.html" 
+    },
+    { 
+        title: "DRIVING ASSISTANT", 
+        category: "JOB", 
+        icon: "fas fa-car", 
+        keywords: ["driving","taxi","drive","driver","assistant"], 
         url: "pickup.html" 
     },
     { 
