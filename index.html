@@ -2451,7 +2451,7 @@
                 <!-- SEARCH -->
                 <div class="desktop-search" id="desktopSearchContainer">
                     <input type="text" placeholder="Search I AM MUGERA..." id="desktopSearchInput" autocomplete="off">
-                    <button onclick="performSearch(document.getElementById('desktopSearchInput').value)"><i class="fas fa-search"></i></button>
+                    <button onclick="window.performSearch(document.getElementById('desktopSearchInput').value)"><i class="fas fa-search"></i></button>
                     <div class="search-hints" id="desktopSearchHints"></div>
                 </div>
                 
@@ -2489,7 +2489,7 @@
     <div class="search-overlay" id="mobileSearchOverlay">
         <div class="search-row">
             <input type="text" placeholder="Search I AM MUGERA..." id="mobileSearchInput" autocomplete="off">
-            <button onclick="performSearch(document.getElementById('mobileSearchInput').value); toggleMobileSearch();"><i class="fas fa-search"></i></button>
+            <button onclick="window.performSearch(document.getElementById('mobileSearchInput').value); toggleMobileSearch();"><i class="fas fa-search"></i></button>
             <button class="close-search" onclick="toggleMobileSearch()"><i class="fas fa-times"></i></button>
             <div class="mobile-search-hints" id="mobileSearchHints"></div>
         </div>
@@ -2533,6 +2533,7 @@
             <a href="#" class="panel-link" onclick="navigateToWorkFit(); toggleHamburger();"><i class="fas fa-dumbbell"></i>WORKFIT</a>
             <a href="#" class="panel-link" onclick="navigateToWebDev(); toggleHamburger();"><i class="fas fa-code"></i>DEV•MUGERA</a>
             <a href="#" class="panel-link" onclick="navigateToSection('activities'); toggleHamburger();"><i class="fas fa-compass"></i>ACTIVITIES</a>
+            <a href="#" class="panel-link" onclick="restartTutorial(); toggleHamburger();"><i class="fas fa-graduation-cap"></i>RESTART TOUR</a>
         </div>
         
         <div class="panel-theme-toggle" id="themeToggle">
@@ -2698,6 +2699,10 @@
     <i class="fas fa-globe-africa"></i>
     <span id="toastMessage">Coming soon</span>
 </div>
+
+<!-- External JavaScript Files -->
+<script src="search-database.js"></script>
+<script src="search-utils.js"></script>
 
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -3331,95 +3336,13 @@
     };
 
     // ========== SEARCH FUNCTIONALITY ==========
-    const searchDatabase = [
-        { title: "Eye of Mugera", category: "Journal", icon: "far fa-newspaper", keywords: ["news","eye","weekly","journal","articles"], url: "eye-of-mugera.html" },
-        { title: "Inspired.Me Program", category: "Program", icon: "fas fa-seedling", keywords: ["inspired","program","holistic","wellness","mental","physical","financial","social"], url: "inspire-program.html" },
-        { title: "African Heritage Shop", category: "Shop", icon: "fas fa-store", keywords: ["shop","store","merchandise","books","heritage","african"], url: "shop.html" },
-        { title: "WorkFit Club", category: "Club", icon: "fas fa-dumbbell", keywords: ["fitness","wellness","gym","workout","sports","health","club"], url: "workfit-club.html" },
-        { title: "DEV•HUB", category: "Services", icon: "fas fa-code", keywords: ["web","development","software","apps","coding","mugeradev","programming"], url: "mugeradev.html" },
-        { title: "Inbox", category: "Messaging", icon: "fas fa-inbox", keywords: ["inbox","messages","chat","mail","private"], url: "inbox.html" },
-        { title: "BrandIn", category: "SERVICE", icon: "fas fa-business", keywords: ["personal","branding","brand","brandin","website"], url: "brandin.html" },
-        { title: "SURA", category: "SERVICE", icon: "fas fa-user", keywords: ["sura","profile","portfolio","business","card"], url: "sura.html" },
-        { title: "DELIVERY", category: "JOB", icon: "fas fa-truck", keywords: ["delivery","deliver","package","driver","deliverer"], url: "delivery-assistant.html" },
-        { title: "DATA ENTRY MASTERY", category: "COURSE", icon: "fas fa-class", keywords: ["data","entry","data entry","d","course"], url: "data-entry.html" },
-        { title: "WEB DEVELOPMENT", category: "COURSE", icon: "fas fa-class", keywords: ["web","develop","developer","coding","course"], url: "web-dev.html" },
-        { title: "LEADERSHIP MASTERY", category: "COURSE", icon: "fas fa-class", keywords: ["leader","mastery","lead","leadership","course"], url: "data-entry.html" },
-        { title: "Voice Central", category: "Media", icon: "fas fa-microphone-alt", keywords: ["voice","central","conversations","podcast"], url: "mugera.html" },
-        { title: "PAYMENTS", category: "PAYMENTS", icon: "fas fa-wallet", keywords: ["pay","partner","payment","partnerships"], url: "payments.html" },
-        { title: "HEKIMA•HUB", category: "COURSES", icon: "fas fa-university", keywords: ["school","class","course"], url: "courses.html" }
-    ];
-
-    window.performSearch = function(query) {
-        if (!query?.trim()) {
-            showElegantMessage('Enter a search term', 'info');
-            return;
-        }
-        
-        query = query.toLowerCase().trim();
-        const results = searchDatabase.filter(item => 
-            item.title.toLowerCase().includes(query) || 
-            item.keywords.some(k => k.includes(query))
-        );
-        
-        if (results.length === 0) {
-            showElegantMessage(`No results found for "${query}"`, 'info');
-            return;
-        }
-        
-        if (results.length === 1) {
-            showElegantMessage(`Found: ${results[0].title}`, 'success');
-            setTimeout(() => window.location.href = results[0].url, 800);
-        } else {
-            showElegantMessage(`Found ${results.length} results`, 'success');
-            setTimeout(() => window.location.href = results[0].url, 1000);
-        }
-    };
-
-    function generateHints(query, containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        
-        if (!query || query.length < 2) {
-            container.classList.remove('show');
-            container.innerHTML = '';
-            return;
-        }
-        
-        query = query.toLowerCase().trim();
-        const matches = searchDatabase.filter(item => 
-            item.title.toLowerCase().includes(query) || 
-            item.keywords.some(k => k.includes(query))
-        ).slice(0, 5);
-        
-        if (matches.length === 0) {
-            container.classList.remove('show');
-            container.innerHTML = '';
-            return;
-        }
-        
-        let html = '';
-        matches.forEach(m => {
-            html += `<div class="hint-item" onclick="selectHint('${m.title.replace(/'/g, "\\'")}', '${m.url}')">
-                <i class="${m.icon}"></i>
-                <span>${m.title}</span>
-                <span class="hint-category">${m.category}</span>
-            </div>`;
-        });
-        
-        container.innerHTML = html;
-        container.classList.add('show');
-    }
-
-    window.selectHint = function(title, url) {
-        window.location.href = url;
-    };
-
+    // Update the input listeners to use the generateSearchHints from search-utils.js
     const debouncedDesktop = debounce(function() {
-        generateHints(document.getElementById('desktopSearchInput')?.value, 'desktopSearchHints');
+        window.generateSearchHints(document.getElementById('desktopSearchInput')?.value, 'desktopSearchHints');
     }, 200);
     
     const debouncedMobile = debounce(function() {
-        generateHints(document.getElementById('mobileSearchInput')?.value, 'mobileSearchHints');
+        window.generateSearchHints(document.getElementById('mobileSearchInput')?.value, 'mobileSearchHints');
     }, 200);
 
     document.getElementById('desktopSearchInput')?.addEventListener('input', debouncedDesktop);
@@ -3551,20 +3474,6 @@
         });
     });
 
-    const panelLinks = document.querySelector('.panel-quick-links');
-    if (panelLinks) {
-        const restartTutorialLink = document.createElement('a');
-        restartTutorialLink.href = '#';
-        restartTutorialLink.className = 'panel-link';
-        restartTutorialLink.onclick = function(e) {
-            e.preventDefault();
-            restartTutorial();
-            toggleHamburger();
-        };
-        restartTutorialLink.innerHTML = '<i class="fas fa-graduation-cap"></i>Restart Tour';
-        panelLinks.appendChild(restartTutorialLink);
-    }
-
     // ========== TOGGLES ==========
     window.toggleHamburger = () => {
         document.getElementById('hamburgerPanel').classList.toggle('open');
@@ -3611,7 +3520,7 @@
         document.getElementById('panelThemeIcon')?.classList.replace('fa-moon', 'fa-sun');
     }
 
-    console.log('I AM MUGERA loaded with mobile PWA installation');
+    console.log('I AM MUGERA loaded with external search database');
 </script>
 </body>
 </html>
