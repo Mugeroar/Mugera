@@ -1,0 +1,2226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">            
+    <meta name="theme-color" content="#ca8a04">
+    <meta name="background-color" content="#0a0a0a">
+    <meta name="color-scheme" content="dark light">
+    <title>PICK ME · Drivers Portal | I AM MUGERA</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --gold: #ca8a04;
+            --gold-dark: #a16207;
+            --gold-light: #fef3c7;
+            --danger: #dc2626;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --pink: #ec4899;
+            --teal: #14b8a6;
+            --orange: #f97316;
+            --blue: #3b82f6;
+            
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: rgba(20,20,20,0.8);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border-light: #2a2a2a;
+            --shadow-color: rgba(202,138,4,0.25);
+            --nav-bg: rgba(10,10,10,0.95);
+            --card-bg: #151515;
+            --glass-bg: rgba(20,20,20,0.3);
+            --glass-border: rgba(255,255,255,0.1);
+            --glass-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            --toast-bg: rgba(20,20,20,0.95);
+            --toast-border: var(--gold);
+            --header-height: 70px;
+            --input-bg: rgba(255,255,255,0.05);
+            --input-focus-bg: rgba(255,255,255,0.1);
+            
+            /* Status Colors */
+            --status-pending: #f59e0b;
+            --status-approved: #10b981;
+            --status-rejected: #ef4444;
+            --status-pending-verification: #8b5cf6;
+            --status-assigned: #3b82f6;
+            --status-en-route: #8b5cf6;
+            --status-completed: #10b981;
+            --status-cancelled: #ef4444;
+        }
+
+        body.light-theme {
+            --bg-primary: #f8f5f0;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #2d2d2d;
+            --text-muted: #555555;
+            --border-light: #dddddd;
+            --shadow-color: rgba(202,138,4,0.4);
+            --nav-bg: rgba(255,255,255,0.95);
+            --card-bg: #ffffff;
+            --input-bg: rgba(0,0,0,0.03);
+            --input-focus-bg: rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-top: var(--header-height);
+            transition: background 0.3s, color 0.2s;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .site-header {
+            position: fixed; top: 0; width: 100%; height: var(--header-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold); z-index: 2000; padding: 0 1rem;
+        }
+        .header-container {
+            max-width: 1400px; height: 100%; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .site-logo {
+            height: 48px; border-radius: 12px; border: 2px solid var(--gold);
+            padding: 2px; background: var(--bg-primary);
+            content: url('https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp');
+        }
+        .driver-badge {
+            background: var(--blue);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 30px;
+            margin-left: 0.5rem;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+        .header-desktop-actions { display: flex; align-items: center; gap: 1.5rem; }
+        
+        .user-menu {
+            display: flex; align-items: center; gap: 0.5rem;
+            background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
+            border-radius: 40px; padding: 0.3rem 0.3rem 0.3rem 1rem;
+            cursor: pointer; position: relative;
+        }
+        .user-avatar {
+            background: var(--gold); color: #000; width: 35px; height: 35px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+        }
+        .logout-dropdown {
+            position: absolute; top: 120%; right: 0;
+            background: var(--card-bg); border: 1px solid var(--gold);
+            border-radius: 20px; padding: 0.5rem;
+            min-width: 120px; display: none; z-index: 1001;
+        }
+        .user-menu:hover .logout-dropdown { display: block; }
+        .logout-item {
+            padding: 0.7rem 1rem; color: var(--text-primary);
+            border-radius: 15px; transition: 0.2s;
+            display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+        }
+        .logout-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
+        
+        .mobile-header-group { display: none; align-items: center; gap: 0.8rem; }
+        .hamburger-icon {
+            border: 1px solid var(--gold); color: var(--gold);
+            width: 42px; height: 42px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; cursor: pointer; transition: all 0.2s;
+        }
+        .hamburger-icon:hover { background: var(--gold); color: black; }
+
+        /* Hamburger panel */
+        .hamburger-panel {
+            position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
+            background: var(--nav-bg); backdrop-filter: blur(20px);
+            border-left: 1px solid var(--gold); padding: 2rem 1.5rem;
+            z-index: 2500; transition: right 0.3s ease; display: flex; flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        .hamburger-panel.open { right: 0; }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;
+        }
+        .panel-header h3 { font-family: 'Cinzel', serif; color: var(--gold); }
+        .close-panel {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1.8rem; cursor: pointer; line-height: 1;
+        }
+        .panel-user-area {
+            background: rgba(202,138,4,0.05);
+            border-radius: 30px;
+            padding: 1rem;
+            border: 1px solid var(--border-light);
+            margin: 1.5rem 0;
+        }
+        .panel-user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .panel-avatar {
+            width: 48px; height: 48px;
+            background: var(--gold); color: black;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.2rem;
+        }
+        .panel-user-name {
+            font-weight: 600;
+            color: var(--gold);
+        }
+        .panel-logout {
+            width: 100%;
+            padding: 0.7rem;
+            background: transparent;
+            border: 1px solid var(--gold);
+            border-radius: 40px;
+            color: var(--gold);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .panel-logout:hover {
+            background: var(--gold);
+            color: black;
+        }
+        .panel-quick-links {
+            display: flex; flex-direction: column; gap: 0.5rem;
+        }
+        .panel-link {
+            padding: 0.9rem 1rem; background: rgba(255,255,255,0.03);
+            border-radius: 30px; color: var(--text-primary); text-decoration: none;
+            display: flex; align-items: center; gap: 1rem; transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .panel-link:hover {
+            border-color: var(--gold); background: rgba(202,138,4,0.1); color: var(--gold);
+        }
+        .panel-link i { width: 24px; color: var(--gold); }
+        .panel-theme-toggle {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 40px;
+            margin-top: auto; border: 1px solid var(--border-light);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            margin-bottom: 2.5rem;
+        }
+        .dashboard-header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+        .dashboard-header p {
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .dashboard-header p i {
+            color: var(--gold);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(202, 138, 4, 0.2);
+            border-radius: 30px;
+            padding: 1.8rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 20px 40px rgba(202, 138, 4, 0.15);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .stat-title {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(202, 138, 4, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--gold);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-footer {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Driver Profile Card */
+        .profile-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: rgba(202, 138, 4, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--gold);
+            border: 3px solid var(--gold);
+        }
+
+        .profile-info h2 {
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-details {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .detail-item i {
+            color: var(--gold);
+            width: 20px;
+        }
+
+        /* Service Type Badges */
+        .service-badge {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .service-ride {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--blue);
+            border: 1px solid var(--blue);
+        }
+        
+        .service-scheduled {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+            border: 1px solid var(--purple);
+        }
+
+        /* Status Cards */
+        .status-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .status-title {
+            font-size: 1.5rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .status-message {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Request Form */
+        .request-form {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Verification Badges */
+        .verification-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .badge-pending {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+            border: 1px solid var(--purple);
+        }
+
+        .badge-approved {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .badge-rejected {
+            background: rgba(220, 38, 38, 0.15);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(202, 138, 4, 0.3);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gold);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .section-title i {
+            font-size: 1.8rem;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .action-btn {
+            padding: 0.6rem 1.2rem;
+            background: rgba(202, 138, 4, 0.1);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            color: var(--gold);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .action-btn:hover {
+            background: var(--gold);
+            color: black;
+        }
+
+        .action-btn.success {
+            border-color: var(--success);
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .action-btn.success:hover {
+            background: var(--success);
+            color: white;
+        }
+
+        .action-btn.primary {
+            border-color: var(--blue);
+            color: var(--blue);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .action-btn.primary:hover {
+            background: var(--blue);
+            color: white;
+        }
+
+        .action-btn.pickup {
+            border-color: var(--orange);
+            color: var(--orange);
+            background: rgba(249, 115, 22, 0.1);
+        }
+
+        .action-btn.pickup:hover {
+            background: var(--orange);
+            color: white;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            border: 1px solid rgba(202, 138, 4, 0.2);
+        }
+
+        .filter-select {
+            padding: 0.6rem 1.2rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            min-width: 150px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .search-input {
+            padding: 0.6rem 1.2rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+            color: var(--text-primary);
+            min-width: 250px;
+            flex: 1;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        /* Tables */
+        .table-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(202, 138, 4, 0.2);
+            border-radius: 30px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 1.2rem 1.5rem;
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(202, 138, 4, 0.1);
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(202, 138, 4, 0.05);
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            text-transform: capitalize;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-approved, .status-active {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-rejected {
+            background: rgba(220, 38, 38, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }
+
+        .status-pending-verification {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+            border: 1px solid var(--purple);
+        }
+
+        .status-assigned {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--blue);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .status-en-route {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .status-completed {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-cancelled {
+            background: rgba(220, 38, 38, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }
+
+        /* Table actions */
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .table-btn {
+            padding: 0.4rem 0.8rem;
+            border: 1px solid transparent;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .table-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .table-btn.accept:hover {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .table-btn.reject:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .table-btn.navigate:hover {
+            border-color: var(--info);
+            color: var(--info);
+        }
+
+        .table-btn.complete:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .table-btn.route:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9499;
+            display: none;
+        }
+        .modal-overlay.active { display: block; }
+        .modal {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 30px;
+            border: 2px solid var(--gold);
+            z-index: 9500;
+            max-width: 500px;
+            width: 90%;
+            display: none;
+        }
+        .modal.active { display: block; animation: modalFadeIn 0.3s; }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translate(-50%,-60%); }
+            to { opacity: 1; transform: translate(-50%,-50%); }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .modal-header h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+        }
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+        .modal-field {
+            margin-bottom: 1rem;
+        }
+        .modal-field label {
+            display: block;
+            color: var(--gold);
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+        .modal-field .field-value {
+            padding: 0.8rem;
+            background: var(--input-bg);
+            border-radius: 12px;
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* Route Completion Modal */
+        .route-upload-area {
+            border: 2px dashed var(--gold);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            cursor: pointer;
+        }
+        .route-upload-area:hover {
+            background: rgba(202,138,4,0.05);
+        }
+        .route-upload-area i {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        .route-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 1rem;
+            border-radius: 10px;
+            display: none;
+        }
+
+        /* Loading and Toast */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+        }
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(202,138,4,0.2);
+            border-radius: 50%;
+            border-top-color: var(--gold);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .toast-container {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 10001;
+        }
+        .toast {
+            background: rgba(20,20,20,0.95);
+            backdrop-filter: blur(10px);
+            border-left: 4px solid var(--gold);
+            border-radius: 20px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+            animation: slideInRight 0.3s ease;
+            border: 1px solid rgba(202,138,4,0.3);
+        }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast.info { border-left-color: var(--info); }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .header-desktop-actions { display: none; }
+            .mobile-header-group { display: flex; }
+            .main-content { padding: 1rem; }
+            .filters { flex-direction: column; }
+            .search-input { min-width: auto; }
+            .table-container { overflow-x: auto; }
+            table { min-width: 1200px; }
+            .profile-card { flex-direction: column; text-align: center; }
+            .profile-details { justify-content: center; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Modal for viewing ride details -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+    <div class="modal" id="detailsModal">
+        <div class="modal-header">
+            <h3 id="modalTitle">Ride Details</h3>
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Dynamic content -->
+        </div>
+        <div class="modal-actions">
+            <button class="action-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Modal for route completion -->
+    <div class="modal-overlay" id="routeModalOverlay" onclick="closeRouteModal()"></div>
+    <div class="modal" id="routeModal">
+        <div class="modal-header">
+            <h3>Complete Ride</h3>
+            <button class="modal-close" onclick="closeRouteModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="routeModalBody">
+            <p style="margin-bottom: 1rem;">Confirm that you have completed this ride.</p>
+            <div style="margin-top: 1rem;">
+                <label class="form-label">Customer Name</label>
+                <input type="text" class="form-control" id="routeCustomerName" placeholder="Enter customer name">
+            </div>
+            <div style="margin-top: 1rem;">
+                <label class="form-label">Additional Notes</label>
+                <textarea class="form-control" id="routeNotes" rows="3" placeholder="Any notes about the ride"></textarea>
+            </div>
+            <div style="margin-top: 1rem;">
+                <label class="form-label">Rating (1-5)</label>
+                <select class="form-control" id="routeRating">
+                    <option value="5">5 - Excellent</option>
+                    <option value="4">4 - Good</option>
+                    <option value="3">3 - Average</option>
+                    <option value="2">2 - Below Average</option>
+                    <option value="1">1 - Poor</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="action-btn" onclick="closeRouteModal()">Cancel</button>
+            <button class="action-btn success" onclick="completeRide()">Complete Ride</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-container">
+            <div style="display: flex; align-items: center;">
+                <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" alt="I AM MUGERA" class="site-logo">
+                <span class="driver-badge" id="headerDriverBadge" style="display: none;">DRIVER</span>
+            </div>
+            <div class="header-desktop-actions">
+                <div id="userMenuDesktop" class="user-menu" style="display:none;">
+                    <span class="user-name" id="userDisplayNameDesktop">Driver</span>
+                    <div class="user-avatar" id="userAvatarDesktop">D</div>
+                    <div class="logout-dropdown">
+                        <div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                    </div>
+                </div>
+                <div id="loginButtonDesktop" onclick="openAuthModal()" style="display:flex; align-items:center; gap:0.5rem; background:rgba(202,138,4,0.1); border:1px solid var(--gold); border-radius:40px; padding:0.3rem 1.2rem; cursor:pointer;">
+                    <i class="fas fa-user-circle"></i><span>Login</span>
+                </div>
+            </div>
+            <div class="mobile-header-group">
+                <div class="hamburger-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hamburger panel -->
+    <div class="hamburger-panel" id="hamburgerPanel">
+        <div class="panel-header">
+            <h3>Driver Menu</h3>
+            <button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="panel-user-area" id="panelUserArea">
+            <div id="panelLoggedOut" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                <div style="text-align: center; color: var(--text-muted);"><i class="fas fa-user-circle" style="font-size: 3rem;"></i></div>
+                <button class="panel-logout" onclick="openAuthModal(); toggleHamburger();"><i class="fas fa-sign-in-alt"></i> Login</button>
+            </div>
+            <div id="panelLoggedIn" style="display: none; flex-direction: column; gap: 0.8rem;">
+                <div class="panel-user-info">
+                    <div class="panel-avatar" id="panelAvatar">D</div>
+                    <span class="panel-user-name" id="panelUserName">Driver</span>
+                </div>
+                <button class="panel-logout" onclick="handleLogout(); toggleHamburger();"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </div>
+        <div class="panel-quick-links">
+            <a href="#" class="panel-link" onclick="showSection('active'); toggleHamburger();"><i class="fas fa-car"></i> Active Rides</a>
+            <a href="#" class="panel-link" onclick="showSection('completed'); toggleHamburger();"><i class="fas fa-check-circle"></i> Completed</a>
+            <a href="#" class="panel-link" onclick="showSection('all'); toggleHamburger();"><i class="fas fa-list"></i> All Rides</a>
+            <a href="#" class="panel-link" onclick="showSection('scheduled'); toggleHamburger();"><i class="fas fa-calendar"></i> Scheduled</a>
+            <a href="driver-wallet.html" class="panel-link" onclick="showProfile(); toggleHamburger();"><i class="fas fa-user-cog"></i> My Wallet</a>
+        </div>
+        <div class="panel-theme-toggle">
+            <span><i class="fas fa-palette"></i> Dark / Light</span>
+            <div onclick="toggleTheme()" style="width:45px; height:45px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                <i class="fas fa-moon" id="panelThemeIcon"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="authModalOverlay" onclick="closeAuthModal()"></div>
+    <div class="auth-modal" id="authModal" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: var(--card-bg); padding: 2rem; border-radius: 30px; border: 2px solid var(--gold); z-index: 9500; max-width: 450px; width: 90%; display: none;">
+        <button class="modal-close" onclick="closeAuthModal()" style="position: absolute; top: 1rem; right: 1rem; background: transparent; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+        <div class="modal-header" style="text-align: center; margin-bottom: 2rem;">
+            <i class="fas fa-car" style="font-size: 3rem; color: var(--gold); margin-bottom: 1rem;"></i>
+            <h3 style="font-family: 'Cinzel', serif; color: var(--gold);">PICK ME Driver Portal</h3>
+            <p style="color: var(--text-muted);">Login or request to become a driver</p>
+        </div>
+        <div class="auth-tabs" style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+            <button class="auth-tab" id="loginAuthTab" onclick="switchAuthTab('login')" style="flex: 1; padding: 1rem; background: transparent; border: 1px solid var(--gold); border-radius: 30px; color: var(--text-muted); cursor: pointer;">Login</button>
+            <button class="auth-tab active" id="requestAuthTab" onclick="switchAuthTab('request')" style="flex: 1; padding: 1rem; background: transparent; border: 1px solid var(--gold); border-radius: 30px; color: var(--text-muted); cursor: pointer;">Request Access</button>
+        </div>
+        
+        <!-- Login Form -->
+        <form id="loginForm" onsubmit="handleLogin(event)" style="display: none;">
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Email</label>
+                <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Password</label>
+                <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+            </div>
+            <div class="modal-error" id="loginError" style="color: var(--danger); text-align: center; margin-bottom: 1rem; display: none;"></div>
+            <button type="submit" class="btn" style="width: 100%; padding: 1rem; background: var(--gold); color: black; border: none; border-radius: 30px; font-weight: 600; cursor: pointer;">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+        
+        <!-- Request Access Form -->
+        <form id="requestForm" onsubmit="handleDriverRequest(event)">
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Full Name *</label>
+                <input type="text" class="form-control" id="requestName" placeholder="Enter your full name" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Email *</label>
+                <input type="email" class="form-control" id="requestEmail" placeholder="Enter your email" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Phone Number *</label>
+                <input type="tel" class="form-control" id="requestPhone" placeholder="e.g. 0712 345 678" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+            </div>
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Vehicle Type *</label>
+                    <select class="form-control" id="requestVehicle" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+                        <option value="">Select</option>
+                        <option value="Sedan">Sedan</option>
+                        <option value="SUV">SUV</option>
+                        <option value="Hatchback">Hatchback</option>
+                        <option value="Van">Van</option>
+                        <option value="Minibus">Minibus</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">License Plate *</label>
+                    <input type="text" class="form-control" id="requestPlate" placeholder="e.g. Kxx 123A" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+                </div>
+            </div>
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Service Zone *</label>
+                    <select class="form-control" id="requestZone" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+                        <option value="">Select</option>
+                        <option value="Nairobi Central">Nairobi Central</option>
+                        <option value="Westlands">Westlands</option>
+                        <option value="Kilimani">Kilimani</option>
+                        <option value="Lavington">Lavington</option>
+                        <option value="Karen">Karen</option>
+                        <option value="Eastlands">Eastlands</option>
+                        <option value="All Nairobi">All Nairobi</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Years Experience</label>
+                    <input type="number" class="form-control" id="requestExperience" placeholder="e.g. 3" style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Why do you want to be a PICK ME driver?</label>
+                <textarea class="form-control" id="requestReason" rows="3" placeholder="Tell us why you'd like to join..." style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 20px; color: var(--text-primary);"></textarea>
+            </div>
+            <div class="modal-error" id="requestError" style="color: var(--danger); text-align: center; margin-bottom: 1rem; display: none;"></div>
+            <button type="submit" class="btn" style="width: 100%; padding: 1rem; background: var(--gold); color: black; border: none; border-radius: 30px; font-weight: 600; cursor: pointer;">
+                <i class="fas fa-paper-plane"></i> Submit Request
+            </button>
+        </form>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1>PICK ME Driver Portal</h1>
+            <p><i class="fas fa-calendar-alt"></i> <span id="currentDate"></span> | <span id="dataLastUpdated">Loading...</span></p>
+        </div>
+
+        <!-- Driver Profile Card (visible when approved) -->
+        <div class="profile-card" id="profileCard" style="display: none;">
+            <div class="profile-avatar" id="profileAvatar">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div class="profile-info">
+                <h2 id="profileName">Loading...</h2>
+                <p id="profileEmail"></p>
+                <div class="profile-details">
+                    <span class="detail-item"><i class="fas fa-phone"></i> <span id="profilePhone">-</span></span>
+                    <span class="detail-item"><i class="fas fa-car"></i> <span id="profileVehicle">-</span></span>
+                    <span class="detail-item"><i class="fas fa-id-card"></i> <span id="profilePlate">-</span></span>
+                    <span class="detail-item"><i class="fas fa-map-marker-alt"></i> <span id="profileZone">-</span></span>
+                    <span class="detail-item"><i class="fas fa-certificate"></i> <span id="profileStatus" class="status-badge status-approved">Approved</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Verification Card -->
+        <div class="status-card" id="pendingVerificationCard" style="display: none;">
+            <div class="status-icon"><i class="fas fa-clock"></i></div>
+            <h2 class="status-title">Verification Pending</h2>
+            <p class="status-message">
+                Your request to become a PICK ME driver is currently under review. 
+                You will be notified once your account is verified. This usually takes 1-2 business days.
+            </p>
+            <div class="verification-badge badge-pending" style="display: inline-block; margin-bottom: 1rem;">PENDING VERIFICATION</div>
+            <p style="color: var(--text-muted);">Requested on: <span id="requestDate"></span></p>
+        </div>
+
+        <!-- Rejected Card -->
+        <div class="status-card" id="rejectedCard" style="display: none;">
+            <div class="status-icon"><i class="fas fa-times-circle" style="color: var(--danger);"></i></div>
+            <h2 class="status-title" style="color: var(--danger);">Request Not Approved</h2>
+            <p class="status-message" id="rejectionReason">
+                Your request to become a PICK ME driver was not approved at this time.
+            </p>
+            <button class="action-btn" onclick="openAuthModal('request')">
+                <i class="fas fa-redo"></i> Submit New Request
+            </button>
+        </div>
+
+        <!-- Stats Grid (visible when approved) -->
+        <div class="stats-grid" id="statsGrid" style="display: none;">
+            <!-- Active Rides -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Active Rides</span>
+                    <div class="stat-icon"><i class="fas fa-car"></i></div>
+                </div>
+                <div class="stat-value" id="activeRides">0</div>
+                <div class="stat-footer">
+                    Currently assigned to you
+                </div>
+            </div>
+
+            <!-- Scheduled Rides -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Scheduled</span>
+                    <div class="stat-icon"><i class="fas fa-calendar"></i></div>
+                </div>
+                <div class="stat-value" id="scheduledRides">0</div>
+                <div class="stat-footer">
+                    Future bookings
+                </div>
+            </div>
+
+            <!-- Completed Today -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Completed Today</span>
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                </div>
+                <div class="stat-value" id="completedToday">0</div>
+                <div class="stat-footer">
+                    Rides finished today
+                </div>
+            </div>
+
+            <!-- Total Rides -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Total Rides</span>
+                    <div class="stat-icon"><i class="fas fa-route"></i></div>
+                </div>
+                <div class="stat-value" id="totalRides">0</div>
+                <div class="stat-footer">
+                    All-time rides
+                </div>
+            </div>
+
+            <!-- Rating -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Rating</span>
+                    <div class="stat-icon"><i class="fas fa-star"></i></div>
+                </div>
+                <div class="stat-value" id="driverRating">5.0</div>
+                <div class="stat-footer">
+                    Average customer rating
+                </div>
+            </div>
+
+            <!-- Earnings -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Today's Earnings</span>
+                    <div class="stat-icon"><i class="fas fa-money-bill"></i></div>
+                </div>
+                <div class="stat-value" id="todayEarnings">KSh 0</div>
+                <div class="stat-footer">
+                    Before commission
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters (visible when approved) -->
+        <div class="filters" id="filtersSection" style="display: none;">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search by ride ID, customer name, pickup location...">
+            <select class="filter-select" id="statusFilter">
+                <option value="all">All Status</option>
+                <option value="assigned">Assigned</option>
+                <option value="en-route">En Route</option>
+                <option value="completed">Completed</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+            <select class="filter-select" id="typeFilter">
+                <option value="all">All Types</option>
+                <option value="instant">Instant</option>
+                <option value="scheduled">Scheduled</option>
+            </select>
+            <button class="action-btn" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+
+        <!-- Rides Section (visible when approved) -->
+        <div class="section-header" id="ridesHeader" style="display: none;">
+            <div class="section-title">
+                <i class="fas fa-car" id="ridesIcon"></i>
+                <span id="ridesTitle">My Rides</span>
+            </div>
+            <div class="section-actions">
+                <button class="action-btn" onclick="showSection('active')"><i class="fas fa-clock"></i> Active</button>
+                <button class="action-btn" onclick="showSection('scheduled')"><i class="fas fa-calendar"></i> Scheduled</button>
+                <button class="action-btn" onclick="showSection('completed')"><i class="fas fa-check-circle"></i> Completed</button>
+                <button class="action-btn" onclick="showSection('all')"><i class="fas fa-list"></i> All</button>
+            </div>
+        </div>
+
+        <!-- Rides Table (visible when approved) -->
+        <div class="table-container" id="tableContainer" style="display: none;">
+            <table id="ridesTable">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Ride ID</th>
+                        <th>Date/Time</th>
+                        <th>Customer</th>
+                        <th>Pickup</th>
+                        <th>Dropoff</th>
+                        <th>Distance</th>
+                        <th>Fare</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ridesTableBody">
+                    <tr><td colspan="10" style="text-align: center;">Loading your rides...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Welcome Message (shown when not logged in) -->
+        <div class="profile-card" id="welcomeMessage" style="text-align: center; padding: 3rem;">
+            <i class="fas fa-car" style="font-size: 4rem; color: var(--gold); margin-bottom: 1rem;"></i>
+            <h2 style="color: var(--gold); margin-bottom: 1rem;">PICK ME Driver Portal</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+                Join our team of professional drivers. Login to manage your rides or request access to become a verified PICK ME driver.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button class="action-btn" onclick="openAuthModal('login')" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                <button class="action-btn success" onclick="openAuthModal('request')" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                    <i class="fas fa-user-plus"></i> Request Access
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        // Global state
+        let currentUser = null;
+        let currentDriver = null;
+        let driverStatus = null; // 'approved', 'pending', 'rejected', null
+        let assignedRides = [];
+        let filteredRides = [];
+        let currentRideId = null;
+        let currentView = 'all'; // 'all', 'active', 'completed', 'scheduled'
+
+        // ========== AUTH STATE LISTENER ==========
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await checkDriverStatus(user);
+            } else {
+                // User is logged out
+                showWelcomeUI();
+            }
+        });
+
+        // Check driver status in database
+        async function checkDriverStatus(user) {
+            try {
+                // Check in drivers node (separate from delivery_assistants)
+                const driverSnapshot = await database.ref(`drivers/${user.uid}`).once('value');
+                
+                if (driverSnapshot.exists()) {
+                    const driverData = driverSnapshot.val();
+                    currentDriver = {
+                        id: user.uid,
+                        ...driverData
+                    };
+                    
+                    // Check verification status
+                    if (driverData.verified === true || driverData.status === 'active') {
+                        driverStatus = 'approved';
+                        showDriverUI();
+                        loadDriverData();
+                    } else if (driverData.status === 'pending' || driverData.verified === false) {
+                        driverStatus = 'pending';
+                        showPendingUI(driverData);
+                    } else if (driverData.status === 'rejected') {
+                        driverStatus = 'rejected';
+                        showRejectedUI(driverData);
+                    } else {
+                        // Unknown status, treat as pending
+                        driverStatus = 'pending';
+                        showPendingUI(driverData);
+                    }
+                } else {
+                    // Check if user has a pending request
+                    const requestSnapshot = await database.ref('driver_requests').orderByChild('email').equalTo(user.email).once('value');
+                    
+                    if (requestSnapshot.exists()) {
+                        // User has a pending request
+                        const requests = requestSnapshot.val();
+                        const requestId = Object.keys(requests)[0];
+                        const requestData = requests[requestId];
+                        
+                        currentDriver = {
+                            id: requestId,
+                            ...requestData
+                        };
+                        driverStatus = 'pending';
+                        showPendingUI(requestData);
+                    } else {
+                        // No record found - show welcome UI
+                        showWelcomeUI();
+                    }
+                }
+                
+                updateUserUI(user);
+                
+            } catch (error) {
+                console.error('Error checking driver status:', error);
+                showWelcomeUI();
+            }
+        }
+
+        // ========== UI STATE MANAGEMENT ==========
+        function showWelcomeUI() {
+            document.getElementById('welcomeMessage').style.display = 'block';
+            document.getElementById('profileCard').style.display = 'none';
+            document.getElementById('pendingVerificationCard').style.display = 'none';
+            document.getElementById('rejectedCard').style.display = 'none';
+            document.getElementById('statsGrid').style.display = 'none';
+            document.getElementById('filtersSection').style.display = 'none';
+            document.getElementById('ridesHeader').style.display = 'none';
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('headerDriverBadge').style.display = 'none';
+            
+            // Update user menu
+            document.getElementById('userMenuDesktop').style.display = 'none';
+            document.getElementById('loginButtonDesktop').style.display = 'flex';
+            document.getElementById('panelLoggedOut').style.display = 'flex';
+            document.getElementById('panelLoggedIn').style.display = 'none';
+        }
+
+        function showPendingUI(driverData) {
+            document.getElementById('welcomeMessage').style.display = 'none';
+            document.getElementById('profileCard').style.display = 'none';
+            document.getElementById('pendingVerificationCard').style.display = 'block';
+            document.getElementById('rejectedCard').style.display = 'none';
+            document.getElementById('statsGrid').style.display = 'none';
+            document.getElementById('filtersSection').style.display = 'none';
+            document.getElementById('ridesHeader').style.display = 'none';
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('headerDriverBadge').style.display = 'none';
+            
+            // Show request date
+            if (driverData.timestamp) {
+                const date = new Date(driverData.timestamp).toLocaleDateString();
+                document.getElementById('requestDate').textContent = date;
+            } else {
+                document.getElementById('requestDate').textContent = 'Recently';
+            }
+            
+            document.getElementById('userMenuDesktop').style.display = 'flex';
+            document.getElementById('loginButtonDesktop').style.display = 'none';
+            document.getElementById('panelLoggedOut').style.display = 'none';
+            document.getElementById('panelLoggedIn').style.display = 'flex';
+        }
+
+        function showRejectedUI(driverData) {
+            document.getElementById('welcomeMessage').style.display = 'none';
+            document.getElementById('profileCard').style.display = 'none';
+            document.getElementById('pendingVerificationCard').style.display = 'none';
+            document.getElementById('rejectedCard').style.display = 'block';
+            document.getElementById('statsGrid').style.display = 'none';
+            document.getElementById('filtersSection').style.display = 'none';
+            document.getElementById('ridesHeader').style.display = 'none';
+            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('headerDriverBadge').style.display = 'none';
+            
+            // Show rejection reason if available
+            if (driverData.rejectionReason) {
+                document.getElementById('rejectionReason').textContent = driverData.rejectionReason;
+            }
+            
+            document.getElementById('userMenuDesktop').style.display = 'flex';
+            document.getElementById('loginButtonDesktop').style.display = 'none';
+            document.getElementById('panelLoggedOut').style.display = 'none';
+            document.getElementById('panelLoggedIn').style.display = 'flex';
+        }
+
+        function showDriverUI() {
+            document.getElementById('welcomeMessage').style.display = 'none';
+            document.getElementById('profileCard').style.display = 'flex';
+            document.getElementById('pendingVerificationCard').style.display = 'none';
+            document.getElementById('rejectedCard').style.display = 'none';
+            document.getElementById('statsGrid').style.display = 'grid';
+            document.getElementById('filtersSection').style.display = 'flex';
+            document.getElementById('ridesHeader').style.display = 'flex';
+            document.getElementById('tableContainer').style.display = 'block';
+            document.getElementById('headerDriverBadge').style.display = 'inline-block';
+            
+            document.getElementById('userMenuDesktop').style.display = 'flex';
+            document.getElementById('loginButtonDesktop').style.display = 'none';
+            document.getElementById('panelLoggedOut').style.display = 'none';
+            document.getElementById('panelLoggedIn').style.display = 'flex';
+            
+            updateDriverProfile();
+        }
+
+        function updateUserUI(user) {
+            const name = currentDriver?.name || user.displayName || user.email?.split('@')[0] || 'Driver';
+            const initial = name.charAt(0).toUpperCase();
+            
+            document.getElementById('userDisplayNameDesktop').textContent = name;
+            document.getElementById('userAvatarDesktop').textContent = initial;
+            document.getElementById('panelAvatar').textContent = initial;
+            document.getElementById('panelUserName').textContent = name;
+        }
+
+        function updateDriverProfile() {
+            if (currentDriver) {
+                document.getElementById('profileName').textContent = currentDriver.name || 'PICK ME Driver';
+                document.getElementById('profileEmail').textContent = currentUser?.email || '';
+                document.getElementById('profilePhone').textContent = currentDriver.phone || '-';
+                document.getElementById('profileVehicle').textContent = currentDriver.vehicle || 'Sedan';
+                document.getElementById('profilePlate').textContent = currentDriver.plate || '-';
+                document.getElementById('profileZone').textContent = currentDriver.zone || 'Nairobi';
+            }
+        }
+
+        // ========== AUTH FUNCTIONS ==========
+        window.openAuthModal = function(tab = 'login') {
+            document.getElementById('authModal').style.display = 'block';
+            document.getElementById('authModalOverlay').classList.add('active');
+            switchAuthTab(tab);
+        };
+
+        window.closeAuthModal = function() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('authModalOverlay').classList.remove('active');
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('requestError').style.display = 'none';
+        };
+
+        window.switchAuthTab = function(tab) {
+            const loginTab = document.getElementById('loginAuthTab');
+            const requestTab = document.getElementById('requestAuthTab');
+            const loginForm = document.getElementById('loginForm');
+            const requestForm = document.getElementById('requestForm');
+            
+            if (tab === 'login') {
+                loginTab.classList.add('active');
+                requestTab.classList.remove('active');
+                loginForm.style.display = 'block';
+                requestForm.style.display = 'none';
+            } else {
+                requestTab.classList.add('active');
+                loginTab.classList.remove('active');
+                requestForm.style.display = 'block';
+                loginForm.style.display = 'none';
+            }
+        };
+
+        window.handleLogin = async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorEl = document.getElementById('loginError');
+            
+            if (!email || !password) {
+                errorEl.style.display = 'block';
+                errorEl.textContent = 'Please enter email and password';
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                errorEl.style.display = 'none';
+                await auth.signInWithEmailAndPassword(email, password);
+                closeAuthModal();
+                
+            } catch (error) {
+                errorEl.style.display = 'block';
+                errorEl.textContent = error.message;
+                showLoading(false);
+            }
+        };
+
+        window.handleDriverRequest = async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('requestName').value.trim();
+            const email = document.getElementById('requestEmail').value.trim();
+            const phone = document.getElementById('requestPhone').value.trim();
+            const vehicle = document.getElementById('requestVehicle').value;
+            const plate = document.getElementById('requestPlate').value.trim();
+            const zone = document.getElementById('requestZone').value;
+            const experience = document.getElementById('requestExperience').value;
+            const reason = document.getElementById('requestReason').value.trim();
+            const errorEl = document.getElementById('requestError');
+            
+            if (!name || !email || !phone || !vehicle || !plate || !zone) {
+                errorEl.style.display = 'block';
+                errorEl.textContent = 'Please fill in all required fields';
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                // First, create the user account if they don't exist
+                let user = currentUser;
+                
+                if (!user) {
+                    // Generate a temporary password
+                    const tempPassword = Math.random().toString(36).slice(-8);
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, tempPassword);
+                    user = userCredential.user;
+                    
+                    // Update profile with name
+                    await user.updateProfile({ displayName: name });
+                    
+                    // TODO: Send email with temporary password
+                }
+                
+                // Save request to driver_requests node (separate from assistant_requests)
+                const requestData = {
+                    name,
+                    email,
+                    phone,
+                    vehicle,
+                    plate,
+                    zone,
+                    experience: experience || '0',
+                    reason: reason || '',
+                    userId: user.uid,
+                    status: 'pending',
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    requestedAt: new Date().toISOString()
+                };
+                
+                await database.ref('driver_requests').push(requestData);
+                
+                // Save to drivers node with pending status
+                await database.ref(`drivers/${user.uid}`).set({
+                    name,
+                    email,
+                    phone,
+                    vehicle,
+                    plate,
+                    zone,
+                    experience,
+                    status: 'pending',
+                    verified: false,
+                    rating: 5.0,
+                    totalRides: 0,
+                    earnings: 0,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                showToast('Request submitted successfully! You will be notified once verified.', 'success');
+                closeAuthModal();
+                
+                // Refresh auth state
+                await checkDriverStatus(user);
+                
+            } catch (error) {
+                console.error('Error submitting request:', error);
+                errorEl.style.display = 'block';
+                errorEl.textContent = error.message;
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        window.handleLogout = async function() {
+            try {
+                showLoading(true);
+                await auth.signOut();
+                currentDriver = null;
+                driverStatus = null;
+                showWelcomeUI();
+                showToast('Logged out', 'success');
+            } catch (error) {
+                showToast('Logout failed', 'error');
+                showLoading(false);
+            }
+        };
+
+        // ========== LOAD DRIVER DATA ==========
+        async function loadDriverData() {
+            if (!currentDriver || driverStatus !== 'approved') return;
+            
+            showLoading(true);
+            
+            try {
+                await loadAssignedRides();
+                applyFilters();
+                updateStats();
+                updateLastUpdated();
+                showToast('Rides loaded', 'success');
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showToast('Error loading data', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Load rides assigned to this driver from pickme_rides node
+        async function loadAssignedRides() {
+            if (!currentDriver) return;
+
+            try {
+                const snapshot = await database.ref('pickme_rides').once('value');
+                const data = snapshot.val() || {};
+                
+                assignedRides = Object.entries(data)
+                    .map(([id, ride]) => ({
+                        id,
+                        type: ride.serviceType || 'instant',
+                        rideId: id,
+                        bookingDate: ride.bookingDate || ride.timestamp || null,
+                        scheduledTime: ride.scheduledTime || null,
+                        customerName: ride.customer?.name || ride.userName || 'Unknown',
+                        customerEmail: ride.customer?.email || ride.userEmail || '',
+                        customerPhone: ride.customer?.phone || ride.userPhone || '',
+                        pickupAddress: ride.pickup?.address || 'Pickup location',
+                        pickupZone: ride.pickup?.zone || '',
+                        dropoffAddress: ride.dropoff?.address || '',
+                        dropoffZone: ride.dropoff?.zone || '',
+                        distance: ride.distance || '0 km',
+                        fare: ride.fare || 0,
+                        status: ride.status || 'pending',
+                        assignedTo: ride.driver?.id,
+                        assignedName: ride.driver?.name,
+                        assignedAt: ride.driver?.assignedAt || null,
+                        completedAt: ride.completedAt || null,
+                        rating: ride.rating || null,
+                        statusHistory: ride.statusHistory || []
+                    }))
+                    .filter(ride => ride.assignedTo === currentDriver.id);
+
+                // Sort by date (newest first)
+                assignedRides.sort((a, b) => {
+                    const dateA = a.bookingDate ? new Date(a.bookingDate).getTime() : 0;
+                    const dateB = b.bookingDate ? new Date(b.bookingDate).getTime() : 0;
+                    return dateB - dateA;
+                });
+
+                filteredRides = [...assignedRides];
+                
+            } catch (error) {
+                console.error('Error loading assigned rides:', error);
+            }
+        }
+
+        // ========== UPDATE STATS ==========
+        function updateStats() {
+            const today = new Date().toDateString();
+            
+            // Active rides (assigned or en-route)
+            const activeRides = assignedRides.filter(r => 
+                r.status === 'assigned' || r.status === 'en-route'
+            ).length;
+            
+            document.getElementById('activeRides').textContent = activeRides;
+            
+            // Scheduled rides (future bookings)
+            const scheduledRides = assignedRides.filter(r => 
+                r.status === 'scheduled'
+            ).length;
+            
+            document.getElementById('scheduledRides').textContent = scheduledRides;
+            
+            // Completed today
+            const completedToday = assignedRides.filter(r => 
+                r.status === 'completed' && 
+                r.completedAt && 
+                new Date(r.completedAt).toDateString() === today
+            ).length;
+            
+            document.getElementById('completedToday').textContent = completedToday;
+            
+            // Total rides
+            const totalRides = assignedRides.filter(r => r.status === 'completed').length;
+            document.getElementById('totalRides').textContent = totalRides;
+            
+            // Average rating
+            const completedRides = assignedRides.filter(r => r.status === 'completed' && r.rating);
+            const avgRating = completedRides.length > 0 
+                ? (completedRides.reduce((sum, r) => sum + (r.rating || 0), 0) / completedRides.length).toFixed(1)
+                : '5.0';
+            document.getElementById('driverRating').textContent = avgRating;
+            
+            // Today's earnings
+            const todayEarnings = assignedRides
+                .filter(r => r.status === 'completed' && r.completedAt && new Date(r.completedAt).toDateString() === today)
+                .reduce((sum, r) => sum + (r.fare || 0), 0);
+            document.getElementById('todayEarnings').textContent = `KSh ${todayEarnings.toLocaleString()}`;
+        }
+
+        // ========== APPLY FILTERS ==========
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+
+            filteredRides = assignedRides.filter(ride => {
+                // Search filter
+                const matchesSearch = 
+                    ride.id?.toLowerCase().includes(searchTerm) ||
+                    ride.customerName?.toLowerCase().includes(searchTerm) ||
+                    ride.pickupAddress?.toLowerCase().includes(searchTerm) ||
+                    ride.dropoffAddress?.toLowerCase().includes(searchTerm) ||
+                    ride.customerPhone?.toLowerCase().includes(searchTerm);
+                
+                // Status filter
+                const matchesStatus = statusFilter === 'all' || ride.status === statusFilter;
+                
+                // Type filter
+                const matchesType = typeFilter === 'all' || ride.type === typeFilter;
+                
+                return matchesSearch && matchesStatus && matchesType;
+            });
+
+            // Apply current view filter
+            applyViewFilter();
+        }
+
+        function applyViewFilter() {
+            let rides = [...filteredRides];
+
+            if (currentView === 'active') {
+                rides = rides.filter(r => 
+                    r.status === 'assigned' || r.status === 'en-route'
+                );
+            } else if (currentView === 'completed') {
+                rides = rides.filter(r => r.status === 'completed');
+            } else if (currentView === 'scheduled') {
+                rides = rides.filter(r => r.status === 'scheduled');
+            }
+
+            renderRides(rides);
+        }
+
+        // ========== RENDER RIDES ==========
+        function renderRides(rides) {
+            const tbody = document.getElementById('ridesTableBody');
+            
+            if (rides.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No rides found</td></tr>';
+                return;
+            }
+
+            let html = '';
+            rides.forEach(ride => {
+                const date = ride.bookingDate ? new Date(ride.bookingDate).toLocaleString() : 'N/A';
+                const statusClass = `status-${ride.status}`;
+                const typeBadge = ride.type === 'scheduled' 
+                    ? '<span class="service-badge service-scheduled">Scheduled</span>'
+                    : '<span class="service-badge service-ride">Instant</span>';
+                
+                html += `
+                    <tr>
+                        <td>${typeBadge}</td>
+                        <td>#${ride.id.slice(-8)}</td>
+                        <td>${date}</td>
+                        <td>
+                            <strong>${ride.customerName}</strong><br>
+                            <small>${ride.customerPhone || ''}</small>
+                        </td>
+                        <td>${ride.pickupAddress || 'N/A'}</td>
+                        <td>${ride.dropoffAddress || 'N/A'}</td>
+                        <td>${ride.distance}</td>
+                        <td>KSh ${(ride.fare || 0).toLocaleString()}</td>
+                        <td><span class="status-badge ${statusClass}">${ride.status}</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="table-btn view" onclick="viewRideDetails('${ride.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${ride.status === 'assigned' ? `
+                                    <button class="table-btn route" onclick="startRide('${ride.id}')" title="Start Ride">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                ` : ''}
+                                ${ride.status === 'en-route' ? `
+                                    <button class="table-btn navigate" onclick="navigateToCustomer('${ride.dropoffAddress}')" title="Navigate">
+                                        <i class="fas fa-map-marked-alt"></i>
+                                    </button>
+                                    <button class="table-btn complete" onclick="openRouteModal('${ride.id}')" title="Complete Ride">
+                                        <i class="fas fa-check-circle"></i>
+                                    </button>
+                                ` : ''}
+                                ${ride.status === 'completed' ? `
+                                    <button class="table-btn view" onclick="viewRideReceipt('${ride.id}')" title="View Receipt">
+                                        <i class="fas fa-receipt"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // ========== SECTION NAVIGATION ==========
+        window.showSection = function(section) {
+            currentView = section;
+            
+            if (section === 'active') {
+                document.getElementById('ridesTitle').textContent = 'Active Rides';
+                document.getElementById('ridesIcon').className = 'fas fa-car';
+            } else if (section === 'completed') {
+                document.getElementById('ridesTitle').textContent = 'Completed Rides';
+                document.getElementById('ridesIcon').className = 'fas fa-check-circle';
+            } else if (section === 'scheduled') {
+                document.getElementById('ridesTitle').textContent = 'Scheduled Rides';
+                document.getElementById('ridesIcon').className = 'fas fa-calendar';
+            } else {
+                document.getElementById('ridesTitle').textContent = 'All Rides';
+                document.getElementById('ridesIcon').className = 'fas fa-list';
+            }
+            
+            applyFilters();
+        };
+
+        window.showProfile = function() {
+            document.getElementById('profileCard').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        // ========== VIEW RIDE DETAILS ==========
+        window.viewRideDetails = function(rideId) {
+            const ride = assignedRides.find(r => r.id === rideId);
+            if (!ride) return;
+
+            const date = ride.bookingDate ? new Date(ride.bookingDate).toLocaleString() : 'N/A';
+
+            const content = `
+                <div class="modal-field">
+                    <label>Ride ID</label>
+                    <div class="field-value">#${ride.id}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Booking Date</label>
+                    <div class="field-value">${date}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Service Type</label>
+                    <div class="field-value">${ride.type === 'scheduled' ? 'Scheduled' : 'Instant'}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Customer</label>
+                    <div class="field-value">
+                        <strong>${ride.customerName}</strong><br>
+                        📞 ${ride.customerPhone || 'N/A'}<br>
+                        Email: ${ride.customerEmail || 'N/A'}
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label>Pickup</label>
+                    <div class="field-value">
+                        📍 ${ride.pickupAddress}<br>
+                        Zone: ${ride.pickupZone || 'N/A'}
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label>Dropoff</label>
+                    <div class="field-value">
+                        📍 ${ride.dropoffAddress}<br>
+                        Zone: ${ride.dropoffZone || 'N/A'}
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label>Ride Details</label>
+                    <div class="field-value">
+                        Distance: ${ride.distance}<br>
+                        Fare: KSh ${(ride.fare || 0).toLocaleString()}<br>
+                        Status: <span class="status-badge status-${ride.status}">${ride.status}</span>
+                    </div>
+                </div>
+                ${ride.rating ? `
+                <div class="modal-field">
+                    <label>Rating</label>
+                    <div class="field-value">${'⭐'.repeat(ride.rating)} (${ride.rating}/5)</div>
+                </div>
+                ` : ''}
+                ${ride.assignedAt ? `
+                <div class="modal-field">
+                    <label>Assigned</label>
+                    <div class="field-value">${new Date(ride.assignedAt).toLocaleString()}</div>
+                </div>
+                ` : ''}
+                ${ride.completedAt ? `
+                <div class="modal-field">
+                    <label>Completed</label>
+                    <div class="field-value">${new Date(ride.completedAt).toLocaleString()}</div>
+                </div>
+                ` : ''}
+            `;
+
+            document.getElementById('modalTitle').textContent = 'Ride Details';
+            document.getElementById('modalBody').innerHTML = content;
+            document.getElementById('detailsModal').classList.add('active');
+            document.getElementById('modalOverlay').classList.add('active');
+        };
+
+        window.closeModal = function() {
+            document.getElementById('detailsModal').classList.remove('active');
+            document.getElementById('modalOverlay').classList.remove('active');
+        };
+
+        // ========== START RIDE ==========
+        window.startRide = async function(rideId) {
+            if (!confirm('Start this ride? You will be en route to pickup.')) return;
+            
+            showLoading(true);
+            
+            try {
+                await database.ref(`pickme_rides/${rideId}`).update({
+                    status: 'en-route',
+                    startedAt: new Date().toISOString(),
+                    statusHistory: [
+                        ...(assignedRides.find(r => r.id === rideId)?.statusHistory || []),
+                        {
+                            status: 'en-route',
+                            timestamp: new Date().toISOString(),
+                            note: 'Driver en route to pickup'
+                        }
+                    ]
+                });
+
+                showToast('Ride started! Head to pickup location.', 'success');
+                await loadDriverData();
+                showSection('active');
+                
+            } catch (error) {
+                console.error('Error starting ride:', error);
+                showToast('Failed to start ride', 'error');
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        // ========== NAVIGATE TO CUSTOMER ==========
+        window.navigateToCustomer = function(address) {
+            if (!address) {
+                showToast('No address provided', 'warning');
+                return;
+            }
+            
+            const encodedAddress = encodeURIComponent(address);
+            window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+        };
+
+        // ========== RIDE COMPLETION ==========
+        window.openRouteModal = function(rideId) {
+            currentRideId = rideId;
+            document.getElementById('routeModal').classList.add('active');
+            document.getElementById('routeModalOverlay').classList.add('active');
+        };
+
+        window.closeRouteModal = function() {
+            document.getElementById('routeModal').classList.remove('active');
+            document.getElementById('routeModalOverlay').classList.remove('active');
+            document.getElementById('routeCustomerName').value = '';
+            document.getElementById('routeNotes').value = '';
+            document.getElementById('routeRating').value = '5';
+            currentRideId = null;
+        };
+
+        window.completeRide = async function() {
+            if (!currentRideId) return;
+            
+            const customerName = document.getElementById('routeCustomerName').value.trim();
+            const notes = document.getElementById('routeNotes').value.trim();
+            const rating = parseInt(document.getElementById('routeRating').value);
+            
+            if (!customerName) {
+                showToast('Please enter customer name', 'warning');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                await database.ref(`pickme_rides/${currentRideId}`).update({
+                    status: 'completed',
+                    completedAt: new Date().toISOString(),
+                    customerName: customerName,
+                    completionNotes: notes,
+                    rating: rating,
+                    statusHistory: [
+                        ...(assignedRides.find(r => r.id === currentRideId)?.statusHistory || []),
+                        {
+                            status: 'completed',
+                            timestamp: new Date().toISOString(),
+                            note: `Ride completed for ${customerName}`
+                        }
+                    ]
+                });
+
+                showToast('Ride completed! Thank you.', 'success');
+                closeRouteModal();
+                await loadDriverData();
+                showSection('completed');
+                
+            } catch (error) {
+                console.error('Error completing ride:', error);
+                showToast('Failed to complete ride', 'error');
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        window.viewRideReceipt = function(rideId) {
+            showToast('Receipt details coming soon', 'info');
+        };
+
+        // ========== UTILITY FUNCTIONS ==========
+        window.refreshData = function() {
+            if (driverStatus === 'approved') {
+                loadDriverData();
+            }
+        };
+
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').classList.toggle('active', show);
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+            toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function updateLastUpdated() {
+            document.getElementById('dataLastUpdated').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+        }
+
+        function updateCurrentDate() {
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+            });
+        }
+
+        function startAutoRefresh() {
+            updateCurrentDate();
+            setInterval(() => {
+                if (driverStatus === 'approved') {
+                    loadDriverData();
+                }
+            }, 300000); // Refresh every 5 minutes
+        }
+
+        // ========== EVENT LISTENERS ==========
+        document.getElementById('searchInput')?.addEventListener('input', applyFilters);
+        document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
+        document.getElementById('typeFilter')?.addEventListener('change', applyFilters);
+
+        // ========== TOGGLE HAMBURGER ==========
+        window.toggleHamburger = function() {
+            document.getElementById('hamburgerPanel').classList.toggle('open');
+        };
+
+        document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
+
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('hamburgerPanel');
+            const btn = document.getElementById('hamburgerBtn');
+            if (panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
+                panel.classList.remove('open');
+            }
+        });
+
+        // ========== THEME TOGGLE ==========
+        window.toggleTheme = function() {
+            document.body.classList.toggle('light-theme');
+            const icon = document.getElementById('panelThemeIcon');
+            icon.classList.toggle('fa-moon', !document.body.classList.contains('light-theme'));
+            icon.classList.toggle('fa-sun', document.body.classList.contains('light-theme'));
+            localStorage.setItem('siteTheme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+        };
+
+        if (localStorage.getItem('siteTheme') === 'light') {
+            document.body.classList.add('light-theme');
+            document.getElementById('panelThemeIcon').classList.replace('fa-moon', 'fa-sun');
+        }
+
+        // Initialize date
+        updateCurrentDate();
+        startAutoRefresh();
+    </script>
+</body>
+</html>
