@@ -104,7 +104,7 @@ const SEARCH_DATABASE = [
         title: "PICK-ME", 
         category: "SERVICE", 
         icon: "fas fa-car", 
-        keywords: ["taxi","driver","pick","me"], 
+        keywords: ["taxi","driver","pick","emergency"], 
         url: "pickme.html" 
     },
     { 
