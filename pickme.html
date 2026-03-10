@@ -1896,6 +1896,49 @@
             selectedDriver = null;
         };
 
+        // ========== SAME DAY MODAL FUNCTIONS ==========
+        window.openSameDayModal = function() {
+            if (!currentUser) {
+                openAuthModal();
+                showToast('Please login to book a ride', 'warning');
+                return;
+            }
+            document.getElementById('sameDayModal').classList.add('active');
+            document.getElementById('sameDayModalOverlay').classList.add('active');
+            generatePassengerFields('sameDay');
+        };
+        
+        window.closeSameDayModal = function() {
+            document.getElementById('sameDayModal').classList.remove('active');
+            document.getElementById('sameDayModalOverlay').classList.remove('active');
+            document.getElementById('sameDayForm').reset();
+            document.getElementById('sameDayPassengerList').innerHTML = '';
+        };
+        
+        // ========== SCHEDULED MODAL FUNCTIONS ==========
+        window.openScheduledModal = function() {
+            if (!currentUser) {
+                openAuthModal();
+                showToast('Please login to book a ride', 'warning');
+                return;
+            }
+            document.getElementById('scheduledModal').classList.add('active');
+            document.getElementById('scheduledModalOverlay').classList.add('active');
+            generatePassengerFields('scheduled');
+            
+            // Set minimum date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('scheduledDate').min = tomorrow.toISOString().split('T')[0];
+        };
+        
+        window.closeScheduledModal = function() {
+            document.getElementById('scheduledModal').classList.remove('active');
+            document.getElementById('scheduledModalOverlay').classList.remove('active');
+            document.getElementById('scheduledForm').reset();
+            document.getElementById('scheduledPassengerList').innerHTML = '';
+        };
+
         window.loadAvailableDrivers = async function(type) {
             const zone = document.getElementById(type + 'PickupZone').value;
             if (!zone) return;
@@ -1967,6 +2010,50 @@
             selectedDriver = availableDrivers.find(d => d.id === driverId);
             document.getElementById('instantSelectedDriver').value = driverId;
             showToast(`Driver ${selectedDriver?.name || ''} selected`, 'success');
+        };
+        // Add these functions to the global scope right after the emergency and instant functions
+
+        // ========== SAME DAY MODAL FUNCTIONS ==========
+        window.openSameDayModal = function() {
+            if (!currentUser) {
+                openAuthModal();
+                showToast('Please login to book a ride', 'warning');
+                return;
+            }
+            document.getElementById('sameDayModal').classList.add('active');
+            document.getElementById('sameDayModalOverlay').classList.add('active');
+            generatePassengerFields('sameDay');
+        };
+        
+        window.closeSameDayModal = function() {
+            document.getElementById('sameDayModal').classList.remove('active');
+            document.getElementById('sameDayModalOverlay').classList.remove('active');
+            document.getElementById('sameDayForm').reset();
+            document.getElementById('sameDayPassengerList').innerHTML = '';
+        };
+        
+        // ========== SCHEDULED MODAL FUNCTIONS ==========
+        window.openScheduledModal = function() {
+            if (!currentUser) {
+                openAuthModal();
+                showToast('Please login to book a ride', 'warning');
+                return;
+            }
+            document.getElementById('scheduledModal').classList.add('active');
+            document.getElementById('scheduledModalOverlay').classList.add('active');
+            generatePassengerFields('scheduled');
+            
+            // Set minimum date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('scheduledDate').min = tomorrow.toISOString().split('T')[0];
+        };
+        
+        window.closeScheduledModal = function() {
+            document.getElementById('scheduledModal').classList.remove('active');
+            document.getElementById('scheduledModalOverlay').classList.remove('active');
+            document.getElementById('scheduledForm').reset();
+            document.getElementById('scheduledPassengerList').innerHTML = '';
         };
 
         // ========== PASSENGER FIELDS GENERATOR ==========
