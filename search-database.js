@@ -119,7 +119,7 @@ const SEARCH_DATABASE = [
         category: "JOB", 
         icon: "fas fa-car", 
         keywords: ["driving","taxi","drive","driver","assistant"], 
-        url: "pickup.html" 
+        url: "driving-assistant.html" 
     },
     { 
         title: "HEKIMA•HUB", 
