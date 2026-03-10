@@ -455,6 +455,7 @@
             border-radius: 30px;
             color: var(--text-primary);
             font-size: 1rem;
+            transition: all 0.2s;
         }
         .form-control:focus {
             outline: none;
@@ -624,6 +625,10 @@
         .modal-btn-primary:hover {
             background: var(--gold-dark);
         }
+        .modal-btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
         .modal-btn-danger {
             background: var(--danger);
             color: white;
@@ -638,10 +643,6 @@
         }
         .modal-btn-secondary:hover {
             background: rgba(202,138,4,0.1);
-        }
-        .modal-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
 
         /* My Rides Section */
@@ -682,7 +683,8 @@
         }
         .ride-type.emergency { background: rgba(220,38,38,0.15); color: var(--danger); }
         .ride-type.instant { background: rgba(202,138,4,0.15); color: var(--gold); }
-        .ride-type.scheduled { background: rgba(59,130,246,0.15); color: var(--info); }
+        .ride-type.same-day { background: rgba(59,130,246,0.15); color: var(--info); }
+        .ride-type.scheduled { background: rgba(139,92,246,0.15); color: var(--purple); }
         .ride-status {
             font-size: 0.8rem;
             padding: 0.3rem 1rem;
@@ -1696,17 +1698,39 @@
 
             } catch (error) {
                 console.error('Error booking ride:', error);
-                showToast('Failed to book ride', 'error');
+                showToast('Failed to book ride: ' + error.message, 'error');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Find Driver';
             }
         });
 
+        // ========== SAME DAY FORM SUBMISSION ==========
         document.getElementById('sameDayForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             if (!currentUser) {
                 showToast('Please login to continue', 'warning');
+                return;
+            }
+
+            // Validate time (must be at least 2 hours from now)
+            const selectedTime = document.getElementById('sameDayTime').value;
+            if (!selectedTime) {
+                showToast('Please select pickup time', 'warning');
+                return;
+            }
+
+            // Create a date object for today with the selected time
+            const now = new Date();
+            const [hours, minutes] = selectedTime.split(':');
+            const selectedDateTime = new Date();
+            selectedDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+            
+            // Check if selected time is at least 2 hours from now
+            const twoHoursFromNow = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+            
+            if (selectedDateTime < twoHoursFromNow) {
+                showToast('Please select a time at least 2 hours from now', 'warning');
                 return;
             }
 
@@ -1718,10 +1742,15 @@
                 const passengerCount = document.getElementById('sameDayPassengerCount').value;
                 const passengers = [];
                 for (let i = 0; i < passengerCount; i++) {
-                    const name = document.getElementById(`sameDay_passenger_${i}_name`)?.value;
-                    const age = document.getElementById(`sameDay_passenger_${i}_age`)?.value;
-                    if (name && age) {
-                        passengers.push({ name, age: parseInt(age) });
+                    const nameEl = document.getElementById(`sameDay_passenger_${i}_name`);
+                    const ageEl = document.getElementById(`sameDay_passenger_${i}_age`);
+                    
+                    if (nameEl && ageEl) {
+                        const name = nameEl.value;
+                        const age = ageEl.value;
+                        if (name && age) {
+                            passengers.push({ name, age: parseInt(age) });
+                        }
                     }
                 }
 
@@ -1741,8 +1770,9 @@
                     pickup: {
                         address: document.getElementById('sameDayPickup').value,
                         zone: document.getElementById('sameDayPickupZone').value,
-                        time: document.getElementById('sameDayTime').value,
-                        flexible: document.getElementById('sameDayFlexible').value
+                        time: selectedTime,
+                        flexible: document.getElementById('sameDayFlexible').value,
+                        scheduledDateTime: selectedDateTime.toISOString()
                     },
                     dropoff: {
                         address: document.getElementById('sameDayDropoff').value,
@@ -1760,13 +1790,12 @@
                         {
                             status: 'pending',
                             timestamp: new Date().toISOString(),
-                            note: 'Ride request submitted'
+                            note: 'Same day ride request submitted'
                         }
                     ]
                 };
 
                 await database.ref('pickme_rides').push(rideData);
-
                 showToast('Ride scheduled! We will assign a driver.', 'success');
                 
                 setTimeout(() => {
@@ -1778,17 +1807,35 @@
 
             } catch (error) {
                 console.error('Error booking ride:', error);
-                showToast('Failed to book ride', 'error');
+                showToast('Failed to book ride: ' + error.message, 'error');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Book Ride';
             }
         });
 
+        // ========== SCHEDULED FORM SUBMISSION ==========
         document.getElementById('scheduledForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             if (!currentUser) {
                 showToast('Please login to continue', 'warning');
+                return;
+            }
+
+            const selectedDate = document.getElementById('scheduledDate').value;
+            const selectedTime = document.getElementById('scheduledTime').value;
+            
+            if (!selectedDate || !selectedTime) {
+                showToast('Please select date and time', 'warning');
+                return;
+            }
+
+            // Validate that date is in the future
+            const scheduledDateTime = new Date(selectedDate + 'T' + selectedTime);
+            const now = new Date();
+            
+            if (scheduledDateTime <= now) {
+                showToast('Please select a future date and time', 'warning');
                 return;
             }
 
@@ -1800,14 +1847,18 @@
                 const passengerCount = document.getElementById('scheduledPassengerCount').value;
                 const passengers = [];
                 for (let i = 0; i < passengerCount; i++) {
-                    const name = document.getElementById(`scheduled_passenger_${i}_name`)?.value;
-                    const age = document.getElementById(`scheduled_passenger_${i}_age`)?.value;
-                    if (name && age) {
-                        passengers.push({ name, age: parseInt(age) });
+                    const nameEl = document.getElementById(`scheduled_passenger_${i}_name`);
+                    const ageEl = document.getElementById(`scheduled_passenger_${i}_age`);
+                    
+                    if (nameEl && ageEl) {
+                        const name = nameEl.value;
+                        const age = ageEl.value;
+                        if (name && age) {
+                            passengers.push({ name, age: parseInt(age) });
+                        }
                     }
                 }
 
-                const scheduledDateTime = document.getElementById('scheduledDate').value + 'T' + document.getElementById('scheduledTime').value;
                 const fare = calculateFare(
                     document.getElementById('scheduledPickupZone').value,
                     document.getElementById('scheduledDropoffZone').value
@@ -1824,7 +1875,7 @@
                     pickup: {
                         address: document.getElementById('scheduledPickup').value,
                         zone: document.getElementById('scheduledPickupZone').value,
-                        scheduledTime: scheduledDateTime
+                        scheduledDateTime: scheduledDateTime.toISOString()
                     },
                     dropoff: {
                         address: document.getElementById('scheduledDropoff').value,
@@ -1838,19 +1889,17 @@
                     specialRequirements: document.getElementById('scheduledRequirements').value,
                     status: 'scheduled',
                     bookingDate: new Date().toISOString(),
-                    scheduledDateTime: scheduledDateTime,
                     fare: fare,
                     statusHistory: [
                         {
                             status: 'scheduled',
                             timestamp: new Date().toISOString(),
-                            note: `Scheduled for ${new Date(scheduledDateTime).toLocaleString()}`
+                            note: `Scheduled for ${scheduledDateTime.toLocaleString()}`
                         }
                     ]
                 };
 
                 await database.ref('pickme_rides').push(rideData);
-
                 showToast('Ride scheduled successfully!', 'success');
                 
                 setTimeout(() => {
@@ -1862,7 +1911,7 @@
 
             } catch (error) {
                 console.error('Error scheduling ride:', error);
-                showToast('Failed to schedule ride', 'error');
+                showToast('Failed to schedule ride: ' + error.message, 'error');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Schedule Ride';
             }
@@ -1873,12 +1922,14 @@
             document.getElementById('sameDayModal').classList.remove('active');
             document.getElementById('sameDayModalOverlay').classList.remove('active');
             document.getElementById('sameDayForm').reset();
+            document.getElementById('sameDayPassengerList').innerHTML = '';
         };
 
         window.closeScheduledModal = function() {
             document.getElementById('scheduledModal').classList.remove('active');
             document.getElementById('scheduledModalOverlay').classList.remove('active');
             document.getElementById('scheduledForm').reset();
+            document.getElementById('scheduledPassengerList').innerHTML = '';
         };
 
         // ========== UTILITY FUNCTIONS ==========
@@ -1973,7 +2024,7 @@
             document.getElementById('panelThemeIcon').classList.replace('fa-moon', 'fa-sun');
         }
 
-        // Set minimum date for scheduled bookings
+        // Set minimum date for scheduled bookings (tomorrow)
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         const scheduledDate = document.getElementById('scheduledDate');
@@ -1983,7 +2034,7 @@
 
         // Initialize passenger fields when modals are opened
         document.addEventListener('DOMContentLoaded', function() {
-            // Pre-generate passenger fields
+            // Pre-generate passenger fields for instant
             if (document.getElementById('instantPassengerCount')) {
                 generatePassengerFields('instant');
             }
