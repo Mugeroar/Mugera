@@ -15,15 +15,21 @@
     <meta name="msapplication-TileColor" content="#ca8a04">
     
     <!-- Version & Build -->
-    <meta name="version" content="5.25.0">
+    <meta name="version" content="5.26.0">
     <meta name="build-date" content="2025-03-09">
     
     <title>I AM MUGERA | Afrika Milele</title>
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
     
-    <!-- PWA manifest link -->
+    <!-- PWA manifest link - Important for installation -->
     <link rel="manifest" href="/manifest.json">
+    
+    <!-- iOS specific meta tags for better PWA experience -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="I AM MUGERA">
+    <meta name="format-detection" content="telephone=no">
     
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -79,8 +85,8 @@
             --status-closing: #ef4444;
             --status-closed: #6b7280;
 
-            /* Tutorial specific colors */
-            --tutorial-overlay: rgba(0,0,0,0.85);
+            /* Tutorial specific colors - Lighter overlay */
+            --tutorial-overlay: rgba(0,0,0,0.3);
             --tutorial-card: rgba(30,30,30,0.98);
             --tutorial-highlight: rgba(202,138,4,0.3);
             --tutorial-pulse: rgba(202,138,4,0.6);
@@ -110,8 +116,8 @@
             
             --hero-overlay: linear-gradient(135deg, rgba(255,245,235,0.92) 0%, rgba(255,255,255,0.95) 100%);
             
-            /* Light theme tutorial */
-            --tutorial-overlay: rgba(255,255,255,0.92);
+            /* Light theme tutorial - Lighter overlay */
+            --tutorial-overlay: rgba(255,255,255,0.3);
             --tutorial-card: rgba(255,255,255,0.98);
             --tutorial-highlight: rgba(202,138,4,0.2);
         }
@@ -124,6 +130,11 @@
             overflow-x: hidden;
             transition: background-color 0.3s ease, color 0.2s ease;
             padding-top: var(--header-height);
+        }
+        
+        /* Prevent scrolling when modals are open */
+        body.modal-open {
+            overflow: hidden;
         }
         
         .page-content {
@@ -186,7 +197,291 @@
         }
         @keyframes blink { 50% { opacity: 0; } }
         
-        /* ----- TUTORIAL SYSTEM STYLES ----- */
+        /* ----- INSTALLATION MODAL ----- */
+        .install-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        
+        .install-modal-overlay.active {
+            display: flex;
+        }
+        
+        .install-modal {
+            max-width: 500px;
+            width: 100%;
+            background: linear-gradient(135deg, rgba(20,20,20,0.98) 0%, rgba(30,30,30,0.98) 100%);
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--gold);
+            border-radius: 40px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+            position: relative;
+            animation: modalAppear 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            color: white;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        body.light-theme .install-modal {
+            background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(250,250,250,0.98) 100%);
+            color: #1a1a1a;
+        }
+        
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .install-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(202,138,4,0.3);
+            color: var(--text-muted);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.5rem;
+            z-index: 10;
+        }
+        
+        .install-modal-close:hover {
+            color: var(--gold);
+            background: rgba(202,138,4,0.15);
+            transform: rotate(90deg);
+            border-color: var(--gold);
+        }
+        
+        .install-modal-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: rgba(202,138,4,0.1);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--gold);
+        }
+        
+        .install-modal-icon i {
+            font-size: 3rem;
+            color: var(--gold);
+        }
+        
+        .install-modal h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .install-modal p {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .install-platform-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 60px;
+            padding: 0.5rem;
+        }
+        
+        .install-platform-tab {
+            flex: 1;
+            padding: 0.8rem;
+            text-align: center;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        
+        .install-platform-tab.active {
+            background: var(--gold);
+            color: black;
+        }
+        
+        .install-platform-tab i {
+            margin-right: 0.5rem;
+        }
+        
+        .install-instructions {
+            display: none;
+            margin-bottom: 2rem;
+        }
+        
+        .install-instructions.active {
+            display: block;
+        }
+        
+        .install-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            padding: 1rem;
+        }
+        
+        .install-step-number {
+            width: 30px;
+            height: 30px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: black;
+            flex-shrink: 0;
+        }
+        
+        .install-step-content {
+            flex: 1;
+        }
+        
+        .install-step-content h4 {
+            color: var(--gold);
+            margin-bottom: 0.3rem;
+            font-size: 1rem;
+        }
+        
+        .install-step-content p {
+            margin-bottom: 0;
+            text-align: left;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .install-step-content i {
+            color: var(--gold);
+            margin-right: 0.5rem;
+        }
+        
+        .install-progress {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        .install-progress-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .install-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), var(--gold-light));
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .install-progress-text {
+            color: var(--gold);
+            font-weight: 600;
+        }
+        
+        .install-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        .install-btn {
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1rem;
+            min-width: 150px;
+        }
+        
+        .install-btn-primary {
+            background: var(--gold);
+            color: black;
+        }
+        
+        .install-btn-primary:hover {
+            background: var(--gold-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(202,138,4,0.3);
+        }
+        
+        .install-btn-secondary {
+            background: transparent;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+        }
+        
+        .install-btn-secondary:hover {
+            background: rgba(202,138,4,0.1);
+        }
+        
+        .install-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .install-success {
+            text-align: center;
+            padding: 2rem;
+            display: none;
+        }
+        
+        .install-success.show {
+            display: block;
+        }
+        
+        .install-success i {
+            font-size: 4rem;
+            color: var(--success);
+            margin-bottom: 1rem;
+        }
+        
+        .install-success h3 {
+            color: var(--success);
+            margin-bottom: 1rem;
+        }
+        
+        /* ----- TUTORIAL SYSTEM STYLES (Improved overlay) ----- */
         .tutorial-overlay {
             position: fixed;
             top: 0;
@@ -194,16 +489,18 @@
             width: 100%;
             height: 100%;
             background: var(--tutorial-overlay);
-            backdrop-filter: blur(8px);
-            z-index: 9500;
+            backdrop-filter: blur(2px);
+            z-index: 9400;
             display: none;
             opacity: 0;
             transition: opacity 0.3s ease;
+            pointer-events: none;
         }
         
         .tutorial-overlay.active {
             display: block;
             opacity: 1;
+            pointer-events: none;
         }
         
         .tutorial-card {
@@ -218,8 +515,8 @@
             border: 2px solid var(--gold);
             border-radius: 40px;
             padding: 1.8rem;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(202,138,4,0.3) inset;
-            z-index: 9600;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            z-index: 9500;
             opacity: 0;
             visibility: hidden;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -357,7 +654,7 @@
         .tutorial-pulse {
             animation: pulse 2s infinite;
             position: relative;
-            z-index: 9550;
+            z-index: 9450;
         }
         
         @keyframes pulse {
@@ -372,23 +669,6 @@
             }
         }
         
-        .tutorial-arrow {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            border: 2px solid var(--gold);
-            border-left: 0;
-            border-bottom: 0;
-            transform: rotate(45deg);
-            animation: bounce 1s infinite;
-            z-index: 9550;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: rotate(45deg) translate(0, 0); }
-            50% { transform: rotate(45deg) translate(5px, 5px); }
-        }
-        
         .tutorial-tooltip {
             position: absolute;
             background: var(--gold);
@@ -397,10 +677,11 @@
             border-radius: 30px;
             font-size: 0.85rem;
             font-weight: 600;
-            z-index: 9550;
+            z-index: 9460;
             white-space: nowrap;
             pointer-events: none;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            transform: translateX(-50%);
         }
         
         .tutorial-tooltip::after {
@@ -419,7 +700,7 @@
         /* Mobile optimized tutorial */
         .tutorial-mobile-highlight {
             position: relative;
-            z-index: 9550;
+            z-index: 9450;
         }
         
         .tutorial-mobile-instruction {
@@ -430,9 +711,8 @@
             margin: 1rem 0;
             border: 1px solid var(--gold);
         }
-        
-        /* Existing styles continue below */
-        /* INBOX NOTIFICATION BADGE STYLES */
+
+        /* ----- REMAINING STYLES ----- */
         .inbox-icon {
             position: relative;
             background: rgba(202,138,4,0.1);
@@ -475,340 +755,12 @@
             z-index: 10;
         }
         
-        .mobile-inbox-badge {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .mobile-inbox-badge .inbox-badge {
-            top: -5px;
-            right: -5px;
-        }
-        
-        .panel-inbox-badge {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-        
-        .panel-inbox-badge .inbox-badge {
-            position: relative;
-            top: 0;
-            right: 0;
-            margin-left: 8px;
-        }
-        
-        /* ----- WELCOME POPUP ----- */
-        .welcome-popup {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(57, 55, 55, 0.7);
-            backdrop-filter: blur(15px) saturate(180%);
-            z-index: 9000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-        .welcome-popup.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-        .popup-content {
-            max-width: 480px;
-            width: 100%;
-            background: rgba(91, 86, 86, 0.4);
-            backdrop-filter: blur(20px) saturate(180%);
-            border-radius: 40px;
-            padding: 2.5rem 2rem;
-            text-align: center;
-            border: 1px solid rgba(202,138,4,0.3);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(202,138,4,0.2) inset;
-            animation: glassAppear 0.6s cubic-bezier(0.23,1,0.32,1);
-            position: relative;
-            overflow: hidden;
-        }
-        .popup-content::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle at center, rgba(202,138,4,0.15) 0%, transparent 70%);
-            animation: rotateGradient 20s linear infinite;
-            z-index: -1;
-        }
-        .popup-content h2 {
-            font-family: 'Cinzel', serif;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-            background: linear-gradient(135deg, #ffffff, var(--gold-light), #ffffff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 2px 20px rgba(202,138,4,0.6);
-            letter-spacing: 2px;
-        }
-        .popup-content p {
-            color: rgba(255,255,255,0.95);
-            margin-bottom: 2rem;
-            font-size: 1rem;
-            font-weight: 300;
-        }
-        body.light-theme .popup-content p { color: rgba(0,0,0,0.8); }
-        
-        .popup-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-            margin-bottom: 2rem;
-        }
-        .popup-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(202,138,4,0.2);
-            border-radius: 50px;
-            font-size: 1.1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 1rem;
-            text-decoration: none;
-            padding: 0.8rem 1.2rem;
-            color: rgba(255,255,255,0.95);
-            width: 100%;
-            text-align: left;
-            backdrop-filter: blur(5px);
-        }
-        body.light-theme .popup-btn { color: rgba(0,0,0,0.8); background: rgba(255,255,255,0.5); }
-        .popup-btn i {
-            font-size: 1.2rem;
-            width: 28px;
-            text-align: center;
-            transition: transform 0.3s, color 0.3s;
-            color: var(--gold);
-        }
-        .popup-btn:hover {
-            background: rgba(202,138,4,0.15);
-            border-color: var(--gold);
-            transform: translateX(6px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-        .popup-btn:hover i { transform: scale(1.1); }
-        
-        .auth-divider {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            margin: 1.5rem 0 1rem;
-            color: rgba(255,255,255,0.5);
-        }
-        .auth-divider span {
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(202,138,4,0.5), transparent);
-        }
-        .popup-btn.popup-login {
-            background: rgba(202,138,4,0.1);
-            border-color: var(--gold);
-            justify-content: center;
-            font-weight: 600;
-        }
-        .popup-btn.popup-login:hover { background: var(--gold); color: black; }
-        .popup-btn.popup-login:hover i { color: black; }
-        
-        /* Header & side panel */
-        .site-header { 
-            position: fixed; 
-            top: 0; 
-            width: 100%; 
-            height: var(--header-height); 
-            background: var(--nav-bg); 
-            backdrop-filter: blur(10px); 
-            border-bottom: 1px solid var(--gold); 
-            z-index: 2000; 
-            padding: 0 1rem; 
-        }
-        .header-container { 
-            max-width: 1400px; 
-            height: 100%; 
-            margin: 0 auto; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-        }
-        .site-logo { 
-            height: 48px; 
-            border-radius: 12px; 
-            transition: transform 0.3s; 
-            border: 2px solid var(--gold); 
-            padding: 2px; 
-            background: var(--bg-primary); 
-        }
-        .header-desktop-actions { 
-            display: flex; 
-            align-items: center; 
-            gap: 1rem; 
-        }
-        .desktop-search { 
-            position: relative; 
-            display: flex; 
-            align-items: center; 
-            background: rgba(255,255,255,0.08); 
-            border: 1px solid var(--border-light); 
-            border-radius: 40px; 
-            padding: 0.4rem 0.4rem 0.4rem 1.2rem; 
-            transition: all 0.3s; 
-            min-width: 300px; 
-        }
-        .desktop-search:focus-within { 
-            border-color: var(--gold); 
-            box-shadow: 0 0 0 3px rgba(202,138,4,0.2); 
-            background: var(--bg-secondary); 
-        }
-        .desktop-search input { 
-            background: transparent; 
-            border: none; 
-            color: var(--text-primary); 
-            font-size: 0.95rem; 
-            width: 100%; 
-            outline: none; 
-            padding: 0.5rem 0; 
-        }
-        .desktop-search input::placeholder { 
-            color: var(--text-muted); 
-            font-style: italic; 
-        }
-        .desktop-search button { 
-            background: var(--gold); 
-            border: none; 
-            width: 38px; 
-            height: 38px; 
-            border-radius: 50%; 
-            color: black; 
-            cursor: pointer; 
-            transition: 0.2s; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            flex-shrink: 0; 
-        }
-        .desktop-search button:hover { 
-            transform: scale(1.05); 
-            background: #b8860b; 
-        }
-        
-        .search-hints, .mobile-search-hints { 
-            position: absolute; 
-            top: calc(100% + 8px); 
-            left: 0; 
-            right: 0; 
-            background: var(--card-bg); 
-            border: 1px solid var(--gold); 
-            border-radius: 20px; 
-            padding: 0.5rem 0; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-            z-index: 2100; 
-            display: none; 
-            max-height: 300px; 
-            overflow-y: auto; 
-        }
-        .search-hints.show, .mobile-search-hints.show { display: block; }
-        .hint-item { 
-            padding: 0.8rem 1.2rem; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            gap: 1rem; 
-            transition: all 0.2s; 
-            color: var(--text-primary); 
-            border-bottom: 1px solid var(--border-light); 
-        }
-        .hint-item:last-child { border-bottom: none; }
-        .hint-item:hover { 
-            background: var(--search-highlight); 
-            color: var(--gold); 
-        }
-        .hint-item i { 
-            width: 24px; 
-            color: var(--gold); 
-        }
-        .hint-item .hint-category { 
-            font-size: 0.7rem; 
-            color: var(--text-muted); 
-            margin-left: auto; 
-            text-transform: uppercase; 
-        }
-        
-        .user-menu { 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-            background: rgba(202,138,4,0.1); 
-            border: 1px solid var(--gold); 
-            border-radius: 40px; 
-            padding: 0.3rem 0.3rem 0.3rem 1rem; 
-            cursor: pointer; 
-            position: relative; 
-        }
-        .user-name { 
-            color: var(--gold); 
-            font-weight: 500; 
-            font-size: 0.9rem; 
-            max-width: 120px; 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-        }
-        .user-avatar { 
-            background: var(--gold); 
-            color: #000; 
-            width: 35px; 
-            height: 35px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold; 
-        }
-        .logout-dropdown { 
-            position: absolute; 
-            top: 120%; 
-            right: 0; 
-            background: var(--card-bg); 
-            border: 1px solid var(--gold); 
-            border-radius: 20px; 
-            padding: 0.5rem; 
-            min-width: 120px; 
-            display: none; 
-            z-index: 1001; 
-        }
-        .user-menu:hover .logout-dropdown { display: block; }
-        .logout-item { 
-            padding: 0.7rem 1rem; 
-            color: var(--text-primary); 
-            border-radius: 15px; 
-            transition: all 0.2s; 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-        }
-        .logout-item:hover { 
-            background: rgba(202,138,4,0.2); 
-            color: var(--gold); 
-        }
-
         .mobile-header-group { 
             display: none; 
             align-items: center; 
             gap: 0.8rem; 
         }
+        
         .mobile-search-icon, .hamburger-icon { 
             background: transparent; 
             border: 1px solid var(--gold); 
@@ -823,192 +775,7 @@
             cursor: pointer; 
             transition: all 0.2s; 
         }
-        .mobile-search-icon:hover, .hamburger-icon:hover { 
-            background: var(--gold); 
-            color: black; 
-        }
-
-        .search-overlay { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            background: var(--nav-bg); 
-            backdrop-filter: blur(20px); 
-            padding: 1rem; 
-            z-index: 2400; 
-            transform: translateY(-100%); 
-            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); 
-            border-bottom: 2px solid var(--gold); 
-        }
-        .search-overlay.open { transform: translateY(0); }
-        .search-overlay .search-row { 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-            position: relative; 
-        }
-        .search-overlay input { 
-            flex: 1; 
-            padding: 1.2rem 1.5rem; 
-            background: var(--bg-secondary); 
-            border: 2px solid var(--gold); 
-            border-radius: 50px; 
-            color: var(--text-primary); 
-            font-size: 1.1rem; 
-            outline: none; 
-        }
-        .search-overlay button { 
-            background: var(--gold); 
-            border: none; 
-            width: 60px; 
-            height: 60px; 
-            border-radius: 50%; 
-            color: black; 
-            font-size: 1.3rem; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-        }
-        .close-search { 
-            background: transparent; 
-            border: none; 
-            color: var(--text-muted); 
-            font-size: 2.2rem; 
-            cursor: pointer; 
-            width: 50px; 
-            height: 50px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            border-radius: 50%; 
-        }
-        .close-search:hover { 
-            background: rgba(255,255,255,0.1); 
-            color: var(--gold); 
-        }
-
-        .hamburger-panel { 
-            position: fixed; 
-            top: 0; 
-            right: -320px; 
-            width: 300px; 
-            height: 100vh; 
-            background: var(--nav-bg); 
-            backdrop-filter: blur(20px); 
-            border-left: 1px solid var(--gold); 
-            padding: 2rem 1.5rem; 
-            z-index: 2500; 
-            transition: right 0.3s ease; 
-            box-shadow: -10px 0 30px rgba(0,0,0,0.5); 
-            display: flex; 
-            flex-direction: column; 
-            gap: 1.5rem; 
-        }
-        .hamburger-panel.open { right: 0; }
-        .panel-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 1px solid var(--border-light); 
-            padding-bottom: 1rem; 
-        }
-        .panel-header h3 { 
-            font-family: 'Cinzel', serif; 
-            color: var(--gold); 
-        }
-        .close-panel { 
-            background: transparent; 
-            border: none; 
-            color: var(--text-muted); 
-            font-size: 1.8rem; 
-            cursor: pointer; 
-        }
-        .panel-user-area { 
-            background: rgba(202,138,4,0.05); 
-            border-radius: 30px; 
-            padding: 1rem; 
-            border: 1px solid var(--border-light); 
-        }
-        .panel-user-info { 
-            display: flex; 
-            align-items: center; 
-            gap: 0.8rem; 
-            margin-bottom: 1rem; 
-        }
-        .panel-avatar { 
-            width: 48px; 
-            height: 48px; 
-            background: var(--gold); 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold; 
-            color: black; 
-        }
-        .panel-user-name { 
-            font-weight: 600; 
-            color: var(--gold); 
-        }
-        .panel-logout { 
-            width: 100%; 
-            padding: 0.7rem; 
-            background: transparent; 
-            border: 1px solid var(--gold); 
-            border-radius: 40px; 
-            color: var(--gold); 
-            font-weight: 500; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 0.5rem; 
-            cursor: pointer; 
-            transition: 0.2s; 
-        }
-        .panel-logout:hover { 
-            background: var(--gold); 
-            color: black; 
-        }
-        .panel-quick-links { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 0.5rem; 
-        }
-        .panel-link { 
-            padding: 0.9rem 1rem; 
-            background: rgba(255,255,255,0.03); 
-            border-radius: 30px; 
-            color: var(--text-primary); 
-            text-decoration: none; 
-            display: flex; 
-            align-items: center; 
-            gap: 1rem; 
-            transition: 0.2s; 
-            border: 1px solid transparent; 
-        }
-        .panel-link:hover { 
-            border-color: var(--gold); 
-            background: rgba(202,138,4,0.1); 
-            color: var(--gold); 
-        }
-        .panel-link i { 
-            width: 24px; 
-            color: var(--gold); 
-        }
-        .panel-theme-toggle { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 1rem; 
-            background: rgba(255,255,255,0.03); 
-            border-radius: 40px; 
-            margin-top: auto; 
-            border: 1px solid var(--border-light); 
-        }
-
-        /* Hours card */
+        
         .hours-mini-card { 
             display: inline-flex; 
             align-items: center; 
@@ -1029,560 +796,28 @@
             position: relative; 
             overflow: hidden; 
         }
-        body.light-theme .hours-mini-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(245,245,245,0.98) 100%);
-            color: #1a1a1a;
-            border: 1px solid var(--gold);
-        }
-        .hours-mini-card:hover { 
-            border-color: var(--gold); 
-            transform: translateY(-4px) scale(1.03); 
-            box-shadow: 0 25px 50px -15px rgba(202,138,4,0.5), 0 0 0 2px rgba(202,138,4,0.5) inset; 
-        }
-        .current-day { 
-            display: flex; 
-            align-items: center; 
-            gap: 0.8rem; 
-            white-space: nowrap; 
-        }
-        .current-day i { 
-            color: var(--gold); 
-            font-size: 1.5rem; 
-            filter: drop-shadow(0 0 5px rgba(202,138,4,0.5)); 
-        }
-        .day-name { 
-            font-weight: 700; 
-            color: var(--gold); 
-            margin-right: 0.3rem; 
-        }
-        .status-badge-mini { 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 0.6rem; 
-            padding: 0.5rem 1.5rem; 
-            border-radius: 40px; 
-            background: rgba(0,0,0,0.4); 
-            border-left: 2px solid var(--gold); 
-            border-right: 2px solid var(--gold); 
-            backdrop-filter: blur(5px); 
-            white-space: nowrap; 
-            font-weight: 600; 
-        }
-        body.light-theme .status-badge-mini {
-            background: rgba(255,255,255,0.8);
-        }
-        .status-open { color: #10b981; } 
-        .status-soon { color: #f59e0b; } 
-        .status-closing { color: #ef4444; } 
-        .status-closed { color: #9ca3af; }
         
-        .hours-modal { 
-            position: fixed; 
-            top:0; left:0; width:100%; height:100%; 
-            background: rgba(0,0,0,0.85); 
-            backdrop-filter: blur(16px); 
-            z-index: 10000; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 1.5rem; 
-            opacity:0; 
-            visibility:hidden; 
-            transition: all 0.4s; 
-        }
-        .hours-modal.show { opacity:1; visibility:visible; }
-        .hours-modal-card { 
-            max-width:480px; width:100%; 
-            background: linear-gradient(135deg, rgba(20,20,20,0.95) 0%, rgba(30,30,30,0.98) 100%); 
-            backdrop-filter: blur(20px); 
-            border-radius:60px; 
-            padding:3rem 2.5rem; 
-            border:2px solid var(--gold); 
-            box-shadow:0 40px 80px rgba(0,0,0,0.6); 
-            position:relative; 
-            transform:scale(0.9); 
-            transition:transform 0.4s; 
-        }
-        body.light-theme .hours-modal-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(250,250,250,0.98) 100%);
-            color: #1a1a1a;
-        }
-        .hours-modal.show .hours-modal-card { transform:scale(1); }
-        .hours-modal-close { 
-            position:absolute; 
-            top:1.5rem; 
-            right:1.5rem; 
-            background:rgba(255,255,255,0.05); 
-            border:1px solid rgba(202,138,4,0.3); 
-            color:var(--text-muted); 
-            font-size:1.5rem; 
-            cursor:pointer; 
-            width:40px; 
-            height:40px; 
-            border-radius:50%; 
-            display:flex; 
-            align-items:center; 
-            justify-content:center; 
-            transition:all 0.3s; 
-        }
-        .hours-modal-close:hover { 
-            color:var(--gold); 
-            background:rgba(202,138,4,0.15); 
-            transform:rotate(90deg); 
-            border-color:var(--gold); 
-        }
-        .hours-table { 
-            display:flex; 
-            flex-direction:column; 
-            gap:1.2rem; 
-            margin-bottom:2rem; 
-        }
-        .hours-row { 
-            display:flex; 
-            justify-content:space-between; 
-            align-items:center; 
-            padding:0.8rem 0; 
-            border-bottom:1px dashed rgba(202,138,4,0.3); 
-        }
-        .hours-row .day { 
-            font-weight:600; 
-            color:var(--gold); 
-            display:flex; 
-            align-items:center; 
-            gap:0.5rem; 
-        }
-        .hours-row .time { color:var(--text-secondary); }
-        .closed-day { color:var(--status-closed) !important; }
-        .holiday-note-modal { 
-            margin-top:2rem; 
-            text-align:center; 
-            font-size:0.95rem; 
-            color:var(--text-muted); 
-            border-top:1px solid rgba(202,138,4,0.3); 
-            padding-top:1.5rem; 
-        }
-
-        /* Hero section */
-        .hero-section { 
-            min-height: 100vh; 
-            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(20,20,20,0.9) 100%), url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover fixed; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            text-align: center; 
-            padding: 6rem 1rem 4rem; 
-            transition: background 0.3s ease;
-        }
-        body.light-theme .hero-section {
-            background: linear-gradient(135deg, rgba(255,245,235,0.92) 0%, rgba(255,255,255,0.95) 100%), url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover fixed;
-        }
-        .main-title { 
-            font-family: 'Cinzel', serif; 
-            font-size: clamp(3rem, 8vw, 6rem); 
-            color: var(--gold); 
-            margin-bottom: 0.8rem; 
-            text-shadow: 0 2px 20px var(--shadow-color); 
-            letter-spacing: 2px; 
-        }
-        .main-sub { 
-            font-size: clamp(1.2rem, 4vw, 1.6rem); 
-            color: var(--text-secondary); 
-            margin-bottom: 1.5rem; 
-            font-weight: 300; 
-        }
-        .brand-purpose { 
-            max-width: 700px; 
-            margin: 2.5rem auto 0; 
-            color: var(--text-muted); 
-            border-left: 4px solid var(--gold); 
-            padding: 0.8rem 1.5rem; 
-            text-align: left; 
-            background: rgba(202,138,4,0.02); 
-            border-radius: 0 20px 20px 0; 
-            width: 95%; 
-        }
-        body.light-theme .brand-purpose {
-            background: rgba(255,255,255,0.5);
-            color: #333;
-        }
-        
-        /* Activities Section */
-        .activities-section { 
-            max-width: 1200px; 
-            margin: 5rem auto; 
-            padding: 0 1.5rem; 
-        }
-        .section-header { 
-            text-align: center; 
-            margin-bottom: 3rem; 
-        }
-        .section-header h2 { 
-            font-family: 'Cinzel', serif; 
-            font-size: clamp(2rem, 5vw, 2.5rem); 
-            color: var(--gold); 
-            margin-bottom: 1rem; 
-        }
-        .section-header p { 
-            color: var(--text-muted); 
-            font-size: clamp(1rem, 3vw, 1.1rem); 
-            max-width: 600px; 
-            margin: 0 auto; 
-        }
         .activities-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
             gap: 2rem; 
             margin-top: 2rem; 
         }
-        .activity-card { 
-            background: var(--card-bg); 
-            border-radius: 24px; 
-            overflow: hidden; 
-            border: 1px solid var(--border-light); 
-            transition: all 0.3s; 
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); 
+        
+        .panel-theme-toggle { 
             display: flex; 
-            flex-direction: column; 
-            height: 100%; 
-        }
-        body.light-theme .activity-card {
-            background: #ffffff;
-            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
-        }
-        .activity-card:hover { 
-            transform: translateY(-8px); 
-            border-color: var(--gold); 
-            box-shadow: 0 20px 40px var(--shadow-color); 
-        }
-        .card-image { 
-            width: 100%; 
-            height: 200px; 
-            object-fit: cover; 
-            border-bottom: 2px solid var(--gold); 
-            transition: transform 0.5s; 
-        }
-        .activity-card:hover .card-image { transform: scale(1.02); }
-        .card-content { 
-            padding: 1.5rem; 
-            flex: 1; 
-            display: flex; 
-            flex-direction: column; 
-        }
-        .card-content h3 { 
-            font-size: 1.3rem; 
-            color: var(--gold); 
-            margin-bottom: 0.5rem; 
-            font-weight: 600; 
-        }
-        .card-content p { 
-            color: var(--text-muted); 
-            font-size: 0.95rem; 
-            line-height: 1.6; 
-            margin-bottom: 1.2rem; 
-            flex: 1; 
-        }
-        .card-link { 
-            color: var(--gold); 
-            text-decoration: none; 
-            font-weight: 500; 
-            display: inline-flex; 
             align-items: center; 
-            gap: 0.5rem; 
-            transition: gap 0.2s; 
+            justify-content: space-between; 
+            padding: 1rem; 
+            background: rgba(255,255,255,0.03); 
+            border-radius: 40px; 
             margin-top: auto; 
-        }
-        .card-link:hover { gap: 0.8rem; }
-        .feature-badge { 
-            display: inline-block; 
-            background: rgba(202,138,4,0.15); 
-            color: var(--gold); 
-            font-size: 0.75rem; 
-            padding: 0.25rem 0.75rem; 
-            border-radius: 30px; 
-            margin-bottom: 0.75rem; 
-            border: 1px solid var(--gold); 
-            width: fit-content; 
-        }
-        .inspired-badge { 
-            background: rgba(46,125,50,0.2); 
-            color: #2e7d32; 
-            border-color: #2e7d32; 
-        }
-        .workfit-badge, .dev-badge { 
-            background: rgba(202,138,4,0.15); 
-            color: var(--gold); 
-            border-color: var(--gold); 
-        }
-
-        /* Footer */
-        .footer {
-            background: var(--bg-secondary);
-            padding: 3rem 1.5rem 2rem;
-            text-align: center;
-            border-top: 2px solid var(--gold);
-            margin-top: 4rem;
-        }
-        body.light-theme .footer {
-            background: #f5f5f5;
-        }
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-        .footer-logo {
-            font-family: 'Cinzel', serif;
-            font-size: 1.8rem;
-            color: var(--gold);
-            margin-bottom: 0.5rem;
-        }
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-        .footer-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: color 0.2s;
-            font-size: 0.95rem;
-        }
-        .footer-links a:hover {
-            color: var(--gold);
-        }
-        .footer-social {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .footer-social a {
-            color: var(--text-muted);
-            font-size: 1.3rem;
-            transition: all 0.2s;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: rgba(202,138,4,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid var(--border-light);
-            text-decoration: none;
-        }
-        .footer-social a:hover {
-            color: var(--gold);
-            transform: translateY(-3px);
-            border-color: var(--gold);
-            background: rgba(202,138,4,0.2);
-        }
-        .footer-copyright {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            padding-top: 2rem;
-            border-top: 1px solid var(--border-light);
-        }
-        .footer-copyright a {
-            color: var(--gold);
-            text-decoration: none;
-        }
-        .footer-copyright a:hover {
-            text-decoration: underline;
-        }
-
-        .message-toast { 
-            position: fixed; 
-            top: 30px; 
-            left: 50%; 
-            transform: translateX(-50%) translateY(-20px); 
-            background: var(--toast-bg); 
-            backdrop-filter: blur(12px); 
-            border: 1px solid var(--toast-border); 
-            border-radius: 60px; 
-            padding: 0.9rem 2rem; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5); 
-            display: flex; 
-            align-items: center; 
-            gap: 1rem; 
-            z-index: 10000; 
-            opacity: 0; 
-            visibility: hidden; 
-            transition: all 0.4s; 
-            color: var(--toast-text); 
-            min-width: 280px; 
-            justify-content: center; 
-        }
-        .message-toast.show { 
-            opacity: 1; 
-            visibility: visible; 
-            transform: translateX(-50%) translateY(0); 
-        }
-
-        .install-pwa { 
-            position: fixed; 
-            bottom: 20px; 
-            right: 20px; 
-            background: var(--gold); 
-            color: black; 
-            border: none; 
-            border-radius: 50px; 
-            padding: 0.8rem 1.5rem; 
-            font-weight: bold; 
-            cursor: pointer; 
-            box-shadow: 0 5px 15px rgba(202,138,4,0.5); 
-            z-index: 3000; 
-            display: none; 
-            align-items: center; 
-            gap: 0.5rem; 
-        }
-        .install-pwa.show { display: flex; }
-
-        /* Auth modal */
-        .modal-overlay { 
-            position: fixed; 
-            top:0; left:0; width:100%; height:100%; 
-            background:rgba(0,0,0,0.85); 
-            backdrop-filter:blur(8px); 
-            z-index:9499; 
-            display:none; 
-        }
-        .modal-overlay.active { display:block; }
-        .auth-modal { 
-            position:fixed; 
-            top:50%; left:50%; 
-            transform:translate(-50%,-50%); 
-            background:var(--card-bg); 
-            padding:2rem; 
-            border-radius:30px; 
-            border:2px solid var(--gold); 
-            z-index:9500; 
-            max-width:450px; 
-            width:90%; 
-            max-height:85vh; 
-            overflow-y:auto; 
-            display:none; 
-            box-shadow:0 30px 60px rgba(0,0,0,0.5); 
-        }
-        body.light-theme .auth-modal {
-            background: #ffffff;
-        }
-        .auth-modal.active { display:block; animation:modalFadeIn 0.3s; }
-        @keyframes modalFadeIn { 
-            from { opacity:0; transform:translate(-50%,-60%); } 
-            to { opacity:1; transform:translate(-50%,-50%); } 
-        }
-        .auth-modal .modal-close { 
-            position:absolute; 
-            top:1rem; 
-            right:1rem; 
-            background:transparent; 
-            border:none; 
-            color:var(--text-muted); 
-            font-size:1.5rem; 
-            cursor:pointer; 
-            transition:color 0.2s; 
-        }
-        .auth-modal .modal-close:hover { 
-            color:var(--gold); 
-            transform:rotate(90deg); 
-        }
-        .modal-header { 
-            text-align:center; 
-            margin-bottom:1.5rem; 
-        }
-        .modal-header i { 
-            font-size:2.2rem; 
-            color:var(--gold); 
-            margin-bottom:0.5rem; 
-        }
-        .modal-header h3 { 
-            font-family:'Cinzel',serif; 
-            font-size:1.8rem; 
-            color:var(--gold); 
-        }
-        .modal-tabs { 
-            display:flex; 
-            gap:1rem; 
-            margin-bottom:1.5rem; 
-            border-bottom:1px solid var(--border-light); 
-            padding-bottom:1rem; 
-        }
-        .modal-tab { 
-            flex:1; 
-            padding:0.75rem; 
-            background:transparent; 
-            border:none; 
-            color:var(--text-muted); 
-            font-weight:600; 
-            cursor:pointer; 
-            border-radius:8px; 
-        }
-        .modal-tab.active { 
-            color:var(--gold); 
-            background:rgba(202,138,4,0.1); 
-        }
-        .modal-form { display:none; }
-        .modal-form.active { display:block; }
-        .modal-input { 
-            width:100%; 
-            padding:0.875rem 1rem; 
-            background:var(--bg-primary); 
-            border:1px solid var(--border-light); 
-            border-radius:12px; 
-            color:var(--text-primary); 
-            margin-bottom:1rem; 
-        }
-        body.light-theme .modal-input {
-            background: #f5f5f5;
-            color: #333;
-        }
-        .modal-input:focus { 
-            outline:none; 
-            border-color:var(--gold); 
-            box-shadow:0 0 0 3px rgba(202,138,4,0.2); 
-        }
-        .modal-btn { 
-            width:100%; 
-            padding:0.875rem; 
-            background:var(--gold); 
-            color:black; 
-            border:none; 
-            border-radius:30px; 
-            font-weight:600; 
-            cursor:pointer; 
-            transition:0.2s; 
-        }
-        .modal-btn:hover { 
-            background:var(--gold-dark); 
-            transform:translateY(-2px); 
-            box-shadow:0 5px 15px rgba(202,138,4,0.3); 
-        }
-        .modal-error { 
-            color:var(--danger); 
-            font-size:0.85rem; 
-            margin-top:0.5rem; 
-            text-align:center; 
-            display:none; 
-            background:rgba(220,38,38,0.1); 
-            border-radius:8px; 
-            padding:0.5rem; 
-        }
-        .modal-success { 
-            color:var(--success); 
-            background:rgba(16,185,129,0.1); 
-            border-radius:8px; 
-            padding:0.5rem; 
-            display:none; 
+            border: 1px solid var(--border-light); 
         }
 
         @media (max-width: 768px) { 
             .header-desktop-actions { display:none; } 
             .mobile-header-group { display:flex; } 
-            .footer-links { gap: 1rem; }
-            .footer-links a { font-size: 0.85rem; }
             
             .tutorial-card {
                 bottom: 20px;
@@ -1594,6 +829,15 @@
                 white-space: normal;
                 max-width: 200px;
                 font-size: 0.75rem;
+            }
+            
+            .install-modal {
+                padding: 2rem 1.5rem;
+            }
+            
+            .install-platform-tabs {
+                flex-direction: column;
+                gap: 0.5rem;
             }
         }
     </style>
@@ -1646,7 +890,134 @@
     </form>
 </div>
 
-<!-- TUTORIAL OVERLAY SYSTEM -->
+<!-- INSTALLATION MODAL - MANDATORY AFTER SIGNUP -->
+<div class="install-modal-overlay" id="installModal">
+    <div class="install-modal">
+        <button class="install-modal-close" onclick="closeInstallModal()">&times;</button>
+        
+        <div class="install-modal-icon">
+            <i class="fas fa-download"></i>
+        </div>
+        
+        <h2>Install I AM MUGERA</h2>
+        <p>To continue, you must install the app on your device. This gives you the best experience with offline access and notifications.</p>
+        
+        <!-- Platform Tabs -->
+        <div class="install-platform-tabs">
+            <div class="install-platform-tab active" onclick="switchPlatform('android')" id="androidTab">
+                <i class="fab fa-android"></i> Android
+            </div>
+            <div class="install-platform-tab" onclick="switchPlatform('ios')" id="iosTab">
+                <i class="fab fa-apple"></i> iOS
+            </div>
+            <div class="install-platform-tab" onclick="switchPlatform('desktop')" id="desktopTab">
+                <i class="fas fa-desktop"></i> Desktop
+            </div>
+        </div>
+        
+        <!-- Android Instructions -->
+        <div class="install-instructions active" id="androidInstructions">
+            <div class="install-step">
+                <div class="install-step-number">1</div>
+                <div class="install-step-content">
+                    <h4>Tap the menu</h4>
+                    <p>Tap the <i class="fas fa-ellipsis-vertical"></i> menu button in your browser</p>
+                </div>
+            </div>
+            <div class="install-step">
+                <div class="install-step-number">2</div>
+                <div class="install-step-content">
+                    <h4>Select "Install App"</h4>
+                    <p>Choose <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></p>
+                </div>
+            </div>
+            <div class="install-step">
+                <div class="install-step-number">3</div>
+                <div class="install-step-content">
+                    <h4>Confirm installation</h4>
+                    <p>Tap <strong>"Install"</strong> in the popup</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- iOS Instructions -->
+        <div class="install-instructions" id="iosInstructions">
+            <div class="install-step">
+                <div class="install-step-number">1</div>
+                <div class="install-step-content">
+                    <h4>Tap Share button</h4>
+                    <p>Tap the <i class="fas fa-square-arrow-up"></i> share icon at the bottom</p>
+                </div>
+            </div>
+            <div class="install-step">
+                <div class="install-step-number">2</div>
+                <div class="install-step-content">
+                    <h4>Scroll and select</h4>
+                    <p>Scroll down and tap <strong>"Add to Home Screen"</strong></p>
+                </div>
+            </div>
+            <div class="install-step">
+                <div class="install-step-number">3</div>
+                <div class="install-step-content">
+                    <h4>Confirm</h4>
+                    <p>Tap <strong>"Add"</strong> in the top right</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Desktop Instructions -->
+        <div class="install-instructions" id="desktopInstructions">
+            <div class="install-step">
+                <div class="install-step-number">1</div>
+                <div class="install-step-content">
+                    <h4>Look for install icon</h4>
+                    <p>Click the <i class="fas fa-download"></i> install icon in the address bar</p>
+                </div>
+            </div>
+            <div class="install-step">
+                <div class="install-step-number">2</div>
+                <div class="install-step-content">
+                    <h4>Click Install</h4>
+                    <p>Click <strong>"Install"</strong> in the popup</p>
+                </div>
+            </div>
+            <div class="install-step">
+                <div class="install-step-number">3</div>
+                <div class="install-step-content">
+                    <h4>Launch app</h4>
+                    <p>Open I AM MUGERA from your desktop</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="install-progress">
+            <div class="install-progress-bar">
+                <div class="install-progress-fill" id="installProgress"></div>
+            </div>
+            <div class="install-progress-text" id="installProgressText">Step 0/3</div>
+        </div>
+        
+        <!-- Install Button -->
+        <div class="install-actions">
+            <button class="install-btn install-btn-primary" onclick="triggerInstall()" id="installActionBtn">
+                <i class="fas fa-download"></i> Install Now
+            </button>
+        </div>
+        
+        <!-- Success Message (shown after install) -->
+        <div class="install-success" id="installSuccess">
+            <i class="fas fa-check-circle"></i>
+            <h3>Installation Complete!</h3>
+            <p>Thank you for installing I AM MUGERA. You can now continue to the app.</p>
+            <button class="install-btn install-btn-primary" onclick="continueAfterInstall()" style="margin-top: 1rem;">
+                Continue to App <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- TUTORIAL OVERLAY SYSTEM (Improved - less blur) -->
 <div class="tutorial-overlay" id="tutorialOverlay"></div>
 <div class="tutorial-card" id="tutorialCard">
     <div class="tutorial-progress">
@@ -1899,7 +1270,7 @@
     </footer>
 </main>
 
-<!-- PWA Install Button -->
+<!-- PWA Install Button (Fallback) -->
 <button class="install-pwa" id="installButton"><i class="fas fa-download"></i> Install App</button>
 
 <!-- Elegant Toast -->
@@ -1932,14 +1303,22 @@
     let tutorialActive = false;
     let tutorialStep = 0;
     
+    // Installation tracking
+    let deferredPrompt;
+    let appInstalled = false;
+    let installationStep = 0;
+    let currentPlatform = 'android';
+    
     // Device detection
     const isMobile = window.innerWidth <= 768;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isAndroid = /Android/.test(navigator.userAgent);
     
     // Tutorial steps with device-specific highlights
     const tutorialSteps = [
         {
             title: '👋 Welcome to I AM MUGERA!',
-            content: 'Let\'s take a quick tour to help you get started. You\'ll learn how to navigate and use all the key features.',
+            content: 'Let\'s take a quick tour to help you get started. We\'ll show you all the key features in just 2 minutes.',
             highlight: null,
             tooltip: null
         },
@@ -1999,6 +1378,158 @@
         console.error('Firebase initialization error:', e); 
     }
 
+    // ========== CHECK IF APP IS INSTALLED ==========
+    function checkAppInstalled() {
+        // Check if running in standalone mode (PWA)
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                            window.navigator.standalone || 
+                            document.referrer.includes('android-app://');
+        
+        if (isStandalone) {
+            appInstalled = true;
+            localStorage.setItem('appInstalled', 'true');
+        }
+        
+        // Also check localStorage
+        if (localStorage.getItem('appInstalled') === 'true') {
+            appInstalled = true;
+        }
+        
+        return appInstalled;
+    }
+
+    // ========== INSTALLATION MODAL ==========
+    function showInstallModal() {
+        if (checkAppInstalled()) return;
+        
+        document.getElementById('installModal').classList.add('active');
+        document.body.classList.add('modal-open');
+        
+        // Set default platform based on device
+        if (isIOS) {
+            switchPlatform('ios');
+        } else if (isAndroid) {
+            switchPlatform('android');
+        } else {
+            switchPlatform('desktop');
+        }
+        
+        // Start progress tracking
+        installationStep = 0;
+        updateInstallProgress();
+    }
+
+    function closeInstallModal() {
+        // Don't allow closing if not installed
+        if (!appInstalled) {
+            showElegantMessage('Please install the app to continue', 'warning');
+            return;
+        }
+        document.getElementById('installModal').classList.remove('active');
+        document.body.classList.remove('modal-open');
+    }
+
+    window.switchPlatform = function(platform) {
+        currentPlatform = platform;
+        
+        // Update tabs
+        document.querySelectorAll('.install-platform-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.getElementById(platform + 'Tab').classList.add('active');
+        
+        // Update instructions
+        document.querySelectorAll('.install-instructions').forEach(inst => {
+            inst.classList.remove('active');
+        });
+        document.getElementById(platform + 'Instructions').classList.add('active');
+    };
+
+    function updateInstallProgress() {
+        const progressFill = document.getElementById('installProgress');
+        const progressText = document.getElementById('installProgressText');
+        const actionBtn = document.getElementById('installActionBtn');
+        
+        const percent = (installationStep / 3) * 100;
+        progressFill.style.width = percent + '%';
+        progressText.textContent = `Step ${installationStep}/3`;
+        
+        if (installationStep >= 3) {
+            actionBtn.disabled = true;
+            actionBtn.style.opacity = '0.5';
+            
+            // Show success message
+            document.querySelector('.install-success').classList.add('show');
+            document.querySelector('.install-actions').style.display = 'none';
+            document.querySelector('.install-progress').style.display = 'none';
+        }
+    }
+
+    window.triggerInstall = function() {
+        if (deferredPrompt) {
+            // Show the browser's install prompt
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    installationStep = 3;
+                    appInstalled = true;
+                    localStorage.setItem('appInstalled', 'true');
+                    updateInstallProgress();
+                    showElegantMessage('✅ App installed successfully!', 'success');
+                } else {
+                    installationStep = Math.min(installationStep + 1, 3);
+                    updateInstallProgress();
+                    
+                    if (installationStep < 3) {
+                        showElegantMessage('Follow the instructions to complete installation', 'info');
+                    } else {
+                        appInstalled = true;
+                        localStorage.setItem('appInstalled', 'true');
+                    }
+                }
+                deferredPrompt = null;
+            });
+        } else {
+            // Manual installation - just advance step
+            installationStep = Math.min(installationStep + 1, 3);
+            updateInstallProgress();
+            
+            if (installationStep >= 3) {
+                appInstalled = true;
+                localStorage.setItem('appInstalled', 'true');
+                showElegantMessage('Please complete installation using the instructions', 'info');
+            }
+        }
+    };
+
+    window.continueAfterInstall = function() {
+        document.getElementById('installModal').classList.remove('active');
+        document.body.classList.remove('modal-open');
+        
+        // Start tutorial after installation
+        setTimeout(() => {
+            startTutorial();
+        }, 500);
+    };
+
+    // Listen for PWA install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Show install button as fallback
+        document.getElementById('installButton').classList.add('show');
+    });
+
+    // Listen for app installed
+    window.addEventListener('appinstalled', () => {
+        appInstalled = true;
+        localStorage.setItem('appInstalled', 'true');
+        installationStep = 3;
+        updateInstallProgress();
+        showElegantMessage('✅ App installed successfully!', 'success');
+    });
+
     // ========== AUTH STATE LISTENER ==========
     if (auth) {
         auth.onAuthStateChanged(user => {
@@ -2017,8 +1548,20 @@
                 // Set up real-time listener for unread messages
                 setupUnreadMessagesListener(user.uid);
                 
-                // Check if this is a new user (first login) and start tutorial
-                checkAndStartTutorial(user);
+                // Check if this is a new user and if app is installed
+                const isNewUser = !localStorage.getItem(`tutorial_${user.uid}`);
+                
+                if (isNewUser && !checkAppInstalled()) {
+                    // Show installation modal for new users who haven't installed
+                    setTimeout(() => {
+                        showInstallModal();
+                    }, 1000);
+                } else if (isNewUser && checkAppInstalled()) {
+                    // App is installed, start tutorial
+                    setTimeout(() => {
+                        startTutorial();
+                    }, 1000);
+                }
                 
             } else {
                 // User is logged out
@@ -2039,20 +1582,6 @@
     }
 
     // ========== TUTORIAL SYSTEM ==========
-    function checkAndStartTutorial(user) {
-        if (!user) return;
-        
-        // Check if user has seen tutorial before
-        const tutorialCompleted = localStorage.getItem(`tutorial_${user.uid}`);
-        
-        if (!tutorialCompleted) {
-            // Start tutorial after a short delay to ensure UI is ready
-            setTimeout(() => {
-                startTutorial();
-            }, 1500);
-        }
-    }
-
     function startTutorial() {
         if (!currentUser) return;
         
@@ -2213,12 +1742,7 @@
 
     // ========== UNREAD MESSAGES LISTENER ==========
     function setupUnreadMessagesListener(userId) {
-        if (!database || !userId) {
-            console.log('Cannot setup listener: no database or userId');
-            return;
-        }
-        
-        console.log('Setting up unread messages listener for user:', userId);
+        if (!database || !userId) return;
         
         // Remove existing listener if any
         if (unreadMessagesRef) {
@@ -2232,23 +1756,15 @@
         
         unreadMessagesRef.on('value', (snapshot) => {
             let unreadCount = 0;
-            const messages = [];
             
             snapshot.forEach((childSnapshot) => {
                 const message = childSnapshot.val();
-                // Only count if read is false
                 if (message.read === false) {
                     unreadCount++;
-                    messages.push({
-                        id: childSnapshot.key,
-                        ...message
-                    });
                 }
             });
             
-            console.log(`Found ${unreadCount} unread messages for user ${userId}`);
-            
-            // Check if this is a new message (count increased and we had a previous count)
+            // Check if this is a new message
             if (unreadCount > previousUnreadCount && previousUnreadCount > 0) {
                 const newMessages = unreadCount - previousUnreadCount;
                 showElegantMessage(`📨 ${newMessages} new message${newMessages > 1 ? 's' : ''}`, 'info');
@@ -2266,15 +1782,11 @@
             } else {
                 document.title = 'I AM MUGERA | Afrika Milele';
             }
-        }, (error) => {
-            console.error('Error listening to messages:', error);
         });
     }
     
     // ========== UPDATE INBOX BADGES ==========
     function updateInboxBadges(count) {
-        console.log('Updating badges with count:', count);
-        
         const badges = {
             desktop: document.getElementById('desktopInboxBadge'),
             mobile: document.getElementById('mobileInboxBadge'),
@@ -2297,13 +1809,13 @@
     window.openAuthModal = () => {
         document.getElementById('authModal').classList.add('active');
         document.getElementById('modalOverlay').classList.add('active');
-        document.body.style.overflow = 'hidden';
+        document.body.classList.add('modal-open');
     };
     
     window.closeAllModals = () => {
         document.getElementById('authModal').classList.remove('active');
         document.getElementById('modalOverlay').classList.remove('active');
-        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open');
     };
     
     window.switchAuthTab = (tab) => {
@@ -2463,7 +1975,6 @@
         
         messageSpan.textContent = text;
         
-        // Set icon based on type
         if (type === 'success') {
             icon.className = 'fas fa-check-circle';
         } else if (type === 'error') {
@@ -2491,7 +2002,7 @@
         { title: "WEB DEVELOPMENT", category: "COURSE", icon: "fas fa-class", keywords: ["web","develop","developer","coding","course"], url: "web-dev.html" },
         { title: "LEADERSHIP MASTERY", category: "COURSE", icon: "fas fa-class", keywords: ["leader","mastery","lead","leadership","course"], url: "data-entry.html" },
         { title: "Voice Central", category: "Media", icon: "fas fa-microphone-alt", keywords: ["voice","central","conversations","podcast"], url: "mugera.html" },
-        { title: "PAYMENTS", category: "PAYMENTS", icon: "fas fa-wallet", keywords: ["pay","partner","payment","partnerships", "partnerships"], url: "payments.html" },
+        { title: "PAYMENTS", category: "PAYMENTS", icon: "fas fa-wallet", keywords: ["pay","partner","payment","partnerships"], url: "payments.html" },
         { title: "HEKIMA•HUB", category: "COURSES", icon: "fas fa-university", keywords: ["school","class","course"], url: "courses.html" }
     ];
 
@@ -2715,14 +2226,6 @@
         panelLinks.appendChild(restartTutorialLink);
     }
 
-    // Update isMobile on resize
-    window.addEventListener('resize', function() {
-        const newIsMobile = window.innerWidth <= 768;
-        if (newIsMobile !== isMobile) {
-            location.reload(); // Reload to update tutorial steps for new device
-        }
-    });
-
     // ========== TOGGLES ==========
     window.toggleHamburger = () => {
         document.getElementById('hamburgerPanel').classList.toggle('open');
@@ -2771,38 +2274,16 @@
         document.getElementById('panelThemeIcon')?.classList.replace('fa-moon', 'fa-sun');
     }
 
-    // ========== PWA INSTALL ==========
-    let deferredPrompt;
-    
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById('installButton').classList.add('show');
-    });
-    
-    document.getElementById('installButton')?.addEventListener('click', async () => {
-        document.getElementById('installButton').classList.remove('show');
-        
+    // ========== PWA INSTALL BUTTON FALLBACK ==========
+    document.getElementById('installButton')?.addEventListener('click', () => {
         if (deferredPrompt) {
             deferredPrompt.prompt();
-            await deferredPrompt.userChoice;
-            deferredPrompt = null;
+        } else {
+            showInstallModal();
         }
     });
 
-    // ========== TEST FUNCTION ==========
-    window.simulateNewMessage = function() {
-        if (currentUser) {
-            const currentBadge = document.getElementById('desktopInboxBadge');
-            const currentCount = currentBadge.style.display === 'flex' ? parseInt(currentBadge.textContent) || 0 : 0;
-            updateInboxBadges(currentCount + 1);
-            showElegantMessage('📨 Test: Simulated new message', 'success');
-        } else {
-            showElegantMessage('Please login first', 'info');
-        }
-    };
-
-    console.log('Inbox notification system loaded with device-aware interactive tutorial');
+    console.log('I AM MUGERA loaded with mandatory app installation');
 </script>
 </body>
 </html>
