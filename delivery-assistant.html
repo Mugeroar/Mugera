@@ -29,6 +29,7 @@
             --purple: #8b5cf6;
             --pink: #ec4899;
             --teal: #14b8a6;
+            --orange: #f97316;
             
             --bg-primary: #0a0a0a;
             --bg-secondary: #111111;
@@ -54,6 +55,10 @@
             --status-approved: #10b981;
             --status-rejected: #ef4444;
             --status-pending-verification: #8b5cf6;
+            --status-assigned: #3b82f6;
+            --status-out-for-delivery: #8b5cf6;
+            --status-delivered: #10b981;
+            --status-cancelled: #ef4444;
         }
 
         body.light-theme {
@@ -376,6 +381,28 @@
             width: 20px;
         }
 
+        /* Service Type Badges */
+        .service-badge {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .service-store {
+            background: rgba(202, 138, 4, 0.15);
+            color: var(--gold);
+            border: 1px solid var(--gold);
+        }
+        
+        .service-pickup {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
         /* Status Cards */
         .status-card {
             background: rgba(255, 255, 255, 0.03);
@@ -533,6 +560,17 @@
             color: white;
         }
 
+        .action-btn.pickup {
+            border-color: var(--orange);
+            color: var(--orange);
+            background: rgba(249, 115, 22, 0.1);
+        }
+
+        .action-btn.pickup:hover {
+            background: var(--orange);
+            color: white;
+        }
+
         /* Filters */
         .filters {
             display: flex;
@@ -648,6 +686,12 @@
             border: 1px solid var(--purple);
         }
 
+        .status-assigned {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--info);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
         .status-out-for-delivery {
             background: rgba(139, 92, 246, 0.15);
             color: var(--purple);
@@ -658,6 +702,12 @@
             background: rgba(16, 185, 129, 0.15);
             color: var(--success);
             border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-cancelled {
+            background: rgba(220, 38, 38, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(220, 38, 38, 0.3);
         }
 
         /* Table actions */
@@ -701,6 +751,11 @@
         .table-btn.complete:hover {
             border-color: var(--purple);
             color: var(--purple);
+        }
+
+        .table-btn.pickup:hover {
+            border-color: var(--orange);
+            color: var(--orange);
         }
 
         /* Modal */
@@ -865,7 +920,7 @@
             .filters { flex-direction: column; }
             .search-input { min-width: auto; }
             .table-container { overflow-x: auto; }
-            table { min-width: 800px; }
+            table { min-width: 1000px; }
             .profile-card { flex-direction: column; text-align: center; }
             .profile-details { justify-content: center; }
             .form-row { grid-template-columns: 1fr; }
@@ -893,6 +948,21 @@
         </div>
         <div class="modal-actions">
             <button class="action-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Modal for pickup delivery details -->
+    <div class="modal-overlay" id="pickupModalOverlay" onclick="closePickupModal()"></div>
+    <div class="modal" id="pickupModal">
+        <div class="modal-header">
+            <h3>Pickup Delivery Details</h3>
+            <button class="modal-close" onclick="closePickupModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="pickupModalBody">
+            <!-- Dynamic content -->
+        </div>
+        <div class="modal-actions">
+            <button class="action-btn" onclick="closePickupModal()">Close</button>
         </div>
     </div>
 
@@ -924,6 +994,26 @@
         <div class="modal-actions">
             <button class="action-btn" onclick="closeProofModal()">Cancel</button>
             <button class="action-btn success" onclick="submitProofOfDelivery()">Complete Delivery</button>
+        </div>
+    </div>
+
+    <!-- Modal for pickup completion -->
+    <div class="modal-overlay" id="pickupCompleteModalOverlay" onclick="closePickupCompleteModal()"></div>
+    <div class="modal" id="pickupCompleteModal">
+        <div class="modal-header">
+            <h3>Complete Pickup</h3>
+            <button class="modal-close" onclick="closePickupCompleteModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="pickupCompleteModalBody">
+            <p style="margin-bottom: 1rem;">Confirm that you have picked up the package and are now out for delivery.</p>
+            <div style="margin-top: 1rem;">
+                <label class="form-label">Pickup Notes</label>
+                <textarea class="form-control" id="pickupNotes" rows="3" placeholder="Any notes about the pickup"></textarea>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="action-btn" onclick="closePickupCompleteModal()">Cancel</button>
+            <button class="action-btn success" onclick="confirmPickupComplete()">Confirm Pickup</button>
         </div>
     </div>
 
@@ -975,6 +1065,7 @@
             <a href="#" class="panel-link" onclick="showSection('active'); toggleHamburger();"><i class="fas fa-truck"></i> Active Deliveries</a>
             <a href="#" class="panel-link" onclick="showSection('completed'); toggleHamburger();"><i class="fas fa-check-circle"></i> Completed</a>
             <a href="#" class="panel-link" onclick="showSection('all'); toggleHamburger();"><i class="fas fa-list"></i> All Deliveries</a>
+            <a href="#" class="panel-link" onclick="showSection('pickup'); toggleHamburger();"><i class="fas fa-box"></i> Pickup Only</a>
             <a href="delivery-wallet.html" class="panel-link" onclick="showProfile(); toggleHamburger();"><i class="fas fa-user-cog"></i> My Wallet</a>
         </div>
         <div class="panel-theme-toggle">
@@ -1129,6 +1220,18 @@
                 </div>
             </div>
 
+            <!-- Pickup Only -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Pickup Only</span>
+                    <div class="stat-icon"><i class="fas fa-box"></i></div>
+                </div>
+                <div class="stat-value" id="pickupOnly">0</div>
+                <div class="stat-footer">
+                    Awaiting pickup confirmation
+                </div>
+            </div>
+
             <!-- Completed Today -->
             <div class="stat-card">
                 <div class="stat-header">
@@ -1171,11 +1274,17 @@
             <input type="text" class="search-input" id="searchInput" placeholder="Search by order ID, customer name, address...">
             <select class="filter-select" id="statusFilter">
                 <option value="all">All Status</option>
+                <option value="assigned">Assigned</option>
                 <option value="out-for-delivery">Out for Delivery</option>
                 <option value="delivered">Delivered</option>
                 <option value="pending">Pending</option>
                 <option value="confirmed">Confirmed</option>
                 <option value="processing">Processing</option>
+            </select>
+            <select class="filter-select" id="typeFilter">
+                <option value="all">All Types</option>
+                <option value="store">Store Orders</option>
+                <option value="pickup">Pickup Deliveries</option>
             </select>
             <button class="action-btn" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
         </div>
@@ -1188,6 +1297,7 @@
             </div>
             <div class="section-actions">
                 <button class="action-btn" onclick="showSection('active')"><i class="fas fa-clock"></i> Active</button>
+                <button class="action-btn" onclick="showSection('pickup')"><i class="fas fa-box"></i> Pickup</button>
                 <button class="action-btn" onclick="showSection('completed')"><i class="fas fa-check-circle"></i> Completed</button>
                 <button class="action-btn" onclick="showSection('all')"><i class="fas fa-list"></i> All</button>
             </div>
@@ -1198,10 +1308,12 @@
             <table id="deliveriesTable">
                 <thead>
                     <tr>
+                        <th>Type</th>
                         <th>Order ID</th>
                         <th>Date</th>
                         <th>Customer</th>
-                        <th>Address</th>
+                        <th>Pickup</th>
+                        <th>Delivery</th>
                         <th>Items</th>
                         <th>Total</th>
                         <th>Status</th>
@@ -1209,7 +1321,7 @@
                     </tr>
                 </thead>
                 <tbody id="deliveriesTableBody">
-                    <tr><td colspan="8" style="text-align: center;">Loading your deliveries...</td></tr>
+                    <tr><td colspan="10" style="text-align: center;">Loading your deliveries...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -1254,9 +1366,13 @@
         let currentAssistant = null;
         let assistantStatus = null; // 'approved', 'pending', 'rejected', null
         let assignedOrders = [];
+        let assignedPickups = [];
         let filteredOrders = [];
+        let filteredPickups = [];
         let currentOrderId = null;
+        let currentPickupId = null;
         let proofImageData = null;
+        let currentView = 'all'; // 'all', 'active', 'completed', 'pickup'
 
         // ========== AUTH STATE LISTENER ==========
         auth.onAuthStateChanged(async (user) => {
@@ -1590,7 +1706,10 @@
             showLoading(true);
             
             try {
-                await loadAssignedOrders();
+                await Promise.all([
+                    loadAssignedOrders(),
+                    loadAssignedPickups()
+                ]);
                 applyFilters();
                 updateStats();
                 updateLastUpdated();
@@ -1603,7 +1722,7 @@
             }
         }
 
-        // Load orders assigned to this assistant
+        // Load store orders assigned to this assistant
         async function loadAssignedOrders() {
             if (!currentAssistant) return;
 
@@ -1614,11 +1733,13 @@
                 assignedOrders = Object.entries(data)
                     .map(([id, order]) => ({
                         id,
+                        type: 'store',
                         orderId: id,
                         orderDate: order.orderDate || order.timestamp || null,
                         userName: order.userName || order.fullName || 'Unknown',
                         userEmail: order.userEmail || order.email || '',
                         userPhone: order.userPhone || order.phone || '',
+                        pickupAddress: order.pickupAddress || order.address || 'Store pickup',
                         deliveryAddress: order.deliveryAddress || order.address || '',
                         deliveryDate: order.deliveryDate || null,
                         paymentMethod: order.paymentMethod || '',
@@ -1645,32 +1766,95 @@
             }
         }
 
+        // Load pickup deliveries assigned to this assistant
+        async function loadAssignedPickups() {
+            if (!currentAssistant) return;
+
+            try {
+                const snapshot = await database.ref('pickup_deliveries').once('value');
+                const data = snapshot.val() || {};
+                
+                assignedPickups = Object.entries(data)
+                    .map(([id, pickup]) => ({
+                        id,
+                        type: 'pickup',
+                        orderId: id,
+                        serviceType: pickup.serviceType || 'pickup',
+                        orderDate: pickup.bookingDate || pickup.timestamp || null,
+                        userName: pickup.customer?.name || pickup.userName || 'Unknown',
+                        userEmail: pickup.customer?.email || pickup.userEmail || '',
+                        userPhone: pickup.customer?.phone || pickup.userPhone || '',
+                        pickupAddress: pickup.pickup?.address || 'Pickup location',
+                        deliveryAddress: pickup.delivery?.address || '',
+                        pickupZone: pickup.pickup?.zone || '',
+                        deliveryZone: pickup.delivery?.zone || '',
+                        packageType: pickup.package?.type || '',
+                        packageWeight: pickup.package?.weight || '',
+                        packageDesc: pickup.package?.description || '',
+                        recipientName: pickup.delivery?.recipient || '',
+                        recipientPhone: pickup.delivery?.recipientPhone || '',
+                        status: pickup.status || 'pending',
+                        assignedTo: pickup.assistant?.id,
+                        assignedName: pickup.assistant?.name,
+                        assignedAt: pickup.assistant?.assignedAt || null,
+                        statusHistory: pickup.statusHistory || []
+                    }))
+                    .filter(pickup => pickup.assignedTo === currentAssistant.id);
+
+                // Sort by date (newest first)
+                assignedPickups.sort((a, b) => {
+                    const dateA = a.orderDate ? new Date(a.orderDate).getTime() : 0;
+                    const dateB = b.orderDate ? new Date(b.orderDate).getTime() : 0;
+                    return dateB - dateA;
+                });
+
+                filteredPickups = [...assignedPickups];
+                
+            } catch (error) {
+                console.error('Error loading assigned pickups:', error);
+            }
+        }
+
         // ========== UPDATE STATS ==========
         function updateStats() {
             const today = new Date().toDateString();
             
-            // Active deliveries (out for delivery)
-            const active = assignedOrders.filter(o => 
+            // Active deliveries (out for delivery from store orders)
+            const activeDeliveries = assignedOrders.filter(o => 
                 o.status === 'out-for-delivery' || o.status === 'processing'
             ).length;
             
-            document.getElementById('activeDeliveries').textContent = active;
+            // Active pickups (assigned but not yet out for delivery)
+            const activePickups = assignedPickups.filter(p => 
+                p.status === 'assigned' || p.status === 'pending'
+            ).length;
             
-            // Completed today
-            const completedToday = assignedOrders.filter(o => 
+            document.getElementById('activeDeliveries').textContent = activeDeliveries + activePickups;
+            document.getElementById('pickupOnly').textContent = activePickups;
+            
+            // Completed today (both store and pickup)
+            const completedTodayOrders = assignedOrders.filter(o => 
                 o.status === 'delivered' && 
                 o.deliveryDate && 
                 new Date(o.deliveryDate).toDateString() === today
             ).length;
             
-            document.getElementById('completedToday').textContent = completedToday;
+            const completedTodayPickups = assignedPickups.filter(p => 
+                p.status === 'delivered' && 
+                p.deliveryDate && 
+                new Date(p.deliveryDate).toDateString() === today
+            ).length;
+            
+            document.getElementById('completedToday').textContent = completedTodayOrders + completedTodayPickups;
             
             // Total delivered
-            const totalDelivered = assignedOrders.filter(o => o.status === 'delivered').length;
-            document.getElementById('totalDelivered').textContent = totalDelivered;
+            const totalDeliveredOrders = assignedOrders.filter(o => o.status === 'delivered').length;
+            const totalDeliveredPickups = assignedPickups.filter(p => p.status === 'delivered').length;
+            document.getElementById('totalDelivered').textContent = totalDeliveredOrders + totalDeliveredPickups;
             
-            // Success rate (delivered vs assigned)
-            const totalAssigned = assignedOrders.length;
+            // Success rate
+            const totalAssigned = assignedOrders.length + assignedPickups.length;
+            const totalDelivered = totalDeliveredOrders + totalDeliveredPickups;
             const rate = totalAssigned > 0 ? Math.round((totalDelivered / totalAssigned) * 100) : 100;
             document.getElementById('successRate').textContent = rate + '%';
         }
@@ -1679,71 +1863,131 @@
         function applyFilters() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const statusFilter = document.getElementById('statusFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
 
+            // Filter store orders
             filteredOrders = assignedOrders.filter(order => {
-                // Search filter
+                if (typeFilter !== 'all' && typeFilter !== 'store') return false;
+                
                 const matchesSearch = 
                     order.id?.toLowerCase().includes(searchTerm) ||
                     order.userName?.toLowerCase().includes(searchTerm) ||
                     order.deliveryAddress?.toLowerCase().includes(searchTerm) ||
                     order.userPhone?.toLowerCase().includes(searchTerm);
                 
-                // Status filter
                 const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
                 
                 return matchesSearch && matchesStatus;
             });
 
-            renderDeliveries();
+            // Filter pickup deliveries
+            filteredPickups = assignedPickups.filter(pickup => {
+                if (typeFilter !== 'all' && typeFilter !== 'pickup') return false;
+                
+                const matchesSearch = 
+                    pickup.id?.toLowerCase().includes(searchTerm) ||
+                    pickup.userName?.toLowerCase().includes(searchTerm) ||
+                    pickup.deliveryAddress?.toLowerCase().includes(searchTerm) ||
+                    pickup.userPhone?.toLowerCase().includes(searchTerm);
+                
+                const matchesStatus = statusFilter === 'all' || pickup.status === statusFilter;
+                
+                return matchesSearch && matchesStatus;
+            });
+
+            // Apply current view filter
+            applyViewFilter();
+        }
+
+        function applyViewFilter() {
+            let orders = [...filteredOrders];
+            let pickups = [...filteredPickups];
+
+            if (currentView === 'active') {
+                orders = orders.filter(o => 
+                    o.status === 'out-for-delivery' || o.status === 'processing' || o.status === 'assigned'
+                );
+                pickups = pickups.filter(p => 
+                    p.status === 'assigned' || p.status === 'pending'
+                );
+            } else if (currentView === 'completed') {
+                orders = orders.filter(o => o.status === 'delivered');
+                pickups = pickups.filter(p => p.status === 'delivered');
+            } else if (currentView === 'pickup') {
+                orders = []; // Only show pickups
+            }
+
+            renderDeliveries(orders, pickups);
         }
 
         // ========== RENDER DELIVERIES ==========
-        function renderDeliveries() {
+        function renderDeliveries(orders = filteredOrders, pickups = filteredPickups) {
             const tbody = document.getElementById('deliveriesTableBody');
             
-            if (filteredOrders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No deliveries found</td></tr>';
+            if (orders.length === 0 && pickups.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No deliveries found</td></tr>';
                 return;
             }
 
+            // Combine and sort all items by date
+            const allItems = [
+                ...orders.map(o => ({ ...o, sortDate: o.orderDate })),
+                ...pickups.map(p => ({ ...p, sortDate: p.orderDate }))
+            ].sort((a, b) => {
+                const dateA = a.sortDate ? new Date(a.sortDate).getTime() : 0;
+                const dateB = b.sortDate ? new Date(b.sortDate).getTime() : 0;
+                return dateB - dateA;
+            });
+
             let html = '';
-            filteredOrders.forEach(order => {
-                const date = order.orderDate ? new Date(order.orderDate).toLocaleDateString() : 'N/A';
-                const statusClass = `status-${order.status}`;
-                const itemCount = order.items ? order.items.reduce((sum, item) => sum + (item.quantity || 1), 0) : 1;
+            allItems.forEach(item => {
+                const date = item.orderDate ? new Date(item.orderDate).toLocaleDateString() : 'N/A';
+                const statusClass = `status-${item.status}`;
+                const itemCount = item.items ? item.items.reduce((sum, item) => sum + (item.quantity || 1), 1) : 1;
+                const type = item.type || 'store';
+                const typeBadge = type === 'pickup' 
+                    ? '<span class="service-badge service-pickup">Pickup</span>'
+                    : '<span class="service-badge service-store">Store</span>';
                 
                 html += `
                     <tr>
-                        <td>#${order.id.slice(-8)}</td>
+                        <td>${typeBadge}</td>
+                        <td>#${item.id.slice(-8)}</td>
                         <td>${date}</td>
                         <td>
-                            <strong>${order.userName}</strong><br>
-                            <small>${order.userPhone || ''}</small>
+                            <strong>${item.userName}</strong><br>
+                            <small>${item.userPhone || ''}</small>
                         </td>
-                        <td>${order.deliveryAddress || 'N/A'}</td>
+                        <td>${item.pickupAddress || 'Store'}</td>
+                        <td>${item.deliveryAddress || 'N/A'}</td>
                         <td>${itemCount} items</td>
-                        <td>KSh ${(order.total || 0).toLocaleString()}</td>
-                        <td><span class="status-badge ${statusClass}">${order.status}</span></td>
+                        <td>KSh ${(item.total || 0).toLocaleString()}</td>
+                        <td><span class="status-badge ${statusClass}">${item.status}</span></td>
                         <td>
                             <div class="table-actions">
-                                <button class="table-btn view" onclick="viewOrderDetails('${order.id}')" title="View Details">
+                                <button class="table-btn view" onclick="viewDetails('${item.id}', '${item.type}')" title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                ${order.status === 'out-for-delivery' ? `
-                                    <button class="table-btn navigate" onclick="navigateToCustomer('${order.deliveryAddress}')" title="Navigate">
+                                ${item.type === 'pickup' && item.status === 'assigned' ? `
+                                    <button class="table-btn pickup" onclick="openPickupCompleteModal('${item.id}')" title="Confirm Pickup">
+                                        <i class="fas fa-box"></i>
+                                    </button>
+                                ` : ''}
+                                ${item.status === 'out-for-delivery' ? `
+                                    <button class="table-btn navigate" onclick="navigateToCustomer('${item.deliveryAddress}')" title="Navigate">
                                         <i class="fas fa-map-marked-alt"></i>
                                     </button>
-                                    <button class="table-btn complete" onclick="openProofModal('${order.id}')" title="Mark Delivered">
+                                    <button class="table-btn complete" onclick="openProofModal('${item.id}', '${item.type}')" title="Mark Delivered">
                                         <i class="fas fa-check-circle"></i>
                                     </button>
                                 ` : ''}
-                                ${order.status === 'pending' || order.status === 'confirmed' ? `
-                                    <button class="table-btn accept" onclick="acceptDelivery('${order.id}')" title="Accept Delivery">
+                                ${(item.status === 'pending' || item.status === 'confirmed') && item.type === 'store' ? `
+                                    <button class="table-btn accept" onclick="acceptDelivery('${item.id}')" title="Accept Delivery">
                                         <i class="fas fa-check"></i>
                                     </button>
                                 ` : ''}
-                                ${order.status === 'delivered' ? `
-                                    <button class="table-btn view" onclick="viewProofOfDelivery('${order.id}')" title="View Proof">
+                                ${item.status === 'delivered' ? `
+                                    <button class="table-btn view" onclick="viewProofOfDelivery('${item.id}')" title="View Proof">
                                         <i class="fas fa-camera"></i>
                                     </button>
                                 ` : ''}
@@ -1758,33 +2002,38 @@
 
         // ========== SECTION NAVIGATION ==========
         window.showSection = function(section) {
-            let filtered = [];
+            currentView = section;
             
             if (section === 'active') {
-                filtered = assignedOrders.filter(o => 
-                    o.status === 'out-for-delivery' || o.status === 'processing' || o.status === 'pending' || o.status === 'confirmed'
-                );
                 document.getElementById('deliveriesTitle').textContent = 'Active Deliveries';
                 document.getElementById('deliveriesIcon').className = 'fas fa-truck';
             } else if (section === 'completed') {
-                filtered = assignedOrders.filter(o => o.status === 'delivered');
                 document.getElementById('deliveriesTitle').textContent = 'Completed Deliveries';
                 document.getElementById('deliveriesIcon').className = 'fas fa-check-circle';
+            } else if (section === 'pickup') {
+                document.getElementById('deliveriesTitle').textContent = 'Pickup Only';
+                document.getElementById('deliveriesIcon').className = 'fas fa-box';
             } else {
-                filtered = [...assignedOrders];
                 document.getElementById('deliveriesTitle').textContent = 'All Deliveries';
                 document.getElementById('deliveriesIcon').className = 'fas fa-list';
             }
             
-            filteredOrders = filtered;
-            renderDeliveries();
+            applyFilters();
         };
 
         window.showProfile = function() {
             document.getElementById('profileCard').scrollIntoView({ behavior: 'smooth' });
         };
 
-        // ========== VIEW ORDER DETAILS ==========
+        // ========== VIEW DETAILS ==========
+        window.viewDetails = function(itemId, type) {
+            if (type === 'pickup') {
+                viewPickupDetails(itemId);
+            } else {
+                viewOrderDetails(itemId);
+            }
+        };
+
         window.viewOrderDetails = function(orderId) {
             const order = assignedOrders.find(o => o.id === orderId);
             if (!order) return;
@@ -1854,12 +2103,87 @@
             document.getElementById('modalOverlay').classList.add('active');
         };
 
+        window.viewPickupDetails = function(pickupId) {
+            const pickup = assignedPickups.find(p => p.id === pickupId);
+            if (!pickup) return;
+
+            const date = pickup.orderDate ? new Date(pickup.orderDate).toLocaleString() : 'N/A';
+
+            const content = `
+                <div class="modal-field">
+                    <label>Pickup ID</label>
+                    <div class="field-value">#${pickup.id}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Booking Date</label>
+                    <div class="field-value">${date}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Service Type</label>
+                    <div class="field-value">${pickup.serviceType || 'Pickup Delivery'}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Customer</label>
+                    <div class="field-value">
+                        <strong>${pickup.userName}</strong><br>
+                        📞 ${pickup.userPhone || 'N/A'}<br>
+                        Email: ${pickup.userEmail || 'N/A'}
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label>Package</label>
+                    <div class="field-value">
+                        Type: ${pickup.packageType || 'N/A'}<br>
+                        Weight: ${pickup.packageWeight || 'N/A'}<br>
+                        Description: ${pickup.packageDesc || 'N/A'}
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label>Pickup</label>
+                    <div class="field-value">
+                        📍 ${pickup.pickupAddress}<br>
+                        Zone: ${pickup.pickupZone || 'N/A'}
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label>Delivery</label>
+                    <div class="field-value">
+                        📍 ${pickup.deliveryAddress}<br>
+                        Zone: ${pickup.deliveryZone || 'N/A'}<br>
+                        Recipient: ${pickup.recipientName || 'N/A'}<br>
+                        📞 ${pickup.recipientPhone || 'N/A'}
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label>Status</label>
+                    <div class="field-value">
+                        <span class="status-badge status-${pickup.status}">${pickup.status}</span>
+                    </div>
+                </div>
+                ${pickup.assignedAt ? `
+                <div class="modal-field">
+                    <label>Assigned</label>
+                    <div class="field-value">${new Date(pickup.assignedAt).toLocaleString()}</div>
+                </div>
+                ` : ''}
+            `;
+
+            document.getElementById('pickupModalBody').innerHTML = content;
+            document.getElementById('pickupModal').classList.add('active');
+            document.getElementById('pickupModalOverlay').classList.add('active');
+        };
+
+        window.closePickupModal = function() {
+            document.getElementById('pickupModal').classList.remove('active');
+            document.getElementById('pickupModalOverlay').classList.remove('active');
+        };
+
         window.closeModal = function() {
             document.getElementById('detailsModal').classList.remove('active');
             document.getElementById('modalOverlay').classList.remove('active');
         };
 
-        // ========== ACCEPT DELIVERY ==========
+        // ========== ACCEPT DELIVERY (Store Orders) ==========
         window.acceptDelivery = async function(orderId) {
             if (!confirm('Accept this delivery?')) return;
             
@@ -1891,6 +2215,55 @@
             }
         };
 
+        // ========== PICKUP COMPLETION ==========
+        window.openPickupCompleteModal = function(pickupId) {
+            currentPickupId = pickupId;
+            document.getElementById('pickupCompleteModal').classList.add('active');
+            document.getElementById('pickupCompleteModalOverlay').classList.add('active');
+        };
+
+        window.closePickupCompleteModal = function() {
+            document.getElementById('pickupCompleteModal').classList.remove('active');
+            document.getElementById('pickupCompleteModalOverlay').classList.remove('active');
+            document.getElementById('pickupNotes').value = '';
+            currentPickupId = null;
+        };
+
+        window.confirmPickupComplete = async function() {
+            if (!currentPickupId) return;
+            
+            const notes = document.getElementById('pickupNotes').value.trim();
+            
+            showLoading(true);
+            
+            try {
+                await database.ref(`pickup_deliveries/${currentPickupId}`).update({
+                    status: 'out-for-delivery',
+                    pickupConfirmedAt: new Date().toISOString(),
+                    pickupNotes: notes,
+                    statusHistory: [
+                        ...(assignedPickups.find(p => p.id === currentPickupId)?.statusHistory || []),
+                        {
+                            status: 'out-for-delivery',
+                            timestamp: new Date().toISOString(),
+                            note: 'Package picked up by assistant'
+                        }
+                    ]
+                });
+
+                showToast('Pickup confirmed! Now out for delivery.', 'success');
+                closePickupCompleteModal();
+                await loadAssistantData();
+                showSection('active');
+                
+            } catch (error) {
+                console.error('Error confirming pickup:', error);
+                showToast('Failed to confirm pickup', 'error');
+            } finally {
+                showLoading(false);
+            }
+        };
+
         // ========== NAVIGATE TO CUSTOMER ==========
         window.navigateToCustomer = function(address) {
             if (!address) {
@@ -1903,8 +2276,9 @@
         };
 
         // ========== PROOF OF DELIVERY ==========
-        window.openProofModal = function(orderId) {
-            currentOrderId = orderId;
+        window.openProofModal = function(itemId, type) {
+            currentOrderId = itemId;
+            currentPickupId = type === 'pickup' ? itemId : null;
             document.getElementById('proofModal').classList.add('active');
             document.getElementById('proofModalOverlay').classList.add('active');
         };
@@ -1943,24 +2317,47 @@
             showLoading(true);
             
             try {
-                await database.ref(`orders/${currentOrderId}`).update({
-                    status: 'delivered',
-                    deliveryDate: new Date().toISOString(),
-                    deliveryProof: {
-                        customerName: customerName,
-                        notes: notes,
-                        timestamp: new Date().toISOString(),
-                        hasPhoto: true
-                    },
-                    statusHistory: [
-                        ...(assignedOrders.find(o => o.id === currentOrderId)?.statusHistory || []),
-                        {
-                            status: 'delivered',
+                if (currentPickupId) {
+                    // Update pickup delivery
+                    await database.ref(`pickup_deliveries/${currentPickupId}`).update({
+                        status: 'delivered',
+                        deliveryDate: new Date().toISOString(),
+                        deliveryProof: {
+                            customerName: customerName,
+                            notes: notes,
                             timestamp: new Date().toISOString(),
-                            note: `Delivered to ${customerName}`
-                        }
-                    ]
-                });
+                            hasPhoto: true
+                        },
+                        statusHistory: [
+                            ...(assignedPickups.find(p => p.id === currentPickupId)?.statusHistory || []),
+                            {
+                                status: 'delivered',
+                                timestamp: new Date().toISOString(),
+                                note: `Delivered to ${customerName}`
+                            }
+                        ]
+                    });
+                } else {
+                    // Update store order
+                    await database.ref(`orders/${currentOrderId}`).update({
+                        status: 'delivered',
+                        deliveryDate: new Date().toISOString(),
+                        deliveryProof: {
+                            customerName: customerName,
+                            notes: notes,
+                            timestamp: new Date().toISOString(),
+                            hasPhoto: true
+                        },
+                        statusHistory: [
+                            ...(assignedOrders.find(o => o.id === currentOrderId)?.statusHistory || []),
+                            {
+                                status: 'delivered',
+                                timestamp: new Date().toISOString(),
+                                note: `Delivered to ${customerName}`
+                            }
+                        ]
+                    });
+                }
 
                 showToast('Delivery completed!', 'success');
                 closeProofModal();
@@ -1984,6 +2381,7 @@
             document.getElementById('proofNotes').value = '';
             proofImageData = null;
             currentOrderId = null;
+            currentPickupId = null;
         };
 
         window.viewProofOfDelivery = function(orderId) {
@@ -2035,6 +2433,7 @@
         // ========== EVENT LISTENERS ==========
         document.getElementById('searchInput')?.addEventListener('input', applyFilters);
         document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
+        document.getElementById('typeFilter')?.addEventListener('change', applyFilters);
 
         // ========== TOGGLE HAMBURGER ==========
         window.toggleHamburger = function() {
@@ -2067,6 +2466,7 @@
 
         // Initialize date
         updateCurrentDate();
+        startAutoRefresh();
     </script>
 </body>
 </html>
