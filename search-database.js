@@ -101,6 +101,20 @@ const SEARCH_DATABASE = [
         url: "payments.html" 
     },
     { 
+        title: "PICK-ME", 
+        category: "SERVICE", 
+        icon: "fas fa-car", 
+        keywords: ["taxi","driver","pick","me"], 
+        url: "pickme.html" 
+    },
+    { 
+        title: "PICK-UP", 
+        category: "SERVICE", 
+        icon: "fas fa-truck", 
+        keywords: ["pick","up","delivery","deliver"], 
+        url: "pickup.html" 
+    },
+    { 
         title: "HEKIMA•HUB", 
         category: "COURSES", 
         icon: "fas fa-university", 
