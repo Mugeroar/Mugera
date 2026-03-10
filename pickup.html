@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ca8a04">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PickUp Delivery">
+    <title>PickUp Delivery | I AM MUGERA</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --gold: #ca8a04;
+            --gold-dark: #a16207;
+            --gold-light: #fef3c7;
+            --success: #10b981;
+            --danger: #dc2626;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border-light: #2a2a2a;
+            --border-gold: rgba(202,138,4,0.3);
+            --shadow-color: rgba(202,138,4,0.2);
+            --nav-bg: rgba(10,10,10,0.95);
+            --input-bg: rgba(255,255,255,0.05);
+            --input-border: #2a2a2a;
+            --hover-bg: rgba(202,138,4,0.1);
+            
+            --header-height: 70px;
+            --border-radius-sm: 12px;
+            --border-radius-md: 20px;
+            --border-radius-lg: 30px;
+            --border-radius-xl: 40px;
+            --border-radius-full: 9999px;
+        }
+
+        body.light-theme {
+            --bg-primary: #f8f5f0;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #2d2d2d;
+            --text-muted: #666666;
+            --border-light: #e0e0e0;
+            --border-gold: rgba(202,138,4,0.2);
+            --shadow-color: rgba(202,138,4,0.15);
+            --nav-bg: rgba(255,255,255,0.95);
+            --input-bg: #f5f5f5;
+            --input-border: #dddddd;
+            --hover-bg: rgba(202,138,4,0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-top: var(--header-height);
+        }
+
+        /* Header */
+        .site-header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: var(--header-height);
+            background: var(--nav-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold);
+            z-index: 1000;
+            padding: 0 1.5rem;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            height: 100%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .site-logo {
+            height: 48px;
+            border-radius: var(--border-radius-sm);
+            border: 2px solid var(--gold);
+            padding: 2px;
+            background: var(--bg-primary);
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius-full);
+            border: 1px solid var(--gold);
+            transition: all 0.2s;
+        }
+
+        .back-button:hover {
+            background: var(--gold);
+            color: black;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* Service Type Cards */
+        .service-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .service-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-gold);
+            border-radius: var(--border-radius-lg);
+            padding: 1.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px var(--shadow-color);
+        }
+
+        .service-card.selected {
+            border-color: var(--gold);
+            background: var(--hover-bg);
+        }
+
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--hover-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .service-icon i {
+            font-size: 2rem;
+            color: var(--gold);
+        }
+
+        .service-card h3 {
+            font-size: 1.4rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .service-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .service-badge {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            background: var(--hover-bg);
+            border: 1px solid var(--gold);
+            border-radius: var(--border-radius-full);
+            font-size: 0.85rem;
+            color: var(--gold);
+        }
+
+        /* Booking Form */
+        .booking-form {
+            background: var(--bg-card);
+            border-radius: var(--border-radius-xl);
+            border: 1px solid var(--border-gold);
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .form-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .form-section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-gold);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-label i {
+            color: var(--gold);
+            margin-right: 0.5rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: var(--border-radius-md);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px var(--shadow-color);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Assistant Selection */
+        .assistants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.2rem;
+            margin-top: 1.5rem;
+        }
+
+        .assistant-card {
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: var(--border-radius-md);
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .assistant-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        .assistant-card.selected {
+            border-color: var(--gold);
+            background: var(--hover-bg);
+        }
+
+        .assistant-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .assistant-avatar {
+            width: 50px;
+            height: 50px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: black;
+        }
+
+        .assistant-info h4 {
+            color: var(--gold);
+            margin-bottom: 0.2rem;
+        }
+
+        .assistant-info p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .assistant-badge {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            background: var(--success);
+            color: white;
+            border-radius: var(--border-radius-full);
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .assistant-zone {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .assistant-zone i {
+            color: var(--gold);
+        }
+
+        /* DateTime Picker */
+        .datetime-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        /* Review Section */
+        .review-section {
+            background: var(--hover-bg);
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .review-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--border-gold);
+        }
+
+        .review-item:last-child {
+            border-bottom: none;
+        }
+
+        .review-label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .review-value {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: var(--gold);
+            color: black;
+            border: none;
+            border-radius: var(--border-radius-full);
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: var(--gold-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--shadow-color);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .submit-btn i {
+            font-size: 1.3rem;
+        }
+
+        /* Assistant Modal */
+        .assistant-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .assistant-modal-overlay.active {
+            display: flex;
+        }
+
+        .assistant-modal {
+            max-width: 500px;
+            width: 100%;
+            background: var(--bg-card);
+            border: 2px solid var(--gold);
+            border-radius: var(--border-radius-xl);
+            padding: 2.5rem 2rem;
+            position: relative;
+            animation: modalAppear 0.3s ease;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: var(--hover-bg);
+            color: var(--gold);
+        }
+
+        .modal-assistant-info {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .modal-avatar {
+            width: 100px;
+            height: 100px;
+            background: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: black;
+        }
+
+        .modal-assistant-name {
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin-bottom: 0.3rem;
+        }
+
+        .modal-assistant-zone {
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-assistant-phone {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .call-btn {
+            padding: 1rem 2rem;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius-full);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .call-btn:hover {
+            background: #0d9668;
+            transform: scale(1.05);
+        }
+
+        .assign-btn {
+            padding: 1rem 2rem;
+            background: var(--gold);
+            color: black;
+            border: none;
+            border-radius: var(--border-radius-full);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .assign-btn:hover {
+            background: var(--gold-dark);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--bg-card);
+            border: 1px solid var(--gold);
+            border-radius: var(--border-radius-full);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast i {
+            color: var(--gold);
+            font-size: 1.2rem;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(202,138,4,0.3);
+            border-radius: 50%;
+            border-top-color: var(--gold);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+            
+            .datetime-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .booking-form {
+                padding: 1.5rem;
+            }
+            
+            .modal-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body class="dark-theme">
+
+<!-- Header -->
+<header class="site-header">
+    <div class="header-container">
+        <img src="https://i.postimg.cc/T10385m6/20260304-0949-Image-Generation-remix-01kjvspyrkf078efwbh09qxkag-1.webp" alt="I AM MUGERA" class="site-logo">
+        <a href="javascript:history.back()" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="main-content">
+    <div class="page-header">
+        <h1 class="page-title">Pick-Up Delivery Service</h1>
+        <p class="page-subtitle">Book a delivery assistant for your packages</p>
+    </div>
+
+    <!-- Service Type Selection -->
+    <div class="service-types" id="serviceTypes">
+        <div class="service-card" data-type="instant" id="instantService">
+            <div class="service-icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h3>Instant Delivery</h3>
+            <p>Get an available assistant in your area right now. Perfect for urgent deliveries.</p>
+            <span class="service-badge">15-30 mins</span>
+        </div>
+
+        <div class="service-card" data-type="scheduled" id="scheduledService">
+            <div class="service-icon">
+                <i class="fas fa-calendar-day"></i>
+            </div>
+            <h3>Same Day</h3>
+            <p>Schedule delivery for later today. Book at least 2 hours in advance.</p>
+            <span class="service-badge">2-12 hours</span>
+        </div>
+
+        <div class="service-card" data-type="nextday" id="nextdayService">
+            <div class="service-icon">
+                <i class="fas fa-calendar-week"></i>
+            </div>
+            <h3>Next Day</h3>
+            <p>Plan ahead with next day delivery. Book 12+ hours in advance.</p>
+            <span class="service-badge">24 hours</span>
+        </div>
+    </div>
+
+    <!-- Booking Form -->
+    <form id="bookingForm" class="booking-form">
+        <!-- Personal Information -->
+        <div class="form-section">
+            <h2 class="form-section-title"><i class="fas fa-user"></i> Personal Information</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-user"></i> Full Name</label>
+                    <input type="text" class="form-input" id="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-phone"></i> Phone Number</label>
+                    <input type="tel" class="form-input" id="phone" required>
+                </div>
+                <div class="form-group full-width">
+                    <label class="form-label"><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" class="form-input" id="email" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Package Details -->
+        <div class="form-section">
+            <h2 class="form-section-title"><i class="fas fa-box"></i> Package Details</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Package Type</label>
+                    <select class="form-select" id="packageType" required>
+                        <option value="">Select package type</option>
+                        <option value="document">Document / Envelope</option>
+                        <option value="small">Small Box (up to 5kg)</option>
+                        <option value="medium">Medium Box (5-15kg)</option>
+                        <option value="large">Large Box (15-30kg)</option>
+                        <option value="fragile">Fragile Items</option>
+                        <option value="perishable">Perishable Goods</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Approximate Weight</label>
+                    <input type="text" class="form-input" id="weight" placeholder="e.g., 2kg" required>
+                </div>
+                <div class="form-group full-width">
+                    <label class="form-label">Package Description</label>
+                    <textarea class="form-textarea" id="description" placeholder="Describe the package contents, special handling instructions, etc."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pickup & Delivery Locations -->
+        <div class="form-section">
+            <h2 class="form-section-title"><i class="fas fa-location-dot"></i> Pickup & Delivery</h2>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label class="form-label"><i class="fas fa-map-pin"></i> Pickup Address</label>
+                    <input type="text" class="form-input" id="pickupAddress" placeholder="Street address, building, landmark" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Pickup Zone/Area</label>
+                    <select class="form-select" id="pickupZone" required>
+                        <option value="">Select zone</option>
+                        <option value="Nairobi Central">Nairobi Central</option>
+                        <option value="Westlands">Westlands</option>
+                        <option value="Kilimani">Kilimani</option>
+                        <option value="Karen">Karen</option>
+                        <option value="Langata">Langata</option>
+                        <option value="Eastlands">Eastlands</option>
+                        <option value="Uthiru">Uthiru</option>
+                        <option value="Lavington">Lavington</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Pickup Instructions</label>
+                    <input type="text" class="form-input" id="pickupInstructions" placeholder="Gate code, floor, etc.">
+                </div>
+            </div>
+
+            <div class="form-grid" style="margin-top: 1.5rem;">
+                <div class="form-group full-width">
+                    <label class="form-label"><i class="fas fa-flag-checkered"></i> Delivery Address</label>
+                    <input type="text" class="form-input" id="deliveryAddress" placeholder="Street address, building, landmark" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Delivery Zone/Area</label>
+                    <select class="form-select" id="deliveryZone" required>
+                        <option value="">Select zone</option>
+                        <option value="Nairobi Central">Nairobi Central</option>
+                        <option value="Westlands">Westlands</option>
+                        <option value="Kilimani">Kilimani</option>
+                        <option value="Karen">Karen</option>
+                        <option value="Langata">Langata</option>
+                        <option value="Eastlands">Eastlands</option>
+                        <option value="Uthiru">Uthiru</option>
+                        <option value="Lavington">Lavington</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Recipient Name</label>
+                    <input type="text" class="form-input" id="recipientName" placeholder="If different from you" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Recipient Phone</label>
+                    <input type="tel" class="form-input" id="recipientPhone" placeholder="For delivery updates" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- DateTime Selection (shown based on service type) -->
+        <div class="form-section" id="datetimeSection" style="display: none;">
+            <h2 class="form-section-title"><i class="fas fa-clock"></i> Schedule</h2>
+            <div class="datetime-grid">
+                <div class="form-group">
+                    <label class="form-label">Pickup Date</label>
+                    <input type="date" class="form-input" id="pickupDate" min="">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Pickup Time</label>
+                    <input type="time" class="form-input" id="pickupTime">
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Assistants (for instant service) -->
+        <div class="form-section" id="assistantsSection" style="display: none;">
+            <h2 class="form-section-title"><i class="fas fa-users"></i> Available Assistants in Your Area</h2>
+            <p class="form-label" style="margin-bottom: 1rem;">Select an assistant for instant service</p>
+            <div class="assistants-grid" id="assistantsGrid">
+                <!-- Assistants will be loaded here -->
+                <div class="loading-spinner" style="margin: 2rem auto;"></div>
+            </div>
+        </div>
+
+        <!-- Review Section -->
+        <div class="review-section">
+            <h3 style="color: var(--gold); margin-bottom: 1rem;">Review Your Booking</h3>
+            <div class="review-item">
+                <span class="review-label">Service Type:</span>
+                <span class="review-value" id="reviewService">Not selected</span>
+            </div>
+            <div class="review-item">
+                <span class="review-label">Customer:</span>
+                <span class="review-value" id="reviewName">-</span>
+            </div>
+            <div class="review-item">
+                <span class="review-label">Pickup:</span>
+                <span class="review-value" id="reviewPickup">-</span>
+            </div>
+            <div class="review-item">
+                <span class="review-label">Delivery:</span>
+                <span class="review-value" id="reviewDelivery">-</span>
+            </div>
+            <div class="review-item">
+                <span class="review-label">Package:</span>
+                <span class="review-value" id="reviewPackage">-</span>
+            </div>
+            <div class="review-item">
+                <span class="review-label">Schedule:</span>
+                <span class="review-value" id="reviewSchedule">As soon as possible</span>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+            <i class="fas fa-check-circle"></i> Confirm Booking
+        </button>
+    </form>
+</main>
+
+<!-- Assistant Selection Modal -->
+<div class="assistant-modal-overlay" id="assistantModal">
+    <div class="assistant-modal">
+        <button class="modal-close" onclick="closeAssistantModal()"><i class="fas fa-times"></i></button>
+        <div id="modalContent">
+            <!-- Content will be populated dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+    <i class="fas fa-info-circle"></i>
+    <span id="toastMessage"></span>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<script>
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+        authDomain: "mugera-e51cc.firebaseapp.com",
+        databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mugera-e51cc",
+        storageBucket: "mugera-e51cc.firebasestorage.app",
+        messagingSenderId: "1024868637509",
+        appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+
+    // Initialize Firebase
+    let database, auth;
+    let currentUser = null;
+    let selectedServiceType = null;
+    let selectedAssistant = null;
+    let availableAssistants = [];
+
+    // Load registered assistants from your database structure
+    const assistantReferences = {
+        // From your JSON: delivery_assistants node
+        "PYFIdFyhuPfJnc3XQRzkkD0PXSl2": {
+            id: "PYFIdFyhuPfJnc3XQRzkkD0PXSl2",
+            name: "Moses Mugera",
+            phone: "0727211191",
+            vehicle: "Car",
+            zone: "Nairobi Central",
+            verified: true,
+            status: "available"
+        },
+        "ast1": {
+            id: "ast1",
+            name: "John Mwangi",
+            phone: "0712345678",
+            vehicle: "Motorcycle",
+            zone: "Kilimani",
+            verified: true,
+            status: "available"
+        },
+        "ast2": {
+            id: "ast2",
+            name: "Mary Wanjiku",
+            phone: "0723456789",
+            vehicle: "Car",
+            zone: "Westlands",
+            verified: true,
+            status: "available"
+        },
+        "ast3": {
+            id: "ast3",
+            name: "Peter Kimani",
+            phone: "0734567890",
+            vehicle: "Van",
+            zone: "Karen",
+            verified: true,
+            status: "available"
+        },
+        "ast4": {
+            id: "ast4",
+            name: "Sarah Kimani",
+            phone: "0745678901",
+            vehicle: "Motorcycle",
+            zone: "Lavington",
+            verified: true,
+            status: "available"
+        }
+    };
+
+    try {
+        firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+        auth = firebase.auth();
+    } catch (e) {
+        console.error('Firebase initialization error:', e);
+    }
+
+    // ========== AUTH STATE LISTENER ==========
+    if (auth) {
+        auth.onAuthStateChanged(user => {
+            currentUser = user;
+            
+            if (user) {
+                // User is logged in, pre-fill form with user data
+                prefillUserData(user);
+                
+                // Load user's location/preferences from database
+                loadUserData(user.uid);
+            } else {
+                // No user logged in, redirect to home
+                window.location.href = 'index.html';
+            }
+        });
+    }
+
+    // ========== PRE-FILL USER DATA ==========
+    function prefillUserData(user) {
+        const nameInput = document.getElementById('fullName');
+        const emailInput = document.getElementById('email');
+        
+        if (user.displayName) {
+            nameInput.value = user.displayName;
+        }
+        
+        if (user.email) {
+            emailInput.value = user.email;
+        }
+    }
+
+    // ========== LOAD USER DATA FROM DATABASE ==========
+    function loadUserData(uid) {
+        if (!database) return;
+        
+        database.ref('users/' + uid).once('value')
+            .then(snapshot => {
+                const userData = snapshot.val();
+                if (userData) {
+                    if (userData.phone) {
+                        document.getElementById('phone').value = userData.phone;
+                    }
+                    if (userData.address) {
+                        document.getElementById('pickupAddress').value = userData.address;
+                    }
+                }
+            })
+            .catch(error => console.error('Error loading user data:', error));
+    }
+
+    // ========== SERVICE TYPE SELECTION ==========
+    document.querySelectorAll('.service-card').forEach(card => {
+        card.addEventListener('click', function() {
+            // Remove selected class from all cards
+            document.querySelectorAll('.service-card').forEach(c => {
+                c.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked card
+            this.classList.add('selected');
+            
+            // Get service type
+            selectedServiceType = this.dataset.type;
+            
+            // Update review
+            document.getElementById('reviewService').textContent = this.querySelector('h3').textContent;
+            
+            // Show/hide relevant sections
+            updateFormForServiceType(selectedServiceType);
+        });
+    });
+
+    // ========== UPDATE FORM BASED ON SERVICE TYPE ==========
+    function updateFormForServiceType(type) {
+        const datetimeSection = document.getElementById('datetimeSection');
+        const assistantsSection = document.getElementById('assistantsSection');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Set minimum date for scheduling (12 hours from now)
+        const minDate = new Date();
+        minDate.setHours(minDate.getHours() + 12);
+        
+        const year = minDate.getFullYear();
+        const month = String(minDate.getMonth() + 1).padStart(2, '0');
+        const day = String(minDate.getDate()).padStart(2, '0');
+        
+        document.getElementById('pickupDate').min = `${year}-${month}-${day}`;
+        
+        switch(type) {
+            case 'instant':
+                datetimeSection.style.display = 'none';
+                assistantsSection.style.display = 'block';
+                loadAvailableAssistants();
+                submitBtn.textContent = 'Find Available Assistant';
+                break;
+                
+            case 'scheduled':
+                datetimeSection.style.display = 'block';
+                assistantsSection.style.display = 'none';
+                selectedAssistant = null;
+                submitBtn.textContent = 'Schedule Booking';
+                break;
+                
+            case 'nextday':
+                datetimeSection.style.display = 'block';
+                assistantsSection.style.display = 'none';
+                selectedAssistant = null;
+                submitBtn.textContent = 'Book for Next Day';
+                break;
+        }
+    }
+
+    // ========== LOAD AVAILABLE ASSISTANTS ==========
+    function loadAvailableAssistants() {
+        const assistantsGrid = document.getElementById('assistantsGrid');
+        const pickupZone = document.getElementById('pickupZone').value;
+        
+        if (!pickupZone) {
+            showToast('Please select pickup zone first', 'warning');
+            return;
+        }
+        
+        // Filter assistants by zone and verified status
+        availableAssistants = Object.values(assistantReferences).filter(a => 
+            a.zone === pickupZone && a.verified && a.status === 'available'
+        );
+        
+        if (availableAssistants.length === 0) {
+            assistantsGrid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--warning); margin-bottom: 1rem;"></i>
+                    <p style="color: var(--text-muted);">No assistants available in ${pickupZone} at the moment.</p>
+                    <p style="color: var(--text-muted); margin-top: 0.5rem;">Please try a different service type or zone.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        availableAssistants.forEach(assistant => {
+            html += `
+                <div class="assistant-card" onclick="selectAssistant('${assistant.id}')" data-id="${assistant.id}">
+                    <div class="assistant-header">
+                        <div class="assistant-avatar">
+                            ${assistant.name.charAt(0)}
+                        </div>
+                        <div class="assistant-info">
+                            <h4>${assistant.name}</h4>
+                            <p>${assistant.vehicle}</p>
+                            ${assistant.verified ? '<span class="assistant-badge">Verified</span>' : ''}
+                        </div>
+                    </div>
+                    <div class="assistant-zone">
+                        <i class="fas fa-location-dot"></i> ${assistant.zone}
+                    </div>
+                </div>
+            `;
+        });
+        
+        assistantsGrid.innerHTML = html;
+    }
+
+    // ========== SELECT ASSISTANT ==========
+    window.selectAssistant = function(assistantId) {
+        const assistant = availableAssistants.find(a => a.id === assistantId);
+        if (!assistant) return;
+        
+        // Remove selected class from all assistants
+        document.querySelectorAll('.assistant-card').forEach(c => {
+            c.classList.remove('selected');
+        });
+        
+        // Add selected class to this assistant
+        document.querySelector(`[data-id="${assistantId}"]`).classList.add('selected');
+        
+        selectedAssistant = assistant;
+        
+        // Open modal with assistant details
+        openAssistantModal(assistant);
+    };
+
+    // ========== OPEN ASSISTANT MODAL ==========
+    window.openAssistantModal = function(assistant) {
+        const modal = document.getElementById('assistantModal');
+        const modalContent = document.getElementById('modalContent');
+        
+        modalContent.innerHTML = `
+            <div class="modal-assistant-info">
+                <div class="modal-avatar">${assistant.name.charAt(0)}</div>
+                <h2 class="modal-assistant-name">${assistant.name}</h2>
+                <p class="modal-assistant-zone"><i class="fas fa-location-dot"></i> ${assistant.zone}</p>
+                <p class="modal-assistant-phone"><i class="fas fa-phone"></i> ${assistant.phone}</p>
+                <p><i class="fas fa-car"></i> ${assistant.vehicle}</p>
+            </div>
+            <div class="modal-actions">
+                <a href="tel:${assistant.phone}" class="call-btn">
+                    <i class="fas fa-phone-alt"></i> Call Now
+                </a>
+                <button class="assign-btn" onclick="assignToAssistant('${assistant.id}')">
+                    <i class="fas fa-check-circle"></i> Assign & Continue
+                </button>
+            </div>
+        `;
+        
+        modal.classList.add('active');
+    };
+
+    window.closeAssistantModal = function() {
+        document.getElementById('assistantModal').classList.remove('active');
+    };
+
+    // ========== ASSIGN TO ASSISTANT ==========
+    window.assignToAssistant = function(assistantId) {
+        const assistant = availableAssistants.find(a => a.id === assistantId);
+        if (!assistant) return;
+        
+        // Update assistant status in local state
+        assistant.status = 'assigned';
+        
+        // Close modal
+        closeAssistantModal();
+        
+        // Update review
+        updateReview();
+        
+        showToast(`Assistant ${assistant.name} assigned to your task`, 'success');
+    };
+
+    // ========== UPDATE REVIEW SECTION ==========
+    function updateReview() {
+        const name = document.getElementById('fullName').value || '-';
+        const pickup = document.getElementById('pickupAddress').value || '-';
+        const delivery = document.getElementById('deliveryAddress').value || '-';
+        const packageType = document.getElementById('packageType').options[document.getElementById('packageType').selectedIndex]?.text || '-';
+        
+        document.getElementById('reviewName').textContent = name;
+        document.getElementById('reviewPickup').textContent = pickup;
+        document.getElementById('reviewDelivery').textContent = delivery;
+        document.getElementById('reviewPackage').textContent = packageType;
+        
+        if (selectedAssistant) {
+            document.getElementById('reviewSchedule').textContent = `Instant - Assigned to ${selectedAssistant.name}`;
+        } else if (document.getElementById('pickupDate').value) {
+            const date = document.getElementById('pickupDate').value;
+            const time = document.getElementById('pickupTime').value;
+            document.getElementById('reviewSchedule').textContent = `${date} ${time}`;
+        }
+    }
+
+    // ========== HANDLE FORM SUBMISSION ==========
+    document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        if (!currentUser) {
+            showToast('Please log in to continue', 'error');
+            return;
+        }
+        
+        if (!selectedServiceType) {
+            showToast('Please select a service type', 'warning');
+            return;
+        }
+        
+        // Validate form
+        if (!validateForm()) return;
+        
+        // Disable submit button
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+        
+        try {
+            // Create booking object
+            const booking = {
+                userId: currentUser.uid,
+                userEmail: currentUser.email,
+                serviceType: selectedServiceType,
+                customer: {
+                    name: document.getElementById('fullName').value,
+                    phone: document.getElementById('phone').value,
+                    email: document.getElementById('email').value
+                },
+                package: {
+                    type: document.getElementById('packageType').value,
+                    weight: document.getElementById('weight').value,
+                    description: document.getElementById('description').value
+                },
+                pickup: {
+                    address: document.getElementById('pickupAddress').value,
+                    zone: document.getElementById('pickupZone').value,
+                    instructions: document.getElementById('pickupInstructions').value
+                },
+                delivery: {
+                    address: document.getElementById('deliveryAddress').value,
+                    zone: document.getElementById('deliveryZone').value,
+                    recipient: document.getElementById('recipientName').value,
+                    recipientPhone: document.getElementById('recipientPhone').value
+                },
+                assistant: selectedAssistant ? {
+                    id: selectedAssistant.id,
+                    name: selectedAssistant.name,
+                    phone: selectedAssistant.phone,
+                    assigned: true
+                } : null,
+                schedule: selectedServiceType === 'instant' ? 'instant' : {
+                    date: document.getElementById('pickupDate').value,
+                    time: document.getElementById('pickupTime').value
+                },
+                status: 'pending',
+                bookingDate: new Date().toISOString(),
+                requiresApproval: selectedServiceType !== 'instant',
+                reviewed: false
+            };
+            
+            // Save to Firebase
+            const bookingRef = database.ref('pickup_deliveries').push();
+            await bookingRef.set(booking);
+            
+            // If instant service with assistant, update assistant's tasks
+            if (selectedServiceType === 'instant' && selectedAssistant) {
+                await database.ref(`assistant_tasks/${selectedAssistant.id}/${bookingRef.key}`).set({
+                    bookingId: bookingRef.key,
+                    assignedAt: new Date().toISOString(),
+                    status: 'assigned',
+                    customerName: booking.customer.name,
+                    customerPhone: booking.customer.phone,
+                    pickup: booking.pickup,
+                    delivery: booking.delivery
+                });
+            }
+            
+            // Show success message
+            showToast('Booking confirmed! We will contact you shortly.', 'success');
+            
+            // Reset form after delay
+            setTimeout(() => {
+                resetForm();
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking';
+            }, 3000);
+            
+        } catch (error) {
+            console.error('Error saving booking:', error);
+            showToast('Error creating booking. Please try again.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm Booking';
+        }
+    });
+
+    // ========== VALIDATE FORM ==========
+    function validateForm() {
+        const required = [
+            'fullName', 'phone', 'email', 'packageType', 'weight',
+            'pickupAddress', 'pickupZone', 'deliveryAddress', 'deliveryZone',
+            'recipientName', 'recipientPhone'
+        ];
+        
+        for (let field of required) {
+            const el = document.getElementById(field);
+            if (!el || !el.value.trim()) {
+                showToast(`Please fill in ${el.previousElementSibling.textContent}`, 'warning');
+                return false;
+            }
+        }
+        
+        // Validate phone numbers
+        const phoneRegex = /^[0-9+\-\s]{10,}$/;
+        if (!phoneRegex.test(document.getElementById('phone').value)) {
+            showToast('Please enter a valid phone number', 'warning');
+            return false;
+        }
+        
+        // Validate email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(document.getElementById('email').value)) {
+            showToast('Please enter a valid email address', 'warning');
+            return false;
+        }
+        
+        // Validate schedule for non-instant services
+        if (selectedServiceType !== 'instant') {
+            const date = document.getElementById('pickupDate').value;
+            const time = document.getElementById('pickupTime').value;
+            
+            if (!date || !time) {
+                showToast('Please select pickup date and time', 'warning');
+                return false;
+            }
+            
+            // Check if date is at least 12 hours from now
+            const selectedDateTime = new Date(`${date}T${time}`);
+            const minDateTime = new Date();
+            minDateTime.setHours(minDateTime.getHours() + 12);
+            
+            if (selectedDateTime < minDateTime) {
+                showToast('Please select a time at least 12 hours from now', 'warning');
+                return false;
+            }
+        }
+        
+        // Validate assistant for instant service
+        if (selectedServiceType === 'instant' && !selectedAssistant) {
+            showToast('Please select an assistant for instant service', 'warning');
+            return false;
+        }
+        
+        return true;
+    }
+
+    // ========== RESET FORM ==========
+    function resetForm() {
+        document.getElementById('bookingForm').reset();
+        document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+        document.getElementById('datetimeSection').style.display = 'none';
+        document.getElementById('assistantsSection').style.display = 'none';
+        document.getElementById('assistantsGrid').innerHTML = '<div class="loading-spinner" style="margin: 2rem auto;"></div>';
+        
+        selectedServiceType = null;
+        selectedAssistant = null;
+        
+        document.getElementById('reviewService').textContent = 'Not selected';
+        document.getElementById('reviewName').textContent = '-';
+        document.getElementById('reviewPickup').textContent = '-';
+        document.getElementById('reviewDelivery').textContent = '-';
+        document.getElementById('reviewPackage').textContent = '-';
+        document.getElementById('reviewSchedule').textContent = 'As soon as possible';
+    }
+
+    // ========== TOAST NOTIFICATION ==========
+    function showToast(message, type = 'info') {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        const icon = toast.querySelector('i');
+        
+        toastMessage.textContent = message;
+        
+        switch(type) {
+            case 'success':
+                icon.className = 'fas fa-check-circle';
+                icon.style.color = 'var(--success)';
+                break;
+            case 'error':
+                icon.className = 'fas fa-exclamation-circle';
+                icon.style.color = 'var(--danger)';
+                break;
+            case 'warning':
+                icon.className = 'fas fa-exclamation-triangle';
+                icon.style.color = 'var(--warning)';
+                break;
+            default:
+                icon.className = 'fas fa-info-circle';
+                icon.style.color = 'var(--info)';
+        }
+        
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 4000);
+    }
+
+    // ========== EVENT LISTENERS FOR REVIEW UPDATES ==========
+    document.getElementById('fullName').addEventListener('input', updateReview);
+    document.getElementById('pickupAddress').addEventListener('input', updateReview);
+    document.getElementById('deliveryAddress').addEventListener('input', updateReview);
+    document.getElementById('packageType').addEventListener('change', updateReview);
+    document.getElementById('pickupDate').addEventListener('change', updateReview);
+    document.getElementById('pickupTime').addEventListener('change', updateReview);
+    
+    document.getElementById('pickupZone').addEventListener('change', function() {
+        if (selectedServiceType === 'instant') {
+            loadAvailableAssistants();
+        }
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('assistantModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeAssistantModal();
+        }
+    });
+
+    // Keyboard event to close modal with Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeAssistantModal();
+        }
+    });
+
+    // Set minimum date for date inputs
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('pickupDate').min = today;
+
+    // Load theme from localStorage
+    if (localStorage.getItem('siteTheme') === 'light') {
+        document.body.classList.add('light-theme');
+    }
+
+    console.log('PickUp Delivery page loaded');
+</script>
+</body>
+</html>
