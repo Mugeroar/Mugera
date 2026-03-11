@@ -17,6 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
+        /* [Keep all CSS from previous version - it's the same] */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --gold: #ca8a04;
@@ -787,6 +788,10 @@
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
         <!-- Dynamic content will be loaded here based on user role -->
+        <div style="text-align: center; padding: 3rem;">
+            <div class="loading-spinner" style="margin: 0 auto;"></div>
+            <p style="margin-top: 1rem; color: var(--text-muted);">Loading your profile...</p>
+        </div>
     </main>
 
     <script>
@@ -817,9 +822,11 @@
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
+                showLoading(true);
                 await loadUserData();
                 await determineUserRole();
                 renderPage();
+                showLoading(false);
                 startAutoRefresh();
             } else {
                 window.location.href = 'login.html';
@@ -829,11 +836,24 @@
         // ========== LOAD USER DATA ==========
         async function loadUserData() {
             try {
+                // Load from users node
                 const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
                 if (userSnapshot.exists()) {
                     userData = userSnapshot.val();
+                } else {
+                    // Create basic user record if it doesn't exist
+                    userData = {
+                        name: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
+                        email: currentUser.email,
+                        createdAt: new Date().toISOString(),
+                        uid: currentUser.uid
+                    };
+                    await database.ref(`users/${currentUser.uid}`).set(userData);
                 }
+                
+                console.log('User data loaded:', userData);
                 updateUserUI();
+                
             } catch (error) {
                 console.error('Error loading user data:', error);
             }
@@ -851,28 +871,89 @@
 
         // ========== DETERMINE USER ROLE ==========
         async function determineUserRole() {
-            // Check if delivery assistant
-            const assistantSnapshot = await database.ref(`delivery_assistants/${currentUser.uid}`).once('value');
-            if (assistantSnapshot.exists() && assistantSnapshot.val().status === 'active') {
-                userRole = 'assistant';
-                return;
-            }
+            console.log('Checking roles for user:', currentUser.uid);
             
-            // Check if driver
-            const driverSnapshot = await database.ref(`drivers/${currentUser.uid}`).once('value');
-            if (driverSnapshot.exists() && driverSnapshot.val().status === 'active') {
-                userRole = 'driver';
-                return;
-            }
-            
-            // Check if instructor
-            const instructorSnapshot = await database.ref(`instructors/${currentUser.uid}`).once('value');
-            if (instructorSnapshot.exists() && instructorSnapshot.val().status === 'active') {
-                userRole = 'instructor';
-                return;
-            }
-            
+            // Reset role
             userRole = null;
+            
+            try {
+                // Check if delivery assistant - using delivery_assistants node
+                const assistantSnapshot = await database.ref(`delivery_assistants/${currentUser.uid}`).once('value');
+                console.log('Assistant check:', assistantSnapshot.exists(), assistantSnapshot.val());
+                
+                if (assistantSnapshot.exists()) {
+                    const assistantData = assistantSnapshot.val();
+                    // Check if active or verified
+                    if (assistantData.status === 'active' || assistantData.verified === true) {
+                        userRole = 'assistant';
+                        userData = { ...userData, ...assistantData };
+                        console.log('User is a delivery assistant');
+                        return;
+                    }
+                }
+                
+                // Check if driver - using drivers node
+                const driverSnapshot = await database.ref(`drivers/${currentUser.uid}`).once('value');
+                console.log('Driver check:', driverSnapshot.exists(), driverSnapshot.val());
+                
+                if (driverSnapshot.exists()) {
+                    const driverData = driverSnapshot.val();
+                    if (driverData.status === 'active') {
+                        userRole = 'driver';
+                        userData = { ...userData, ...driverData };
+                        console.log('User is a driver');
+                        return;
+                    }
+                }
+                
+                // Check if instructor - using instructors node
+                const instructorSnapshot = await database.ref(`instructors/${currentUser.uid}`).once('value');
+                console.log('Instructor check:', instructorSnapshot.exists(), instructorSnapshot.val());
+                
+                if (instructorSnapshot.exists()) {
+                    const instructorData = instructorSnapshot.val();
+                    if (instructorData.status === 'active') {
+                        userRole = 'instructor';
+                        userData = { ...userData, ...instructorData };
+                        console.log('User is an instructor');
+                        return;
+                    }
+                }
+                
+                // Also check if there are any orders assigned to this user (they might be an assistant without record)
+                const ordersSnapshot = await database.ref('orders')
+                    .orderByChild('assignedTo')
+                    .equalTo(currentUser.uid)
+                    .once('value');
+                
+                if (ordersSnapshot.exists() && ordersSnapshot.val()) {
+                    const orders = ordersSnapshot.val();
+                    const orderCount = Object.keys(orders).length;
+                    console.log(`User has ${orderCount} assigned orders - treating as assistant`);
+                    
+                    // If they have assigned orders, they're likely an assistant
+                    if (orderCount > 0) {
+                        userRole = 'assistant';
+                        // Create assistant record if it doesn't exist
+                        const checkExisting = await database.ref(`delivery_assistants/${currentUser.uid}`).once('value');
+                        if (!checkExisting.exists()) {
+                            await database.ref(`delivery_assistants/${currentUser.uid}`).set({
+                                name: userData.name || currentUser.displayName || 'Assistant',
+                                email: currentUser.email,
+                                phone: userData.phone || '',
+                                status: 'active',
+                                verified: true
+                            });
+                        }
+                        return;
+                    }
+                }
+                
+                console.log('User has no provider role');
+                
+            } catch (error) {
+                console.error('Error determining user role:', error);
+            }
         }
 
         // ========== RENDER PAGE BASED ON ROLE ==========
@@ -881,6 +962,57 @@
                 renderProviderPage();
             } else {
                 renderNonProviderPage();
+            }
+        }
+
+        // ========== LOAD PROVIDER TASKS ==========
+        async function loadProviderTasks() {
+            try {
+                console.log('Loading tasks for provider:', currentUser.uid);
+                
+                const snapshot = await database.ref('orders')
+                    .orderByChild('assignedTo')
+                    .equalTo(currentUser.uid)
+                    .once('value');
+                
+                const data = snapshot.val() || {};
+                console.log('Tasks loaded:', data);
+                
+                tasks = Object.entries(data).map(([id, order]) => {
+                    // Parse date properly
+                    let timestamp = 0;
+                    if (order.deliveryDate) {
+                        timestamp = new Date(order.deliveryDate).getTime();
+                    } else if (order.orderDate) {
+                        timestamp = new Date(order.orderDate).getTime();
+                    } else if (order.timestamp) {
+                        timestamp = order.timestamp;
+                    }
+                    
+                    return {
+                        id,
+                        orderId: id,
+                        date: order.deliveryDate || order.orderDate || null,
+                        customerName: order.userName || order.fullName || 'Unknown',
+                        customerPhone: order.userPhone || order.phone || '',
+                        address: order.deliveryAddress || order.address || 'No address',
+                        deliveryFee: order.deliveryFee || 150,
+                        status: order.status || 'pending',
+                        items: order.items || [],
+                        timestamp: timestamp
+                    };
+                });
+
+                // Sort by date (newest first)
+                tasks.sort((a, b) => b.timestamp - a.timestamp);
+                filteredTasks = [...tasks];
+                
+                console.log('Processed tasks:', tasks.length);
+                
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+                tasks = [];
+                filteredTasks = [];
             }
         }
 
@@ -904,9 +1036,12 @@
                     roleDisplay = 'Course Instructor';
                     roleIcon = 'fa-chalkboard-teacher';
                     break;
+                default:
+                    roleDisplay = 'Service Provider';
+                    roleIcon = 'fa-user-tie';
             }
 
-            const providerName = userData.name || currentUser.displayName || 'Provider';
+            const providerName = userData.name || currentUser.displayName || currentUser.email?.split('@')[0] || 'Provider';
             const providerPhone = userData.phone || currentUser.phoneNumber || 'Not set';
             const providerVehicle = userData.vehicle || 'Motorcycle';
             const providerZone = userData.zone || 'Nairobi';
@@ -981,14 +1116,14 @@
                 <!-- Filters -->
                 <div class="filters">
                     <input type="text" class="search-input" id="searchInput" placeholder="Search by order ID, customer...">
-                    <select class="filter-select" id="statusFilter" onchange="filterTasks()">
+                    <select class="filter-select" id="statusFilter">
                         <option value="all">All Status</option>
                         <option value="pending">Pending</option>
                         <option value="active">Active</option>
                         <option value="completed">Completed</option>
                         <option value="cancelled">Cancelled</option>
                     </select>
-                    <button class="action-btn" onclick="refreshTasks()">Refresh</button>
+                    <button class="action-btn" onclick="refreshTasks()"><i class="fas fa-sync-alt"></i> Refresh</button>
                 </div>
 
                 <!-- Tasks Table -->
@@ -1012,49 +1147,15 @@
                 </div>
             `;
 
-            // Add event listener for search
+            // Add event listeners
             document.getElementById('searchInput')?.addEventListener('input', filterTasks);
-        }
-
-        // ========== LOAD PROVIDER TASKS ==========
-        async function loadProviderTasks() {
-            try {
-                const snapshot = await database.ref('orders')
-                    .orderByChild('assignedTo')
-                    .equalTo(currentUser.uid)
-                    .once('value');
-                
-                const data = snapshot.val() || {};
-                
-                tasks = Object.entries(data).map(([id, order]) => ({
-                    id,
-                    orderId: id,
-                    date: order.deliveryDate || order.orderDate || null,
-                    customerName: order.userName || order.fullName || 'Unknown',
-                    customerPhone: order.userPhone || '',
-                    address: order.deliveryAddress || order.address || 'No address',
-                    deliveryFee: order.deliveryFee || 150,
-                    status: order.status || 'pending',
-                    items: order.items || [],
-                    timestamp: order.deliveryDate ? new Date(order.deliveryDate).getTime() : 
-                              (order.orderDate ? new Date(order.orderDate).getTime() : 0)
-                }));
-
-                // Sort by date (newest first)
-                tasks.sort((a, b) => b.timestamp - a.timestamp);
-                filteredTasks = [...tasks];
-                
-            } catch (error) {
-                console.error('Error loading tasks:', error);
-                tasks = [];
-                filteredTasks = [];
-            }
+            document.getElementById('statusFilter')?.addEventListener('change', filterTasks);
         }
 
         // ========== RENDER TASKS TABLE ==========
         function renderTasksTable() {
             if (filteredTasks.length === 0) {
-                return '<tr><td colspan="7" style="text-align: center;">No tasks found</td></tr>';
+                return '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No tasks found</td></tr>';
             }
 
             let html = '';
@@ -1076,22 +1177,22 @@
                         <td>${date}</td>
                         <td>
                             ${task.customerName}<br>
-                            <small>${task.customerPhone || ''}</small>
+                            <small style="color: var(--text-muted);">${task.customerPhone || ''}</small>
                         </td>
                         <td>${task.address}</td>
-                        <td>KSh ${task.deliveryFee}</td>
+                        <td><span style="color: var(--gold);">KSh ${task.deliveryFee}</span></td>
                         <td><span class="status-badge ${statusClass}">${task.status}</span></td>
                         <td>
-                            <button class="action-btn view" onclick="viewTaskDetails('${task.id}')">
+                            <button class="action-btn view" onclick="viewTaskDetails('${task.id}')" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </button>
                             ${task.status === 'pending' ? `
-                                <button class="action-btn accept" onclick="acceptTask('${task.id}')">
+                                <button class="action-btn accept" onclick="acceptTask('${task.id}')" title="Accept">
                                     <i class="fas fa-check"></i>
                                 </button>
                             ` : ''}
                             ${task.status === 'active' || task.status === 'out-for-delivery' ? `
-                                <button class="action-btn complete" onclick="completeTask('${task.id}')">
+                                <button class="action-btn complete" onclick="completeTask('${task.id}')" title="Complete">
                                     <i class="fas fa-check-double"></i>
                                 </button>
                             ` : ''}
@@ -1186,7 +1287,8 @@
             filteredTasks = tasks.filter(task => {
                 const matchesSearch = 
                     task.id.toLowerCase().includes(searchTerm) ||
-                    task.customerName.toLowerCase().includes(searchTerm);
+                    task.customerName.toLowerCase().includes(searchTerm) ||
+                    task.customerPhone?.toLowerCase().includes(searchTerm);
                 
                 const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
                 
@@ -1211,6 +1313,8 @@
                     itemsHtml += `<li style="margin-bottom: 0.5rem;">• ${item.name || 'Product'} x${item.quantity || 1}</li>`;
                 });
                 itemsHtml += '</ul>';
+            } else {
+                itemsHtml = '<p>No items listed</p>';
             }
 
             const content = `
@@ -1221,8 +1325,8 @@
                 <div class="modal-field">
                     <label>Customer</label>
                     <div class="field-value">
-                        ${task.customerName}<br>
-                        ${task.customerPhone || 'No phone'}
+                        <strong>${task.customerName}</strong><br>
+                        📞 ${task.customerPhone || 'No phone'}
                     </div>
                 </div>
                 <div class="modal-field">
@@ -1231,11 +1335,11 @@
                 </div>
                 <div class="modal-field">
                     <label>Items</label>
-                    <div class="field-value">${itemsHtml || 'No items listed'}</div>
+                    <div class="field-value">${itemsHtml}</div>
                 </div>
                 <div class="modal-field">
                     <label>Delivery Fee</label>
-                    <div class="field-value">KSh ${task.deliveryFee}</div>
+                    <div class="field-value"><span style="color: var(--gold);">KSh ${task.deliveryFee}</span></div>
                 </div>
                 <div class="modal-field">
                     <label>Status</label>
@@ -1256,12 +1360,21 @@
             try {
                 await database.ref(`orders/${taskId}`).update({
                     status: 'active',
-                    acceptedAt: new Date().toISOString()
+                    acceptedAt: new Date().toISOString(),
+                    statusHistory: [
+                        ...(tasks.find(t => t.id === taskId)?.statusHistory || []),
+                        {
+                            status: 'active',
+                            timestamp: new Date().toISOString(),
+                            note: 'Accepted by provider'
+                        }
+                    ]
                 });
                 showToast('Task accepted successfully', 'success');
                 await loadProviderTasks();
                 filterTasks();
             } catch (error) {
+                console.error('Error accepting task:', error);
                 showToast('Failed to accept task', 'error');
             } finally {
                 showLoading(false);
@@ -1280,15 +1393,25 @@
                 await database.ref(`orders/${taskId}`).update({
                     status: 'completed',
                     completedAt: new Date().toISOString(),
+                    deliveryDate: new Date().toISOString(),
                     completionProof: {
                         customerName: customerName,
                         timestamp: new Date().toISOString()
-                    }
+                    },
+                    statusHistory: [
+                        ...(tasks.find(t => t.id === taskId)?.statusHistory || []),
+                        {
+                            status: 'completed',
+                            timestamp: new Date().toISOString(),
+                            note: `Completed - received by ${customerName}`
+                        }
+                    ]
                 });
                 showToast('Task completed successfully', 'success');
                 await loadProviderTasks();
                 filterTasks();
             } catch (error) {
+                console.error('Error completing task:', error);
                 showToast('Failed to complete task', 'error');
             } finally {
                 showLoading(false);
@@ -1328,7 +1451,12 @@
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             
-            const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+            const icons = { 
+                success: 'check-circle', 
+                error: 'exclamation-circle', 
+                warning: 'exclamation-triangle', 
+                info: 'info-circle' 
+            };
             toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${message}</span>`;
             
             container.appendChild(toast);
