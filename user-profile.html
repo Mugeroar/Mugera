@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="theme-color" content="#ca8a04">
+    <meta name="background-color" content="#0a0a0a">
+    <meta name="color-scheme" content="dark light">
+    <title>My Profile · I AM MUGERA</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --gold: #ca8a04;
+            --gold-dark: #a16207;
+            --gold-light: #fef3c7;
+            --danger: #dc2626;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --pink: #ec4899;
+            --teal: #14b8a6;
+            --indigo: #6366f1;
+            
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: rgba(20,20,20,0.8);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border-light: #2a2a2a;
+            --shadow-color: rgba(202,138,4,0.25);
+            --nav-bg: rgba(10,10,10,0.95);
+            --card-bg: #151515;
+            --glass-bg: rgba(20,20,20,0.3);
+            --glass-border: rgba(255,255,255,0.1);
+            --glass-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            --toast-bg: rgba(20,20,20,0.95);
+            --toast-border: var(--gold);
+            --header-height: 70px;
+            --input-bg: rgba(255,255,255,0.05);
+            --input-focus-bg: rgba(255,255,255,0.1);
+            
+            /* Membership Colors */
+            --member-basic: #6b7280;
+            --member-pro: #f59e0b;
+            --member-premium: #8b5cf6;
+            --member-enterprise: #ec4899;
+        }
+
+        body.light-theme {
+            --bg-primary: #f8f5f0;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #2d2d2d;
+            --text-muted: #555555;
+            --border-light: #dddddd;
+            --shadow-color: rgba(202,138,4,0.4);
+            --nav-bg: rgba(255,255,255,0.95);
+            --card-bg: #ffffff;
+            --input-bg: rgba(0,0,0,0.03);
+            --input-focus-bg: rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-top: var(--header-height);
+            transition: background 0.3s, color 0.2s;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .site-header {
+            position: fixed; top: 0; width: 100%; height: var(--header-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold); z-index: 2000; padding: 0 1rem;
+        }
+        .header-container {
+            max-width: 1400px; height: 100%; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .site-logo {
+            height: 48px; border-radius: 12px; border: 2px solid var(--gold);
+            padding: 2px; background: var(--bg-primary);
+            content: url('https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp');
+        }
+        .header-desktop-actions { display: flex; align-items: center; gap: 1.5rem; }
+        
+        .user-menu {
+            display: flex; align-items: center; gap: 0.5rem;
+            background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
+            border-radius: 40px; padding: 0.3rem 0.3rem 0.3rem 1rem;
+            cursor: pointer; position: relative;
+        }
+        .user-avatar {
+            background: var(--gold); color: #000; width: 35px; height: 35px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+        }
+        .logout-dropdown {
+            position: absolute; top: 120%; right: 0;
+            background: var(--card-bg); border: 1px solid var(--gold);
+            border-radius: 20px; padding: 0.5rem;
+            min-width: 120px; display: none; z-index: 1001;
+        }
+        .user-menu:hover .logout-dropdown { display: block; }
+        .logout-item {
+            padding: 0.7rem 1rem; color: var(--text-primary);
+            border-radius: 15px; transition: 0.2s;
+            display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+        }
+        .logout-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
+        
+        .mobile-header-group { display: none; align-items: center; gap: 0.8rem; }
+        .hamburger-icon {
+            border: 1px solid var(--gold); color: var(--gold);
+            width: 42px; height: 42px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; cursor: pointer; transition: all 0.2s;
+        }
+        .hamburger-icon:hover { background: var(--gold); color: black; }
+
+        /* Hamburger panel */
+        .hamburger-panel {
+            position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
+            background: var(--nav-bg); backdrop-filter: blur(20px);
+            border-left: 1px solid var(--gold); padding: 2rem 1.5rem;
+            z-index: 2500; transition: right 0.3s ease; display: flex; flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        .hamburger-panel.open { right: 0; }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;
+        }
+        .panel-header h3 { font-family: 'Cinzel', serif; color: var(--gold); }
+        .close-panel {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1.8rem; cursor: pointer; line-height: 1;
+        }
+        .panel-user-area {
+            background: rgba(202,138,4,0.05);
+            border-radius: 30px;
+            padding: 1rem;
+            border: 1px solid var(--border-light);
+            margin: 1.5rem 0;
+        }
+        .panel-user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .panel-avatar {
+            width: 48px; height: 48px;
+            background: var(--gold); color: black;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.2rem;
+        }
+        .panel-user-name {
+            font-weight: 600;
+            color: var(--gold);
+        }
+        .panel-logout {
+            width: 100%;
+            padding: 0.7rem;
+            background: transparent;
+            border: 1px solid var(--gold);
+            border-radius: 40px;
+            color: var(--gold);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .panel-logout:hover {
+            background: var(--gold);
+            color: black;
+        }
+        .panel-quick-links {
+            display: flex; flex-direction: column; gap: 0.5rem;
+        }
+        .panel-link {
+            padding: 0.9rem 1rem; background: rgba(255,255,255,0.03);
+            border-radius: 30px; color: var(--text-primary); text-decoration: none;
+            display: flex; align-items: center; gap: 1rem; transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .panel-link:hover {
+            border-color: var(--gold); background: rgba(202,138,4,0.1); color: var(--gold);
+        }
+        .panel-link i { width: 24px; color: var(--gold); }
+        .panel-theme-toggle {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 40px;
+            margin-top: auto; border: 1px solid var(--border-light);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Profile Hero Section */
+        .profile-hero {
+            background: linear-gradient(135deg, rgba(202,138,4,0.15), rgba(20,20,20,0.9));
+            border: 2px solid var(--gold);
+            border-radius: 40px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(202,138,4,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+        }
+
+        .profile-avatar-large {
+            width: 120px;
+            height: 120px;
+            background: rgba(202,138,4,0.15);
+            border: 4px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: var(--gold);
+        }
+
+        .profile-info h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-badges {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .membership-badge {
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge-basic {
+            background: rgba(107, 114, 128, 0.15);
+            color: #9ca3af;
+            border: 1px solid #6b7280;
+        }
+
+        .badge-pro {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid #f59e0b;
+        }
+
+        .badge-premium {
+            background: rgba(139, 92, 246, 0.15);
+            color: #c4b5fd;
+            border: 1px solid #8b5cf6;
+        }
+
+        .badge-enterprise {
+            background: rgba(236, 72, 153, 0.15);
+            color: #f9a8d4;
+            border: 1px solid #ec4899;
+        }
+
+        .verification-badge {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Dashboard Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(202, 138, 4, 0.2);
+            border-radius: 20px;
+            padding: 1.2rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Services Grid - 2 cards per row */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+        }
+
+        .service-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(202, 138, 4, 0.2);
+            border-radius: 30px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--gold), var(--gold-dark));
+            transition: 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 20px 40px rgba(202, 138, 4, 0.15);
+        }
+
+        .service-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(202, 138, 4, 0.1);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--gold);
+            flex-shrink: 0;
+        }
+
+        .service-content {
+            flex: 1;
+        }
+
+        .service-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 0.3rem;
+        }
+
+        .service-description {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .service-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .service-meta i {
+            color: var(--gold);
+            width: 16px;
+        }
+
+        .service-badge {
+            background: rgba(202, 138, 4, 0.1);
+            color: var(--gold);
+            padding: 0.2rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, rgba(202,138,4,0.2), rgba(20,20,20,0.95));
+            border: 2px solid var(--gold);
+            border-radius: 40px;
+            padding: 3rem;
+            margin: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(202,138,4,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-icon {
+            font-size: 4rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .cta-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .cta-text {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            font-size: 1.1rem;
+        }
+
+        .cta-features {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .cta-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .cta-feature i {
+            color: var(--gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-btn {
+            padding: 1rem 2.5rem;
+            background: transparent;
+            border: 2px solid var(--gold);
+            border-radius: 50px;
+            color: var(--gold);
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            text-decoration: none;
+        }
+
+        .cta-btn:hover {
+            background: var(--gold);
+            color: black;
+        }
+
+        .cta-btn.primary {
+            background: var(--gold);
+            color: black;
+        }
+
+        .cta-btn.primary:hover {
+            background: #b8860b;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(202,138,4,0.3);
+        }
+
+        /* Profile Details Section */
+        .details-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(202, 138, 4, 0.2);
+            border-radius: 30px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .detail-item i {
+            width: 24px;
+            color: var(--gold);
+            font-size: 1.2rem;
+        }
+
+        /* Loading and Toast */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+        }
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(202,138,4,0.2);
+            border-radius: 50%;
+            border-top-color: var(--gold);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .toast-container {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 10001;
+        }
+        .toast {
+            background: rgba(20,20,20,0.95);
+            backdrop-filter: blur(10px);
+            border-left: 4px solid var(--gold);
+            border-radius: 20px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+            animation: slideInRight 0.3s ease;
+            border: 1px solid rgba(202,138,4,0.3);
+        }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast.info { border-left-color: var(--info); }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .header-desktop-actions { display: none; }
+            .mobile-header-group { display: flex; }
+            .main-content { padding: 1rem; }
+            .profile-header { flex-direction: column; text-align: center; }
+            .services-grid { grid-template-columns: 1fr; }
+            .service-card { padding: 1.5rem; }
+            .cta-features { flex-direction: column; gap: 1rem; }
+            .details-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-container">
+            <div style="display: flex; align-items: center;">
+                <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" alt="I AM MUGERA" class="site-logo">
+            </div>
+            <div class="header-desktop-actions">
+                <div id="userMenuDesktop" class="user-menu">
+                    <span class="user-name" id="userDisplayNameDesktop">Profile</span>
+                    <div class="user-avatar" id="userAvatarDesktop">U</div>
+                    <div class="logout-dropdown">
+                        <div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mobile-header-group">
+                <div class="hamburger-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hamburger panel -->
+    <div class="hamburger-panel" id="hamburgerPanel">
+        <div class="panel-header">
+            <h3>Menu</h3>
+            <button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="panel-user-area">
+            <div class="panel-user-info">
+                <div class="panel-avatar" id="panelAvatar">U</div>
+                <span class="panel-user-name" id="panelUserName">User</span>
+            </div>
+            <button class="panel-logout" onclick="handleLogout(); toggleHamburger();"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+        <div class="panel-quick-links">
+            <a href="#" class="panel-link" onclick="navigateTo('wallet.html'); toggleHamburger();"><i class="fas fa-wallet"></i> My Wallet</a>
+            <a href="#" class="panel-link" onclick="navigateTo('tasks.html'); toggleHamburger();"><i class="fas fa-tasks"></i> My Tasks</a>
+            <a href="#" class="panel-link" onclick="navigateTo('orders.html'); toggleHamburger();"><i class="fas fa-shopping-bag"></i> My Orders</a>
+            <a href="#" class="panel-link" onclick="navigateTo('rides.html'); toggleHamburger();"><i class="fas fa-car"></i> My Rides</a>
+            <a href="#" class="panel-link" onclick="navigateTo('subscriptions.html'); toggleHamburger();"><i class="fas fa-calendar-check"></i> Subscriptions</a>
+            <a href="#" class="panel-link" onclick="navigateTo('courses.html'); toggleHamburger();"><i class="fas fa-graduation-cap"></i> My Courses</a>
+        </div>
+        <div class="panel-theme-toggle">
+            <span><i class="fas fa-palette"></i> Dark / Light</span>
+            <div onclick="toggleTheme()" style="width:45px; height:45px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                <i class="fas fa-moon" id="panelThemeIcon"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Profile Hero Section -->
+        <div class="profile-hero">
+            <div class="profile-header">
+                <div class="profile-avatar-large" id="profileAvatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="profile-info">
+                    <h1 id="profileName">Loading...</h1>
+                    <div class="profile-badges">
+                        <span class="membership-badge" id="membershipBadge">
+                            <i class="fas fa-crown"></i> Basic Member
+                        </span>
+                        <span class="verification-badge" id="verificationBadge">
+                            <i class="fas fa-check-circle"></i> Verified
+                        </span>
+                    </div>
+                    
+                    <!-- Dashboard Stats -->
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="statWallet">KSh 0</div>
+                            <div class="stat-label">Wallet Balance</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statTasks">0</div>
+                            <div class="stat-label">Active Tasks</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statOrders">0</div>
+                            <div class="stat-label">Orders</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="statCourses">0</div>
+                            <div class="stat-label">Courses</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Grid - 2 Cards per Row -->
+        <div class="services-grid">
+            <!-- Wallet Card -->
+            <div class="service-card" onclick="navigateTo('wallet.html')">
+                <div class="service-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="service-content">
+                    <h3 class="service-title">My Wallet</h3>
+                    <p class="service-description">Manage your earnings, request cashouts, and view transaction history.</p>
+                    <div class="service-meta">
+                        <span><i class="fas fa-coins"></i> <span id="walletBalance">KSh 0</span></span>
+                        <span class="service-badge">Active</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks Card -->
+            <div class="service-card" onclick="navigateTo('tasks.html')">
+                <div class="service-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="service-content">
+                    <h3 class="service-title">My Tasks</h3>
+                    <p class="service-description">View and manage your assigned tasks and deliveries.</p>
+                    <div class="service-meta">
+                        <span><i class="fas fa-clock"></i> <span id="activeTasks">0 active</span></span>
+                        <span class="service-badge" id="taskBadge">Delivery</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Card -->
+            <div class="service-card" onclick="navigateTo('orders.html')">
+                <div class="service-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="service-content">
+                    <h3 class="service-title">My Orders</h3>
+                    <p class="service-description">Track your purchases, view order history, and manage returns.</p>
+                    <div class="service-meta">
+                        <span><i class="fas fa-box"></i> <span id="orderCount">0 orders</span></span>
+                        <span class="service-badge" id="orderBadge">Shopping</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rides Card -->
+            <div class="service-card" onclick="navigateTo('rides.html')">
+                <div class="service-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <div class="service-content">
+                    <h3 class="service-title">My Rides</h3>
+                    <p class="service-description">Book rides, track your trips, and view ride history.</p>
+                    <div class="service-meta">
+                        <span><i class="fas fa-route"></i> <span id="rideCount">0 rides</span></span>
+                        <span class="service-badge" id="rideBadge">Transport</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subscriptions Card -->
+            <div class="service-card" onclick="navigateTo('subscriptions.html')">
+                <div class="service-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="service-content">
+                    <h3 class="service-title">Subscriptions</h3>
+                    <p class="service-description">Manage your memberships and subscription plans.</p>
+                    <div class="service-meta">
+                        <span><i class="fas fa-crown"></i> <span id="subscriptionStatus">Basic</span></span>
+                        <span class="service-badge" id="subBadge">Active</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courses Card -->
+            <div class="service-card" onclick="navigateTo('courses.html')">
+                <div class="service-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="service-content">
+                    <h3 class="service-title">My Courses</h3>
+                    <p class="service-description">Access your enrolled courses and track your progress.</p>
+                    <div class="service-meta">
+                        <span><i class="fas fa-book-open"></i> <span id="courseCount">0 courses</span></span>
+                        <span class="service-badge" id="courseBadge">Learning</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Section - Become a Service Provider -->
+        <div class="cta-section">
+            <div class="cta-content">
+                <div class="cta-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h2 class="cta-title">Level Up with Pro Account</h2>
+                <p class="cta-text">
+                    Turn your skills into income! Become a verified service provider and offer your expertise to our growing community.
+                </p>
+                
+                <div class="cta-features">
+                    <div class="cta-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Delivery Assistant</span>
+                    </div>
+                    <div class="cta-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Ride Provider</span>
+                    </div>
+                    <div class="cta-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Course Instructor</span>
+                    </div>
+                    <div class="cta-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Service Partner</span>
+                    </div>
+                </div>
+
+                <div class="cta-buttons">
+                    <button class="cta-btn primary" onclick="upgradeToPro()">
+                        <i class="fas fa-crown"></i> Upgrade to Pro
+                    </button>
+                    <button class="cta-btn" onclick="learnMore()">
+                        <i class="fas fa-info-circle"></i> Learn More
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Details Section -->
+        <div class="details-section">
+            <h3 style="color: var(--gold); margin-bottom: 1.5rem;">Account Details</h3>
+            <div class="details-grid" id="profileDetails">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        // Global state
+        let currentUser = null;
+        let userData = {};
+        let userMembership = 'basic';
+        let userRoles = [];
+
+        // ========== AUTH STATE LISTENER ==========
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserData();
+                updateUI();
+                startAutoRefresh();
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // ========== LOAD USER DATA ==========
+        async function loadUserData() {
+            showLoading(true);
+            
+            try {
+                // Load from users node
+                const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
+                if (userSnapshot.exists()) {
+                    userData = userSnapshot.val();
+                }
+                
+                // Check for membership/subscription
+                const subSnapshot = await database.ref(`subscriptions`).orderByChild('userId').equalTo(currentUser.uid).once('value');
+                if (subSnapshot.exists()) {
+                    const subscriptions = subSnapshot.val();
+                    const activeSub = Object.values(subscriptions).find(s => s.status === 'active');
+                    if (activeSub) {
+                        userMembership = activeSub.tier || 'premium';
+                    }
+                }
+                
+                // Check user roles (assistant, driver, instructor, etc.)
+                await checkUserRoles();
+                
+                showToast('Profile loaded successfully', 'success');
+                
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showToast('Error loading profile', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // ========== CHECK USER ROLES ==========
+        async function checkUserRoles() {
+            userRoles = [];
+            
+            // Check if delivery assistant
+            const assistantSnapshot = await database.ref(`delivery_assistants/${currentUser.uid}`).once('value');
+            if (assistantSnapshot.exists() && assistantSnapshot.val().status === 'active') {
+                userRoles.push('assistant');
+            }
+            
+            // Check if course instructor
+            const instructorSnapshot = await database.ref(`instructors/${currentUser.uid}`).once('value');
+            if (instructorSnapshot.exists()) {
+                userRoles.push('instructor');
+            }
+            
+            // Check if ride provider
+            const driverSnapshot = await database.ref(`drivers/${currentUser.uid}`).once('value');
+            if (driverSnapshot.exists()) {
+                userRoles.push('driver');
+            }
+        }
+
+        // ========== UPDATE UI ==========
+        function updateUI() {
+            // Update user name
+            const displayName = userData.name || currentUser.displayName || currentUser.email?.split('@')[0] || 'User';
+            document.getElementById('profileName').textContent = displayName;
+            document.getElementById('userDisplayNameDesktop').textContent = displayName;
+            document.getElementById('panelUserName').textContent = displayName;
+            
+            const initial = displayName.charAt(0).toUpperCase();
+            document.getElementById('userAvatarDesktop').textContent = initial;
+            document.getElementById('panelAvatar').textContent = initial;
+            document.getElementById('profileAvatar').innerHTML = `<i class="fas fa-user-circle"></i>`;
+
+            // Update membership badge
+            updateMembershipBadge();
+
+            // Update verification badge
+            updateVerificationBadge();
+
+            // Update dashboard stats
+            updateStats();
+
+            // Update service cards
+            updateServiceCards();
+
+            // Update profile details
+            updateProfileDetails();
+        }
+
+        function updateMembershipBadge() {
+            const badge = document.getElementById('membershipBadge');
+            let icon = 'fa-crown';
+            let text = 'Basic Member';
+            let className = 'badge-basic';
+            
+            switch(userMembership) {
+                case 'pro':
+                    icon = 'fa-star';
+                    text = 'Pro Member';
+                    className = 'badge-pro';
+                    break;
+                case 'premium':
+                    icon = 'fa-crown';
+                    text = 'Premium Member';
+                    className = 'badge-premium';
+                    break;
+                case 'enterprise':
+                    icon = 'fa-building';
+                    text = 'Enterprise Member';
+                    className = 'badge-enterprise';
+                    break;
+                default:
+                    icon = 'fa-user';
+                    text = 'Basic Member';
+                    className = 'badge-basic';
+            }
+            
+            badge.className = `membership-badge ${className}`;
+            badge.innerHTML = `<i class="fas ${icon}"></i> ${text}`;
+        }
+
+        function updateVerificationBadge() {
+            const badge = document.getElementById('verificationBadge');
+            const isVerified = userData.verified || currentUser.emailVerified;
+            
+            if (isVerified) {
+                badge.innerHTML = `<i class="fas fa-check-circle"></i> Verified`;
+                badge.style.display = 'inline-flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        async function updateStats() {
+            // Wallet balance
+            const walletBalance = await calculateWalletBalance();
+            document.getElementById('statWallet').textContent = `KSh ${walletBalance.toLocaleString()}`;
+            document.getElementById('walletBalance').textContent = `KSh ${walletBalance.toLocaleString()}`;
+
+            // Active tasks
+            const activeTasks = await getActiveTasks();
+            document.getElementById('statTasks').textContent = activeTasks;
+            document.getElementById('activeTasks').textContent = `${activeTasks} active`;
+
+            // Orders count
+            const orderCount = await getOrderCount();
+            document.getElementById('statOrders').textContent = orderCount;
+            document.getElementById('orderCount').textContent = `${orderCount} orders`;
+
+            // Courses count
+            const courseCount = await getCourseCount();
+            document.getElementById('statCourses').textContent = courseCount;
+            document.getElementById('courseCount').textContent = `${courseCount} courses`;
+
+            // Ride count
+            const rideCount = await getRideCount();
+            document.getElementById('rideCount').textContent = `${rideCount} rides`;
+
+            // Subscription status
+            document.getElementById('subscriptionStatus').textContent = 
+                userMembership.charAt(0).toUpperCase() + userMembership.slice(1);
+        }
+
+        async function calculateWalletBalance() {
+            try {
+                // Get completed deliveries
+                const ordersSnapshot = await database.ref('orders')
+                    .orderByChild('assignedTo')
+                    .equalTo(currentUser.uid)
+                    .once('value');
+                
+                const orders = ordersSnapshot.val() || {};
+                const totalEarned = Object.values(orders)
+                    .filter(o => o.status === 'delivered')
+                    .reduce((sum, o) => sum + (o.deliveryFee || 150), 0);
+                
+                // Get cashed out amount
+                const cashoutsSnapshot = await database.ref('cashout_requests')
+                    .orderByChild('assistantId')
+                    .equalTo(currentUser.uid)
+                    .once('value');
+                
+                const cashouts = cashoutsSnapshot.val() || {};
+                const totalCashout = Object.values(cashouts)
+                    .filter(c => c.status === 'approved' || c.status === 'completed')
+                    .reduce((sum, c) => sum + (c.amount || 0), 0);
+                
+                return totalEarned - totalCashout;
+            } catch (error) {
+                console.error('Error calculating wallet balance:', error);
+                return 0;
+            }
+        }
+
+        async function getActiveTasks() {
+            try {
+                const snapshot = await database.ref('orders')
+                    .orderByChild('assignedTo')
+                    .equalTo(currentUser.uid)
+                    .once('value');
+                
+                const orders = snapshot.val() || {};
+                return Object.values(orders).filter(o => 
+                    o.status === 'out-for-delivery' || o.status === 'processing'
+                ).length;
+            } catch {
+                return 0;
+            }
+        }
+
+        async function getOrderCount() {
+            try {
+                const snapshot = await database.ref('orders')
+                    .orderByChild('userId')
+                    .equalTo(currentUser.uid)
+                    .once('value');
+                
+                return snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+            } catch {
+                return 0;
+            }
+        }
+
+        async function getCourseCount() {
+            try {
+                const snapshot = await database.ref('course_enrollments')
+                    .orderByChild('userId')
+                    .equalTo(currentUser.uid)
+                    .once('value');
+                
+                return snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+            } catch {
+                return 0;
+            }
+        }
+
+        async function getRideCount() {
+            try {
+                const snapshot = await database.ref('rides')
+                    .orderByChild('userId')
+                    .equalTo(currentUser.uid)
+                    .once('value');
+                
+                return snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+            } catch {
+                return 0;
+            }
+        }
+
+        function updateServiceCards() {
+            // Update task badge based on user role
+            const taskBadge = document.getElementById('taskBadge');
+            if (userRoles.includes('assistant')) {
+                taskBadge.textContent = 'Delivery Assistant';
+                taskBadge.style.background = 'rgba(16,185,129,0.15)';
+                taskBadge.style.color = '#10b981';
+            } else if (userRoles.includes('driver')) {
+                taskBadge.textContent = 'Driver';
+                taskBadge.style.background = 'rgba(245,158,11,0.15)';
+                taskBadge.style.color = '#f59e0b';
+            } else {
+                taskBadge.textContent = 'Available';
+                taskBadge.style.background = 'rgba(107,114,128,0.15)';
+                taskBadge.style.color = '#9ca3af';
+            }
+
+            // Update order badge
+            const orderBadge = document.getElementById('orderBadge');
+            if (userRoles.includes('assistant')) {
+                orderBadge.textContent = 'Deliveries';
+            }
+
+            // Update subscription badge
+            const subBadge = document.getElementById('subBadge');
+            subBadge.textContent = userMembership.charAt(0).toUpperCase() + userMembership.slice(1);
+        }
+
+        function updateProfileDetails() {
+            const detailsGrid = document.getElementById('profileDetails');
+            
+            const email = currentUser.email || 'Not set';
+            const phone = userData.phone || 'Not set';
+            const memberSince = userData.createdAt ? new Date(userData.createdAt).toLocaleDateString() : 'N/A';
+            const lastActive = userData.lastActive ? new Date(userData.lastActive).toLocaleDateString() : 'Today';
+            
+            let roles = userRoles.length > 0 ? userRoles.join(', ') : 'Customer';
+            
+            detailsGrid.innerHTML = `
+                <div class="detail-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>${email}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-phone"></i>
+                    <span>${phone}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Member since: ${memberSince}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Last active: ${lastActive}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-tag"></i>
+                    <span>Role: ${roles}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-id-card"></i>
+                    <span>User ID: ${currentUser.uid.slice(-8)}</span>
+                </div>
+            `;
+        }
+
+        // ========== NAVIGATION ==========
+        window.navigateTo = function(page) {
+            window.location.href = page;
+        };
+
+        window.upgradeToPro = function() {
+            window.location.href = 'upgrade.html';
+        };
+
+        window.learnMore = function() {
+            window.location.href = 'pro-account.html';
+        };
+
+        // ========== UTILITY FUNCTIONS ==========
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').classList.toggle('active', show);
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+            toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function startAutoRefresh() {
+            setInterval(() => {
+                if (currentUser) {
+                    loadUserData();
+                }
+            }, 300000); // Refresh every 5 minutes
+        }
+
+        // ========== HANDLE LOGOUT ==========
+        window.handleLogout = async () => {
+            try {
+                showLoading(true);
+                await auth.signOut();
+                window.location.href = 'login.html';
+            } catch (error) {
+                showToast('Logout failed', 'error');
+                showLoading(false);
+            }
+        };
+
+        // ========== TOGGLE HAMBURGER ==========
+        window.toggleHamburger = function() {
+            document.getElementById('hamburgerPanel').classList.toggle('open');
+        };
+
+        document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
+
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('hamburgerPanel');
+            const btn = document.getElementById('hamburgerBtn');
+            if (panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
+                panel.classList.remove('open');
+            }
+        });
+
+        // ========== THEME TOGGLE ==========
+        window.toggleTheme = function() {
+            document.body.classList.toggle('light-theme');
+            const icon = document.getElementById('panelThemeIcon');
+            icon.classList.toggle('fa-moon', !document.body.classList.contains('light-theme'));
+            icon.classList.toggle('fa-sun', document.body.classList.contains('light-theme'));
+            localStorage.setItem('siteTheme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+        };
+
+        if (localStorage.getItem('siteTheme') === 'light') {
+            document.body.classList.add('light-theme');
+            document.getElementById('panelThemeIcon').classList.replace('fa-moon', 'fa-sun');
+        }
+    </script>
+</body>
+</html>
