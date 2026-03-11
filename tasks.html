@@ -1059,13 +1059,8 @@
     // ========== LOAD USER DATA ==========
     async function loadUserData() {
         try {
-            // Load from users node with timeout
-            const userPromise = database.ref(`users/${currentUser.uid}`).once('value');
-            const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('User data timeout')), 5000)
-            );
-            
-            const userSnapshot = await Promise.race([userPromise, timeoutPromise]);
+            // Load from users node
+            const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
             
             if (userSnapshot.exists()) {
                 userData = userSnapshot.val();
@@ -1111,16 +1106,14 @@
         userRole = null;
         
         try {
-            // Check if delivery assistant - with timeout
-            const assistantPromise = database.ref(`delivery_assistants/${currentUser.uid}`).once('value');
-            const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Assistant check timeout')), 5000)
-            );
+            // First check if user is a delivery assistant
+            const assistantSnapshot = await database.ref(`delivery_assistants/${currentUser.uid}`).once('value');
             
-            const assistantSnapshot = await Promise.race([assistantPromise, timeoutPromise]).catch(() => null);
-            
-            if (assistantSnapshot && assistantSnapshot.exists()) {
+            if (assistantSnapshot.exists()) {
                 const assistantData = assistantSnapshot.val();
+                console.log('Assistant data found:', assistantData);
+                
+                // Check if they are active/approved
                 if (assistantData.status === 'active' || assistantData.verified === true) {
                     userRole = 'assistant';
                     userData = { ...userData, ...assistantData };
@@ -1129,44 +1122,30 @@
                 }
             }
             
-            // Check if driver
-            const driverSnapshot = await database.ref(`drivers/${currentUser.uid}`).once('value').catch(() => null);
-            if (driverSnapshot && driverSnapshot.exists()) {
-                const driverData = driverSnapshot.val();
-                if (driverData.status === 'active') {
-                    userRole = 'driver';
-                    userData = { ...userData, ...driverData };
-                    console.log('User is a driver');
-                    return;
-                }
-            }
-            
-            // Check if instructor
-            const instructorSnapshot = await database.ref(`instructors/${currentUser.uid}`).once('value').catch(() => null);
-            if (instructorSnapshot && instructorSnapshot.exists()) {
-                const instructorData = instructorSnapshot.val();
-                if (instructorData.status === 'active') {
-                    userRole = 'instructor';
-                    userData = { ...userData, ...instructorData };
-                    console.log('User is an instructor');
-                    return;
-                }
-            }
-            
-            // Check if there are orders assigned to this user
+            // Then check if they have any orders assigned to them
             const ordersSnapshot = await database.ref('orders')
                 .orderByChild('assignedTo')
                 .equalTo(currentUser.uid)
-                .once('value')
-                .catch(() => null);
+                .once('value');
             
-            if (ordersSnapshot && ordersSnapshot.exists()) {
+            if (ordersSnapshot.exists()) {
                 const orders = ordersSnapshot.val();
                 const orderCount = Object.keys(orders).length;
                 console.log(`User has ${orderCount} assigned orders - treating as assistant`);
                 
                 if (orderCount > 0) {
                     userRole = 'assistant';
+                    // Create assistant record if it doesn't exist
+                    const checkAssistant = await database.ref(`delivery_assistants/${currentUser.uid}`).once('value');
+                    if (!checkAssistant.exists()) {
+                        await database.ref(`delivery_assistants/${currentUser.uid}`).set({
+                            name: userData.name || currentUser.displayName || 'Assistant',
+                            email: currentUser.email,
+                            phone: userData.phone || '',
+                            status: 'active',
+                            verified: true
+                        });
+                    }
                     return;
                 }
             }
@@ -1270,12 +1249,14 @@
 
     function renderProviderPage() {
         const displayName = userData.name || currentUser.displayName || currentUser.email?.split('@')[0] || 'Provider';
-        const roleDisplay = userRole === 'assistant' ? 'Delivery Assistant' : 
-                           userRole === 'driver' ? 'Driver' : 
-                           userRole === 'instructor' ? 'Instructor' : 'Service Provider';
-        const roleIcon = userRole === 'assistant' ? 'fa-truck' : 
-                        userRole === 'driver' ? 'fa-car' : 
-                        userRole === 'instructor' ? 'fa-chalkboard-teacher' : 'fa-user-tie';
+        const roleDisplay = 'Delivery Assistant';
+        const roleIcon = 'fa-truck';
+        
+        // Determine availability based on active tasks
+        const hasActiveTasks = tasks.some(t => t.status === 'assigned' || t.status === 'out-for-delivery' || t.status === 'active');
+        const availabilityStatus = hasActiveTasks ? 'busy' : 'available';
+        const availabilityText = hasActiveTasks ? 'Busy' : 'Available';
+        const statusDotClass = hasActiveTasks ? 'status-dot busy' : 'status-dot';
         
         const mainContent = document.getElementById('mainContent');
         mainContent.innerHTML = `
@@ -1306,15 +1287,9 @@
                             <i class="fas fa-map-marker-alt"></i>
                             <span id="providerZone">${userData.zone || 'Nairobi'}</span>
                         </div>
-                        <div class="availability-toggle">
-                            <div class="availability-status">
-                                <span class="status-dot" id="statusDot"></span>
-                                <span id="availabilityText">Available</span>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="availabilityToggle" checked onchange="toggleAvailability()">
-                                <span class="toggle-slider"></span>
-                            </label>
+                        <div class="availability-status">
+                            <span class="${statusDotClass}" id="statusDot"></span>
+                            <span id="availabilityText">${availabilityText}</span>
                         </div>
                     </div>
                 </div>
@@ -1420,18 +1395,33 @@
             console.log('Loading tasks for provider:', currentUser.uid);
             
             // Get all orders
-            const snapshot = await database.ref('orders').once('value').catch(() => ({ val: () => ({}) }));
+            const snapshot = await database.ref('orders').once('value');
             const data = snapshot.val() || {};
+            
+            console.log('Total orders in database:', Object.keys(data).length);
             
             // Find orders assigned to this user
             tasks = [];
             
             Object.entries(data).forEach(([id, order]) => {
-                // Check various assignment fields
-                if (order.assignedTo === currentUser.uid || 
+                // Log a few orders to see their structure
+                if (Object.keys(data).indexOf(id) < 3) {
+                    console.log(`Sample order ${id}:`, {
+                        assignedTo: order.assignedTo,
+                        status: order.status,
+                        userName: order.userName
+                    });
+                }
+                
+                // Check if this order is assigned to current user
+                const isAssigned = 
+                    order.assignedTo === currentUser.uid || 
                     order.assignedTo === currentUser.uid.toString() ||
                     order.assistantId === currentUser.uid ||
-                    order.driverId === currentUser.uid) {
+                    order.driverId === currentUser.uid;
+                
+                if (isAssigned) {
+                    console.log(`Found assigned order: ${id}`);
                     
                     // Parse date
                     let timestamp = 0;
@@ -1473,45 +1463,47 @@
             
             console.log(`Found ${tasks.length} tasks assigned to user`);
             
+            // Update availability based on active tasks
+            updateAvailabilityFromTasks();
+            
             // Apply current view
             showSection(currentView);
             
             // Update stats
             updateStats();
             
-            // Load availability status
-            loadAvailabilityStatus();
-            
         } catch (error) {
             console.error('Error loading tasks:', error);
             tasks = [];
-            document.getElementById('tasksTableBody').innerHTML = 
-                '<tr><td colspan="8" style="text-align: center; color: var(--danger);">Error loading tasks. Please refresh.</td></tr>';
+            const tbody = document.getElementById('tasksTableBody');
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--danger);">Error loading tasks. Please refresh.</td></tr>';
+            }
         }
     }
 
-    // ========== LOAD AVAILABILITY STATUS ==========
-    async function loadAvailabilityStatus() {
-        try {
-            const snapshot = await database.ref(`delivery_assistants/${currentUser.uid}/availability`).once('value');
-            const availability = snapshot.val();
-            
-            const toggle = document.getElementById('availabilityToggle');
-            const dot = document.getElementById('statusDot');
-            const text = document.getElementById('availabilityText');
-            
-            if (availability === 'busy') {
-                if (toggle) toggle.checked = false;
-                if (dot) dot.className = 'status-dot busy';
-                if (text) text.textContent = 'Busy';
+    // ========== UPDATE AVAILABILITY FROM TASKS ==========
+    function updateAvailabilityFromTasks() {
+        const hasActiveTasks = tasks.some(t => t.status === 'assigned' || t.status === 'out-for-delivery' || t.status === 'active');
+        
+        const dot = document.getElementById('statusDot');
+        const text = document.getElementById('availabilityText');
+        
+        if (dot && text) {
+            if (hasActiveTasks) {
+                dot.className = 'status-dot busy';
+                text.textContent = 'Busy';
             } else {
-                if (toggle) toggle.checked = true;
-                if (dot) dot.className = 'status-dot';
-                if (text) text.textContent = 'Available';
+                dot.className = 'status-dot';
+                text.textContent = 'Available';
             }
-        } catch (error) {
-            console.error('Error loading availability:', error);
         }
+        
+        // Update in database
+        database.ref(`delivery_assistants/${currentUser.uid}`).update({
+            status: hasActiveTasks ? 'busy' : 'available',
+            lastStatusUpdate: new Date().toISOString()
+        }).catch(err => console.error('Error updating status:', err));
     }
 
     // ========== UPDATE STATS ==========
@@ -1527,10 +1519,15 @@
             .filter(t => t.status === 'delivered' || t.status === 'completed')
             .reduce((sum, t) => sum + (t.deliveryFee || 150), 0);
 
-        document.getElementById('activeTasks').textContent = activeTasks;
-        document.getElementById('pendingTasks').textContent = pendingTasks;
-        document.getElementById('completedTasks').textContent = completedTasks;
-        document.getElementById('totalEarnings').textContent = `KSh ${totalEarnings.toLocaleString()}`;
+        const activeEl = document.getElementById('activeTasks');
+        const pendingEl = document.getElementById('pendingTasks');
+        const completedEl = document.getElementById('completedTasks');
+        const earningsEl = document.getElementById('totalEarnings');
+        
+        if (activeEl) activeEl.textContent = activeTasks;
+        if (pendingEl) pendingEl.textContent = pendingTasks;
+        if (completedEl) completedEl.textContent = completedTasks;
+        if (earningsEl) earningsEl.textContent = `KSh ${totalEarnings.toLocaleString()}`;
     }
 
     // ========== SHOW SECTION ==========
@@ -1543,16 +1540,22 @@
             filtered = tasks.filter(t => 
                 t.status === 'assigned' || t.status === 'out-for-delivery' || t.status === 'active'
             );
-            document.getElementById('tasksTitle').textContent = 'Active Tasks';
-            document.getElementById('tasksIcon').className = 'fas fa-truck';
+            const titleEl = document.getElementById('tasksTitle');
+            const iconEl = document.getElementById('tasksIcon');
+            if (titleEl) titleEl.textContent = 'Active Tasks';
+            if (iconEl) iconEl.className = 'fas fa-truck';
         } else if (section === 'completed') {
             filtered = tasks.filter(t => t.status === 'delivered' || t.status === 'completed');
-            document.getElementById('tasksTitle').textContent = 'Completed Tasks';
-            document.getElementById('tasksIcon').className = 'fas fa-check-circle';
+            const titleEl = document.getElementById('tasksTitle');
+            const iconEl = document.getElementById('tasksIcon');
+            if (titleEl) titleEl.textContent = 'Completed Tasks';
+            if (iconEl) iconEl.className = 'fas fa-check-circle';
         } else {
             filtered = [...tasks];
-            document.getElementById('tasksTitle').textContent = 'All Tasks';
-            document.getElementById('tasksIcon').className = 'fas fa-list';
+            const titleEl = document.getElementById('tasksTitle');
+            const iconEl = document.getElementById('tasksIcon');
+            if (titleEl) titleEl.textContent = 'All Tasks';
+            if (iconEl) iconEl.className = 'fas fa-list';
         }
         
         filteredTasks = filtered;
@@ -1633,7 +1636,7 @@
                                     <i class="fas fa-check"></i>
                                 </button>
                             ` : ''}
-                            ${task.status === 'out-for-delivery' || task.status === 'active' ? `
+                            ${(task.status === 'out-for-delivery' || task.status === 'active') ? `
                                 <button class="action-btn navigate" onclick="navigateToCustomer('${task.address}')" title="Navigate">
                                     <i class="fas fa-map-marked-alt"></i>
                                 </button>
@@ -1713,20 +1716,9 @@
         showLoading(true);
         
         try {
-            const taskSnapshot = await database.ref(`orders/${taskId}`).once('value');
-            const task = taskSnapshot.val() || {};
-            
-            const statusHistory = task.statusHistory || [];
-            statusHistory.push({
-                status: 'out-for-delivery',
-                timestamp: new Date().toISOString(),
-                note: 'Accepted by provider'
-            });
-
             await database.ref(`orders/${taskId}`).update({
                 status: 'out-for-delivery',
-                acceptedAt: new Date().toISOString(),
-                statusHistory: statusHistory
+                acceptedAt: new Date().toISOString()
             });
 
             showToast('Task accepted successfully', 'success');
@@ -1790,16 +1782,6 @@
         showLoading(true);
         
         try {
-            const taskSnapshot = await database.ref(`orders/${currentTaskId}`).once('value');
-            const task = taskSnapshot.val() || {};
-            
-            const statusHistory = task.statusHistory || [];
-            statusHistory.push({
-                status: 'delivered',
-                timestamp: new Date().toISOString(),
-                note: `Delivered to ${customerName}`
-            });
-
             await database.ref(`orders/${currentTaskId}`).update({
                 status: 'delivered',
                 deliveredAt: new Date().toISOString(),
@@ -1808,8 +1790,7 @@
                     notes: notes,
                     timestamp: new Date().toISOString(),
                     hasPhoto: true
-                },
-                statusHistory: statusHistory
+                }
             });
 
             showToast('Delivery completed!', 'success');
@@ -1834,48 +1815,6 @@
         document.getElementById('proofNotes').value = '';
         proofImageData = null;
         currentTaskId = null;
-    };
-
-    // ========== AVAILABILITY TOGGLE ==========
-    window.toggleAvailability = async function() {
-        const toggle = document.getElementById('availabilityToggle');
-        const dot = document.getElementById('statusDot');
-        const text = document.getElementById('availabilityText');
-        
-        if (!toggle || !dot || !text) return;
-        
-        const isAvailable = toggle.checked;
-        
-        if (isAvailable) {
-            dot.className = 'status-dot';
-            text.textContent = 'Available';
-        } else {
-            dot.className = 'status-dot busy';
-            text.textContent = 'Busy';
-        }
-        
-        try {
-            await database.ref(`delivery_assistants/${currentUser.uid}`).update({
-                availability: isAvailable ? 'available' : 'busy',
-                lastStatusUpdate: new Date().toISOString()
-            });
-            
-            showToast(`You are now marked as ${isAvailable ? 'available' : 'busy'}`, 'success');
-            
-        } catch (error) {
-            console.error('Error updating availability:', error);
-            showToast('Failed to update availability', 'error');
-            
-            // Revert toggle
-            toggle.checked = !isAvailable;
-            if (!isAvailable) {
-                dot.className = 'status-dot';
-                text.textContent = 'Available';
-            } else {
-                dot.className = 'status-dot busy';
-                text.textContent = 'Busy';
-            }
-        }
     };
 
     // ========== REFRESH TASKS ==========
