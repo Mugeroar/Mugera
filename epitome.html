@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ca8a04">
+    <meta name="background-color" content="#0a0a0a">
+    <meta name="color-scheme" content="dark light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="EPITOME">
+    <meta name="application-name" content="EPITOME Motors">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>EPITOME · I AM MUGERA | car collection</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDKs (kept for structure, can be used later) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --gold: #ca8a04; --gold-dark: #a16207; --gold-light: #fef3c7;
+            --bg-primary: #0a0a0a; --bg-secondary: #111111; --bg-card: rgba(20,20,20,0.9);
+            --text-primary: #ffffff; --text-secondary: #e0e0e0; --text-muted: #aaaaaa;
+            --border-light: #2a2a2a; --shadow-color: rgba(202,138,4,0.25);
+            --nav-bg: rgba(10,10,10,0.95); --card-bg: #151515;
+            --glass-bg: rgba(20,20,20,0.3); --glass-border: rgba(255,255,255,0.1);
+            --glass-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            --toast-bg: rgba(20,20,20,0.95); --toast-border: var(--gold);
+            --header-height: 70px; --input-bg: rgba(255,255,255,0.05);
+            --input-focus-bg: rgba(255,255,255,0.1);
+            --danger: #dc2626; --success: #10b981;
+        }
+        body.light-theme {
+            --bg-primary: #f8f5f0; --bg-secondary: #ffffff; --bg-card: #ffffff;
+            --text-primary: #1a1a1a; --text-secondary: #2d2d2d; --text-muted: #555555;
+            --border-light: #dddddd; --shadow-color: rgba(202,138,4,0.4);
+            --nav-bg: rgba(255,255,255,0.95); --card-bg: #ffffff;
+            --glass-bg: rgba(255,255,255,0.2); --glass-border: rgba(255,255,255,0.3);
+            --input-bg: rgba(0,0,0,0.03); --input-focus-bg: rgba(0,0,0,0.05);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-top: var(--header-height);
+            transition: background 0.3s, color 0.2s;
+        }
+        /* header (adapted from WorkFit, minimal changes) */
+        .site-header {
+            position: fixed; top: 0; width: 100%; height: var(--header-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold); z-index: 2000; padding: 0 1rem;
+        }
+        .header-container {
+            max-width: 1400px; height: 100%; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .site-logo {
+            height: 48px; border-radius: 12px; border: 2px solid var(--gold);
+            padding: 2px; background: var(--bg-primary);
+        }
+        .header-desktop-actions { display: flex; align-items: center; gap: 1.5rem; }
+        .desktop-search {
+            position: relative; display: flex; align-items: center;
+            background: rgba(255,255,255,0.08); border: 1px solid var(--border-light);
+            border-radius: 40px; padding: 0.4rem 0.4rem 0.4rem 1.2rem;
+            min-width: 260px;
+        }
+        .desktop-search input {
+            background: transparent; border: none; color: var(--text-primary);
+            width: 100%; outline: none; padding: 0.5rem 0;
+        }
+        .desktop-search button {
+            background: var(--gold); border: none; width: 38px; height: 38px;
+            border-radius: 50%; color: black; cursor: pointer;
+            transition: 0.2s;
+        }
+        .user-menu, #loginButtonDesktop {
+            display: flex; align-items: center; gap: 0.5rem;
+            background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
+            border-radius: 40px; padding: 0.3rem 0.3rem 0.3rem 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+        .user-avatar {
+            background: var(--gold); color: #000; width: 35px; height: 35px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+        }
+        .logout-dropdown {
+            position: absolute; top: 120%; right: 0;
+            background: var(--card-bg); border: 1px solid var(--gold);
+            border-radius: 20px; padding: 0.5rem;
+            min-width: 120px; display: none; z-index: 1001;
+        }
+        .user-menu:hover .logout-dropdown { display: block; }
+        .logout-item {
+            padding: 0.7rem 1rem; color: var(--text-primary);
+            border-radius: 15px; transition: 0.2s;
+            display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+        }
+        .logout-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
+        .mobile-header-group { display: none; align-items: center; gap: 0.8rem; }
+        .mobile-search-icon, .hamburger-icon {
+            border: 1px solid var(--gold); color: var(--gold);
+            width: 42px; height: 42px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; cursor: pointer;
+        }
+        .search-overlay {
+            position: fixed; top: 0; left: 0; width: 100%;
+            background: var(--nav-bg); backdrop-filter: blur(20px);
+            padding: 1rem; z-index: 2400;
+            transform: translateY(-100%); transition: 0.3s;
+            border-bottom: 2px solid var(--gold);
+        }
+        .search-overlay.open { transform: translateY(0); }
+        .search-row { display: flex; gap: 0.5rem; }
+        .search-overlay input {
+            flex: 1; padding: 1rem 1.2rem; background: var(--bg-secondary);
+            border: 2px solid var(--gold); border-radius: 50px;
+            color: var(--text-primary);
+        }
+        .close-search {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 2rem; width: 50px; cursor: pointer;
+        }
+        .hamburger-panel {
+            position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
+            background: var(--nav-bg); backdrop-filter: blur(20px);
+            border-left: 1px solid var(--gold); padding: 2rem 1.5rem;
+            z-index: 2500; transition: right 0.3s ease; display: flex; flex-direction: column;
+        }
+        .hamburger-panel.open { right: 0; }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;
+        }
+        .panel-header h3 { font-family: 'Cinzel', serif; color: var(--gold); }
+        .close-panel {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1.8rem; cursor: pointer;
+        }
+        .panel-quick-links { display: flex; flex-direction: column; gap: 0.5rem; margin: 2rem 0; }
+        .panel-link {
+            padding: 0.9rem 1rem; background: rgba(255,255,255,0.03);
+            border-radius: 30px; color: var(--text-primary); text-decoration: none;
+            display: flex; align-items: center; gap: 1rem; border: 1px solid transparent;
+        }
+        .panel-link:hover { border-color: var(--gold); background: rgba(202,138,4,0.1); color: var(--gold); }
+        .panel-link i { width: 24px; color: var(--gold); }
+        .panel-theme-toggle {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 40px;
+            margin-top: auto; border: 1px solid var(--border-light);
+        }
+        /* HERO SLIDER – clearer, brighter overlay and higher contrast */
+        .hero-slider {
+            position: relative;
+            height: 80vh;
+            min-height: 600px;
+            overflow: hidden;
+        }
+        .slide-container { height: 100%; position: relative; }
+        .slide {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .slide.active { opacity: 1; }
+        /* more transparent overlay so image pops, but still readable */
+        .slide-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.45) 0%, rgba(20,20,20,0.3) 100%);
+        }
+        body.light-theme .slide-overlay {
+            background: linear-gradient(135deg, rgba(255,245,235,0.5) 0%, rgba(255,255,255,0.45) 100%);
+        }
+        .slide-content {
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+            padding: 2rem;
+            background: rgba(0,0,0,0.3); /* extra pop for text */
+            backdrop-filter: blur(3px);
+            border-radius: 60px;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+        .slide-content h2 {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(3rem, 6vw, 5rem);
+            color: var(--gold);
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 10px black;
+        }
+        .slide-content p {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: white;
+            font-weight: 500;
+            text-shadow: 0 2px 5px black;
+        }
+        .slide-btn {
+            background: var(--gold);
+            color: black;
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 2.5rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(202,138,4,0.6);
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .slide-btn:hover { background: #b8860b; transform: translateY(-4px); }
+        .slider-nav {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 1rem; z-index: 20;
+        }
+        .slider-dot {
+            width: 14px; height: 14px; border-radius: 50%;
+            background: rgba(255,255,255,0.5); border: 2px solid transparent; cursor: pointer;
+        }
+        .slider-dot.active { background: var(--gold); transform: scale(1.3); border-color: white; }
+        .slider-arrow {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(0,0,0,0.3); backdrop-filter: blur(5px);
+            color: white; width: 50px; height: 50px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; cursor: pointer; z-index: 20; border: 1px solid var(--gold);
+        }
+        .slider-arrow:hover { background: var(--gold); color: black; }
+        .prev { left: 20px; } .next { right: 20px; }
+
+        .container { max-width: 1300px; margin: 0 auto; padding: 4rem 1.5rem; }
+        .section-title {
+            font-family: 'Cinzel', serif; font-size: 2.8rem; color: var(--gold);
+            text-align: center; margin-bottom: 1rem;
+        }
+        .section-sub { text-align: center; color: var(--text-muted); max-width: 800px; margin: 0 auto 3rem; }
+
+        /* ===== CAR CARDS – larger images, professional spec list, learn more ===== */
+        .car-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            margin-top: 2rem;
+        }
+        .car-card {
+            background: var(--card-bg);
+            border-radius: 40px;
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+            transition: 0.3s;
+            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+        }
+        .car-card:hover {
+            transform: translateY(-12px);
+            border-color: var(--gold);
+            box-shadow: 0 30px 50px var(--shadow-color);
+        }
+        /* larger image area */
+        .car-image {
+            height: 260px;  /* bigger than before */
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            border-bottom: 3px solid var(--gold);
+        }
+        .car-overlay {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+            padding: 1.5rem 1.5rem 1rem;
+            color: white;
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        .car-overlay i { color: var(--gold); font-size: 2rem; }
+        .car-badge {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            background: var(--gold);
+            color: black;
+            padding: 0.4rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 5;
+            box-shadow: 0 5px 15px black;
+        }
+        .car-details {
+            padding: 2rem 2rem 2rem;
+        }
+        .spec-highlight {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            justify-content: space-between;
+            margin-bottom: 1.8rem;
+            background: rgba(202,138,4,0.05);
+            padding: 1.2rem 1rem;
+            border-radius: 30px;
+            border: 1px dashed var(--gold);
+        }
+        .spec-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+        }
+        .spec-item i {
+            color: var(--gold);
+            font-size: 1.3rem;
+            margin-bottom: 0.2rem;
+        }
+        .spec-item span:first-of-type {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+        .spec-item .spec-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+        .feature-short {
+            margin: 1.2rem 0 1.8rem;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            padding: 0 0.2rem;
+        }
+        .feature-short i {
+            color: var(--gold);
+            width: 24px;
+            margin-right: 0.3rem;
+        }
+        .learn-more-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid var(--border-light);
+            padding-top: 1.5rem;
+            margin-top: 0.3rem;
+        }
+        .price-tag {
+            font-family: 'Cinzel', serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .learn-btn {
+            background: transparent;
+            border: 2px solid var(--gold);
+            border-radius: 40px;
+            padding: 0.7rem 1.8rem;
+            color: var(--gold);
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .learn-btn:hover {
+            background: var(--gold);
+            color: black;
+        }
+        /* inquiry section (same refined look) */
+        .inquiry-premium {
+            background: var(--card-bg); border-radius: 60px; border: 1px solid var(--gold);
+            padding: 3rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
+            margin-top: 2rem;
+        }
+        .inquiry-header { text-align: center; margin-bottom: 2rem; }
+        .inquiry-header i { font-size: 3rem; color: var(--gold); }
+        .inquiry-header h2 { font-family: 'Cinzel', serif; font-size: 2.2rem; color: var(--gold); }
+        .inquiry-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1.8rem; }
+        .inquiry-field.full-width { grid-column: span 2; }
+        .inquiry-field label { font-weight: 600; color: var(--gold); display: flex; align-items: center; gap:0.5rem; }
+        .inquiry-field input, .inquiry-field select, .inquiry-field textarea {
+            background: var(--bg-primary); border: 1px solid var(--border-light);
+            border-radius: 30px; padding: 1rem 1.5rem; color: var(--text-primary); width:100%;
+        }
+        .inquiry-btn {
+            background: var(--gold); color: black; border: none; border-radius: 60px;
+            padding: 1.2rem 2.5rem; font-size: 1.2rem; font-weight: 700; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 1rem; margin-top: 2rem;
+        }
+        .footer { background: var(--bg-secondary); padding: 3rem; text-align: center; border-top: 1px solid var(--border-light); }
+        .footer a { color: var(--gold); text-decoration: none; }
+        .message-toast {
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+            background: var(--toast-bg); backdrop-filter: blur(12px);
+            border: 1px solid var(--toast-border); border-radius: 60px;
+            padding: 0.9rem 2rem; display: flex; align-items: center; gap: 1rem;
+            z-index: 10000; opacity: 0; visibility: hidden; transition: 0.4s;
+        }
+        .message-toast.show { opacity: 1; visibility: visible; }
+        /* loading overlay */
+        .loading-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; display:flex; align-items:center; justify-content:center; z-index:10000; transition:0.5s; }
+
+        @media (max-width:768px) {
+            .header-desktop-actions { display:none; }
+            .mobile-header-group { display:flex; }
+            .inquiry-grid { grid-template-columns:1fr; }
+            .inquiry-field.full-width { grid-column: span 1; }
+            .car-image { height: 220px; }
+        }
+    </style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+    <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" style="max-width:200px; border-radius:30px;" alt="EPITOME">
+</div>
+
+<!-- minimal auth modal stub (preserved but not critical) -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeAllModals()" style="display:none;"></div>
+<div class="auth-modal" id="authModal" style="display:none;"></div>
+
+<header class="site-header">
+    <div class="header-container">
+        <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" alt="EPITOME" class="site-logo">
+        <div class="header-desktop-actions">
+            <div class="desktop-search">
+                <input type="text" placeholder="Search models..."><button><i class="fas fa-search"></i></button>
+            </div>
+            <div id="userMenuDesktop" class="user-menu" style="display:none;">
+                <span class="user-name" id="userDisplayNameDesktop">Guest</span><div class="user-avatar">G</div>
+                <div class="logout-dropdown"><div class="logout-item"><i class="fas fa-sign-out-alt"></i> Logout</div></div>
+            </div>
+            <div id="loginButtonDesktop" style="display:flex; align-items:center; gap:0.5rem; background:rgba(202,138,4,0.1); border:1px solid var(--gold); border-radius:40px; padding:0.3rem 1.2rem; cursor:pointer;"><i class="fas fa-user-circle"></i><span>Account</span></div>
+        </div>
+        <div class="mobile-header-group">
+            <div class="mobile-search-icon" id="mobileSearchBtn"><i class="fas fa-search"></i></div>
+            <div class="hamburger-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></div>
+        </div>
+    </div>
+</header>
+
+<!-- mobile search overlay (minimal) -->
+<div class="search-overlay" id="mobileSearchOverlay">
+    <div class="search-row"><input type="text" placeholder="Search..."><button><i class="fas fa-search"></i></button><button class="close-search" onclick="toggleMobileSearch()"><i class="fas fa-times"></i></button></div>
+</div>
+
+<!-- hamburger panel (simple) -->
+<div class="hamburger-panel" id="hamburgerPanel">
+    <div class="panel-header"><h3>EPITOME</h3><button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button></div>
+    <div class="panel-quick-links">
+        <a href="#" class="panel-link"><i class="fas fa-car"></i> Collection</a>
+        <a href="#" class="panel-link"><i class="fas fa-phone-alt"></i> Inquire</a>
+    </div>
+    <div class="panel-theme-toggle"><span><i class="fas fa-palette"></i> Theme</span><div onclick="toggleTheme()" style="width:45px; height:45px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center;"><i class="fas fa-moon" id="panelThemeIcon"></i></div></div>
+</div>
+
+<!-- HERO SLIDER – 5 slides, clear images, improved readability -->
+<section class="hero-slider">
+    <div class="slide-container">
+        <div class="slide active" style="background-image:url('https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=1964&auto=format&fit=crop');">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>EPITOME VELAR</h2>
+                <p>Refined performance • Panoramic roof • 360hp</p>
+                <a href="#velar" class="slide-btn"><i class="fas fa-arrow-right"></i> Explore</a>
+            </div>
+        </div>
+        <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=2070&auto=format&fit=crop');">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>EPITOME GT</h2>
+                <p>Grand touring • V8 • Hand crafted</p>
+                <a href="#gt" class="slide-btn"><i class="fas fa-arrow-right"></i> Discover</a>
+            </div>
+        </div>
+        <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1619767886558-efdc7b9e0473?q=80&w=2071&auto=format&fit=crop');">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>EPITOME M5</h2>
+                <p>Executive sport • 600 hp • M xDrive</p>
+                <a href="#m5" class="slide-btn"><i class="fas fa-arrow-right"></i> Experience</a>
+            </div>
+        </div>
+        <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=1964&auto=format&fit=crop');">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>EPITOME S-Class</h2>
+                <p>Ambient luxury • Plug-in hybrid</p>
+                <a href="#sclass" class="slide-btn"><i class="fas fa-arrow-right"></i> Inquire</a>
+            </div>
+        </div>
+        <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=2070&auto=format&fit=crop');">
+            <div class="slide-overlay"></div>
+            <div class="slide-content">
+                <h2>EPITOME 911</h2>
+                <p>Iconic • Rear‑engine • 450 hp</p>
+                <a href="#911" class="slide-btn"><i class="fas fa-arrow-right"></i> Learn more</a>
+            </div>
+        </div>
+    </div>
+    <div class="slider-arrow prev" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></div>
+    <div class="slider-arrow next" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></div>
+    <div class="slider-nav"><span class="slider-dot active" onclick="goToSlide(0)"></span><span class="slider-dot" onclick="goToSlide(1)"></span><span class="slider-dot" onclick="goToSlide(2)"></span><span class="slider-dot" onclick="goToSlide(3)"></span><span class="slider-dot" onclick="goToSlide(4)"></span></div>
+</section>
+
+<div class="container">
+    <h2 class="section-title">The EPITOME collection</h2>
+    <p class="section-sub">Five extraordinary machines. Each card showcases key specs and a direct link to the dedicated model page.</p>
+</div>
+
+<!-- CAR CARDS (large images, professional specs, learn more) -->
+<div class="container" id="models">
+    <div class="car-grid">
+        <!-- Velar -->
+        <div class="car-card" id="velar">
+            <div class="car-image" style="background-image:url('https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=1964&auto=format&fit=crop');">
+                <div class="car-overlay"><i class="fas fa-gem"></i> Velar R-Dynamic</div>
+                <div class="car-badge">new arrival</div>
+            </div>
+            <div class="car-details">
+                <div class="spec-highlight">
+                    <div class="spec-item"><i class="fas fa-tachometer-alt"></i><span class="spec-value">5.0s</span><span>0-100</span></div>
+                    <div class="spec-item"><i class="fas fa-horse-head"></i><span class="spec-value">395 hp</span><span>power</span></div>
+                    <div class="spec-item"><i class="fas fa-gas-pump"></i><span class="spec-value">9.5 L/100km</span><span>combined</span></div>
+                </div>
+                <div class="feature-short">
+                    <i class="fas fa-check-circle"></i> Panoramic roof · 20" alloys · Meridian sound<br>
+                    <i class="fas fa-check-circle"></i> Air suspension · Terrain Response 2
+                </div>
+                <div class="learn-more-row">
+                    <span class="price-tag">$82,900</span>
+                    <a href="epitome-velar.html" class="learn-btn"><i class="fas fa-book-open"></i> full story</a>
+                </div>
+            </div>
+        </div>
+        <!-- GT -->
+        <div class="car-card" id="gt">
+            <div class="car-image" style="background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=2070&auto=format&fit=crop');">
+                <div class="car-overlay"><i class="fas fa-wind"></i> Bentley GT</div>
+                <div class="car-badge">hand built</div>
+            </div>
+            <div class="car-details">
+                <div class="spec-highlight">
+                    <div class="spec-item"><i class="fas fa-tachometer-alt"></i><span class="spec-value">3.9s</span><span>0-100</span></div>
+                    <div class="spec-item"><i class="fas fa-horse-head"></i><span class="spec-value">626 hp</span><span>W12</span></div>
+                    <div class="spec-item"><i class="fas fa-couch"></i><span class="spec-value">grand touring</span><span>class</span></div>
+                </div>
+                <div class="feature-short">
+                    <i class="fas fa-check-circle"></i> Diamond stitching · Active all‑wheel drive<br>
+                    <i class="fas fa-check-circle"></i> Rotating display · 48V anti‑roll
+                </div>
+                <div class="learn-more-row">
+                    <span class="price-tag">$225,000</span>
+                    <a href="epitome-gt.html" class="learn-btn"><i class="fas fa-book-open"></i> full story</a>
+                </div>
+            </div>
+        </div>
+        <!-- M5 -->
+        <div class="car-card" id="m5">
+            <div class="car-image" style="background-image:url('https://images.unsplash.com/photo-1619767886558-efdc7b9e0473?q=80&w=2071&auto=format&fit=crop');">
+                <div class="car-overlay"><i class="fas fa-flag-checkered"></i> BMW M5 CS</div>
+                <div class="car-badge">track ready</div>
+            </div>
+            <div class="car-details">
+                <div class="spec-highlight">
+                    <div class="spec-item"><i class="fas fa-tachometer-alt"></i><span class="spec-value">3.0s</span><span>0-100</span></div>
+                    <div class="spec-item"><i class="fas fa-horse-head"></i><span class="spec-value">635 hp</span><span>V8</span></div>
+                    <div class="spec-item"><i class="fas fa-weight-hanging"></i><span class="spec-value">1,825 kg</span><span>curb</span></div>
+                </div>
+                <div class="feature-short">
+                    <i class="fas fa-check-circle"></i> M Carbon package · 8‑speed M Steptronic<br>
+                    <i class="fas fa-check-circle"></i> Gold bronze accents · M Sport exhaust
+                </div>
+                <div class="learn-more-row">
+                    <span class="price-tag">$143,000</span>
+                    <a href="epitome-m5.html" class="learn-btn"><i class="fas fa-book-open"></i> full story</a>
+                </div>
+            </div>
+        </div>
+        <!-- S-Class -->
+        <div class="car-card" id="sclass">
+            <div class="car-image" style="background-image:url('https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?q=80&w=1964&auto=format&fit=crop');">
+                <div class="car-overlay"><i class="fas fa-star"></i> Mercedes S580e</div>
+                <div class="car-badge">executive</div>
+            </div>
+            <div class="car-details">
+                <div class="spec-highlight">
+                    <div class="spec-item"><i class="fas fa-charging-station"></i><span class="spec-value">28 km</span><span>electric</span></div>
+                    <div class="spec-item"><i class="fas fa-horse-head"></i><span class="spec-value">510 hp</span><span>combined</span></div>
+                    <div class="spec-item"><i class="fas fa-microphone-alt"></i><span class="spec-value">4D sound</span><span>Burmester</span></div>
+                </div>
+                <div class="feature-short">
+                    <i class="fas fa-check-circle"></i> Rear executive seats · MBUX Augmented Reality<br>
+                    <i class="fas fa-check-circle"></i> Air Balance · E‑ACTIVE BODY CONTROL
+                </div>
+                <div class="learn-more-row">
+                    <span class="price-tag">$129,500</span>
+                    <a href="epitome-sclass.html" class="learn-btn"><i class="fas fa-book-open"></i> full story</a>
+                </div>
+            </div>
+        </div>
+        <!-- 911 -->
+        <div class="car-card" id="911">
+            <div class="car-image" style="background-image:url('https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=2070&auto=format&fit=crop');">
+                <div class="car-overlay"><i class="fas fa-crown"></i> 911 Carrera 4S</div>
+                <div class="car-badge">legend</div>
+            </div>
+            <div class="car-details">
+                <div class="spec-highlight">
+                    <div class="spec-item"><i class="fas fa-tachometer-alt"></i><span class="spec-value">3.4s</span><span>0-100</span></div>
+                    <div class="spec-item"><i class="fas fa-horse-head"></i><span class="spec-value">443 hp</span><span>flat‑6</span></div>
+                    <div class="spec-item"><i class="fas fa-tree"></i><span class="spec-value">carbon</span><span>aero kit</span></div>
+                </div>
+                <div class="feature-short">
+                    <i class="fas fa-check-circle"></i> PASM adaptive suspension · Sport Chrono<br>
+                    <i class="fas fa-check-circle"></i> BOSE® surround · Rear‑axle steering
+                </div>
+                <div class="learn-more-row">
+                    <span class="price-tag">$148,200</span>
+                    <a href="epitome-911.html" class="learn-btn"><i class="fas fa-book-open"></i> full story</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- INQUIRY section (refined) -->
+<div class="container">
+    <div class="inquiry-premium">
+        <div class="inquiry-header"><i class="fas fa-envelope-open-text"></i><h2>Request a private viewing</h2><p>Our concierge will respond within 2 hours</p></div>
+        <form id="epitomeInquiry">
+            <div class="inquiry-grid">
+                <div class="inquiry-field"><label><i class="fas fa-user"></i> Name</label><input type="text" placeholder="James Mugera"></div>
+                <div class="inquiry-field"><label><i class="fas fa-envelope"></i> Email</label><input type="email" placeholder="james@example.com"></div>
+                <div class="inquiry-field"><label><i class="fas fa-car"></i> Model interest</label><select><option>Velar</option><option>GT</option><option>M5 CS</option><option>S580e</option><option>911 4S</option></select></div>
+                <div class="inquiry-field"><label><i class="fas fa-calendar"></i> Preferred date</label><input type="text" placeholder="e.g. 15 May"></div>
+                <div class="inquiry-field full-width"><label><i class="fas fa-comment"></i> Message</label><textarea rows="3" placeholder="Specific requirements ..."></textarea></div>
+            </div>
+            <div style="text-align:center;"><button type="submit" class="inquiry-btn"><i class="fas fa-paper-plane"></i> Send inquiry</button></div>
+        </form>
+    </div>
+</div>
+
+<footer class="footer">
+    <p><i class="fas fa-car-side"></i> EPITOME · a division of I AM MUGERA</p>
+    <p>© 2026 I AM MUGERA · <a href="#models">Collection</a> · <a href="#">Contact</a></p>
+</footer>
+
+<div id="elegantToast" class="message-toast"><i class="fas fa-globe-africa"></i><span id="toastMessage">message</span></div>
+
+<script>
+    // Firebase config kept from original, but not essential for demo
+    const firebaseConfig = { apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA", authDomain: "mugera-e51cc.firebaseapp.com", databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app", projectId: "mugera-e51cc", storageBucket: "mugera-e51cc.firebasestorage.app", messagingSenderId: "1024868637509", appId: "1:1024868637509:web:321faecddce8f11d9cfc2c" };
+    firebase.initializeApp(firebaseConfig);
+    // slider functions
+    let currentSlide = 0; const slides = document.querySelectorAll('.slide'); const dots = document.querySelectorAll('.slider-dot');
+    function showSlide(index) { if (index >= slides.length) index = 0; if (index < 0) index = slides.length-1; slides.forEach((s,i)=>s.classList.toggle('active',i===index)); dots.forEach((d,i)=>d.classList.toggle('active',i===index)); currentSlide=index; }
+    window.changeSlide = (dir)=>showSlide(currentSlide+dir); window.goToSlide = (idx)=>showSlide(idx); setInterval(()=>changeSlide(1),5500);
+    // theme toggle
+    window.toggleTheme = function(){ document.body.classList.toggle('light-theme'); const icon = document.getElementById('panelThemeIcon'); if(document.body.classList.contains('light-theme')){ icon?.classList.replace('fa-moon','fa-sun'); localStorage.setItem('siteTheme','light'); } else { icon?.classList.replace('fa-sun','fa-moon'); localStorage.setItem('siteTheme','dark'); }};
+    (function(){ if(localStorage.getItem('siteTheme')==='light'){ document.body.classList.add('light-theme'); document.getElementById('panelThemeIcon')?.classList.replace('fa-moon','fa-sun'); } setTimeout(()=>document.getElementById('loadingOverlay').style.opacity='0',800); setTimeout(()=>document.getElementById('loadingOverlay').style.display='none',1300); })();
+    window.toggleHamburger = ()=>document.getElementById('hamburgerPanel').classList.toggle('open');
+    window.toggleMobileSearch = ()=>document.getElementById('mobileSearchOverlay').classList.toggle('open');
+    document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
+    document.getElementById('mobileSearchBtn')?.addEventListener('click', toggleMobileSearch);
+    // simple toast function
+    function showElegantMessage(text){ const t=document.getElementById('elegantToast'); document.getElementById('toastMessage').innerText=text; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+    // inquiry form mock
+    document.getElementById('epitomeInquiry')?.addEventListener('submit', (e)=>{ e.preventDefault(); showElegantMessage('Inquiry sent – EPITOME concierge will reply'); });
+</script>
+</body>
+</html>
