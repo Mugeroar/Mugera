@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">          
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">            
     <meta name="theme-color" content="#ca8a04">
     <meta name="background-color" content="#0a0a0a">
     <meta name="color-scheme" content="dark light">
@@ -17,7 +17,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        /* [Keep all CSS from previous version - it's the same] */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --gold: #ca8a04;
@@ -30,7 +29,7 @@
             --purple: #8b5cf6;
             --pink: #ec4899;
             --teal: #14b8a6;
-            --indigo: #6366f1;
+            --orange: #f97316;
             
             --bg-primary: #0a0a0a;
             --bg-secondary: #111111;
@@ -53,9 +52,18 @@
             
             /* Status Colors */
             --status-pending: #f59e0b;
-            --status-active: #10b981;
-            --status-completed: #3b82f6;
+            --status-approved: #10b981;
+            --status-rejected: #ef4444;
+            --status-pending-verification: #8b5cf6;
+            --status-assigned: #3b82f6;
+            --status-out-for-delivery: #8b5cf6;
+            --status-delivered: #10b981;
             --status-cancelled: #ef4444;
+            
+            /* Availability Colors */
+            --available: #10b981;
+            --busy: #f59e0b;
+            --offline: #6b7280;
         }
 
         body.light-theme {
@@ -97,6 +105,17 @@
             height: 48px; border-radius: 12px; border: 2px solid var(--gold);
             padding: 2px; background: var(--bg-primary);
             content: url('https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp');
+        }
+        .role-badge {
+            background: var(--teal);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 30px;
+            margin-left: 0.5rem;
+            display: inline-block;
+            text-transform: uppercase;
         }
         .header-desktop-actions { display: flex; align-items: center; gap: 1.5rem; }
         
@@ -217,7 +236,7 @@
         /* Main Content */
         .main-content {
             padding: 2rem;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -233,9 +252,9 @@
 
         .page-title h1 {
             font-family: 'Cinzel', serif;
-            font-size: 2rem;
+            font-size: 2.5rem;
             color: var(--gold);
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.5rem;
         }
 
         .page-title p {
@@ -311,11 +330,88 @@
             width: 18px;
         }
 
-        /* Stats Cards */
+        /* Availability Toggle */
+        .availability-toggle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem 1.5rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 40px;
+            border: 1px solid var(--border-light);
+        }
+
+        .availability-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--available);
+        }
+
+        .status-dot.busy {
+            background: var(--busy);
+        }
+
+        .status-dot.offline {
+            background: var(--offline);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--offline);
+            transition: .3s;
+            border-radius: 30px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--available);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
@@ -323,7 +419,7 @@
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(202,138,4,0.2);
             border-radius: 20px;
-            padding: 1.2rem;
+            padding: 1.5rem;
             text-align: center;
         }
 
@@ -423,6 +519,7 @@
             font-size: 0.8rem;
             font-weight: 600;
             display: inline-block;
+            text-transform: capitalize;
         }
 
         .status-pending {
@@ -431,16 +528,22 @@
             border: 1px solid rgba(245,158,11,0.3);
         }
 
-        .status-active, .status-out-for-delivery {
-            background: rgba(16,185,129,0.15);
-            color: var(--success);
-            border: 1px solid rgba(16,185,129,0.3);
-        }
-
-        .status-completed, .status-delivered {
+        .status-assigned {
             background: rgba(59,130,246,0.15);
             color: var(--info);
             border: 1px solid rgba(59,130,246,0.3);
+        }
+
+        .status-out-for-delivery {
+            background: rgba(139,92,246,0.15);
+            color: var(--purple);
+            border: 1px solid rgba(139,92,246,0.3);
+        }
+
+        .status-delivered {
+            background: rgba(16,185,129,0.15);
+            color: var(--success);
+            border: 1px solid rgba(16,185,129,0.3);
         }
 
         .status-cancelled {
@@ -472,14 +575,111 @@
             color: var(--success);
         }
 
-        .action-btn.reject:hover {
-            border-color: var(--danger);
-            color: var(--danger);
+        .action-btn.complete:hover {
+            border-color: var(--purple);
+            color: var(--purple);
         }
 
-        .action-btn.complete:hover {
+        .action-btn.navigate:hover {
             border-color: var(--info);
             color: var(--info);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9499;
+            display: none;
+        }
+        .modal-overlay.active { display: block; }
+        .modal {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 30px;
+            border: 2px solid var(--gold);
+            z-index: 9500;
+            max-width: 500px;
+            width: 90%;
+            display: none;
+        }
+        .modal.active { display: block; animation: modalFadeIn 0.3s; }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translate(-50%,-60%); }
+            to { opacity: 1; transform: translate(-50%,-50%); }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .modal-header h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+        }
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+        .modal-field {
+            margin-bottom: 1rem;
+        }
+        .modal-field label {
+            display: block;
+            color: var(--gold);
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+        .modal-field .field-value {
+            padding: 0.8rem;
+            background: var(--input-bg);
+            border-radius: 12px;
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        /* Proof of Delivery Modal */
+        .proof-upload-area {
+            border: 2px dashed var(--gold);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            cursor: pointer;
+        }
+        .proof-upload-area:hover {
+            background: rgba(202,138,4,0.05);
+        }
+        .proof-upload-area i {
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        .proof-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 1rem;
+            border-radius: 10px;
+            display: none;
         }
 
         /* CTA Section for Non-Providers */
@@ -570,76 +770,6 @@
             box-shadow: 0 10px 20px rgba(202,138,4,0.3);
         }
 
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(8px);
-            z-index: 9499;
-            display: none;
-        }
-        .modal-overlay.active { display: block; }
-        .modal {
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%,-50%);
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 30px;
-            border: 2px solid var(--gold);
-            z-index: 9500;
-            max-width: 500px;
-            width: 90%;
-            display: none;
-        }
-        .modal.active { display: block; animation: modalFadeIn 0.3s; }
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: translate(-50%,-60%); }
-            to { opacity: 1; transform: translate(-50%,-50%); }
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-light);
-        }
-        .modal-header h3 {
-            font-family: 'Cinzel', serif;
-            color: var(--gold);
-        }
-        .modal-close {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        .modal-body {
-            margin-bottom: 1.5rem;
-        }
-        .modal-field {
-            margin-bottom: 1rem;
-        }
-        .modal-field label {
-            display: block;
-            color: var(--gold);
-            margin-bottom: 0.3rem;
-        }
-        .modal-field .field-value {
-            padding: 0.8rem;
-            background: var(--input-bg);
-            border-radius: 12px;
-            color: var(--text-primary);
-        }
-        .modal-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-        }
-
         /* Loading and Toast */
         .loading-overlay {
             position: fixed;
@@ -706,7 +836,7 @@
             .provider-meta { justify-content: center; }
             .filters { flex-direction: column; }
             .table-container { overflow-x: auto; }
-            table { min-width: 800px; }
+            table { min-width: 1000px; }
         }
     </style>
 </head>
@@ -734,19 +864,54 @@
         </div>
     </div>
 
+    <!-- Modal for proof of delivery -->
+    <div class="modal-overlay" id="proofModalOverlay" onclick="closeProofModal()"></div>
+    <div class="modal" id="proofModal">
+        <div class="modal-header">
+            <h3>Proof of Delivery</h3>
+            <button class="modal-close" onclick="closeProofModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="proofModalBody">
+            <p style="margin-bottom: 1rem;">Upload a photo as proof of delivery</p>
+            <div class="proof-upload-area" id="proofUploadArea" onclick="triggerFileUpload()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Click to upload photo</p>
+                <p style="font-size: 0.8rem; margin-top: 0.5rem;">or drag and drop</p>
+                <input type="file" id="proofFile" accept="image/*" style="display: none;" onchange="previewProofImage(event)">
+            </div>
+            <img id="proofPreview" class="proof-preview" src="" alt="Preview">
+            <div style="margin-top: 1rem;">
+                <label class="form-label">Customer Name</label>
+                <input type="text" class="form-control" id="proofCustomerName" placeholder="Enter customer name">
+            </div>
+            <div style="margin-top: 1rem;">
+                <label class="form-label">Additional Notes</label>
+                <textarea class="form-control" id="proofNotes" rows="2" placeholder="Any notes about delivery"></textarea>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="action-btn" onclick="closeProofModal()">Cancel</button>
+            <button class="action-btn success" onclick="submitProofOfDelivery()">Complete Delivery</button>
+        </div>
+    </div>
+
     <!-- Header -->
     <header class="site-header">
         <div class="header-container">
             <div style="display: flex; align-items: center;">
                 <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" alt="I AM MUGERA" class="site-logo">
+                <span class="role-badge" id="headerRoleBadge" style="display: none;">ASSISTANT</span>
             </div>
             <div class="header-desktop-actions">
-                <div id="userMenuDesktop" class="user-menu">
-                    <span class="user-name" id="userDisplayNameDesktop">Profile</span>
-                    <div class="user-avatar" id="userAvatarDesktop">U</div>
+                <div id="userMenuDesktop" class="user-menu" style="display:none;">
+                    <span class="user-name" id="userDisplayNameDesktop">Assistant</span>
+                    <div class="user-avatar" id="userAvatarDesktop">A</div>
                     <div class="logout-dropdown">
                         <div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
                     </div>
+                </div>
+                <div id="loginButtonDesktop" onclick="openAuthModal()" style="display:flex; align-items:center; gap:0.5rem; background:rgba(202,138,4,0.1); border:1px solid var(--gold); border-radius:40px; padding:0.3rem 1.2rem; cursor:pointer;">
+                    <i class="fas fa-user-circle"></i><span>Login</span>
                 </div>
             </div>
             <div class="mobile-header-group">
@@ -761,21 +926,24 @@
             <h3>Menu</h3>
             <button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button>
         </div>
-        <div class="panel-user-area">
-            <div class="panel-user-info">
-                <div class="panel-avatar" id="panelAvatar">U</div>
-                <span class="panel-user-name" id="panelUserName">User</span>
+        <div class="panel-user-area" id="panelUserArea">
+            <div id="panelLoggedOut" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                <div style="text-align: center; color: var(--text-muted);"><i class="fas fa-user-circle" style="font-size: 3rem;"></i></div>
+                <button class="panel-logout" onclick="openAuthModal(); toggleHamburger();"><i class="fas fa-sign-in-alt"></i> Login</button>
             </div>
-            <button class="panel-logout" onclick="handleLogout(); toggleHamburger();"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <div id="panelLoggedIn" style="display: none; flex-direction: column; gap: 0.8rem;">
+                <div class="panel-user-info">
+                    <div class="panel-avatar" id="panelAvatar">A</div>
+                    <span class="panel-user-name" id="panelUserName">Assistant</span>
+                </div>
+                <button class="panel-logout" onclick="handleLogout(); toggleHamburger();"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
         </div>
         <div class="panel-quick-links">
-            <a href="profile.html" class="panel-link"><i class="fas fa-user"></i> My Profile</a>
-            <a href="wallet.html" class="panel-link"><i class="fas fa-wallet"></i> My Wallet</a>
-            <a href="tasks.html" class="panel-link"><i class="fas fa-tasks"></i> My Tasks</a>
-            <a href="orders.html" class="panel-link"><i class="fas fa-shopping-bag"></i> My Orders</a>
-            <a href="rides.html" class="panel-link"><i class="fas fa-car"></i> My Rides</a>
-            <a href="subscriptions.html" class="panel-link"><i class="fas fa-calendar-check"></i> Subscriptions</a>
-            <a href="courses.html" class="panel-link"><i class="fas fa-graduation-cap"></i> My Courses</a>
+            <a href="#" class="panel-link" onclick="showSection('active'); toggleHamburger();"><i class="fas fa-truck"></i> Active Tasks</a>
+            <a href="#" class="panel-link" onclick="showSection('completed'); toggleHamburger();"><i class="fas fa-check-circle"></i> Completed</a>
+            <a href="#" class="panel-link" onclick="showSection('all'); toggleHamburger();"><i class="fas fa-list"></i> All Tasks</a>
+            <a href="wallet.html" class="panel-link" onclick="toggleHamburger();"><i class="fas fa-wallet"></i> My Wallet</a>
         </div>
         <div class="panel-theme-toggle">
             <span><i class="fas fa-palette"></i> Dark / Light</span>
@@ -785,9 +953,40 @@
         </div>
     </div>
 
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="authModalOverlay" onclick="closeAuthModal()"></div>
+    <div class="auth-modal" id="authModal" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: var(--card-bg); padding: 2rem; border-radius: 30px; border: 2px solid var(--gold); z-index: 9500; max-width: 450px; width: 90%; display: none;">
+        <button class="modal-close" onclick="closeAuthModal()" style="position: absolute; top: 1rem; right: 1rem; background: transparent; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
+        <div class="modal-header" style="text-align: center; margin-bottom: 2rem;">
+            <i class="fas fa-tasks" style="font-size: 3rem; color: var(--gold); margin-bottom: 1rem;"></i>
+            <h3 style="font-family: 'Cinzel', serif; color: var(--gold);">Service Provider Login</h3>
+            <p style="color: var(--text-muted);">Login to manage your tasks</p>
+        </div>
+        
+        <!-- Login Form -->
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Email</label>
+                <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Password</label>
+                <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
+            </div>
+            <div class="modal-error" id="loginError" style="color: var(--danger); text-align: center; margin-bottom: 1rem; display: none;"></div>
+            <button type="submit" class="btn" style="width: 100%; padding: 1rem; background: var(--gold); color: black; border: none; border-radius: 30px; font-weight: 600; cursor: pointer;">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+        
+        <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted);">
+            Not a provider? <a href="#" onclick="upgradeToPro()" style="color: var(--gold);">Become one</a>
+        </p>
+    </div>
+
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
-        <!-- Dynamic content will be loaded here based on user role -->
+        <!-- Dynamic content will be loaded here -->
         <div style="text-align: center; padding: 3rem;">
             <div class="loading-spinner" style="margin: 0 auto;"></div>
             <p style="margin-top: 1rem; color: var(--text-muted);">Loading your profile...</p>
@@ -795,769 +994,888 @@
     </main>
 
     <script>
-    // Firebase Config
-    const firebaseConfig = {
-        apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
-        authDomain: "mugera-e51cc.firebaseapp.com",
-        databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "mugera-e51cc",
-        storageBucket: "mugera-e51cc.firebasestorage.app",
-        messagingSenderId: "1024868637509",
-        appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const auth = firebase.auth();
-
-    // Global state
-    let currentUser = null;
-    let userData = {};
-    let userRole = null; // 'assistant', 'driver', 'instructor', null
-    let tasks = [];
-    let filteredTasks = [];
-
-    // ========== AUTH STATE LISTENER ==========
-    auth.onAuthStateChanged(async (user) => {
-        if (user) {
-            currentUser = user;
-            showLoading(true);
-            await loadUserData();
-            await determineUserRole();
-            renderPage();
-            showLoading(false);
-            startAutoRefresh();
-        } else {
-            window.location.href = 'login.html';
-        }
-    });
-
-    // ========== LOAD USER DATA ==========
-    async function loadUserData() {
-        try {
-            // Load from users node
-            const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
-            if (userSnapshot.exists()) {
-                userData = userSnapshot.val();
-            } else {
-                // Create basic user record if it doesn't exist
-                userData = {
-                    name: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
-                    email: currentUser.email,
-                    createdAt: new Date().toISOString(),
-                    uid: currentUser.uid
-                };
-                await database.ref(`users/${currentUser.uid}`).set(userData);
-            }
-            
-            console.log('User data loaded:', userData);
-            updateUserUI();
-            
-        } catch (error) {
-            console.error('Error loading user data:', error);
-        }
-    }
-
-    function updateUserUI() {
-        const displayName = userData.name || currentUser.displayName || currentUser.email?.split('@')[0] || 'User';
-        document.getElementById('userDisplayNameDesktop').textContent = displayName;
-        document.getElementById('panelUserName').textContent = displayName;
-        
-        const initial = displayName.charAt(0).toUpperCase();
-        document.getElementById('userAvatarDesktop').textContent = initial;
-        document.getElementById('panelAvatar').textContent = initial;
-    }
-
-    // ========== DETERMINE USER ROLE ==========
-    async function determineUserRole() {
-        console.log('Checking roles for user:', currentUser.uid);
-        
-        // Reset role
-        userRole = null;
-        
-        try {
-            // Check if delivery assistant - using delivery_assistants node
-            const assistantSnapshot = await database.ref(`delivery_assistants/${currentUser.uid}`).once('value');
-            console.log('Assistant check:', assistantSnapshot.exists(), assistantSnapshot.val());
-            
-            if (assistantSnapshot.exists()) {
-                const assistantData = assistantSnapshot.val();
-                // Check if active or verified
-                if (assistantData.status === 'active' || assistantData.verified === true) {
-                    userRole = 'assistant';
-                    userData = { ...userData, ...assistantData };
-                    console.log('User is a delivery assistant');
-                    return;
-                }
-            }
-            
-            // Check if driver - using drivers node
-            const driverSnapshot = await database.ref(`drivers/${currentUser.uid}`).once('value');
-            console.log('Driver check:', driverSnapshot.exists(), driverSnapshot.val());
-            
-            if (driverSnapshot.exists()) {
-                const driverData = driverSnapshot.val();
-                if (driverData.status === 'active') {
-                    userRole = 'driver';
-                    userData = { ...userData, ...driverData };
-                    console.log('User is a driver');
-                    return;
-                }
-            }
-            
-            // Check if instructor - using instructors node
-            const instructorSnapshot = await database.ref(`instructors/${currentUser.uid}`).once('value');
-            console.log('Instructor check:', instructorSnapshot.exists(), instructorSnapshot.val());
-            
-            if (instructorSnapshot.exists()) {
-                const instructorData = instructorSnapshot.val();
-                if (instructorData.status === 'active') {
-                    userRole = 'instructor';
-                    userData = { ...userData, ...instructorData };
-                    console.log('User is an instructor');
-                    return;
-                }
-            }
-            
-            // Also check if there are any orders assigned to this user (they might be an assistant without record)
-            const ordersSnapshot = await database.ref('orders')
-                .orderByChild('assignedTo')
-                .equalTo(currentUser.uid)
-                .once('value');
-            
-            if (ordersSnapshot.exists()) {
-                const orders = ordersSnapshot.val();
-                const orderCount = Object.keys(orders).length;
-                console.log(`User has ${orderCount} assigned orders - treating as assistant`);
-                
-                if (orderCount > 0) {
-                    userRole = 'assistant';
-                    return;
-                }
-            }
-            
-            console.log('User has no provider role');
-            
-        } catch (error) {
-            console.error('Error determining user role:', error);
-        }
-    }
-
-    // ========== RENDER PAGE BASED ON ROLE ==========
-    function renderPage() {
-        if (userRole) {
-            renderProviderPage();
-        } else {
-            renderNonProviderPage();
-        }
-    }
-
-    // ========== LOAD PROVIDER TASKS ==========
-    async function loadProviderTasks() {
-        try {
-            console.log('Loading tasks for provider:', currentUser.uid);
-            console.log('User role:', userRole);
-            
-            // Get all orders first to debug
-            const allOrdersSnapshot = await database.ref('orders').once('value');
-            const allOrders = allOrdersSnapshot.val() || {};
-            console.log('All orders in database:', Object.keys(allOrders).length);
-            
-            // Debug: Log a few orders to see their structure
-            let sampleCount = 0;
-            Object.entries(allOrders).forEach(([id, order]) => {
-                if (sampleCount < 3) {
-                    console.log(`Sample order ${id}:`, {
-                        assignedTo: order.assignedTo,
-                        status: order.status,
-                        userName: order.userName
-                    });
-                    sampleCount++;
-                }
-            });
-            
-            // Try to find orders assigned to this user
-            const assignedOrders = [];
-            
-            Object.entries(allOrders).forEach(([id, order]) => {
-                // Check various possible assignment fields
-                if (order.assignedTo === currentUser.uid || 
-                    order.assignedTo === currentUser.uid.toString() ||
-                    order.assistantId === currentUser.uid ||
-                    order.driverId === currentUser.uid ||
-                    order.userId === currentUser.uid) {
-                    
-                    console.log(`Found matching order ${id} with assignment:`, order.assignedTo);
-                    assignedOrders.push({id, ...order});
-                }
-            });
-            
-            console.log(`Found ${assignedOrders.length} orders assigned to user`);
-            
-            // Process the orders into tasks
-            tasks = assignedOrders.map((order) => {
-                // Parse date properly
-                let timestamp = 0;
-                let dateStr = null;
-                
-                if (order.deliveryDate) {
-                    dateStr = order.deliveryDate;
-                    timestamp = new Date(order.deliveryDate).getTime();
-                } else if (order.orderDate) {
-                    dateStr = order.orderDate;
-                    timestamp = new Date(order.orderDate).getTime();
-                } else if (order.timestamp) {
-                    timestamp = order.timestamp;
-                    dateStr = new Date(order.timestamp).toISOString();
-                }
-                
-                // Ensure timestamp is valid
-                if (isNaN(timestamp)) {
-                    timestamp = Date.now();
-                }
-                
-                return {
-                    id: order.id,
-                    orderId: order.id,
-                    date: dateStr,
-                    customerName: order.userName || order.fullName || 'Unknown',
-                    customerPhone: order.userPhone || order.phone || '',
-                    address: order.deliveryAddress || order.address || 'No address',
-                    deliveryFee: order.deliveryFee || 150,
-                    status: order.status || 'pending',
-                    items: order.items || [],
-                    timestamp: timestamp
-                };
-            });
-
-            // Sort by date (newest first)
-            tasks.sort((a, b) => b.timestamp - a.timestamp);
-            filteredTasks = [...tasks];
-            
-            console.log('Processed tasks:', tasks.length);
-            if (tasks.length > 0) {
-                console.log('First task:', tasks[0]);
-            }
-            
-        } catch (error) {
-            console.error('Error loading tasks:', error);
-            tasks = [];
-            filteredTasks = [];
-        }
-    }
-
-    // ========== RENDER PROVIDER PAGE ==========
-    async function renderProviderPage() {
-        await loadProviderTasks();
-        
-        let roleDisplay = '';
-        let roleIcon = '';
-        
-        switch(userRole) {
-            case 'assistant':
-                roleDisplay = 'Delivery Assistant';
-                roleIcon = 'fa-truck';
-                break;
-            case 'driver':
-                roleDisplay = 'Driver';
-                roleIcon = 'fa-car';
-                break;
-            case 'instructor':
-                roleDisplay = 'Course Instructor';
-                roleIcon = 'fa-chalkboard-teacher';
-                break;
-            default:
-                roleDisplay = 'Service Provider';
-                roleIcon = 'fa-user-tie';
-        }
-
-        const providerName = userData.name || currentUser.displayName || currentUser.email?.split('@')[0] || 'Provider';
-        const providerPhone = userData.phone || currentUser.phoneNumber || 'Not set';
-        const providerVehicle = userData.vehicle || 'Motorcycle';
-        const providerZone = userData.zone || 'Nairobi';
-
-        // Calculate stats
-        const activeTasks = tasks.filter(t => t.status === 'active' || t.status === 'out-for-delivery').length;
-        const completedTasks = tasks.filter(t => t.status === 'completed' || t.status === 'delivered').length;
-        const pendingTasks = tasks.filter(t => t.status === 'pending').length;
-        const totalEarnings = tasks
-            .filter(t => t.status === 'delivered' || t.status === 'completed')
-            .reduce((sum, t) => sum + (t.deliveryFee || 150), 0);
-
-        const mainContent = document.getElementById('mainContent');
-        mainContent.innerHTML = `
-            <!-- Page Header -->
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>My Tasks</h1>
-                    <p>Manage your assigned tasks and deliveries</p>
-                </div>
-                <div class="role-badge">
-                    <i class="fas ${roleIcon}"></i> ${roleDisplay}
-                </div>
-            </div>
-
-            <!-- Provider Profile -->
-            <div class="provider-profile">
-                <div class="provider-avatar">
-                    <i class="fas ${roleIcon}"></i>
-                </div>
-                <div class="provider-info">
-                    <h2>${providerName}</h2>
-                    <div class="provider-meta">
-                        <div class="provider-meta-item">
-                            <i class="fas fa-phone"></i>
-                            <span>${providerPhone}</span>
-                        </div>
-                        ${userRole === 'assistant' ? `
-                            <div class="provider-meta-item">
-                                <i class="fas fa-motorcycle"></i>
-                                <span>${providerVehicle}</span>
-                            </div>
-                        ` : ''}
-                        <div class="provider-meta-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>${providerZone}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value">${activeTasks}</div>
-                    <div class="stat-label">Active Tasks</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">${pendingTasks}</div>
-                    <div class="stat-label">Pending</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">${completedTasks}</div>
-                    <div class="stat-label">Completed</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">KSh ${totalEarnings.toLocaleString()}</div>
-                    <div class="stat-label">Total Earnings</div>
-                </div>
-            </div>
-
-            <!-- Filters -->
-            <div class="filters">
-                <input type="text" class="search-input" id="searchInput" placeholder="Search by order ID, customer...">
-                <select class="filter-select" id="statusFilter">
-                    <option value="all">All Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="active">Active</option>
-                    <option value="completed">Completed</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancelled">Cancelled</option>
-                </select>
-                <button class="action-btn" onclick="refreshTasks()"><i class="fas fa-sync-alt"></i> Refresh</button>
-            </div>
-
-            <!-- Tasks Table -->
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Date</th>
-                            <th>Customer</th>
-                            <th>Address</th>
-                            <th>Fee</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tasksTableBody">
-                        ${renderTasksTable()}
-                    </tbody>
-                </table>
-            </div>
-        `;
-
-        // Add event listeners
-        document.getElementById('searchInput')?.addEventListener('input', filterTasks);
-        document.getElementById('statusFilter')?.addEventListener('change', filterTasks);
-    }
-
-    // ========== RENDER TASKS TABLE ==========
-    function renderTasksTable() {
-        if (filteredTasks.length === 0) {
-            return '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No tasks found</td></tr>';
-        }
-
-        let html = '';
-        filteredTasks.slice(0, 20).forEach(task => {
-            const date = task.date ? new Date(task.date).toLocaleDateString() : 'N/A';
-            let statusClass = 'status-pending';
-            
-            if (task.status === 'active' || task.status === 'out-for-delivery') {
-                statusClass = 'status-active';
-            } else if (task.status === 'completed' || task.status === 'delivered') {
-                statusClass = 'status-completed';
-            } else if (task.status === 'cancelled') {
-                statusClass = 'status-cancelled';
-            }
-
-            html += `
-                <tr>
-                    <td>#${task.id.slice(-8)}</td>
-                    <td>${date}</td>
-                    <td>
-                        ${task.customerName}<br>
-                        <small style="color: var(--text-muted);">${task.customerPhone || ''}</small>
-                    </td>
-                    <td>${task.address}</td>
-                    <td><span style="color: var(--gold);">KSh ${task.deliveryFee}</span></td>
-                    <td><span class="status-badge ${statusClass}">${task.status}</span></td>
-                    <td>
-                        <button class="action-btn view" onclick="viewTaskDetails('${task.id}')" title="View Details">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        ${task.status === 'pending' ? `
-                            <button class="action-btn accept" onclick="acceptTask('${task.id}')" title="Accept">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        ` : ''}
-                        ${task.status === 'active' || task.status === 'out-for-delivery' ? `
-                            <button class="action-btn complete" onclick="completeTask('${task.id}')" title="Complete">
-                                <i class="fas fa-check-double"></i>
-                            </button>
-                        ` : ''}
-                    </td>
-                </tr>
-            `;
-        });
-        
-        return html;
-    }
-
-    // ========== RENDER NON-PROVIDER PAGE ==========
-    function renderNonProviderPage() {
-        const mainContent = document.getElementById('mainContent');
-        mainContent.innerHTML = `
-            <!-- Page Header -->
-            <div class="page-header">
-                <div class="page-title">
-                    <h1>My Tasks</h1>
-                    <p>Become a service provider to start earning</p>
-                </div>
-            </div>
-
-            <!-- CTA Section -->
-            <div class="cta-section">
-                <div class="cta-icon">
-                    <i class="fas fa-rocket"></i>
-                </div>
-                <h2 class="cta-title">Become a Service Provider</h2>
-                <p class="cta-text">
-                    Turn your skills into income! Join our network of verified providers and start earning today.
-                </p>
-                
-                <div class="cta-features">
-                    <div class="cta-feature">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Delivery Assistant</span>
-                    </div>
-                    <div class="cta-feature">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Ride Provider</span>
-                    </div>
-                    <div class="cta-feature">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Course Instructor</span>
-                    </div>
-                    <div class="cta-feature">
-                        <i class="fas fa-check-circle"></i>
-                        <span>Service Partner</span>
-                    </div>
-                </div>
-
-                <div class="cta-buttons">
-                    <button class="cta-btn primary" onclick="upgradeToPro()">
-                        <i class="fas fa-crown"></i> Upgrade to Pro
-                    </button>
-                    <button class="cta-btn" onclick="learnMore()">
-                        <i class="fas fa-info-circle"></i> Learn More
-                    </button>
-                </div>
-            </div>
-
-            <!-- Benefits Section -->
-            <div style="margin-top: 3rem;">
-                <h3 style="color: var(--gold); text-align: center; margin-bottom: 2rem;">Why Become a Provider?</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-                    <div style="text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.02); border-radius: 20px;">
-                        <i class="fas fa-clock" style="font-size: 2.5rem; color: var(--gold); margin-bottom: 1rem;"></i>
-                        <h4 style="color: var(--gold); margin-bottom: 0.5rem;">Flexible Hours</h4>
-                        <p style="color: var(--text-muted);">Work when you want, as much as you want</p>
-                    </div>
-                    <div style="text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.02); border-radius: 20px;">
-                        <i class="fas fa-wallet" style="font-size: 2.5rem; color: var(--gold); margin-bottom: 1rem;"></i>
-                        <h4 style="color: var(--gold); margin-bottom: 0.5rem;">Instant Earnings</h4>
-                        <p style="color: var(--text-muted);">Get paid per delivery, ride, or course</p>
-                    </div>
-                    <div style="text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.02); border-radius: 20px;">
-                        <i class="fas fa-shield-alt" style="font-size: 2.5rem; color: var(--gold); margin-bottom: 1rem;"></i>
-                        <h4 style="color: var(--gold); margin-bottom: 0.5rem;">Verified Status</h4>
-                        <p style="color: var(--text-muted);">Build trust with our verification system</p>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // ========== TASK FILTERING ==========
-    window.filterTasks = function() {
-        const searchInput = document.getElementById('searchInput');
-        const statusFilter = document.getElementById('statusFilter');
-        
-        if (!searchInput || !statusFilter) return;
-        
-        const searchTerm = searchInput.value.toLowerCase();
-        const statusValue = statusFilter.value;
-
-        filteredTasks = tasks.filter(task => {
-            const matchesSearch = 
-                task.id.toLowerCase().includes(searchTerm) ||
-                task.customerName.toLowerCase().includes(searchTerm) ||
-                (task.customerPhone && task.customerPhone.toLowerCase().includes(searchTerm));
-            
-            const matchesStatus = statusValue === 'all' || task.status === statusValue;
-            
-            return matchesSearch && matchesStatus;
-        });
-
-        const tbody = document.getElementById('tasksTableBody');
-        if (tbody) {
-            tbody.innerHTML = renderTasksTable();
-        }
-    };
-
-    // ========== TASK ACTIONS ==========
-    window.viewTaskDetails = function(taskId) {
-        const task = tasks.find(t => t.id === taskId);
-        if (!task) return;
-
-        let itemsHtml = '';
-        if (task.items && task.items.length > 0) {
-            itemsHtml = '<ul style="list-style: none; padding: 0;">';
-            task.items.forEach(item => {
-                itemsHtml += `<li style="margin-bottom: 0.5rem;">• ${item.name || 'Product'} x${item.quantity || 1}</li>`;
-            });
-            itemsHtml += '</ul>';
-        } else {
-            itemsHtml = '<p>No items listed</p>';
-        }
-
-        const content = `
-            <div class="modal-field">
-                <label>Order ID</label>
-                <div class="field-value">#${task.id}</div>
-            </div>
-            <div class="modal-field">
-                <label>Customer</label>
-                <div class="field-value">
-                    <strong>${task.customerName}</strong><br>
-                    📞 ${task.customerPhone || 'No phone'}
-                </div>
-            </div>
-            <div class="modal-field">
-                <label>Delivery Address</label>
-                <div class="field-value">${task.address}</div>
-            </div>
-            <div class="modal-field">
-                <label>Items</label>
-                <div class="field-value">${itemsHtml}</div>
-            </div>
-            <div class="modal-field">
-                <label>Delivery Fee</label>
-                <div class="field-value"><span style="color: var(--gold);">KSh ${task.deliveryFee}</span></div>
-            </div>
-            <div class="modal-field">
-                <label>Status</label>
-                <div class="field-value"><span class="status-badge status-${task.status}">${task.status}</span></div>
-            </div>
-        `;
-
-        document.getElementById('modalTitle').textContent = 'Task Details';
-        document.getElementById('modalBody').innerHTML = content;
-        document.getElementById('detailsModal').classList.add('active');
-        document.getElementById('modalOverlay').classList.add('active');
-    };
-
-    window.acceptTask = async function(taskId) {
-        if (!confirm('Accept this task?')) return;
-
-        showLoading(true);
-        try {
-            // Get current task to update status history
-            const taskSnapshot = await database.ref(`orders/${taskId}`).once('value');
-            const task = taskSnapshot.val() || {};
-            
-            const statusHistory = task.statusHistory || [];
-            statusHistory.push({
-                status: 'active',
-                timestamp: new Date().toISOString(),
-                note: 'Accepted by provider'
-            });
-
-            await database.ref(`orders/${taskId}`).update({
-                status: 'active',
-                acceptedAt: new Date().toISOString(),
-                statusHistory: statusHistory
-            });
-            
-            showToast('Task accepted successfully', 'success');
-            await loadProviderTasks();
-            filterTasks();
-        } catch (error) {
-            console.error('Error accepting task:', error);
-            showToast('Failed to accept task', 'error');
-        } finally {
-            showLoading(false);
-        }
-    };
-
-    window.completeTask = async function(taskId) {
-        const task = tasks.find(t => t.id === taskId);
-        if (!task) return;
-
-        const customerName = prompt('Enter customer name for confirmation:');
-        if (!customerName) return;
-
-        showLoading(true);
-        try {
-            // Get current task to update status history
-            const taskSnapshot = await database.ref(`orders/${taskId}`).once('value');
-            const taskData = taskSnapshot.val() || {};
-            
-            const statusHistory = taskData.statusHistory || [];
-            statusHistory.push({
-                status: 'completed',
-                timestamp: new Date().toISOString(),
-                note: `Completed - received by ${customerName}`
-            });
-
-            await database.ref(`orders/${taskId}`).update({
-                status: 'completed',
-                completedAt: new Date().toISOString(),
-                deliveryDate: new Date().toISOString(),
-                completionProof: {
-                    customerName: customerName,
-                    timestamp: new Date().toISOString()
-                },
-                statusHistory: statusHistory
-            });
-            
-            showToast('Task completed successfully', 'success');
-            await loadProviderTasks();
-            filterTasks();
-        } catch (error) {
-            console.error('Error completing task:', error);
-            showToast('Failed to complete task', 'error');
-        } finally {
-            showLoading(false);
-        }
-    };
-
-    window.refreshTasks = function() {
-        if (userRole) {
-            loadProviderTasks().then(() => {
-                filterTasks();
-                showToast('Tasks refreshed', 'success');
-            });
-        }
-    };
-
-    // ========== NAVIGATION ==========
-    window.upgradeToPro = function() {
-        window.location.href = 'upgrade.html';
-    };
-
-    window.learnMore = function() {
-        window.location.href = 'pro-account.html';
-    };
-
-    // ========== UTILITY FUNCTIONS ==========
-    window.closeModal = function() {
-        document.getElementById('detailsModal').classList.remove('active');
-        document.getElementById('modalOverlay').classList.remove('active');
-    };
-
-    function showLoading(show) {
-        document.getElementById('loadingOverlay').classList.toggle('active', show);
-    }
-
-    function showToast(message, type = 'info') {
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        
-        const icons = { 
-            success: 'check-circle', 
-            error: 'exclamation-circle', 
-            warning: 'exclamation-triangle', 
-            info: 'info-circle' 
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
         };
-        toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${message}</span>`;
-        
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
 
-    function startAutoRefresh() {
-        setInterval(() => {
-            if (userRole) {
-                loadProviderTasks().then(filterTasks);
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        // Global state
+        let currentUser = null;
+        let userData = {};
+        let userRole = null; // 'assistant', 'driver', 'instructor', null
+        let tasks = [];
+        let filteredTasks = [];
+        let currentView = 'active';
+        let proofImageData = null;
+        let currentTaskId = null;
+
+        // ========== AUTH STATE LISTENER ==========
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                showLoading(true);
+                await loadUserData();
+                await determineUserRole();
+                renderPage();
+                showLoading(false);
+                startAutoRefresh();
+            } else {
+                renderLoginPage();
             }
-        }, 60000); // Refresh every minute
-    }
+        });
 
-    // ========== HANDLE LOGOUT ==========
-    window.handleLogout = async () => {
-        try {
+        // ========== LOAD USER DATA ==========
+        async function loadUserData() {
+            try {
+                // Load from users node
+                const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
+                if (userSnapshot.exists()) {
+                    userData = userSnapshot.val();
+                } else {
+                    // Create basic user record
+                    userData = {
+                        name: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
+                        email: currentUser.email,
+                        createdAt: new Date().toISOString(),
+                        uid: currentUser.uid
+                    };
+                    await database.ref(`users/${currentUser.uid}`).set(userData);
+                }
+                
+                console.log('User data loaded:', userData);
+                updateUserUI();
+                
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        function updateUserUI() {
+            const displayName = userData.name || currentUser.displayName || currentUser.email?.split('@')[0] || 'User';
+            document.getElementById('userDisplayNameDesktop').textContent = displayName;
+            document.getElementById('panelUserName').textContent = displayName;
+            
+            const initial = displayName.charAt(0).toUpperCase();
+            document.getElementById('userAvatarDesktop').textContent = initial;
+            document.getElementById('panelAvatar').textContent = initial;
+        }
+
+        // ========== DETERMINE USER ROLE ==========
+        async function determineUserRole() {
+            console.log('Checking roles for user:', currentUser.uid);
+            
+            userRole = null;
+            
+            try {
+                // Check if delivery assistant
+                const assistantSnapshot = await database.ref(`delivery_assistants/${currentUser.uid}`).once('value');
+                
+                if (assistantSnapshot.exists()) {
+                    const assistantData = assistantSnapshot.val();
+                    if (assistantData.status === 'active' || assistantData.verified === true) {
+                        userRole = 'assistant';
+                        userData = { ...userData, ...assistantData };
+                        console.log('User is a delivery assistant');
+                        return;
+                    }
+                }
+                
+                // Check if driver
+                const driverSnapshot = await database.ref(`drivers/${currentUser.uid}`).once('value');
+                if (driverSnapshot.exists()) {
+                    const driverData = driverSnapshot.val();
+                    if (driverData.status === 'active') {
+                        userRole = 'driver';
+                        userData = { ...userData, ...driverData };
+                        console.log('User is a driver');
+                        return;
+                    }
+                }
+                
+                // Check if instructor
+                const instructorSnapshot = await database.ref(`instructors/${currentUser.uid}`).once('value');
+                if (instructorSnapshot.exists()) {
+                    const instructorData = instructorSnapshot.val();
+                    if (instructorData.status === 'active') {
+                        userRole = 'instructor';
+                        userData = { ...userData, ...instructorData };
+                        console.log('User is an instructor');
+                        return;
+                    }
+                }
+                
+                // Check if there are orders assigned to this user
+                const ordersSnapshot = await database.ref('orders')
+                    .orderByChild('assignedTo')
+                    .equalTo(currentUser.uid)
+                    .once('value');
+                
+                if (ordersSnapshot.exists()) {
+                    const orders = ordersSnapshot.val();
+                    const orderCount = Object.keys(orders).length;
+                    console.log(`User has ${orderCount} assigned orders - treating as assistant`);
+                    
+                    if (orderCount > 0) {
+                        userRole = 'assistant';
+                        return;
+                    }
+                }
+                
+                console.log('User has no provider role');
+                
+            } catch (error) {
+                console.error('Error determining user role:', error);
+            }
+        }
+
+        // ========== RENDER FUNCTIONS ==========
+        function renderLoginPage() {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <!-- Login CTA -->
+                <div class="cta-section">
+                    <div class="cta-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h2 class="cta-title">Service Provider Portal</h2>
+                    <p class="cta-text">
+                        Login to access your tasks and manage your deliveries.
+                    </p>
+                    
+                    <div class="cta-features">
+                        <div class="cta-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Track Active Tasks</span>
+                        </div>
+                        <div class="cta-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Update Delivery Status</span>
+                        </div>
+                        <div class="cta-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Upload Proof of Delivery</span>
+                        </div>
+                    </div>
+
+                    <div class="cta-buttons">
+                        <button class="cta-btn primary" onclick="openAuthModal()">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                        <button class="cta-btn" onclick="upgradeToPro()">
+                            <i class="fas fa-crown"></i> Become a Provider
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('userMenuDesktop').style.display = 'none';
+            document.getElementById('loginButtonDesktop').style.display = 'flex';
+            document.getElementById('panelLoggedOut').style.display = 'flex';
+            document.getElementById('panelLoggedIn').style.display = 'none';
+            document.getElementById('headerRoleBadge').style.display = 'none';
+        }
+
+        function renderProviderPage() {
+            const displayName = userData.name || currentUser.displayName || currentUser.email?.split('@')[0] || 'Provider';
+            const roleDisplay = userRole === 'assistant' ? 'Delivery Assistant' : 
+                               userRole === 'driver' ? 'Driver' : 
+                               userRole === 'instructor' ? 'Instructor' : 'Service Provider';
+            const roleIcon = userRole === 'assistant' ? 'fa-truck' : 
+                            userRole === 'driver' ? 'fa-car' : 
+                            userRole === 'instructor' ? 'fa-chalkboard-teacher' : 'fa-user-tie';
+            
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>My Tasks</h1>
+                        <p>Manage your assigned tasks and deliveries</p>
+                    </div>
+                    <div class="role-badge">
+                        <i class="fas ${roleIcon}"></i> ${roleDisplay}
+                    </div>
+                </div>
+
+                <!-- Provider Profile -->
+                <div class="provider-profile">
+                    <div class="provider-avatar">
+                        <i class="fas ${roleIcon}"></i>
+                    </div>
+                    <div class="provider-info">
+                        <h2 id="providerName">${displayName}</h2>
+                        <div class="provider-meta">
+                            <div class="provider-meta-item">
+                                <i class="fas fa-phone"></i>
+                                <span id="providerPhone">${userData.phone || 'Not set'}</span>
+                            </div>
+                            <div class="provider-meta-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span id="providerZone">${userData.zone || 'Nairobi'}</span>
+                            </div>
+                            <div class="availability-toggle">
+                                <div class="availability-status">
+                                    <span class="status-dot" id="statusDot"></span>
+                                    <span id="availabilityText">Available</span>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="availabilityToggle" checked onchange="toggleAvailability()">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="activeTasks">0</div>
+                        <div class="stat-label">Active Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pendingTasks">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="completedTasks">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalEarnings">KSh 0</div>
+                        <div class="stat-label">Total Earnings</div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search by order ID, customer...">
+                    <select class="filter-select" id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="assigned">Assigned</option>
+                        <option value="out-for-delivery">Out for Delivery</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <button class="action-btn" onclick="refreshTasks()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+
+                <!-- Tasks Section -->
+                <div class="section-header">
+                    <div class="section-title">
+                        <i class="fas fa-truck" id="tasksIcon"></i>
+                        <span id="tasksTitle">Active Tasks</span>
+                    </div>
+                    <div class="section-actions">
+                        <button class="action-btn" onclick="showSection('active')"><i class="fas fa-clock"></i> Active</button>
+                        <button class="action-btn" onclick="showSection('completed')"><i class="fas fa-check-circle"></i> Completed</button>
+                        <button class="action-btn" onclick="showSection('all')"><i class="fas fa-list"></i> All</button>
+                    </div>
+                </div>
+
+                <!-- Tasks Table -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Address</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasksTableBody">
+                            <tr><td colspan="8" style="text-align: center;">Loading your tasks...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            // Add event listeners
+            document.getElementById('searchInput')?.addEventListener('input', filterTasks);
+            document.getElementById('statusFilter')?.addEventListener('change', filterTasks);
+            
+            // Update UI elements
+            document.getElementById('userMenuDesktop').style.display = 'flex';
+            document.getElementById('loginButtonDesktop').style.display = 'none';
+            document.getElementById('panelLoggedOut').style.display = 'none';
+            document.getElementById('panelLoggedIn').style.display = 'flex';
+            document.getElementById('headerRoleBadge').style.display = 'inline-block';
+            
+            // Load tasks
+            loadProviderTasks();
+        }
+
+        // ========== LOAD PROVIDER TASKS ==========
+        async function loadProviderTasks() {
+            try {
+                console.log('Loading tasks for provider:', currentUser.uid);
+                
+                // Get all orders
+                const snapshot = await database.ref('orders').once('value');
+                const data = snapshot.val() || {};
+                
+                // Find orders assigned to this user
+                tasks = [];
+                
+                Object.entries(data).forEach(([id, order]) => {
+                    // Check various assignment fields
+                    if (order.assignedTo === currentUser.uid || 
+                        order.assignedTo === currentUser.uid.toString() ||
+                        order.assistantId === currentUser.uid ||
+                        order.driverId === currentUser.uid ||
+                        order.userId === currentUser.uid) {
+                        
+                        // Parse date
+                        let timestamp = 0;
+                        let dateStr = null;
+                        
+                        if (order.deliveryDate) {
+                            dateStr = order.deliveryDate;
+                            timestamp = new Date(order.deliveryDate).getTime();
+                        } else if (order.orderDate) {
+                            dateStr = order.orderDate;
+                            timestamp = new Date(order.orderDate).getTime();
+                        } else if (order.timestamp) {
+                            timestamp = order.timestamp;
+                            dateStr = new Date(order.timestamp).toISOString();
+                        }
+                        
+                        if (isNaN(timestamp)) {
+                            timestamp = Date.now();
+                        }
+                        
+                        tasks.push({
+                            id: id,
+                            orderId: id,
+                            date: dateStr,
+                            customerName: order.userName || order.fullName || 'Unknown',
+                            customerPhone: order.userPhone || order.phone || '',
+                            address: order.deliveryAddress || order.address || 'No address',
+                            deliveryFee: order.deliveryFee || 150,
+                            status: order.status || 'pending',
+                            items: order.items || [],
+                            total: order.total || order.totalAmount || 0,
+                            timestamp: timestamp
+                        });
+                    }
+                });
+
+                // Sort by date (newest first)
+                tasks.sort((a, b) => b.timestamp - a.timestamp);
+                
+                console.log(`Found ${tasks.length} tasks assigned to user`);
+                
+                // Apply current view
+                showSection(currentView);
+                
+                // Update stats
+                updateStats();
+                
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+                tasks = [];
+            }
+        }
+
+        // ========== UPDATE STATS ==========
+        function updateStats() {
+            const activeTasks = tasks.filter(t => 
+                t.status === 'assigned' || t.status === 'out-for-delivery' || t.status === 'active'
+            ).length;
+            
+            const pendingTasks = tasks.filter(t => t.status === 'pending').length;
+            const completedTasks = tasks.filter(t => t.status === 'delivered' || t.status === 'completed').length;
+            
+            const totalEarnings = tasks
+                .filter(t => t.status === 'delivered' || t.status === 'completed')
+                .reduce((sum, t) => sum + (t.deliveryFee || 150), 0);
+
+            document.getElementById('activeTasks').textContent = activeTasks;
+            document.getElementById('pendingTasks').textContent = pendingTasks;
+            document.getElementById('completedTasks').textContent = completedTasks;
+            document.getElementById('totalEarnings').textContent = `KSh ${totalEarnings.toLocaleString()}`;
+        }
+
+        // ========== SHOW SECTION ==========
+        window.showSection = function(section) {
+            currentView = section;
+            
+            let filtered = [];
+            
+            if (section === 'active') {
+                filtered = tasks.filter(t => 
+                    t.status === 'assigned' || t.status === 'out-for-delivery' || t.status === 'active'
+                );
+                document.getElementById('tasksTitle').textContent = 'Active Tasks';
+                document.getElementById('tasksIcon').className = 'fas fa-truck';
+            } else if (section === 'completed') {
+                filtered = tasks.filter(t => t.status === 'delivered' || t.status === 'completed');
+                document.getElementById('tasksTitle').textContent = 'Completed Tasks';
+                document.getElementById('tasksIcon').className = 'fas fa-check-circle';
+            } else {
+                filtered = [...tasks];
+                document.getElementById('tasksTitle').textContent = 'All Tasks';
+                document.getElementById('tasksIcon').className = 'fas fa-list';
+            }
+            
+            filteredTasks = filtered;
+            filterTasks();
+        };
+
+        // ========== FILTER TASKS ==========
+        window.filterTasks = function() {
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            
+            if (!searchInput || !statusFilter) return;
+            
+            const searchTerm = searchInput.value.toLowerCase();
+            const statusValue = statusFilter.value;
+
+            const filtered = filteredTasks.filter(task => {
+                const matchesSearch = 
+                    task.id.toLowerCase().includes(searchTerm) ||
+                    task.customerName.toLowerCase().includes(searchTerm) ||
+                    (task.customerPhone && task.customerPhone.toLowerCase().includes(searchTerm));
+                
+                const matchesStatus = statusValue === 'all' || task.status === statusValue;
+                
+                return matchesSearch && matchesStatus;
+            });
+
+            renderTasks(filtered);
+        };
+
+        // ========== RENDER TASKS ==========
+        function renderTasks(tasksToRender) {
+            const tbody = document.getElementById('tasksTableBody');
+            
+            if (!tbody) return;
+            
+            if (tasksToRender.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem;">No tasks found</td></tr>';
+                return;
+            }
+
+            let html = '';
+            tasksToRender.slice(0, 20).forEach(task => {
+                const date = task.date ? new Date(task.date).toLocaleDateString() : 'N/A';
+                let statusClass = 'status-pending';
+                
+                if (task.status === 'assigned') {
+                    statusClass = 'status-assigned';
+                } else if (task.status === 'out-for-delivery' || task.status === 'active') {
+                    statusClass = 'status-out-for-delivery';
+                } else if (task.status === 'delivered' || task.status === 'completed') {
+                    statusClass = 'status-delivered';
+                } else if (task.status === 'cancelled') {
+                    statusClass = 'status-cancelled';
+                }
+
+                const itemCount = task.items ? task.items.reduce((sum, item) => sum + (item.quantity || 1), 0) : 1;
+
+                html += `
+                    <tr>
+                        <td>#${task.id.slice(-8)}</td>
+                        <td>${date}</td>
+                        <td>
+                            ${task.customerName}<br>
+                            <small style="color: var(--text-muted);">${task.customerPhone || ''}</small>
+                        </td>
+                        <td>${task.address}</td>
+                        <td>${itemCount} items</td>
+                        <td>KSh ${(task.total || 0).toLocaleString()}</td>
+                        <td><span class="status-badge ${statusClass}">${task.status}</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="action-btn" onclick="viewTaskDetails('${task.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${task.status === 'assigned' ? `
+                                    <button class="action-btn accept" onclick="acceptTask('${task.id}')" title="Accept">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                ` : ''}
+                                ${task.status === 'out-for-delivery' || task.status === 'active' ? `
+                                    <button class="action-btn navigate" onclick="navigateToCustomer('${task.address}')" title="Navigate">
+                                        <i class="fas fa-map-marked-alt"></i>
+                                    </button>
+                                    <button class="action-btn complete" onclick="openProofModal('${task.id}')" title="Complete">
+                                        <i class="fas fa-check-double"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        // ========== TASK ACTIONS ==========
+        window.viewTaskDetails = function(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            let itemsHtml = '';
+            if (task.items && task.items.length > 0) {
+                itemsHtml = '<ul style="list-style: none; padding: 0;">';
+                task.items.forEach(item => {
+                    itemsHtml += `<li style="margin-bottom: 0.5rem;">• ${item.name || 'Product'} x${item.quantity || 1}</li>`;
+                });
+                itemsHtml += '</ul>';
+            } else {
+                itemsHtml = '<p>No items listed</p>';
+            }
+
+            const content = `
+                <div class="modal-field">
+                    <label>Order ID</label>
+                    <div class="field-value">#${task.id}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Order Date</label>
+                    <div class="field-value">${task.date ? new Date(task.date).toLocaleString() : 'N/A'}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Customer</label>
+                    <div class="field-value">
+                        <strong>${task.customerName}</strong><br>
+                        📞 ${task.customerPhone || 'N/A'}<br>
+                        📍 ${task.address}
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label>Items</label>
+                    <div class="field-value">${itemsHtml}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Delivery Fee</label>
+                    <div class="field-value">KSh ${task.deliveryFee}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Total</label>
+                    <div class="field-value">KSh ${(task.total || 0).toLocaleString()}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Status</label>
+                    <div class="field-value"><span class="status-badge status-${task.status}">${task.status}</span></div>
+                </div>
+            `;
+
+            document.getElementById('modalTitle').textContent = 'Task Details';
+            document.getElementById('modalBody').innerHTML = content;
+            document.getElementById('detailsModal').classList.add('active');
+            document.getElementById('modalOverlay').classList.add('active');
+        };
+
+        window.acceptTask = async function(taskId) {
+            if (!confirm('Accept this task?')) return;
+
             showLoading(true);
-            await auth.signOut();
-            window.location.href = 'login.html';
-        } catch (error) {
-            showToast('Logout failed', 'error');
-            showLoading(false);
+            
+            try {
+                await database.ref(`orders/${taskId}`).update({
+                    status: 'out-for-delivery',
+                    acceptedAt: new Date().toISOString(),
+                    statusHistory: [
+                        ...(tasks.find(t => t.id === taskId)?.statusHistory || []),
+                        {
+                            status: 'out-for-delivery',
+                            timestamp: new Date().toISOString(),
+                            note: 'Accepted by provider'
+                        }
+                    ]
+                });
+
+                showToast('Task accepted successfully', 'success');
+                await loadProviderTasks();
+                
+            } catch (error) {
+                console.error('Error accepting task:', error);
+                showToast('Failed to accept task', 'error');
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        window.navigateToCustomer = function(address) {
+            if (!address) {
+                showToast('No address provided', 'warning');
+                return;
+            }
+            
+            const encodedAddress = encodeURIComponent(address);
+            window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+        };
+
+        window.openProofModal = function(taskId) {
+            currentTaskId = taskId;
+            document.getElementById('proofModal').classList.add('active');
+            document.getElementById('proofModalOverlay').classList.add('active');
+        };
+
+        window.triggerFileUpload = function() {
+            document.getElementById('proofFile').click();
+        };
+
+        window.previewProofImage = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('proofPreview').src = e.target.result;
+                    document.getElementById('proofPreview').style.display = 'block';
+                    proofImageData = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        window.submitProofOfDelivery = async function() {
+            const customerName = document.getElementById('proofCustomerName').value.trim();
+            const notes = document.getElementById('proofNotes').value.trim();
+            
+            if (!customerName) {
+                showToast('Please enter customer name', 'warning');
+                return;
+            }
+            
+            if (!proofImageData) {
+                showToast('Please upload proof photo', 'warning');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                await database.ref(`orders/${currentTaskId}`).update({
+                    status: 'delivered',
+                    deliveredAt: new Date().toISOString(),
+                    deliveryProof: {
+                        customerName: customerName,
+                        notes: notes,
+                        timestamp: new Date().toISOString(),
+                        hasPhoto: true
+                    },
+                    statusHistory: [
+                        ...(tasks.find(t => t.id === currentTaskId)?.statusHistory || []),
+                        {
+                            status: 'delivered',
+                            timestamp: new Date().toISOString(),
+                            note: `Delivered to ${customerName}`
+                        }
+                    ]
+                });
+
+                showToast('Delivery completed!', 'success');
+                closeProofModal();
+                await loadProviderTasks();
+                showSection('completed');
+                
+            } catch (error) {
+                console.error('Error completing delivery:', error);
+                showToast('Failed to complete delivery', 'error');
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        window.closeProofModal = function() {
+            document.getElementById('proofModal').classList.remove('active');
+            document.getElementById('proofModalOverlay').classList.remove('active');
+            document.getElementById('proofFile').value = '';
+            document.getElementById('proofPreview').style.display = 'none';
+            document.getElementById('proofCustomerName').value = '';
+            document.getElementById('proofNotes').value = '';
+            proofImageData = null;
+            currentTaskId = null;
+        };
+
+        // ========== AVAILABILITY TOGGLE ==========
+        window.toggleAvailability = async function() {
+            const toggle = document.getElementById('availabilityToggle');
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('availabilityText');
+            
+            const isAvailable = toggle.checked;
+            
+            if (isAvailable) {
+                dot.className = 'status-dot';
+                text.textContent = 'Available';
+            } else {
+                dot.className = 'status-dot busy';
+                text.textContent = 'Busy';
+            }
+            
+            try {
+                await database.ref(`delivery_assistants/${currentUser.uid}`).update({
+                    availability: isAvailable ? 'available' : 'busy',
+                    lastStatusUpdate: new Date().toISOString()
+                });
+                
+                showToast(`You are now marked as ${isAvailable ? 'available' : 'busy'}`, 'success');
+                
+            } catch (error) {
+                console.error('Error updating availability:', error);
+                showToast('Failed to update availability', 'error');
+                
+                // Revert toggle
+                toggle.checked = !isAvailable;
+                if (!isAvailable) {
+                    dot.className = 'status-dot';
+                    text.textContent = 'Available';
+                } else {
+                    dot.className = 'status-dot busy';
+                    text.textContent = 'Busy';
+                }
+            }
+        };
+
+        // ========== REFRESH TASKS ==========
+        window.refreshTasks = function() {
+            if (userRole) {
+                loadProviderTasks();
+                showToast('Tasks refreshed', 'success');
+            }
+        };
+
+        // ========== AUTH FUNCTIONS ==========
+        window.openAuthModal = function() {
+            document.getElementById('authModal').style.display = 'block';
+            document.getElementById('authModalOverlay').classList.add('active');
+        };
+
+        window.closeAuthModal = function() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('authModalOverlay').classList.remove('active');
+            document.getElementById('loginError').style.display = 'none';
+        };
+
+        window.handleLogin = async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorEl = document.getElementById('loginError');
+            
+            if (!email || !password) {
+                errorEl.style.display = 'block';
+                errorEl.textContent = 'Please enter email and password';
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                errorEl.style.display = 'none';
+                await auth.signInWithEmailAndPassword(email, password);
+                closeAuthModal();
+                
+            } catch (error) {
+                errorEl.style.display = 'block';
+                errorEl.textContent = error.message;
+                showLoading(false);
+            }
+        };
+
+        window.upgradeToPro = function() {
+            window.location.href = 'upgrade.html';
+        };
+
+        window.closeModal = function() {
+            document.getElementById('detailsModal').classList.remove('active');
+            document.getElementById('modalOverlay').classList.remove('active');
+        };
+
+        // ========== UTILITY FUNCTIONS ==========
+        function showLoading(show) {
+            document.getElementById('loadingOverlay').classList.toggle('active', show);
         }
-    };
 
-    // ========== TOGGLE HAMBURGER ==========
-    window.toggleHamburger = function() {
-        document.getElementById('hamburgerPanel').classList.toggle('open');
-    };
-
-    document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
-
-    document.addEventListener('click', function(e) {
-        const panel = document.getElementById('hamburgerPanel');
-        const btn = document.getElementById('hamburgerBtn');
-        if (panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
-            panel.classList.remove('open');
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = { 
+                success: 'check-circle', 
+                error: 'exclamation-circle', 
+                warning: 'exclamation-triangle', 
+                info: 'info-circle' 
+            };
+            toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
         }
-    });
 
-    // ========== THEME TOGGLE ==========
-    window.toggleTheme = function() {
-        document.body.classList.toggle('light-theme');
-        const icon = document.getElementById('panelThemeIcon');
-        icon.classList.toggle('fa-moon', !document.body.classList.contains('light-theme'));
-        icon.classList.toggle('fa-sun', document.body.classList.contains('light-theme'));
-        localStorage.setItem('siteTheme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
-    };
+        function startAutoRefresh() {
+            setInterval(() => {
+                if (userRole) {
+                    loadProviderTasks();
+                }
+            }, 60000); // Refresh every minute
+        }
 
-    if (localStorage.getItem('siteTheme') === 'light') {
-        document.body.classList.add('light-theme');
-        document.getElementById('panelThemeIcon').classList.replace('fa-moon', 'fa-sun');
-    }
-</script>
+        // ========== HANDLE LOGOUT ==========
+        window.handleLogout = async () => {
+            try {
+                showLoading(true);
+                await auth.signOut();
+                renderLoginPage();
+                showToast('Logged out', 'success');
+            } catch (error) {
+                showToast('Logout failed', 'error');
+                showLoading(false);
+            }
+        };
+
+        // ========== TOGGLE HAMBURGER ==========
+        window.toggleHamburger = function() {
+            document.getElementById('hamburgerPanel').classList.toggle('open');
+        };
+
+        document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
+
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('hamburgerPanel');
+            const btn = document.getElementById('hamburgerBtn');
+            if (panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
+                panel.classList.remove('open');
+            }
+        });
+
+        // ========== THEME TOGGLE ==========
+        window.toggleTheme = function() {
+            document.body.classList.toggle('light-theme');
+            const icon = document.getElementById('panelThemeIcon');
+            icon.classList.toggle('fa-moon', !document.body.classList.contains('light-theme'));
+            icon.classList.toggle('fa-sun', document.body.classList.contains('light-theme'));
+            localStorage.setItem('siteTheme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+        };
+
+        if (localStorage.getItem('siteTheme') === 'light') {
+            document.body.classList.add('light-theme');
+            document.getElementById('panelThemeIcon').classList.replace('fa-moon', 'fa-sun');
+        }
+    </script>
 </body>
 </html>
