@@ -115,11 +115,11 @@ const SEARCH_DATABASE = [
         url: "pickup.html" 
     },
     { 
-        title: "DRIVING ASSISTANT", 
-        category: "JOB", 
+        title: "MAZDA CX-5", 
+        category: "SUV - CAR", 
         icon: "fas fa-car", 
-        keywords: ["driving","taxi","drive","driver","assistant"], 
-        url: "driving-assistant.html" 
+        keywords: ["cx5","mazda","mazda cx-5","cx-5"], 
+        url: "mazda-cx-5.html" 
     },
     { 
         title: "HEKIMA•HUB", 
