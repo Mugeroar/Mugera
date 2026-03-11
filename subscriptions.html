@@ -1,0 +1,2170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=1.0, user-scalable=no">            
+    <meta name="theme-color" content="#ca8a04">
+    <meta name="background-color" content="#0a0a0a">
+    <meta name="color-scheme" content="dark light">
+    <title>My Subscriptions · I AM MUGERA</title>
+    <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --gold: #ca8a04;
+            --gold-dark: #a16207;
+            --gold-light: #fef3c7;
+            --danger: #dc2626;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --pink: #ec4899;
+            --teal: #14b8a6;
+            --orange: #f97316;
+            --indigo: #6366f1;
+            
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-card: rgba(20,20,20,0.8);
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border-light: #2a2a2a;
+            --shadow-color: rgba(202,138,4,0.25);
+            --nav-bg: rgba(10,10,10,0.95);
+            --card-bg: #151515;
+            --glass-bg: rgba(20,20,20,0.3);
+            --glass-border: rgba(255,255,255,0.1);
+            --glass-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            --toast-bg: rgba(20,20,20,0.95);
+            --toast-border: var(--gold);
+            --header-height: 70px;
+            --input-bg: rgba(255,255,255,0.05);
+            --input-focus-bg: rgba(255,255,255,0.1);
+            
+            /* Subscription Tier Colors */
+            --tier-basic: #6b7280;
+            --tier-pro: #f59e0b;
+            --tier-premium: #8b5cf6;
+            --tier-enterprise: #ec4899;
+            
+            /* Subscription Status Colors */
+            --status-active: #10b981;
+            --status-pending: #f59e0b;
+            --status-cancelled: #ef4444;
+            --status-expired: #6b7280;
+        }
+
+        body.light-theme {
+            --bg-primary: #f8f5f0;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a1a;
+            --text-secondary: #2d2d2d;
+            --text-muted: #555555;
+            --border-light: #dddddd;
+            --shadow-color: rgba(202,138,4,0.4);
+            --nav-bg: rgba(255,255,255,0.95);
+            --card-bg: #ffffff;
+            --input-bg: rgba(0,0,0,0.03);
+            --input-focus-bg: rgba(0,0,0,0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-top: var(--header-height);
+            transition: background 0.3s, color 0.2s;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .site-header {
+            position: fixed; top: 0; width: 100%; height: var(--header-height);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold); z-index: 2000; padding: 0 1rem;
+        }
+        .header-container {
+            max-width: 1400px; height: 100%; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .site-logo {
+            height: 48px; border-radius: 12px; border: 2px solid var(--gold);
+            padding: 2px; background: var(--bg-primary);
+            content: url('https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp');
+        }
+        .header-desktop-actions { display: flex; align-items: center; gap: 1.5rem; }
+        
+        .user-menu {
+            display: flex; align-items: center; gap: 0.5rem;
+            background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
+            border-radius: 40px; padding: 0.3rem 0.3rem 0.3rem 1rem;
+            cursor: pointer; position: relative;
+        }
+        .user-avatar {
+            background: var(--gold); color: #000; width: 35px; height: 35px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold;
+        }
+        .logout-dropdown {
+            position: absolute; top: 120%; right: 0;
+            background: var(--card-bg); border: 1px solid var(--gold);
+            border-radius: 20px; padding: 0.5rem;
+            min-width: 120px; display: none; z-index: 1001;
+        }
+        .user-menu:hover .logout-dropdown { display: block; }
+        .logout-item {
+            padding: 0.7rem 1rem; color: var(--text-primary);
+            border-radius: 15px; transition: 0.2s;
+            display: flex; align-items: center; gap: 0.5rem; cursor: pointer;
+        }
+        .logout-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
+        
+        .mobile-header-group { display: none; align-items: center; gap: 0.8rem; }
+        .hamburger-icon {
+            border: 1px solid var(--gold); color: var(--gold);
+            width: 42px; height: 42px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; cursor: pointer; transition: all 0.2s;
+        }
+        .hamburger-icon:hover { background: var(--gold); color: black; }
+
+        /* Hamburger panel */
+        .hamburger-panel {
+            position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
+            background: var(--nav-bg); backdrop-filter: blur(20px);
+            border-left: 1px solid var(--gold); padding: 2rem 1.5rem;
+            z-index: 2500; transition: right 0.3s ease; display: flex; flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        .hamburger-panel.open { right: 0; }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;
+        }
+        .panel-header h3 { font-family: 'Cinzel', serif; color: var(--gold); }
+        .close-panel {
+            background: transparent; border: none; color: var(--text-muted);
+            font-size: 1.8rem; cursor: pointer; line-height: 1;
+        }
+        .panel-user-area {
+            background: rgba(202,138,4,0.05);
+            border-radius: 30px;
+            padding: 1rem;
+            border: 1px solid var(--border-light);
+            margin: 1.5rem 0;
+        }
+        .panel-user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        .panel-avatar {
+            width: 48px; height: 48px;
+            background: var(--gold); color: black;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.2rem;
+        }
+        .panel-user-name {
+            font-weight: 600;
+            color: var(--gold);
+        }
+        .panel-logout {
+            width: 100%;
+            padding: 0.7rem;
+            background: transparent;
+            border: 1px solid var(--gold);
+            border-radius: 40px;
+            color: var(--gold);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .panel-logout:hover {
+            background: var(--gold);
+            color: black;
+        }
+        .panel-quick-links {
+            display: flex; flex-direction: column; gap: 0.5rem;
+        }
+        .panel-link {
+            padding: 0.9rem 1rem; background: rgba(255,255,255,0.03);
+            border-radius: 30px; color: var(--text-primary); text-decoration: none;
+            display: flex; align-items: center; gap: 1rem; transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .panel-link:hover {
+            border-color: var(--gold); background: rgba(202,138,4,0.1); color: var(--gold);
+        }
+        .panel-link i { width: 24px; color: var(--gold); }
+        .panel-theme-toggle {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 40px;
+            margin-top: auto; border: 1px solid var(--border-light);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, rgba(202,138,4,0.2), rgba(20,20,20,0.95));
+            border: 2px solid var(--gold);
+            border-radius: 30px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(202,138,4,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .welcome-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-text h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-text p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .welcome-actions {
+            display: flex;
+            gap: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .action-icon-btn {
+            width: 50px;
+            height: 50px;
+            background: rgba(202,138,4,0.1);
+            border: 1px solid var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .action-icon-btn:hover {
+            background: var(--gold);
+            color: black;
+            transform: scale(1.1);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(202,138,4,0.2);
+            border-radius: 24px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 20px 30px rgba(202,138,4,0.15);
+        }
+
+        .stat-card:hover::before {
+            transform: translateX(0);
+        }
+
+        .stat-card.active {
+            border-color: var(--gold);
+            background: rgba(202,138,4,0.05);
+        }
+
+        .stat-icon {
+            font-size: 2.2rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .quick-action-btn {
+            padding: 0.8rem 1.5rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(202,138,4,0.2);
+            border-radius: 40px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(202,138,4,0.05);
+        }
+
+        .quick-action-btn i {
+            color: var(--gold);
+        }
+
+        .quick-action-btn.primary {
+            background: var(--gold);
+            color: black;
+            border-color: var(--gold);
+        }
+
+        .quick-action-btn.primary i {
+            color: black;
+        }
+
+        .quick-action-btn.primary:hover {
+            background: var(--gold-dark);
+            color: black;
+        }
+
+        /* Search and Filter Bar */
+        .search-filter-bar {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(202,138,4,0.2);
+            border-radius: 60px;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .search-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.03);
+            border-radius: 40px;
+            padding: 0.3rem 0.3rem 0.3rem 1.2rem;
+            min-width: 250px;
+        }
+
+        .search-wrapper i {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .search-wrapper input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 0.8rem 0.5rem;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .search-wrapper input::placeholder {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .search-wrapper button {
+            background: var(--gold);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: black;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .search-wrapper button:hover {
+            background: var(--gold-dark);
+            transform: scale(1.05);
+        }
+
+        .filter-select {
+            padding: 0.8rem 2rem 0.8rem 1.5rem;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(202,138,4,0.2);
+            border-radius: 40px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ca8a04'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1rem;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .refresh-btn {
+            width: 45px;
+            height: 45px;
+            background: rgba(202,138,4,0.1);
+            border: 1px solid var(--gold);
+            border-radius: 50%;
+            color: var(--gold);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .refresh-btn:hover {
+            background: var(--gold);
+            color: black;
+            transform: rotate(180deg);
+        }
+
+        /* Subscriptions Grid */
+        .subscriptions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .subscription-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(202,138,4,0.2);
+            border-radius: 24px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subscription-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--gold), var(--gold-dark));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .subscription-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 20px 30px rgba(202,138,4,0.15);
+        }
+
+        .subscription-card:hover::before {
+            opacity: 1;
+        }
+
+        .subscription-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px dashed rgba(202,138,4,0.2);
+        }
+
+        .subscription-id {
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            color: var(--gold);
+            font-size: 1rem;
+        }
+
+        .subscription-tier {
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .tier-basic {
+            background: rgba(107,114,128,0.15);
+            color: #9ca3af;
+            border: 1px solid #6b7280;
+        }
+
+        .tier-pro {
+            background: rgba(245,158,11,0.15);
+            color: #fbbf24;
+            border: 1px solid #f59e0b;
+        }
+
+        .tier-premium {
+            background: rgba(139,92,246,0.15);
+            color: #c4b5fd;
+            border: 1px solid #8b5cf6;
+        }
+
+        .tier-enterprise {
+            background: rgba(236,72,153,0.15);
+            color: #f9a8d4;
+            border: 1px solid #ec4899;
+        }
+
+        .subscription-badge {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 0.5rem;
+        }
+
+        .badge-active {
+            background: rgba(16,185,129,0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .badge-pending {
+            background: rgba(245,158,11,0.15);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .badge-cancelled {
+            background: rgba(220,38,38,0.15);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .badge-expired {
+            background: rgba(107,114,128,0.15);
+            color: #9ca3af;
+            border: 1px solid #6b7280;
+        }
+
+        .plan-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .plan-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(202,138,4,0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            font-size: 1.5rem;
+        }
+
+        .plan-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 0.2rem;
+        }
+
+        .plan-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1;
+        }
+
+        .plan-interval {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .subscription-dates {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem 0;
+            border-top: 1px dashed rgba(202,138,4,0.2);
+            border-bottom: 1px dashed rgba(202,138,4,0.2);
+        }
+
+        .date-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .date-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .date-value {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .date-value.expiring {
+            color: var(--warning);
+        }
+
+        .date-value.expired {
+            color: var(--danger);
+        }
+
+        .features-list {
+            margin: 1rem 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .feature-item i {
+            color: var(--gold);
+            width: 18px;
+            font-size: 0.9rem;
+        }
+
+        .feature-item.disabled {
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        .feature-item.disabled i {
+            color: var(--text-muted);
+        }
+
+        .subscription-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .subscription-status {
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-active {
+            background: rgba(16,185,129,0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .status-pending {
+            background: rgba(245,158,11,0.15);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .status-cancelled {
+            background: rgba(220,38,38,0.15);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .status-expired {
+            background: rgba(107,114,128,0.15);
+            color: #9ca3af;
+            border: 1px solid #6b7280;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .card-action-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(202,138,4,0.2);
+            border-radius: 50%;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-action-btn:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(202,138,4,0.05);
+            transform: scale(1.1);
+        }
+
+        .card-action-btn.cancel:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .card-action-btn.renew:hover {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .card-action-btn.upgrade:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        /* Available Plans Section */
+        .plans-section {
+            margin-top: 3rem;
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .plan-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(202,138,4,0.2);
+            border-radius: 24px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 20px 30px rgba(202,138,4,0.15);
+        }
+
+        .plan-card.recommended {
+            border: 2px solid var(--gold);
+            position: relative;
+        }
+
+        .recommended-badge {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gold);
+            color: black;
+            padding: 0.3rem 1.5rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .plan-card-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .plan-card-icon {
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .plan-card-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-card-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 0.3rem;
+        }
+
+        .plan-card-interval {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .plan-card-features {
+            list-style: none;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+
+        .plan-card-feature {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .plan-card-feature i {
+            color: var(--gold);
+            width: 20px;
+        }
+
+        .plan-card-feature.disabled {
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        .plan-card-feature.disabled i {
+            color: var(--text-muted);
+        }
+
+        .plan-card-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: transparent;
+            border: 2px solid var(--gold);
+            border-radius: 40px;
+            color: var(--gold);
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 1rem;
+        }
+
+        .plan-card-btn:hover {
+            background: var(--gold);
+            color: black;
+        }
+
+        .plan-card-btn.recommended {
+            background: var(--gold);
+            color: black;
+        }
+
+        .plan-card-btn.recommended:hover {
+            background: var(--gold-dark);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: 40px;
+            border: 2px dashed rgba(202,138,4,0.3);
+            margin: 2rem 0;
+        }
+
+        .empty-state-icon {
+            font-size: 5rem;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .empty-state h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            color: var(--text-muted);
+            max-width: 500px;
+            margin: 0 auto 2rem;
+            font-size: 1.1rem;
+        }
+
+        .subscribe-now-btn {
+            padding: 1rem 3rem;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: black;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            box-shadow: 0 10px 20px rgba(202,138,4,0.3);
+        }
+
+        .subscribe-now-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(202,138,4,0.4);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            z-index: 9499;
+            display: none;
+        }
+        .modal-overlay.active { display: block; }
+        .modal {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 30px;
+            border: 2px solid var(--gold);
+            z-index: 9500;
+            max-width: 600px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            display: none;
+        }
+        .modal.active { display: block; animation: modalPop 0.3s ease; }
+        @keyframes modalPop {
+            from { opacity: 0; transform: translate(-50%,-55%); }
+            to { opacity: 1; transform: translate(-50%,-50%); }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .modal-header h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+        }
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-close:hover {
+            color: var(--gold);
+            transform: rotate(90deg);
+        }
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+        .modal-field {
+            margin-bottom: 1.2rem;
+        }
+        .modal-field label {
+            display: block;
+            color: var(--gold);
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .modal-field .field-value {
+            padding: 0.8rem 1rem;
+            background: var(--input-bg);
+            border-radius: 12px;
+            color: var(--text-primary);
+            word-break: break-word;
+            border: 1px solid transparent;
+            transition: 0.2s;
+        }
+        .modal-field .field-value:hover {
+            border-color: rgba(202,138,4,0.3);
+        }
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-light);
+        }
+
+        /* Loading and Toast */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+        }
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .loading-content {
+            text-align: center;
+        }
+        .loading-spinner {
+            width: 70px;
+            height: 70px;
+            border: 5px solid rgba(202,138,4,0.2);
+            border-radius: 50%;
+            border-top-color: var(--gold);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-content p {
+            color: var(--gold);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 10001;
+        }
+        .toast {
+            background: rgba(20,20,20,0.95);
+            backdrop-filter: blur(10px);
+            border-left: 4px solid var(--gold);
+            border-radius: 20px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+            animation: slideInRight 0.3s ease;
+            border: 1px solid rgba(202,138,4,0.3);
+        }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast.info { border-left-color: var(--info); }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .header-desktop-actions { display: none; }
+            .mobile-header-group { display: flex; }
+            .main-content { padding: 1rem; }
+            .welcome-banner { flex-direction: column; text-align: center; }
+            .search-filter-bar { flex-direction: column; border-radius: 30px; }
+            .search-wrapper { width: 100%; }
+            .filter-select { width: 100%; }
+            .subscriptions-grid { grid-template-columns: 1fr; }
+            .quick-actions { justify-content: center; }
+            .plans-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Loading your subscriptions...</p>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Modal for subscription details -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+    <div class="modal" id="detailsModal">
+        <div class="modal-header">
+            <h3 id="modalTitle">Subscription Details</h3>
+            <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Dynamic content -->
+        </div>
+        <div class="modal-actions">
+            <button class="quick-action-btn" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="header-container">
+            <div style="display: flex; align-items: center;">
+                <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" alt="I AM MUGERA" class="site-logo">
+            </div>
+            <div class="header-desktop-actions">
+                <div id="userMenuDesktop" class="user-menu" style="display:none;">
+                    <span class="user-name" id="userDisplayNameDesktop">User</span>
+                    <div class="user-avatar" id="userAvatarDesktop">U</div>
+                    <div class="logout-dropdown">
+                        <div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                    </div>
+                </div>
+                <div id="loginButtonDesktop" onclick="openAuthModal()" style="display:flex; align-items:center; gap:0.5rem; background:rgba(202,138,4,0.1); border:1px solid var(--gold); border-radius:40px; padding:0.3rem 1.2rem; cursor:pointer;">
+                    <i class="fas fa-user-circle"></i><span>Login</span>
+                </div>
+            </div>
+            <div class="mobile-header-group">
+                <div class="hamburger-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hamburger panel -->
+    <div class="hamburger-panel" id="hamburgerPanel">
+        <div class="panel-header">
+            <h3>Menu</h3>
+            <button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="panel-user-area" id="panelUserArea">
+            <div id="panelLoggedOut" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                <div style="text-align: center; color: var(--text-muted);"><i class="fas fa-user-circle" style="font-size: 3rem;"></i></div>
+                <button class="panel-logout" onclick="openAuthModal(); toggleHamburger();"><i class="fas fa-sign-in-alt"></i> Login</button>
+            </div>
+            <div id="panelLoggedIn" style="display: none; flex-direction: column; gap: 0.8rem;">
+                <div class="panel-user-info">
+                    <div class="panel-avatar" id="panelAvatar">U</div>
+                    <span class="panel-user-name" id="panelUserName">User</span>
+                </div>
+                <button class="panel-logout" onclick="handleLogout(); toggleHamburger();"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </div>
+        <div class="panel-quick-links">
+            <a href="profile.html" class="panel-link"><i class="fas fa-user"></i> My Profile</a>
+            <a href="wallet.html" class="panel-link"><i class="fas fa-wallet"></i> My Wallet</a>
+            <a href="tasks.html" class="panel-link"><i class="fas fa-tasks"></i> My Tasks</a>
+            <a href="orders.html" class="panel-link"><i class="fas fa-shopping-bag"></i> My Orders</a>
+            <a href="rides.html" class="panel-link"><i class="fas fa-car"></i> My Rides</a>
+            <a href="subscriptions.html" class="panel-link"><i class="fas fa-calendar-check"></i> Subscriptions</a>
+        </div>
+        <div class="panel-theme-toggle">
+            <span><i class="fas fa-palette"></i> Dark / Light</span>
+            <div onclick="toggleTheme()" style="width:45px; height:45px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; cursor:pointer;">
+                <i class="fas fa-moon" id="panelThemeIcon"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="modal-overlay" id="authModalOverlay" onclick="closeAuthModal()"></div>
+    <div class="modal" id="authModal" style="max-width: 450px;">
+        <div class="modal-header">
+            <h3>Login</h3>
+            <button class="modal-close" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label class="form-label" style="color: var(--gold); margin-bottom: 0.5rem; display: block;">Email</label>
+                    <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 12px; color: var(--text-primary);">
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label class="form-label" style="color: var(--gold); margin-bottom: 0.5rem; display: block;">Password</label>
+                    <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 12px; color: var(--text-primary);">
+                </div>
+                <div class="modal-error" id="loginError" style="color: var(--danger); text-align: center; margin-bottom: 1rem; display: none;"></div>
+                <button type="submit" class="quick-action-btn" style="width: 100%; justify-content: center; padding: 1rem;">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+        <div style="text-align: center; padding: 3rem;">
+            <div class="loading-spinner" style="margin: 0 auto;"></div>
+            <p style="margin-top: 1rem; color: var(--text-muted);">Loading your subscriptions...</p>
+        </div>
+    </main>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+            authDomain: "mugera-e51cc.firebaseapp.com",
+            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "mugera-e51cc",
+            storageBucket: "mugera-e51cc.firebasestorage.app",
+            messagingSenderId: "1024868637509",
+            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
+        // Global state
+        let currentUser = null;
+        let userData = {};
+        let subscriptions = [];
+        let filteredSubscriptions = [];
+        let currentFilter = 'all';
+
+        // Available plans for upgrade
+        const availablePlans = [
+            {
+                id: 'basic',
+                name: 'Basic',
+                price: 500,
+                interval: 'monthly',
+                icon: 'fa-user',
+                features: [
+                    'Access to basic content',
+                    'Monthly newsletter',
+                    'Community access',
+                    'Email support'
+                ],
+                disabled: []
+            },
+            {
+                id: 'pro',
+                name: 'Pro',
+                price: 1200,
+                interval: 'monthly',
+                icon: 'fa-star',
+                recommended: true,
+                features: [
+                    'Everything in Basic',
+                    'Premium articles',
+                    'Early access to content',
+                    'Priority support',
+                    'Exclusive webinars',
+                    'Member directory'
+                ],
+                disabled: []
+            },
+            {
+                id: 'premium',
+                name: 'Premium',
+                price: 2500,
+                interval: 'monthly',
+                icon: 'fa-crown',
+                features: [
+                    'Everything in Pro',
+                    '1-on-1 coaching sessions',
+                    'Downloadable resources',
+                    'Course discounts (20%)',
+                    'Partner offers',
+                    'VIP event access'
+                ],
+                disabled: []
+            },
+            {
+                id: 'enterprise',
+                name: 'Enterprise',
+                price: 5000,
+                interval: 'monthly',
+                icon: 'fa-building',
+                features: [
+                    'Everything in Premium',
+                    'Team accounts (up to 5)',
+                    'Custom integrations',
+                    'Dedicated account manager',
+                    'API access',
+                    'SLA guarantee'
+                ],
+                disabled: []
+            }
+        ];
+
+        // ========== AUTH STATE LISTENER ==========
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                showLoading(true);
+                
+                try {
+                    await loadUserData();
+                    await loadUserSubscriptions();
+                    renderPage();
+                } catch (error) {
+                    console.error('Error:', error);
+                    showToast('Error loading subscriptions', 'error');
+                    renderLoginPage();
+                } finally {
+                    showLoading(false);
+                }
+            } else {
+                renderLoginPage();
+            }
+        });
+
+        // ========== LOAD USER DATA ==========
+        async function loadUserData() {
+            const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
+            if (userSnapshot.exists()) {
+                userData = userSnapshot.val();
+            } else {
+                userData = {
+                    name: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
+                    email: currentUser.email,
+                    uid: currentUser.uid
+                };
+            }
+            
+            updateUserUI();
+        }
+
+        function updateUserUI() {
+            const displayName = userData.name || currentUser.displayName || currentUser.email?.split('@')[0] || 'User';
+            document.getElementById('userDisplayNameDesktop').textContent = displayName;
+            document.getElementById('panelUserName').textContent = displayName;
+            
+            const initial = displayName.charAt(0).toUpperCase();
+            document.getElementById('userAvatarDesktop').textContent = initial;
+            document.getElementById('panelAvatar').textContent = initial;
+            
+            document.getElementById('userMenuDesktop').style.display = 'flex';
+            document.getElementById('loginButtonDesktop').style.display = 'none';
+            document.getElementById('panelLoggedOut').style.display = 'none';
+            document.getElementById('panelLoggedIn').style.display = 'flex';
+        }
+
+        // ========== LOAD USER SUBSCRIPTIONS ==========
+        async function loadUserSubscriptions() {
+            try {
+                // Try to load from subscriptions node
+                let snapshot = await database.ref('subscriptions')
+                    .orderByChild('userId')
+                    .equalTo(currentUser.uid)
+                    .once('value');
+                
+                let data = snapshot.val() || {};
+                
+                // If no subscriptions found, check subscribers node
+                if (Object.keys(data).length === 0) {
+                    const subscribersSnapshot = await database.ref('subscribers')
+                        .orderByChild('userId')
+                        .equalTo(currentUser.uid)
+                        .once('value');
+                    
+                    data = subscribersSnapshot.val() || {};
+                }
+                
+                subscriptions = Object.entries(data).map(([id, sub]) => {
+                    // Parse dates
+                    let startDate = sub.startDate || sub.subscribedAt || sub.timestamp || null;
+                    let endDate = sub.endDate || sub.expires || null;
+                    
+                    // Calculate end date if not provided (30 days from start)
+                    if (startDate && !endDate && sub.interval === 'monthly') {
+                        const start = new Date(startDate);
+                        start.setDate(start.getDate() + 30);
+                        endDate = start.toISOString();
+                    }
+                    
+                    // Determine if expiring soon (within 7 days)
+                    let isExpiringSoon = false;
+                    let isExpired = false;
+                    
+                    if (endDate) {
+                        const now = new Date();
+                        const end = new Date(endDate);
+                        const daysUntilExpiry = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+                        
+                        isExpiringSoon = daysUntilExpiry <= 7 && daysUntilExpiry > 0;
+                        isExpired = daysUntilExpiry <= 0;
+                    }
+                    
+                    // Determine tier
+                    let tier = sub.tier || 'basic';
+                    if (sub.plan) tier = sub.plan.toLowerCase();
+                    if (sub.membership) tier = sub.membership.toLowerCase();
+                    
+                    // Get features based on tier
+                    const plan = availablePlans.find(p => p.id === tier) || availablePlans[0];
+                    
+                    return {
+                        id: id,
+                        subId: id.slice(-8).toUpperCase(),
+                        fullId: id,
+                        tier: tier,
+                        planName: plan.name,
+                        price: sub.amount || sub.price || plan.price,
+                        interval: sub.interval || 'monthly',
+                        status: sub.status || 'active',
+                        startDate: startDate,
+                        endDate: endDate,
+                        autoRenew: sub.autoRenew !== false,
+                        paymentMethod: sub.paymentMethod || 'M-Pesa',
+                        features: plan.features,
+                        isExpiringSoon: isExpiringSoon,
+                        isExpired: isExpired,
+                        timestamp: startDate ? new Date(startDate).getTime() : Date.now()
+                    };
+                });
+
+                // Sort by date (newest first)
+                subscriptions.sort((a, b) => b.timestamp - a.timestamp);
+                filteredSubscriptions = [...subscriptions];
+                
+                console.log(`Loaded ${subscriptions.length} subscriptions for user`);
+                
+            } catch (error) {
+                console.error('Error loading subscriptions:', error);
+                subscriptions = [];
+                filteredSubscriptions = [];
+            }
+        }
+
+        // ========== RENDER FUNCTIONS ==========
+        function renderLoginPage() {
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h3>Welcome to Subscriptions</h3>
+                    <p>Please login to view your subscription plans and manage your memberships.</p>
+                    <button class="subscribe-now-btn" onclick="openAuthModal()">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                </div>
+            `;
+            
+            document.getElementById('userMenuDesktop').style.display = 'none';
+            document.getElementById('loginButtonDesktop').style.display = 'flex';
+            document.getElementById('panelLoggedOut').style.display = 'flex';
+            document.getElementById('panelLoggedIn').style.display = 'none';
+        }
+
+        function renderPage() {
+            if (!currentUser) {
+                renderLoginPage();
+                return;
+            }
+            
+            if (subscriptions.length === 0) {
+                renderNoSubscriptions();
+            } else {
+                renderSubscriptionsPage();
+            }
+        }
+
+        function renderNoSubscriptions() {
+            const displayName = userData.name || currentUser.displayName || currentUser.email?.split('@')[0] || 'User';
+            
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <!-- Welcome Banner -->
+                <div class="welcome-banner">
+                    <div class="welcome-text">
+                        <h1>Welcome back, ${displayName}! 👋</h1>
+                        <p>You don't have any active subscriptions yet.</p>
+                    </div>
+                    <div class="welcome-actions">
+                        <div class="action-icon-btn" onclick="refreshSubscriptions()" title="Refresh">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                    <h3>No Subscriptions Yet</h3>
+                    <p>Choose a plan that fits your needs and unlock premium features.</p>
+                    <button class="subscribe-now-btn" onclick="scrollToPlans()">
+                        <i class="fas fa-arrow-down"></i> View Plans
+                    </button>
+                </div>
+
+                <!-- Available Plans -->
+                <div class="plans-section" id="plansSection">
+                    <h2 style="color: var(--gold); text-align: center; margin-bottom: 2rem;">Choose Your Plan</h2>
+                    <div class="plans-grid">
+                        ${renderAvailablePlans()}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSubscriptionsPage() {
+            const stats = getSubscriptionStats();
+            const displayName = userData.name || currentUser.displayName || currentUser.email?.split('@')[0] || 'User';
+            
+            const mainContent = document.getElementById('mainContent');
+            mainContent.innerHTML = `
+                <!-- Welcome Banner -->
+                <div class="welcome-banner">
+                    <div class="welcome-text">
+                        <h1>Welcome back, ${displayName}! 👋</h1>
+                        <p>You have ${stats.active} active subscription${stats.active !== 1 ? 's' : ''}</p>
+                    </div>
+                    <div class="welcome-actions">
+                        <div class="action-icon-btn" onclick="refreshSubscriptions()" title="Refresh">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card ${currentFilter === 'all' ? 'active' : ''}" onclick="filterByStatus('all')">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-value">${stats.total}</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-card ${currentFilter === 'active' ? 'active' : ''}" onclick="filterByStatus('active')">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-value">${stats.active}</div>
+                        <div class="stat-label">Active</div>
+                    </div>
+                    <div class="stat-card ${currentFilter === 'pending' ? 'active' : ''}" onclick="filterByStatus('pending')">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-value">${stats.pending}</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card ${currentFilter === 'expiring' ? 'active' : ''}" onclick="filterByStatus('expiring')">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-value">${stats.expiring}</div>
+                        <div class="stat-label">Expiring Soon</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="quick-action-btn" onclick="filterByStatus('all')">
+                        <i class="fas fa-list"></i> All
+                    </button>
+                    <button class="quick-action-btn" onclick="filterByStatus('active')">
+                        <i class="fas fa-check-circle"></i> Active
+                    </button>
+                    <button class="quick-action-btn" onclick="filterByStatus('pending')">
+                        <i class="fas fa-clock"></i> Pending
+                    </button>
+                    <button class="quick-action-btn" onclick="filterByStatus('expiring')">
+                        <i class="fas fa-exclamation-triangle"></i> Expiring Soon
+                    </button>
+                    <button class="quick-action-btn primary" onclick="scrollToPlans()">
+                        <i class="fas fa-plus-circle"></i> Upgrade
+                    </button>
+                </div>
+
+                <!-- Search and Filter Bar -->
+                <div class="search-filter-bar">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search" style="margin-left: 0.5rem;"></i>
+                        <input type="text" id="searchInput" placeholder="Search subscriptions...">
+                        <button onclick="filterSubscriptions()"><i class="fas fa-arrow-right"></i></button>
+                    </div>
+                    <select class="filter-select" id="statusFilter" onchange="filterSubscriptions()">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="pending">Pending</option>
+                        <option value="cancelled">Cancelled</option>
+                        <option value="expired">Expired</option>
+                    </select>
+                    <button class="refresh-btn" onclick="refreshSubscriptions()" title="Refresh">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+
+                <!-- Subscriptions Grid -->
+                <div class="subscriptions-grid" id="subscriptionsGrid">
+                    ${renderSubscriptionCards()}
+                </div>
+
+                <!-- Available Plans -->
+                <div class="plans-section" id="plansSection">
+                    <h2 style="color: var(--gold); text-align: center; margin: 3rem 0 2rem;">Upgrade Your Plan</h2>
+                    <div class="plans-grid">
+                        ${renderAvailablePlans()}
+                    </div>
+                </div>
+            `;
+
+            // Add event listeners
+            document.getElementById('searchInput').addEventListener('input', filterSubscriptions);
+        }
+
+        function renderSubscriptionCards() {
+            if (filteredSubscriptions.length === 0) {
+                return `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                        <i class="fas fa-search" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                        <p style="color: var(--text-muted);">No subscriptions match your filters</p>
+                    </div>
+                `;
+            }
+
+            let html = '';
+            filteredSubscriptions.forEach(sub => {
+                const tierClass = `tier-${sub.tier}`;
+                const statusClass = `status-${sub.status}`;
+                const badgeClass = sub.status === 'active' ? 'badge-active' : 
+                                   sub.status === 'pending' ? 'badge-pending' :
+                                   sub.status === 'cancelled' ? 'badge-cancelled' : 'badge-expired';
+                
+                // Format dates
+                const startDate = sub.startDate ? new Date(sub.startDate).toLocaleDateString() : 'N/A';
+                const endDate = sub.endDate ? new Date(sub.endDate).toLocaleDateString() : 'N/A';
+                
+                // Determine date class
+                let endDateClass = '';
+                if (sub.isExpired) endDateClass = 'expired';
+                else if (sub.isExpiringSoon) endDateClass = 'expiring';
+                
+                html += `
+                    <div class="subscription-card" onclick="viewSubscriptionDetails('${sub.id}')">
+                        <div class="subscription-header">
+                            <span class="subscription-id">#${sub.subId}</span>
+                            <span class="subscription-tier ${tierClass}">${sub.planName}</span>
+                        </div>
+                        
+                        <div class="plan-info">
+                            <div class="plan-icon">
+                                <i class="fas ${sub.tier === 'basic' ? 'fa-user' : 
+                                              sub.tier === 'pro' ? 'fa-star' : 
+                                              sub.tier === 'premium' ? 'fa-crown' : 'fa-building'}"></i>
+                            </div>
+                            <div>
+                                <div class="plan-name">${sub.planName} Plan</div>
+                                <div>
+                                    <span class="plan-price">KSh ${sub.price.toLocaleString()}</span>
+                                    <span class="plan-interval">/${sub.interval}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="subscription-dates">
+                            <div class="date-item">
+                                <span class="date-label">Started</span>
+                                <span class="date-value">${startDate}</span>
+                            </div>
+                            <div class="date-item">
+                                <span class="date-label">Ends</span>
+                                <span class="date-value ${endDateClass}">${endDate}</span>
+                            </div>
+                        </div>
+
+                        <div class="features-list">
+                            ${sub.features.slice(0, 3).map(f => `
+                                <div class="feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>${f}</span>
+                                </div>
+                            `).join('')}
+                            ${sub.features.length > 3 ? `
+                                <div class="feature-item">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                    <span>+${sub.features.length - 3} more features</span>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="subscription-footer">
+                            <span class="subscription-status ${statusClass}">${sub.status}</span>
+                            <div class="card-actions" onclick="event.stopPropagation()">
+                                <button class="card-action-btn" onclick="viewSubscriptionDetails('${sub.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${sub.status === 'active' ? `
+                                    <button class="card-action-btn" onclick="upgradeSubscription('${sub.id}')" title="Upgrade">
+                                        <i class="fas fa-arrow-up"></i>
+                                    </button>
+                                    <button class="card-action-btn cancel" onclick="cancelSubscription('${sub.id}')" title="Cancel">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                ` : ''}
+                                ${sub.isExpired || sub.status === 'cancelled' ? `
+                                    <button class="card-action-btn renew" onclick="renewSubscription('${sub.id}')" title="Renew">
+                                        <i class="fas fa-redo"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            return html;
+        }
+
+        function renderAvailablePlans() {
+            return availablePlans.map(plan => `
+                <div class="plan-card ${plan.recommended ? 'recommended' : ''}">
+                    ${plan.recommended ? '<div class="recommended-badge">Most Popular</div>' : ''}
+                    <div class="plan-card-header">
+                        <div class="plan-card-icon">
+                            <i class="fas ${plan.icon}"></i>
+                        </div>
+                        <div class="plan-card-name">${plan.name}</div>
+                        <div class="plan-card-price">KSh ${plan.price.toLocaleString()}</div>
+                        <div class="plan-card-interval">per ${plan.interval}</div>
+                    </div>
+                    <ul class="plan-card-features">
+                        ${plan.features.map(f => `
+                            <li class="plan-card-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>${f}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                    <button class="plan-card-btn ${plan.recommended ? 'recommended' : ''}" onclick="subscribeToPlan('${plan.id}')">
+                        Choose Plan
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function getSubscriptionStats() {
+            const total = subscriptions.length;
+            const active = subscriptions.filter(s => s.status === 'active' && !s.isExpired).length;
+            const pending = subscriptions.filter(s => s.status === 'pending').length;
+            const expiring = subscriptions.filter(s => s.isExpiringSoon).length;
+            const cancelled = subscriptions.filter(s => s.status === 'cancelled').length;
+            const expired = subscriptions.filter(s => s.isExpired).length;
+            
+            return { total, active, pending, expiring, cancelled, expired };
+        }
+
+        // ========== FILTER FUNCTIONS ==========
+        function filterSubscriptions() {
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            
+            if (!searchInput || !statusFilter) return;
+            
+            const searchTerm = searchInput.value.toLowerCase();
+            const statusValue = statusFilter.value;
+
+            filteredSubscriptions = subscriptions.filter(sub => {
+                const matchesSearch = 
+                    sub.subId.toLowerCase().includes(searchTerm) ||
+                    sub.planName.toLowerCase().includes(searchTerm) ||
+                    sub.tier.toLowerCase().includes(searchTerm);
+                
+                let matchesStatus = statusValue === 'all';
+                if (statusValue === 'active') {
+                    matchesStatus = sub.status === 'active' && !sub.isExpired;
+                } else if (statusValue === 'expiring') {
+                    matchesStatus = sub.isExpiringSoon;
+                } else {
+                    matchesStatus = sub.status === statusValue;
+                }
+                
+                return matchesSearch && matchesStatus;
+            });
+
+            const grid = document.getElementById('subscriptionsGrid');
+            if (grid) {
+                grid.innerHTML = renderSubscriptionCards();
+            }
+        }
+
+        function filterByStatus(status) {
+            currentFilter = status;
+            const statusFilter = document.getElementById('statusFilter');
+            if (statusFilter) {
+                if (status === 'expiring') {
+                    statusFilter.value = 'all'; // We'll handle expiring separately
+                } else {
+                    statusFilter.value = status;
+                }
+            }
+            filterSubscriptions();
+            
+            // Update active state on stats cards
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+        }
+
+        // ========== SUBSCRIPTION ACTIONS ==========
+        window.viewSubscriptionDetails = function(subId) {
+            const sub = subscriptions.find(s => s.id === subId);
+            if (!sub) return;
+
+            const statusClass = `status-${sub.status}`;
+            const tierClass = `tier-${sub.tier}`;
+            
+            // Format dates
+            const startDate = sub.startDate ? new Date(sub.startDate).toLocaleString() : 'N/A';
+            const endDate = sub.endDate ? new Date(sub.endDate).toLocaleString() : 'N/A';
+            
+            // Features list
+            const featuresHtml = sub.features.map(f => `
+                <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0;">
+                    <i class="fas fa-check-circle" style="color: var(--gold);"></i>
+                    <span>${f}</span>
+                </div>
+            `).join('');
+
+            const content = `
+                <div class="modal-field">
+                    <label>Subscription ID</label>
+                    <div class="field-value">#${sub.fullId}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Plan</label>
+                    <div class="field-value">
+                        <span class="subscription-tier ${tierClass}">${sub.planName}</span>
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label>Price</label>
+                    <div class="field-value">KSh ${sub.price.toLocaleString()}/${sub.interval}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Payment Method</label>
+                    <div class="field-value">${sub.paymentMethod}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Auto-Renewal</label>
+                    <div class="field-value">${sub.autoRenew ? 'Yes' : 'No'}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Start Date</label>
+                    <div class="field-value">${startDate}</div>
+                </div>
+                <div class="modal-field">
+                    <label>End Date</label>
+                    <div class="field-value ${sub.isExpired ? 'expired' : sub.isExpiringSoon ? 'expiring' : ''}">${endDate}</div>
+                </div>
+                <div class="modal-field">
+                    <label>Features</label>
+                    <div class="field-value">
+                        ${featuresHtml}
+                    </div>
+                </div>
+                <div class="modal-field">
+                    <label>Status</label>
+                    <div class="field-value">
+                        <span class="subscription-status ${statusClass}">${sub.status}</span>
+                        ${sub.isExpiringSoon ? '<span style="margin-left: 0.5rem; color: var(--warning);">(Expiring soon)</span>' : ''}
+                        ${sub.isExpired ? '<span style="margin-left: 0.5rem; color: var(--danger);">(Expired)</span>' : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('modalTitle').textContent = 'Subscription Details';
+            document.getElementById('modalBody').innerHTML = content;
+            document.getElementById('detailsModal').classList.add('active');
+            document.getElementById('modalOverlay').classList.add('active');
+        };
+
+        window.cancelSubscription = async function(subId) {
+            if (!confirm('Are you sure you want to cancel this subscription?')) return;
+            
+            showLoading(true);
+            
+            try {
+                await database.ref(`subscriptions/${subId}`).update({
+                    status: 'cancelled',
+                    cancelledAt: new Date().toISOString(),
+                    autoRenew: false
+                });
+                
+                showToast('Subscription cancelled successfully', 'success');
+                await loadUserSubscriptions();
+                renderSubscriptionsPage();
+                
+            } catch (error) {
+                console.error('Error cancelling subscription:', error);
+                showToast('Failed to cancel subscription', 'error');
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        window.upgradeSubscription = function(subId) {
+            scrollToPlans();
+            showToast('Select a plan to upgrade', 'info');
+        };
+
+        window.renewSubscription = function(subId) {
+            showToast('Renewal feature coming soon', 'info');
+        };
+
+        window.subscribeToPlan = function(planId) {
+            const plan = availablePlans.find(p => p.id === planId);
+            if (!plan) return;
+            
+            // Check if user already has this plan active
+            const hasActive = subscriptions.some(s => 
+                s.tier === planId && s.status === 'active' && !s.isExpired
+            );
+            
+            if (hasActive) {
+                showToast(`You already have an active ${plan.name} plan`, 'warning');
+                return;
+            }
+            
+            // Redirect to subscription checkout
+            window.location.href = `subscribe.html?plan=${planId}`;
+        };
+
+        window.scrollToPlans = function() {
+            const plansSection = document.getElementById('plansSection');
+            if (plansSection) {
+                plansSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+
+        window.refreshSubscriptions = function() {
+            showLoading(true);
+            loadUserSubscriptions().then(() => {
+                if (subscriptions.length === 0) {
+                    renderNoSubscriptions();
+                } else {
+                    renderSubscriptionsPage();
+                }
+                showToast('Subscriptions refreshed', 'success');
+                showLoading(false);
+            }).catch(() => showLoading(false));
+        };
+
+        // ========== AUTH FUNCTIONS ==========
+        window.openAuthModal = function() {
+            document.getElementById('authModal').classList.add('active');
+            document.getElementById('authModalOverlay').classList.add('active');
+        };
+
+        window.closeAuthModal = function() {
+            document.getElementById('authModal').classList.remove('active');
+            document.getElementById('authModalOverlay').classList.remove('active');
+            document.getElementById('loginError').style.display = 'none';
+        };
+
+        window.handleLogin = async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorEl = document.getElementById('loginError');
+            
+            if (!email || !password) {
+                errorEl.style.display = 'block';
+                errorEl.textContent = 'Please enter email and password';
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                errorEl.style.display = 'none';
+                await auth.signInWithEmailAndPassword(email, password);
+                closeAuthModal();
+            } catch (error) {
+                errorEl.style.display = 'block';
+                errorEl.textContent = error.message;
+                showLoading(false);
+            }
+        };
+
+        window.handleLogout = async () => {
+            try {
+                showLoading(true);
+                await auth.signOut();
+                window.location.reload();
+            } catch (error) {
+                showToast('Logout failed', 'error');
+                showLoading(false);
+            }
+        };
+
+        window.closeModal = function() {
+            document.getElementById('detailsModal').classList.remove('active');
+            document.getElementById('modalOverlay').classList.remove('active');
+        };
+
+        // ========== UTILITY FUNCTIONS ==========
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.classList.toggle('active', show);
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = { 
+                success: 'check-circle', 
+                error: 'exclamation-circle', 
+                warning: 'exclamation-triangle', 
+                info: 'info-circle' 
+            };
+            toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // ========== TOGGLE HAMBURGER ==========
+        window.toggleHamburger = function() {
+            document.getElementById('hamburgerPanel').classList.toggle('open');
+        };
+
+        document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
+
+        document.addEventListener('click', function(e) {
+            const panel = document.getElementById('hamburgerPanel');
+            const btn = document.getElementById('hamburgerBtn');
+            if (panel && panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
+                panel.classList.remove('open');
+            }
+        });
+
+        // ========== THEME TOGGLE ==========
+        window.toggleTheme = function() {
+            document.body.classList.toggle('light-theme');
+            const icon = document.getElementById('panelThemeIcon');
+            if (icon) {
+                icon.classList.toggle('fa-moon', !document.body.classList.contains('light-theme'));
+                icon.classList.toggle('fa-sun', document.body.classList.contains('light-theme'));
+            }
+            localStorage.setItem('siteTheme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+        };
+
+        if (localStorage.getItem('siteTheme') === 'light') {
+            document.body.classList.add('light-theme');
+            const icon = document.getElementById('panelThemeIcon');
+            if (icon) icon.classList.replace('fa-moon', 'fa-sun');
+        }
+    </script>
+</body>
+</html>
