@@ -909,751 +909,805 @@
     <div id="elegantToast" class="toast-message"><i class="fas fa-globe-africa"></i><span id="toastMessage"></span></div>
 
     <script>
-        // Firebase config
-        const firebaseConfig = {
-            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
-            authDomain: "mugera-e51cc.firebaseapp.com",
-            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "mugera-e51cc",
-            storageBucket: "mugera-e51cc.firebasestorage.app",
-            messagingSenderId: "1024868637509",
-            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const database = firebase.database();
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    // Firebase config
+    const firebaseConfig = {
+        apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+        authDomain: "mugera-e51cc.firebaseapp.com",
+        databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mugera-e51cc",
+        storageBucket: "mugera-e51cc.firebasestorage.app",
+        messagingSenderId: "1024868637509",
+        appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-        let currentUser = null;
-        let isAdmin = false;
-        let allPosts = [];
-        let allUsers = []; // for mentions
-        let currentFilter = 'all';
-        let expandedPostId = null;
-        let currentSearchQuery = '';
-        let currentSearchService = 'all';
-        let currentSearchType = 'all';
-        let currentSearchResolved = false;
-        let activeMentionInput = null;
+    let currentUser = null;
+    let isAdmin = false;
+    let allPosts = [];
+    let allUsers = []; // for mentions
+    let currentFilter = 'all';
+    let expandedPostId = null;
+    let currentSearchQuery = '';
+    let currentSearchService = 'all';
+    let currentSearchType = 'all';
+    let currentSearchResolved = false;
+    let activeMentionInput = null;
 
-        // Auth observer
-        auth.onAuthStateChanged(user => {
-            currentUser = user;
-            if (user) {
-                document.getElementById('composeAuthWarning').style.display = 'none';
-                document.getElementById('postTrigger').disabled = false;
-                document.getElementById('userMenuDesktop').style.display = 'flex';
-                document.getElementById('loginButtonDesktop').style.display = 'none';
-                document.getElementById('panelLoggedOut').style.display = 'none';
-                document.getElementById('panelLoggedIn').style.display = 'flex';
+    // ========== UPDATED checkIfAdmin FUNCTION - SIMPLE ADMIN NODE ==========
+    async function checkIfAdmin(user) {
+        if (!user || !database) {
+            console.log("No user or database");
+            return false;
+        }
+        
+        try {
+            console.log("Checking admin status for UID:", user.uid);
+            
+            // ✅ DIRECT CHECK in the simple admins node (UID: true)
+            const adminSnapshot = await database.ref(`admins/${user.uid}`).once('value');
+            
+            if (adminSnapshot.exists()) {
+                const adminValue = adminSnapshot.val();
+                console.log("Admin value found:", adminValue);
                 
-                let dn = user.displayName || user.email?.split('@')[0] || 'Mugera';
-                dn = dn.charAt(0).toUpperCase() + dn.slice(1);
-                document.getElementById('userDisplayNameDesktop').textContent = dn;
-                document.getElementById('userAvatarDesktop').textContent = dn.charAt(0);
-                document.getElementById('panelAvatar').textContent = dn.charAt(0);
-                document.getElementById('panelUserName').textContent = dn;
-
-                // admin check
-                if (user.email && (user.email.includes('mugera') || user.email === 't@gk.com' || user.email === 'admin@mugera.com')) {
-                    isAdmin = true;
-                } else {
-                    isAdmin = false;
+                // Check if it's true (boolean)
+                if (adminValue === true) {
+                    console.log("✅ ADMIN ACCESS GRANTED for:", user.email);
+                    return true;
                 }
-                loadPosts();
-                loadUsers();
-            } else {
-                document.getElementById('composeAuthWarning').style.display = 'block';
-                document.getElementById('postTrigger').disabled = true;
-                document.getElementById('userMenuDesktop').style.display = 'none';
-                document.getElementById('loginButtonDesktop').style.display = 'flex';
-                document.getElementById('panelLoggedOut').style.display = 'flex';
-                document.getElementById('panelLoggedIn').style.display = 'none';
-                isAdmin = false;
-                document.getElementById('feedContainer').innerHTML = '<div class="empty-feed">🔒 Please log in to see discussions</div>';
             }
-        });
-
-        // Load all users for mentions
-        function loadUsers() {
-            const usersRef = database.ref('users');
-            usersRef.once('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    allUsers = Object.keys(data).map(key => ({
-                        uid: key,
-                        name: data[key].name || data[key].email?.split('@')[0] || 'User',
-                        email: data[key].email
-                    }));
-                }
-            });
-        }
-
-        // Load posts
-        function loadPosts() {
-            const postsRef = database.ref('socialPosts').orderByChild('timestamp');
-            postsRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                const posts = [];
-                if (data) {
-                    Object.keys(data).forEach(key => {
-                        posts.push({ id: key, ...data[key] });
-                    });
-                }
-                posts.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
-                allPosts = posts;
-                if (currentSearchQuery) {
-                    performSearch();
-                } else {
-                    renderFeed();
-                }
-            });
-        }
-
-        // Search function
-        window.performSearch = function() {
-            const query = document.getElementById('searchInput').value.toLowerCase().trim();
-            const service = document.getElementById('searchServiceFilter').value;
-            const type = document.getElementById('searchTypeFilter').value;
-            const resolvedOnly = document.getElementById('searchResolvedOnly').checked;
-
-            currentSearchQuery = query;
-            currentSearchService = service;
-            currentSearchType = type;
-            currentSearchResolved = resolvedOnly;
-
-            if (!query && service === 'all' && !resolvedOnly) {
-                clearSearch();
-                return;
+            
+            // Optional: Check by email as fallback (in case admin is stored with email key)
+            console.log("Not found by UID, checking by email as fallback...");
+            const emailKey = user.email.replace(/\./g, ','); // Firebase doesn't allow dots in keys
+            const emailSnapshot = await database.ref(`admins/${emailKey}`).once('value');
+            
+            if (emailSnapshot.exists() && emailSnapshot.val() === true) {
+                console.log("✅ ADMIN ACCESS GRANTED by email for:", user.email);
+                
+                // Migrate to UID-based for future
+                await database.ref(`admins/${user.uid}`).set(true);
+                console.log("Migrated email-based admin to UID-based");
+                
+                return true;
             }
-
-            let results = [];
-            const searchRegex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-
-            allPosts.forEach(post => {
-                // Filter by service
-                if (service !== 'all' && post.service !== service) return;
-                
-                // Filter by resolved
-                if (resolvedOnly && !post.resolved) return;
-
-                let matchFound = false;
-                let matchedText = '';
-
-                // Search in post
-                if (type === 'all' || type === 'posts') {
-                    if (query === '' || (post.text && post.text.toLowerCase().includes(query))) {
-                        matchFound = true;
-                        matchedText = post.text;
-                    }
-                }
-
-                // Search in replies
-                if (type === 'all' || type === 'replies') {
-                    if (post.replies) {
-                        Object.values(post.replies).forEach(reply => {
-                            if (reply.text && reply.text.toLowerCase().includes(query)) {
-                                matchFound = true;
-                                matchedText = reply.text;
-                            }
-                        });
-                    }
-                }
-
-                if (matchFound || query === '') {
-                    results.push({ ...post, matchHighlight: matchedText });
-                }
-            });
-
-            // Show search stats
-            document.getElementById('searchStats').style.display = 'flex';
-            document.getElementById('searchResultsCount').textContent = `Found ${results.length} results`;
-
-            // Render search results
-            renderSearchResults(results, query);
-        };
-
-        // Render search results with highlighting
-        function renderSearchResults(results, query) {
-            const container = document.getElementById('feedContainer');
-            if (!currentUser) return;
-
-            if (results.length === 0) {
-                container.innerHTML = '<div class="empty-feed">🔍 No matches found. Try different keywords.</div>';
-                return;
-            }
-
-            let html = '';
-            results.forEach(post => {
-                const isExpanded = expandedPostId === post.id;
-                const postTime = post.timestamp ? new Date(post.timestamp).toLocaleString('en-KE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
-                const authorName = post.authorName || 'Anonymous';
-                const authorHandle = post.authorEmail ? '@' + post.authorEmail.split('@')[0] : '@user';
-                const serviceDisplay = {
-                    'general':'💬 General','eye-of-mugera':'👁️ Eye','inspired-me':'🌱 Inspired',
-                    'heritage-shop':'🛒 Shop','workfit':'🏋️ WorkFit','webdev':'💻 Dev','partnership':'🤝 Partner'
-                }[post.service] || post.service;
-
-                // Highlight matching text
-                let displayText = post.text;
-                if (query && post.text) {
-                    const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-                    displayText = post.text.replace(regex, '<span class="highlight-match">$1</span>');
-                }
-
-                // Count likes/dislikes
-                const likes = post.likes ? Object.keys(post.likes).length : 0;
-                const dislikes = post.dislikes ? Object.keys(post.dislikes).length : 0;
-                
-                // Check if current user liked/disliked
-                const userLiked = currentUser && post.likes && post.likes[currentUser.uid];
-                const userDisliked = currentUser && post.dislikes && post.dislikes[currentUser.uid];
-
-                html += `
-                    <div class="post-card search-match ${isExpanded ? 'expanded' : ''} ${post.resolved ? 'resolved' : ''}" id="post-${post.id}" onclick="togglePost('${post.id}', event)">
-                        <div class="post-header">
-                            <div class="post-avatar">${authorName.charAt(0)}</div>
-                            <div class="post-author-info">
-                                <span class="post-author-name">${escapeHtml(authorName)} ${post.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''} ${post.resolved ? '<span class="resolved-badge"><i class="fas fa-check-circle"></i> Resolved</span>' : ''}</span>
-                                <span class="post-author-handle">${escapeHtml(authorHandle)}</span>
-                            </div>
-                            <span class="post-service-tag">${serviceDisplay}</span>
-                        </div>
-                        
-                        <div class="post-preview">${displayText}</div>
-                        
-                        <div class="post-content-full">${displayText}</div>
-                        
-                        <div class="post-stats" onclick="event.stopPropagation()">
-                            <span class="post-stat ${userLiked ? 'liked' : ''}" onclick="handleLike('${post.id}', event)">
-                                <i class="fas fa-heart"></i> ${likes}
-                            </span>
-                            <span class="post-stat ${userDisliked ? 'disliked' : ''}" onclick="handleDislike('${post.id}', event)">
-                                <i class="fas fa-thumbs-down"></i> ${dislikes}
-                            </span>
-                            <span class="post-stat">
-                                <i class="fas fa-comment"></i> ${post.replies ? Object.keys(post.replies).length : 0}
-                            </span>
-                        </div>
-                        
-                        <div class="expanded-content" onclick="event.stopPropagation()">
-                            ${renderReplies(post)}
-                            
-                            ${renderReplySection(post)}
-                            
-                            ${renderAdminControls(post)}
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
+            
+            console.log("❌ ADMIN ACCESS DENIED for:", user.email);
+            return false;
+            
+        } catch (error) {
+            console.error("Error checking admin status:", error);
+            return false;
         }
+    }
 
-        // Helper to render replies
-        function renderReplies(post) {
-            if (!post.replies) return '';
-            let repliesHtml = '<div class="replies-section">';
-            const replyIds = Object.keys(post.replies).sort((a,b) => post.replies[a].timestamp - post.replies[b].timestamp);
-            replyIds.forEach(rid => {
-                const rep = post.replies[rid];
-                const repTime = rep.timestamp ? new Date(rep.timestamp).toLocaleString('en-KE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
-                
-                // Parse mentions in reply text
-                let replyText = escapeHtml(rep.text);
-                replyText = replyText.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
-                
-                repliesHtml += `
-                    <div class="reply-item">
-                        <div class="reply-header">
-                            <span class="reply-author">${escapeHtml(rep.authorName || 'User')}</span>
-                            ${rep.isAdmin ? '<span class="reply-admin-badge">ADMIN</span>' : ''}
-                            <span class="reply-time">${repTime}</span>
-                            ${ (currentUser?.uid === rep.userId || isAdmin) ? `<span class="delete-btn" onclick="deleteReply('${post.id}','${rid}', event)"><i class="fas fa-trash-alt"></i></span>` : '' }
-                        </div>
-                        <div class="reply-text">${replyText}</div>
-                    </div>
-                `;
-            });
-            repliesHtml += '</div>';
-            return repliesHtml;
-        }
+    // ========== UPDATED AUTH OBSERVER ==========
+    auth.onAuthStateChanged(async (user) => {
+        currentUser = user;
+        
+        if (user) {
+            // Check admin status using the new simple admins node
+            isAdmin = await checkIfAdmin(user);
+            
+            document.getElementById('composeAuthWarning').style.display = 'none';
+            document.getElementById('postTrigger').disabled = false;
+            document.getElementById('userMenuDesktop').style.display = 'flex';
+            document.getElementById('loginButtonDesktop').style.display = 'none';
+            document.getElementById('panelLoggedOut').style.display = 'none';
+            document.getElementById('panelLoggedIn').style.display = 'flex';
+            
+            let dn = user.displayName || user.email?.split('@')[0] || 'Mugera';
+            dn = dn.charAt(0).toUpperCase() + dn.slice(1);
+            document.getElementById('userDisplayNameDesktop').textContent = dn;
+            document.getElementById('userAvatarDesktop').textContent = dn.charAt(0);
+            document.getElementById('panelAvatar').textContent = dn.charAt(0);
+            document.getElementById('panelUserName').textContent = dn;
 
-        // Helper to render reply section (disabled if resolved)
-        function renderReplySection(post) {
-            if (post.resolved) {
-                return `
-                    <div class="resolved-message">
-                        <i class="fas fa-check-circle"></i>
-                        <span>This discussion has been marked as resolved. No further replies can be added.</span>
-                    </div>
-                `;
-            } else {
-                return `
-                    <div class="reply-form">
-                        <div class="reply-input-wrapper">
-                            <input type="text" id="replyInput-${post.id}" placeholder="Write a reply... (Use @ to mention)" onkeydown="handleReplyKeydown(event, '${post.id}')" oninput="checkMention(this, '${post.id}')">
-                            <div class="mention-suggestions" id="mentionSuggest-${post.id}"></div>
-                        </div>
-                        <button onclick="postReply('${post.id}', event)"><i class="fas fa-reply"></i> Reply</button>
-                    </div>
-                `;
-            }
-        }
-
-        // Helper to render admin controls
-        function renderAdminControls(post) {
-            let controls = '';
+            // Show admin badge if user is admin
             if (isAdmin) {
-                controls += `
-                    <div class="admin-controls">
-                        ${!post.resolved ? `
-                            <button class="resolve-btn" onclick="markResolved('${post.id}', event)">
-                                <i class="fas fa-check-circle"></i> Mark resolved
-                            </button>
-                        ` : ''}
-                        <button class="delete-btn" onclick="deletePost('${post.id}', event)">
-                            <i class="fas fa-trash-alt"></i> Delete post
-                        </button>
-                    </div>
-                `;
-            } else if (currentUser?.uid === post.userId) {
-                controls += `
-                    <div class="admin-controls">
-                        <button class="delete-btn" onclick="deletePost('${post.id}', event)">
-                            <i class="fas fa-trash-alt"></i> Delete my post
-                        </button>
-                    </div>
-                `;
+                // Add admin badge to header if needed
+                console.log('Admin logged in');
             }
-            return controls;
-        }
-
-        // Regular render (non-search)
-        function renderFeed() {
-            if (currentSearchQuery) return;
-            const container = document.getElementById('feedContainer');
-            if (!currentUser) return;
-
-            let filtered = allPosts;
-            if (currentFilter !== 'all') {
-                filtered = allPosts.filter(p => p.service === currentFilter);
-            }
-
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-feed">📭 No discussions yet. Start one!</div>';
-                return;
-            }
-
-            let html = '';
-            filtered.forEach(post => {
-                const isExpanded = expandedPostId === post.id;
-                const postTime = post.timestamp ? new Date(post.timestamp).toLocaleString('en-KE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
-                const authorName = post.authorName || 'Anonymous';
-                const authorHandle = post.authorEmail ? '@' + post.authorEmail.split('@')[0] : '@user';
-                const serviceDisplay = {
-                    'general':'💬 General','eye-of-mugera':'👁️ Eye','inspired-me':'🌱 Inspired',
-                    'heritage-shop':'🛒 Shop','workfit':'🏋️ WorkFit','webdev':'💻 Dev','partnership':'🤝 Partner'
-                }[post.service] || post.service;
-
-                const likes = post.likes ? Object.keys(post.likes).length : 0;
-                const dislikes = post.dislikes ? Object.keys(post.dislikes).length : 0;
-                const userLiked = currentUser && post.likes && post.likes[currentUser.uid];
-                const userDisliked = currentUser && post.dislikes && post.dislikes[currentUser.uid];
-
-                html += `
-                    <div class="post-card ${isExpanded ? 'expanded' : ''} ${post.resolved ? 'resolved' : ''}" id="post-${post.id}" onclick="togglePost('${post.id}', event)">
-                        <div class="post-header">
-                            <div class="post-avatar">${authorName.charAt(0)}</div>
-                            <div class="post-author-info">
-                                <span class="post-author-name">${escapeHtml(authorName)} ${post.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''} ${post.resolved ? '<span class="resolved-badge"><i class="fas fa-check-circle"></i> Resolved</span>' : ''}</span>
-                                <span class="post-author-handle">${escapeHtml(authorHandle)}</span>
-                            </div>
-                            <span class="post-service-tag">${serviceDisplay}</span>
-                        </div>
-                        
-                        <div class="post-preview">${escapeHtml(post.text)}</div>
-                        
-                        <div class="post-content-full">${escapeHtml(post.text)}</div>
-                        
-                        <div class="post-stats" onclick="event.stopPropagation()">
-                            <span class="post-stat ${userLiked ? 'liked' : ''}" onclick="handleLike('${post.id}', event)">
-                                <i class="fas fa-heart"></i> ${likes}
-                            </span>
-                            <span class="post-stat ${userDisliked ? 'disliked' : ''}" onclick="handleDislike('${post.id}', event)">
-                                <i class="fas fa-thumbs-down"></i> ${dislikes}
-                            </span>
-                            <span class="post-stat">
-                                <i class="fas fa-comment"></i> ${post.replies ? Object.keys(post.replies).length : 0}
-                            </span>
-                        </div>
-                        
-                        <div class="expanded-content" onclick="event.stopPropagation()">
-                            ${renderReplies(post)}
-                            
-                            ${renderReplySection(post)}
-                            
-                            ${renderAdminControls(post)}
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        // Check for @ mentions
-        window.checkMention = function(input, postId) {
-            const text = input.value;
-            const cursorPos = input.selectionStart;
-            const beforeCursor = text.substring(0, cursorPos);
             
-            // Find last @ symbol before cursor
-            const atIndex = beforeCursor.lastIndexOf('@');
-            if (atIndex !== -1 && (atIndex === 0 || beforeCursor[atIndex - 1] === ' ')) {
-                const searchTerm = beforeCursor.substring(atIndex + 1).toLowerCase();
-                
-                // Filter users
-                const matches = allUsers.filter(user => 
-                    user.name.toLowerCase().includes(searchTerm) && user.uid !== currentUser?.uid
-                ).slice(0, 5);
-
-                if (matches.length > 0) {
-                    showMentions(input, postId, matches, atIndex, cursorPos);
-                } else {
-                    hideMentions(postId);
-                }
-            } else {
-                hideMentions(postId);
-            }
-        };
-
-        // Show mention suggestions
-        function showMentions(input, postId, users, atIndex, cursorPos) {
-            const suggestDiv = document.getElementById(`mentionSuggest-${postId}`);
-            if (!suggestDiv) return;
-
-            let html = '';
-            users.forEach(user => {
-                html += `<div class="mention-item" onclick="insertMention('${postId}', '${user.name}', ${atIndex}, ${cursorPos})">
-                    <i class="fas fa-user"></i> ${escapeHtml(user.name)}
-                </div>`;
-            });
-            suggestDiv.innerHTML = html;
-            suggestDiv.classList.add('show');
+            loadPosts();
+            loadUsers();
             
-            // Store active mention context
-            activeMentionInput = {
-                input: input,
-                postId: postId,
-                atIndex: atIndex,
-                cursorPos: cursorPos
-            };
+        } else {
+            isAdmin = false;
+            document.getElementById('composeAuthWarning').style.display = 'block';
+            document.getElementById('postTrigger').disabled = true;
+            document.getElementById('userMenuDesktop').style.display = 'none';
+            document.getElementById('loginButtonDesktop').style.display = 'flex';
+            document.getElementById('panelLoggedOut').style.display = 'flex';
+            document.getElementById('panelLoggedIn').style.display = 'none';
+            
+            document.getElementById('feedContainer').innerHTML = '<div class="empty-feed">🔒 Please log in to see discussions</div>';
         }
+    });
 
-        // Insert selected mention
-        window.insertMention = function(postId, username, atIndex, cursorPos) {
-            const input = document.getElementById(`replyInput-${postId}`);
-            if (!input) return;
-
-            const currentText = input.value;
-            const beforeMention = currentText.substring(0, atIndex);
-            const afterMention = currentText.substring(cursorPos);
-            
-            input.value = beforeMention + '@' + username + ' ' + afterMention;
-            
-            hideMentions(postId);
-            input.focus();
-        };
-
-        // Hide mention suggestions
-        function hideMentions(postId) {
-            const suggestDiv = document.getElementById(`mentionSuggest-${postId}`);
-            if (suggestDiv) {
-                suggestDiv.classList.remove('show');
-            }
-            activeMentionInput = null;
-        }
-
-        // Handle Enter key in reply input
-        window.handleReplyKeydown = function(event, postId) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                postReply(postId, event);
-            }
-        };
-
-        // Handle Enter in compose
-        document.getElementById('composeText')?.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                createPost();
+    // Load all users for mentions
+    function loadUsers() {
+        const usersRef = database.ref('users');
+        usersRef.once('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                allUsers = Object.keys(data).map(key => ({
+                    uid: key,
+                    name: data[key].name || data[key].email?.split('@')[0] || 'User',
+                    email: data[key].email
+                }));
             }
         });
+    }
 
-        // Handle Enter in search
-        document.getElementById('searchInput')?.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                performSearch();
+    // Load posts
+    function loadPosts() {
+        const postsRef = database.ref('socialPosts').orderByChild('timestamp');
+        postsRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            const posts = [];
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    posts.push({ id: key, ...data[key] });
+                });
             }
-        });
-
-        // Toggle post expansion
-        window.togglePost = function(postId, event) {
-            if (event.target.closest('.post-stat') || event.target.closest('.reply-form') || event.target.closest('.admin-controls') || event.target.closest('.delete-btn') || event.target.closest('.resolve-btn') || event.target.closest('.mention-item') || event.target.closest('.resolved-message')) {
-                return;
-            }
-            expandedPostId = expandedPostId === postId ? null : postId;
+            posts.sort((a,b) => (b.timestamp || 0) - (a.timestamp || 0));
+            allPosts = posts;
             if (currentSearchQuery) {
                 performSearch();
             } else {
                 renderFeed();
             }
-        };
+        });
+    }
 
-        // Create post
-        window.createPost = async function() {
-            if (!currentUser) { showToast('Login required', 'warning'); return; }
-            const text = document.getElementById('composeText').value.trim();
-            const service = document.getElementById('composeService').value;
-            if (!text) { showToast('Write something', 'info'); return; }
+    // Search function
+    window.performSearch = function() {
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        const service = document.getElementById('searchServiceFilter').value;
+        const type = document.getElementById('searchTypeFilter').value;
+        const resolvedOnly = document.getElementById('searchResolvedOnly').checked;
 
-            const postData = {
-                userId: currentUser.uid,
-                authorName: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
-                authorEmail: currentUser.email,
-                service: service,
-                text: text,
-                timestamp: Date.now(),
-                isAdmin: isAdmin,
-                resolved: false
-            };
-            try {
-                await database.ref('socialPosts').push(postData);
-                document.getElementById('composeText').value = '';
-                showToast('Posted!', 'success');
-            } catch (err) {
-                showToast('Error', 'error');
-            }
-        };
+        currentSearchQuery = query;
+        currentSearchService = service;
+        currentSearchType = type;
+        currentSearchResolved = resolvedOnly;
 
-        // Like post
-        window.handleLike = async function(postId, event) {
-            event.stopPropagation();
-            if (!currentUser) { showToast('Login to like', 'warning'); return; }
-            const post = allPosts.find(p => p.id === postId);
-            if (!post) return;
+        if (!query && service === 'all' && !resolvedOnly) {
+            clearSearch();
+            return;
+        }
 
-            const likesRef = database.ref(`socialPosts/${postId}/likes/${currentUser.uid}`);
-            const dislikesRef = database.ref(`socialPosts/${postId}/dislikes/${currentUser.uid}`);
+        let results = [];
+        const searchRegex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
 
-            if (post.likes && post.likes[currentUser.uid]) {
-                await likesRef.remove();
-            } else {
-                await likesRef.set(true);
-                if (post.dislikes && post.dislikes[currentUser.uid]) {
-                    await dislikesRef.remove();
+        allPosts.forEach(post => {
+            // Filter by service
+            if (service !== 'all' && post.service !== service) return;
+            
+            // Filter by resolved
+            if (resolvedOnly && !post.resolved) return;
+
+            let matchFound = false;
+            let matchedText = '';
+
+            // Search in post
+            if (type === 'all' || type === 'posts') {
+                if (query === '' || (post.text && post.text.toLowerCase().includes(query))) {
+                    matchFound = true;
+                    matchedText = post.text;
                 }
             }
+
+            // Search in replies
+            if (type === 'all' || type === 'replies') {
+                if (post.replies) {
+                    Object.values(post.replies).forEach(reply => {
+                        if (reply.text && reply.text.toLowerCase().includes(query)) {
+                            matchFound = true;
+                            matchedText = reply.text;
+                        }
+                    });
+                }
+            }
+
+            if (matchFound || query === '') {
+                results.push({ ...post, matchHighlight: matchedText });
+            }
+        });
+
+        // Show search stats
+        document.getElementById('searchStats').style.display = 'flex';
+        document.getElementById('searchResultsCount').textContent = `Found ${results.length} results`;
+
+        // Render search results
+        renderSearchResults(results, query);
+    };
+
+    // Render search results with highlighting
+    function renderSearchResults(results, query) {
+        const container = document.getElementById('feedContainer');
+        if (!currentUser) return;
+
+        if (results.length === 0) {
+            container.innerHTML = '<div class="empty-feed">🔍 No matches found. Try different keywords.</div>';
+            return;
+        }
+
+        let html = '';
+        results.forEach(post => {
+            const isExpanded = expandedPostId === post.id;
+            const postTime = post.timestamp ? new Date(post.timestamp).toLocaleString('en-KE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
+            const authorName = post.authorName || 'Anonymous';
+            const authorHandle = post.authorEmail ? '@' + post.authorEmail.split('@')[0] : '@user';
+            const serviceDisplay = {
+                'general':'💬 General','eye-of-mugera':'👁️ Eye','inspired-me':'🌱 Inspired',
+                'heritage-shop':'🛒 Shop','workfit':'🏋️ WorkFit','webdev':'💻 Dev','partnership':'🤝 Partner'
+            }[post.service] || post.service;
+
+            // Highlight matching text
+            let displayText = post.text;
+            if (query && post.text) {
+                const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                displayText = post.text.replace(regex, '<span class="highlight-match">$1</span>');
+            }
+
+            // Count likes/dislikes
+            const likes = post.likes ? Object.keys(post.likes).length : 0;
+            const dislikes = post.dislikes ? Object.keys(post.dislikes).length : 0;
+            
+            // Check if current user liked/disliked
+            const userLiked = currentUser && post.likes && post.likes[currentUser.uid];
+            const userDisliked = currentUser && post.dislikes && post.dislikes[currentUser.uid];
+
+            html += `
+                <div class="post-card search-match ${isExpanded ? 'expanded' : ''} ${post.resolved ? 'resolved' : ''}" id="post-${post.id}" onclick="togglePost('${post.id}', event)">
+                    <div class="post-header">
+                        <div class="post-avatar">${authorName.charAt(0)}</div>
+                        <div class="post-author-info">
+                            <span class="post-author-name">${escapeHtml(authorName)} ${post.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''} ${post.resolved ? '<span class="resolved-badge"><i class="fas fa-check-circle"></i> Resolved</span>' : ''}</span>
+                            <span class="post-author-handle">${escapeHtml(authorHandle)}</span>
+                        </div>
+                        <span class="post-service-tag">${serviceDisplay}</span>
+                    </div>
+                    
+                    <div class="post-preview">${displayText}</div>
+                    
+                    <div class="post-content-full">${displayText}</div>
+                    
+                    <div class="post-stats" onclick="event.stopPropagation()">
+                        <span class="post-stat ${userLiked ? 'liked' : ''}" onclick="handleLike('${post.id}', event)">
+                            <i class="fas fa-heart"></i> ${likes}
+                        </span>
+                        <span class="post-stat ${userDisliked ? 'disliked' : ''}" onclick="handleDislike('${post.id}', event)">
+                            <i class="fas fa-thumbs-down"></i> ${dislikes}
+                        </span>
+                        <span class="post-stat">
+                            <i class="fas fa-comment"></i> ${post.replies ? Object.keys(post.replies).length : 0}
+                        </span>
+                    </div>
+                    
+                    <div class="expanded-content" onclick="event.stopPropagation()">
+                        ${renderReplies(post)}
+                        
+                        ${renderReplySection(post)}
+                        
+                        ${renderAdminControls(post)}
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    // Helper to render replies
+    function renderReplies(post) {
+        if (!post.replies) return '';
+        let repliesHtml = '<div class="replies-section">';
+        const replyIds = Object.keys(post.replies).sort((a,b) => post.replies[a].timestamp - post.replies[b].timestamp);
+        replyIds.forEach(rid => {
+            const rep = post.replies[rid];
+            const repTime = rep.timestamp ? new Date(rep.timestamp).toLocaleString('en-KE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
+            
+            // Parse mentions in reply text
+            let replyText = escapeHtml(rep.text);
+            replyText = replyText.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
+            
+            repliesHtml += `
+                <div class="reply-item">
+                    <div class="reply-header">
+                        <span class="reply-author">${escapeHtml(rep.authorName || 'User')}</span>
+                        ${rep.isAdmin ? '<span class="reply-admin-badge">ADMIN</span>' : ''}
+                        <span class="reply-time">${repTime}</span>
+                        ${ (currentUser?.uid === rep.userId || isAdmin) ? `<span class="delete-btn" onclick="deleteReply('${post.id}','${rid}', event)"><i class="fas fa-trash-alt"></i></span>` : '' }
+                    </div>
+                    <div class="reply-text">${replyText}</div>
+                </div>
+            `;
+        });
+        repliesHtml += '</div>';
+        return repliesHtml;
+    }
+
+    // Helper to render reply section (disabled if resolved)
+    function renderReplySection(post) {
+        if (post.resolved) {
+            return `
+                <div class="resolved-message">
+                    <i class="fas fa-check-circle"></i>
+                    <span>This discussion has been marked as resolved. No further replies can be added.</span>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="reply-form">
+                    <div class="reply-input-wrapper">
+                        <input type="text" id="replyInput-${post.id}" placeholder="Write a reply... (Use @ to mention)" onkeydown="handleReplyKeydown(event, '${post.id}')" oninput="checkMention(this, '${post.id}')">
+                        <div class="mention-suggestions" id="mentionSuggest-${post.id}"></div>
+                    </div>
+                    <button onclick="postReply('${post.id}', event)"><i class="fas fa-reply"></i> Reply</button>
+                </div>
+            `;
+        }
+    }
+
+    // Helper to render admin controls (only for admins)
+    function renderAdminControls(post) {
+        let controls = '';
+        if (isAdmin) {
+            controls += `
+                <div class="admin-controls">
+                    ${!post.resolved ? `
+                        <button class="resolve-btn" onclick="markResolved('${post.id}', event)">
+                            <i class="fas fa-check-circle"></i> Mark resolved
+                        </button>
+                    ` : ''}
+                    <button class="delete-btn" onclick="deletePost('${post.id}', event)">
+                        <i class="fas fa-trash-alt"></i> Delete post
+                    </button>
+                </div>
+            `;
+        } else if (currentUser?.uid === post.userId) {
+            controls += `
+                <div class="admin-controls">
+                    <button class="delete-btn" onclick="deletePost('${post.id}', event)">
+                        <i class="fas fa-trash-alt"></i> Delete my post
+                    </button>
+                </div>
+            `;
+        }
+        return controls;
+    }
+
+    // Regular render (non-search)
+    function renderFeed() {
+        if (currentSearchQuery) return;
+        const container = document.getElementById('feedContainer');
+        if (!currentUser) return;
+
+        let filtered = allPosts;
+        if (currentFilter !== 'all') {
+            filtered = allPosts.filter(p => p.service === currentFilter);
+        }
+
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty-feed">📭 No discussions yet. Start one!</div>';
+            return;
+        }
+
+        let html = '';
+        filtered.forEach(post => {
+            const isExpanded = expandedPostId === post.id;
+            const postTime = post.timestamp ? new Date(post.timestamp).toLocaleString('en-KE', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
+            const authorName = post.authorName || 'Anonymous';
+            const authorHandle = post.authorEmail ? '@' + post.authorEmail.split('@')[0] : '@user';
+            const serviceDisplay = {
+                'general':'💬 General','eye-of-mugera':'👁️ Eye','inspired-me':'🌱 Inspired',
+                'heritage-shop':'🛒 Shop','workfit':'🏋️ WorkFit','webdev':'💻 Dev','partnership':'🤝 Partner'
+            }[post.service] || post.service;
+
+            const likes = post.likes ? Object.keys(post.likes).length : 0;
+            const dislikes = post.dislikes ? Object.keys(post.dislikes).length : 0;
+            const userLiked = currentUser && post.likes && post.likes[currentUser.uid];
+            const userDisliked = currentUser && post.dislikes && post.dislikes[currentUser.uid];
+
+            html += `
+                <div class="post-card ${isExpanded ? 'expanded' : ''} ${post.resolved ? 'resolved' : ''}" id="post-${post.id}" onclick="togglePost('${post.id}', event)">
+                    <div class="post-header">
+                        <div class="post-avatar">${authorName.charAt(0)}</div>
+                        <div class="post-author-info">
+                            <span class="post-author-name">${escapeHtml(authorName)} ${post.isAdmin ? '<span class="admin-badge">ADMIN</span>' : ''} ${post.resolved ? '<span class="resolved-badge"><i class="fas fa-check-circle"></i> Resolved</span>' : ''}</span>
+                            <span class="post-author-handle">${escapeHtml(authorHandle)}</span>
+                        </div>
+                        <span class="post-service-tag">${serviceDisplay}</span>
+                    </div>
+                    
+                    <div class="post-preview">${escapeHtml(post.text)}</div>
+                    
+                    <div class="post-content-full">${escapeHtml(post.text)}</div>
+                    
+                    <div class="post-stats" onclick="event.stopPropagation()">
+                        <span class="post-stat ${userLiked ? 'liked' : ''}" onclick="handleLike('${post.id}', event)">
+                            <i class="fas fa-heart"></i> ${likes}
+                        </span>
+                        <span class="post-stat ${userDisliked ? 'disliked' : ''}" onclick="handleDislike('${post.id}', event)">
+                            <i class="fas fa-thumbs-down"></i> ${dislikes}
+                        </span>
+                        <span class="post-stat">
+                            <i class="fas fa-comment"></i> ${post.replies ? Object.keys(post.replies).length : 0}
+                        </span>
+                    </div>
+                    
+                    <div class="expanded-content" onclick="event.stopPropagation()">
+                        ${renderReplies(post)}
+                        
+                        ${renderReplySection(post)}
+                        
+                        ${renderAdminControls(post)}
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    // Check for @ mentions
+    window.checkMention = function(input, postId) {
+        const text = input.value;
+        const cursorPos = input.selectionStart;
+        const beforeCursor = text.substring(0, cursorPos);
+        
+        // Find last @ symbol before cursor
+        const atIndex = beforeCursor.lastIndexOf('@');
+        if (atIndex !== -1 && (atIndex === 0 || beforeCursor[atIndex - 1] === ' ')) {
+            const searchTerm = beforeCursor.substring(atIndex + 1).toLowerCase();
+            
+            // Filter users
+            const matches = allUsers.filter(user => 
+                user.name.toLowerCase().includes(searchTerm) && user.uid !== currentUser?.uid
+            ).slice(0, 5);
+
+            if (matches.length > 0) {
+                showMentions(input, postId, matches, atIndex, cursorPos);
+            } else {
+                hideMentions(postId);
+            }
+        } else {
+            hideMentions(postId);
+        }
+    };
+
+    // Show mention suggestions
+    function showMentions(input, postId, users, atIndex, cursorPos) {
+        const suggestDiv = document.getElementById(`mentionSuggest-${postId}`);
+        if (!suggestDiv) return;
+
+        let html = '';
+        users.forEach(user => {
+            html += `<div class="mention-item" onclick="insertMention('${postId}', '${user.name}', ${atIndex}, ${cursorPos})">
+                <i class="fas fa-user"></i> ${escapeHtml(user.name)}
+            </div>`;
+        });
+        suggestDiv.innerHTML = html;
+        suggestDiv.classList.add('show');
+        
+        // Store active mention context
+        activeMentionInput = {
+            input: input,
+            postId: postId,
+            atIndex: atIndex,
+            cursorPos: cursorPos
         };
+    }
 
-        // Dislike post
-        window.handleDislike = async function(postId, event) {
-            event.stopPropagation();
-            if (!currentUser) { showToast('Login to dislike', 'warning'); return; }
-            const post = allPosts.find(p => p.id === postId);
-            if (!post) return;
+    // Insert selected mention
+    window.insertMention = function(postId, username, atIndex, cursorPos) {
+        const input = document.getElementById(`replyInput-${postId}`);
+        if (!input) return;
 
-            const dislikesRef = database.ref(`socialPosts/${postId}/dislikes/${currentUser.uid}`);
-            const likesRef = database.ref(`socialPosts/${postId}/likes/${currentUser.uid}`);
+        const currentText = input.value;
+        const beforeMention = currentText.substring(0, atIndex);
+        const afterMention = currentText.substring(cursorPos);
+        
+        input.value = beforeMention + '@' + username + ' ' + afterMention;
+        
+        hideMentions(postId);
+        input.focus();
+    };
 
+    // Hide mention suggestions
+    function hideMentions(postId) {
+        const suggestDiv = document.getElementById(`mentionSuggest-${postId}`);
+        if (suggestDiv) {
+            suggestDiv.classList.remove('show');
+        }
+        activeMentionInput = null;
+    }
+
+    // Handle Enter key in reply input
+    window.handleReplyKeydown = function(event, postId) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            postReply(postId, event);
+        }
+    };
+
+    // Handle Enter in compose
+    document.getElementById('composeText')?.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            createPost();
+        }
+    });
+
+    // Handle Enter in search
+    document.getElementById('searchInput')?.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            performSearch();
+        }
+    });
+
+    // Toggle post expansion
+    window.togglePost = function(postId, event) {
+        if (event.target.closest('.post-stat') || event.target.closest('.reply-form') || event.target.closest('.admin-controls') || event.target.closest('.delete-btn') || event.target.closest('.resolve-btn') || event.target.closest('.mention-item') || event.target.closest('.resolved-message')) {
+            return;
+        }
+        expandedPostId = expandedPostId === postId ? null : postId;
+        if (currentSearchQuery) {
+            performSearch();
+        } else {
+            renderFeed();
+        }
+    };
+
+    // Create post
+    window.createPost = async function() {
+        if (!currentUser) { showToast('Login required', 'warning'); return; }
+        const text = document.getElementById('composeText').value.trim();
+        const service = document.getElementById('composeService').value;
+        if (!text) { showToast('Write something', 'info'); return; }
+
+        const postData = {
+            userId: currentUser.uid,
+            authorName: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
+            authorEmail: currentUser.email,
+            service: service,
+            text: text,
+            timestamp: Date.now(),
+            isAdmin: isAdmin,
+            resolved: false
+        };
+        try {
+            await database.ref('socialPosts').push(postData);
+            document.getElementById('composeText').value = '';
+            showToast('Posted!', 'success');
+        } catch (err) {
+            showToast('Error', 'error');
+        }
+    };
+
+    // Like post
+    window.handleLike = async function(postId, event) {
+        event.stopPropagation();
+        if (!currentUser) { showToast('Login to like', 'warning'); return; }
+        const post = allPosts.find(p => p.id === postId);
+        if (!post) return;
+
+        const likesRef = database.ref(`socialPosts/${postId}/likes/${currentUser.uid}`);
+        const dislikesRef = database.ref(`socialPosts/${postId}/dislikes/${currentUser.uid}`);
+
+        if (post.likes && post.likes[currentUser.uid]) {
+            await likesRef.remove();
+        } else {
+            await likesRef.set(true);
             if (post.dislikes && post.dislikes[currentUser.uid]) {
                 await dislikesRef.remove();
-            } else {
-                await dislikesRef.set(true);
-                if (post.likes && post.likes[currentUser.uid]) {
-                    await likesRef.remove();
-                }
             }
-        };
+        }
+    };
 
-        // Post reply - now checks if post is resolved
-        window.postReply = async function(postId, event) {
-            event.stopPropagation();
-            if (!currentUser) { showToast('Login to reply', 'warning'); return; }
-            
-            const post = allPosts.find(p => p.id === postId);
-            if (!post) return;
-            
-            // Check if post is resolved
-            if (post.resolved) {
-                showToast('This discussion has been resolved. No further replies can be added.', 'warning');
-                return;
+    // Dislike post
+    window.handleDislike = async function(postId, event) {
+        event.stopPropagation();
+        if (!currentUser) { showToast('Login to dislike', 'warning'); return; }
+        const post = allPosts.find(p => p.id === postId);
+        if (!post) return;
+
+        const dislikesRef = database.ref(`socialPosts/${postId}/dislikes/${currentUser.uid}`);
+        const likesRef = database.ref(`socialPosts/${postId}/likes/${currentUser.uid}`);
+
+        if (post.dislikes && post.dislikes[currentUser.uid]) {
+            await dislikesRef.remove();
+        } else {
+            await dislikesRef.set(true);
+            if (post.likes && post.likes[currentUser.uid]) {
+                await likesRef.remove();
             }
-            
-            const input = document.getElementById(`replyInput-${postId}`);
-            const text = input.value.trim();
-            if (!text) return;
+        }
+    };
 
-            // Parse mentions to create notifications (simplified)
-            const mentions = text.match(/@(\w+)/g) || [];
-            
-            const replyData = {
-                userId: currentUser.uid,
-                authorName: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
-                text: text,
-                timestamp: Date.now(),
-                isAdmin: isAdmin,
-                mentions: mentions.map(m => m.substring(1)) // Store mentioned usernames
-            };
-            try {
-                await database.ref(`socialPosts/${postId}/replies`).push(replyData);
-                input.value = '';
-                hideMentions(postId);
-                showToast('Reply posted', 'success');
-            } catch (err) {
-                showToast('Reply failed', 'error');
-            }
+    // Post reply - now checks if post is resolved
+    window.postReply = async function(postId, event) {
+        event.stopPropagation();
+        if (!currentUser) { showToast('Login to reply', 'warning'); return; }
+        
+        const post = allPosts.find(p => p.id === postId);
+        if (!post) return;
+        
+        // Check if post is resolved
+        if (post.resolved) {
+            showToast('This discussion has been resolved. No further replies can be added.', 'warning');
+            return;
+        }
+        
+        const input = document.getElementById(`replyInput-${postId}`);
+        const text = input.value.trim();
+        if (!text) return;
+
+        // Parse mentions to create notifications (simplified)
+        const mentions = text.match(/@(\w+)/g) || [];
+        
+        const replyData = {
+            userId: currentUser.uid,
+            authorName: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
+            text: text,
+            timestamp: Date.now(),
+            isAdmin: isAdmin,
+            mentions: mentions.map(m => m.substring(1)) // Store mentioned usernames
         };
+        try {
+            await database.ref(`socialPosts/${postId}/replies`).push(replyData);
+            input.value = '';
+            hideMentions(postId);
+            showToast('Reply posted', 'success');
+        } catch (err) {
+            showToast('Reply failed', 'error');
+        }
+    };
 
-        // Mark as resolved
-        window.markResolved = async function(postId, event) {
-            event.stopPropagation();
-            if (!isAdmin) return;
-            try {
-                await database.ref(`socialPosts/${postId}/resolved`).set(true);
-                showToast('Marked as resolved. No further replies can be added.', 'success');
-            } catch (err) {
-                showToast('Error', 'error');
-            }
-        };
+    // Mark as resolved
+    window.markResolved = async function(postId, event) {
+        event.stopPropagation();
+        if (!isAdmin) return;
+        try {
+            await database.ref(`socialPosts/${postId}/resolved`).set(true);
+            showToast('Marked as resolved. No further replies can be added.', 'success');
+        } catch (err) {
+            showToast('Error', 'error');
+        }
+    };
 
-        // Delete post
-        window.deletePost = async function(postId, event) {
-            event.stopPropagation();
-            if (!currentUser) return;
-            if (!confirm('Delete this post?')) return;
-            try {
-                await database.ref('socialPosts/' + postId).remove();
-                showToast('Post deleted', 'success');
-            } catch (err) {
-                showToast('Error', 'error');
-            }
-        };
+    // Delete post
+    window.deletePost = async function(postId, event) {
+        event.stopPropagation();
+        if (!currentUser) return;
+        if (!confirm('Delete this post?')) return;
+        try {
+            await database.ref('socialPosts/' + postId).remove();
+            showToast('Post deleted', 'success');
+        } catch (err) {
+            showToast('Error', 'error');
+        }
+    };
 
-        // Delete reply
-        window.deleteReply = async function(postId, replyId, event) {
-            event.stopPropagation();
-            if (!currentUser) return;
-            if (!confirm('Delete this reply?')) return;
-            try {
-                await database.ref(`socialPosts/${postId}/replies/${replyId}`).remove();
-                showToast('Reply deleted', 'success');
-            } catch (err) {
-                showToast('Error', 'error');
-            }
-        };
+    // Delete reply
+    window.deleteReply = async function(postId, replyId, event) {
+        event.stopPropagation();
+        if (!currentUser) return;
+        if (!confirm('Delete this reply?')) return;
+        try {
+            await database.ref(`socialPosts/${postId}/replies/${replyId}`).remove();
+            showToast('Reply deleted', 'success');
+        } catch (err) {
+            showToast('Error', 'error');
+        }
+    };
 
-        // Clear search
-        window.clearSearch = function() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('searchServiceFilter').value = 'all';
-            document.getElementById('searchTypeFilter').value = 'all';
-            document.getElementById('searchResolvedOnly').checked = false;
-            document.getElementById('searchStats').style.display = 'none';
-            currentSearchQuery = '';
-            renderFeed();
-        };
+    // Clear search
+    window.clearSearch = function() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('searchServiceFilter').value = 'all';
+        document.getElementById('searchTypeFilter').value = 'all';
+        document.getElementById('searchResolvedOnly').checked = false;
+        document.getElementById('searchStats').style.display = 'none';
+        currentSearchQuery = '';
+        renderFeed();
+    };
 
-        // Focus advanced search from quick search
-        window.focusAdvancedSearch = function() {
-            const quickQuery = document.getElementById('quickSearch').value;
-            document.getElementById('searchInput').value = quickQuery;
-            document.getElementById('searchInput').focus();
-            performSearch();
-        };
+    // Focus advanced search from quick search
+    window.focusAdvancedSearch = function() {
+        const quickQuery = document.getElementById('quickSearch').value;
+        document.getElementById('searchInput').value = quickQuery;
+        document.getElementById('searchInput').focus();
+        performSearch();
+    };
 
-        // Mobile search
-        window.performMobileSearch = function() {
-            const query = document.getElementById('mobileSearchInput').value;
-            document.getElementById('searchInput').value = query;
-            performSearch();
-            toggleMobileSearch();
-        };
+    // Mobile search
+    window.performMobileSearch = function() {
+        const query = document.getElementById('mobileSearchInput').value;
+        document.getElementById('searchInput').value = query;
+        performSearch();
+        toggleMobileSearch();
+    };
 
-        // Filter by service
-        window.filterService = function(service) {
-            currentFilter = service;
-            expandedPostId = null;
-            clearSearch();
-            renderFeed();
-        };
+    // Filter by service
+    window.filterService = function(service) {
+        currentFilter = service;
+        expandedPostId = null;
+        clearSearch();
+        renderFeed();
+    };
 
-        // Utility
-        function escapeHtml(unsafe) {
-            if (!unsafe) return '';
-            return unsafe.replace(/[&<>"']/g, function(m) {
-                if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;';
-                if(m === '"') return '&quot;'; return '&#039;';
+    // Utility
+    function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe.replace(/[&<>"']/g, function(m) {
+            if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;';
+            if(m === '"') return '&quot;'; return '&#039;';
+        });
+    }
+
+    function showToast(text, type='info') {
+        const toast = document.getElementById('elegantToast');
+        document.getElementById('toastMessage').textContent = text;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Auth functions
+    window.openAuthModal = function() {
+        window.location.href = 'index.html?login=1';
+    };
+    window.handleLogout = async function() {
+        await auth.signOut();
+        showToast('Logged out', 'success');
+    };
+
+    // Toggles
+    window.toggleHamburger = () => document.getElementById('hamburgerPanel').classList.toggle('open');
+    window.toggleMobileSearch = () => {
+        const overlay = document.getElementById('mobileSearchOverlay');
+        overlay.style.transform = overlay.style.transform === 'translateY(0px)' ? 'translateY(-100%)' : 'translateY(0px)';
+    };
+    document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
+
+    // Theme
+    window.toggleTheme = function() {
+        document.body.classList.toggle('light-theme');
+        const icon = document.getElementById('panelThemeIcon');
+        if (document.body.classList.contains('light-theme')) {
+            icon?.classList.replace('fa-moon','fa-sun');
+            localStorage.setItem('siteTheme','light');
+        } else {
+            icon?.classList.replace('fa-sun','fa-moon');
+            localStorage.setItem('siteTheme','dark');
+        }
+    };
+    if (localStorage.getItem('siteTheme') === 'light') {
+        document.body.classList.add('light-theme');
+        document.getElementById('panelThemeIcon')?.classList.replace('fa-moon','fa-sun');
+    }
+
+    // PWA
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('installButton').classList.add('show'); });
+    document.getElementById('installButton')?.addEventListener('click', async () => {
+        document.getElementById('installButton').classList.remove('show');
+        if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; }
+    });
+
+    // Click outside to hide mentions
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.reply-input-wrapper')) {
+            document.querySelectorAll('.mention-suggestions').forEach(el => {
+                el.classList.remove('show');
             });
         }
-
-        function showToast(text, type='info') {
-            const toast = document.getElementById('elegantToast');
-            document.getElementById('toastMessage').textContent = text;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        // Auth functions
-        window.openAuthModal = function() {
-            window.location.href = 'index.html?login=1';
-        };
-        window.handleLogout = async function() {
-            await auth.signOut();
-            showToast('Logged out', 'success');
-        };
-
-        // Toggles
-        window.toggleHamburger = () => document.getElementById('hamburgerPanel').classList.toggle('open');
-        window.toggleMobileSearch = () => {
-            const overlay = document.getElementById('mobileSearchOverlay');
-            overlay.style.transform = overlay.style.transform === 'translateY(0px)' ? 'translateY(-100%)' : 'translateY(0px)';
-        };
-        document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
-
-        // Theme
-        window.toggleTheme = function() {
-            document.body.classList.toggle('light-theme');
-            const icon = document.getElementById('panelThemeIcon');
-            if (document.body.classList.contains('light-theme')) {
-                icon?.classList.replace('fa-moon','fa-sun');
-                localStorage.setItem('siteTheme','light');
-            } else {
-                icon?.classList.replace('fa-sun','fa-moon');
-                localStorage.setItem('siteTheme','dark');
-            }
-        };
-        if (localStorage.getItem('siteTheme') === 'light') {
-            document.body.classList.add('light-theme');
-            document.getElementById('panelThemeIcon')?.classList.replace('fa-moon','fa-sun');
-        }
-
-        // PWA
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('installButton').classList.add('show'); });
-        document.getElementById('installButton')?.addEventListener('click', async () => {
-            document.getElementById('installButton').classList.remove('show');
-            if (deferredPrompt) { deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt = null; }
-        });
-
-        // Click outside to hide mentions
-        document.addEventListener('click', function(event) {
-            if (!event.target.closest('.reply-input-wrapper')) {
-                document.querySelectorAll('.mention-suggestions').forEach(el => {
-                    el.classList.remove('show');
-                });
-            }
-        });
-    </script>
+    });
+</script>
 </body>
 </html>
