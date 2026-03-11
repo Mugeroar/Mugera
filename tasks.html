@@ -795,722 +795,769 @@
     </main>
 
     <script>
-        // Firebase Config
-        const firebaseConfig = {
-            apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
-            authDomain: "mugera-e51cc.firebaseapp.com",
-            databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "mugera-e51cc",
-            storageBucket: "mugera-e51cc.firebasestorage.app",
-            messagingSenderId: "1024868637509",
-            appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
-        };
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
+        authDomain: "mugera-e51cc.firebaseapp.com",
+        databaseURL: "https://mugera-e51cc-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mugera-e51cc",
+        storageBucket: "mugera-e51cc.firebasestorage.app",
+        messagingSenderId: "1024868637509",
+        appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
+    };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        const auth = firebase.auth();
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const auth = firebase.auth();
 
-        // Global state
-        let currentUser = null;
-        let userData = {};
-        let userRole = null; // 'assistant', 'driver', 'instructor', null
-        let tasks = [];
-        let filteredTasks = [];
+    // Global state
+    let currentUser = null;
+    let userData = {};
+    let userRole = null; // 'assistant', 'driver', 'instructor', null
+    let tasks = [];
+    let filteredTasks = [];
 
-        // ========== AUTH STATE LISTENER ==========
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                currentUser = user;
-                showLoading(true);
-                await loadUserData();
-                await determineUserRole();
-                renderPage();
-                showLoading(false);
-                startAutoRefresh();
+    // ========== AUTH STATE LISTENER ==========
+    auth.onAuthStateChanged(async (user) => {
+        if (user) {
+            currentUser = user;
+            showLoading(true);
+            await loadUserData();
+            await determineUserRole();
+            renderPage();
+            showLoading(false);
+            startAutoRefresh();
+        } else {
+            window.location.href = 'login.html';
+        }
+    });
+
+    // ========== LOAD USER DATA ==========
+    async function loadUserData() {
+        try {
+            // Load from users node
+            const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
+            if (userSnapshot.exists()) {
+                userData = userSnapshot.val();
             } else {
-                window.location.href = 'login.html';
+                // Create basic user record if it doesn't exist
+                userData = {
+                    name: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
+                    email: currentUser.email,
+                    createdAt: new Date().toISOString(),
+                    uid: currentUser.uid
+                };
+                await database.ref(`users/${currentUser.uid}`).set(userData);
             }
-        });
+            
+            console.log('User data loaded:', userData);
+            updateUserUI();
+            
+        } catch (error) {
+            console.error('Error loading user data:', error);
+        }
+    }
 
-        // ========== LOAD USER DATA ==========
-        async function loadUserData() {
-            try {
-                // Load from users node
-                const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
-                if (userSnapshot.exists()) {
-                    userData = userSnapshot.val();
-                } else {
-                    // Create basic user record if it doesn't exist
-                    userData = {
-                        name: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
-                        email: currentUser.email,
-                        createdAt: new Date().toISOString(),
-                        uid: currentUser.uid
-                    };
-                    await database.ref(`users/${currentUser.uid}`).set(userData);
+    function updateUserUI() {
+        const displayName = userData.name || currentUser.displayName || currentUser.email?.split('@')[0] || 'User';
+        document.getElementById('userDisplayNameDesktop').textContent = displayName;
+        document.getElementById('panelUserName').textContent = displayName;
+        
+        const initial = displayName.charAt(0).toUpperCase();
+        document.getElementById('userAvatarDesktop').textContent = initial;
+        document.getElementById('panelAvatar').textContent = initial;
+    }
+
+    // ========== DETERMINE USER ROLE ==========
+    async function determineUserRole() {
+        console.log('Checking roles for user:', currentUser.uid);
+        
+        // Reset role
+        userRole = null;
+        
+        try {
+            // Check if delivery assistant - using delivery_assistants node
+            const assistantSnapshot = await database.ref(`delivery_assistants/${currentUser.uid}`).once('value');
+            console.log('Assistant check:', assistantSnapshot.exists(), assistantSnapshot.val());
+            
+            if (assistantSnapshot.exists()) {
+                const assistantData = assistantSnapshot.val();
+                // Check if active or verified
+                if (assistantData.status === 'active' || assistantData.verified === true) {
+                    userRole = 'assistant';
+                    userData = { ...userData, ...assistantData };
+                    console.log('User is a delivery assistant');
+                    return;
                 }
-                
-                console.log('User data loaded:', userData);
-                updateUserUI();
-                
-            } catch (error) {
-                console.error('Error loading user data:', error);
             }
+            
+            // Check if driver - using drivers node
+            const driverSnapshot = await database.ref(`drivers/${currentUser.uid}`).once('value');
+            console.log('Driver check:', driverSnapshot.exists(), driverSnapshot.val());
+            
+            if (driverSnapshot.exists()) {
+                const driverData = driverSnapshot.val();
+                if (driverData.status === 'active') {
+                    userRole = 'driver';
+                    userData = { ...userData, ...driverData };
+                    console.log('User is a driver');
+                    return;
+                }
+            }
+            
+            // Check if instructor - using instructors node
+            const instructorSnapshot = await database.ref(`instructors/${currentUser.uid}`).once('value');
+            console.log('Instructor check:', instructorSnapshot.exists(), instructorSnapshot.val());
+            
+            if (instructorSnapshot.exists()) {
+                const instructorData = instructorSnapshot.val();
+                if (instructorData.status === 'active') {
+                    userRole = 'instructor';
+                    userData = { ...userData, ...instructorData };
+                    console.log('User is an instructor');
+                    return;
+                }
+            }
+            
+            // Also check if there are any orders assigned to this user (they might be an assistant without record)
+            const ordersSnapshot = await database.ref('orders')
+                .orderByChild('assignedTo')
+                .equalTo(currentUser.uid)
+                .once('value');
+            
+            if (ordersSnapshot.exists()) {
+                const orders = ordersSnapshot.val();
+                const orderCount = Object.keys(orders).length;
+                console.log(`User has ${orderCount} assigned orders - treating as assistant`);
+                
+                if (orderCount > 0) {
+                    userRole = 'assistant';
+                    return;
+                }
+            }
+            
+            console.log('User has no provider role');
+            
+        } catch (error) {
+            console.error('Error determining user role:', error);
         }
+    }
 
-        function updateUserUI() {
-            const displayName = userData.name || currentUser.displayName || currentUser.email?.split('@')[0] || 'User';
-            document.getElementById('userDisplayNameDesktop').textContent = displayName;
-            document.getElementById('panelUserName').textContent = displayName;
-            
-            const initial = displayName.charAt(0).toUpperCase();
-            document.getElementById('userAvatarDesktop').textContent = initial;
-            document.getElementById('panelAvatar').textContent = initial;
+    // ========== RENDER PAGE BASED ON ROLE ==========
+    function renderPage() {
+        if (userRole) {
+            renderProviderPage();
+        } else {
+            renderNonProviderPage();
         }
+    }
 
-        // ========== DETERMINE USER ROLE ==========
-        async function determineUserRole() {
-            console.log('Checking roles for user:', currentUser.uid);
+    // ========== LOAD PROVIDER TASKS ==========
+    async function loadProviderTasks() {
+        try {
+            console.log('Loading tasks for provider:', currentUser.uid);
+            console.log('User role:', userRole);
             
-            // Reset role
-            userRole = null;
+            // Get all orders first to debug
+            const allOrdersSnapshot = await database.ref('orders').once('value');
+            const allOrders = allOrdersSnapshot.val() || {};
+            console.log('All orders in database:', Object.keys(allOrders).length);
             
-            try {
-                // Check if delivery assistant - using delivery_assistants node
-                const assistantSnapshot = await database.ref(`delivery_assistants/${currentUser.uid}`).once('value');
-                console.log('Assistant check:', assistantSnapshot.exists(), assistantSnapshot.val());
-                
-                if (assistantSnapshot.exists()) {
-                    const assistantData = assistantSnapshot.val();
-                    // Check if active or verified
-                    if (assistantData.status === 'active' || assistantData.verified === true) {
-                        userRole = 'assistant';
-                        userData = { ...userData, ...assistantData };
-                        console.log('User is a delivery assistant');
-                        return;
-                    }
+            // Debug: Log a few orders to see their structure
+            let sampleCount = 0;
+            Object.entries(allOrders).forEach(([id, order]) => {
+                if (sampleCount < 3) {
+                    console.log(`Sample order ${id}:`, {
+                        assignedTo: order.assignedTo,
+                        status: order.status,
+                        userName: order.userName
+                    });
+                    sampleCount++;
                 }
-                
-                // Check if driver - using drivers node
-                const driverSnapshot = await database.ref(`drivers/${currentUser.uid}`).once('value');
-                console.log('Driver check:', driverSnapshot.exists(), driverSnapshot.val());
-                
-                if (driverSnapshot.exists()) {
-                    const driverData = driverSnapshot.val();
-                    if (driverData.status === 'active') {
-                        userRole = 'driver';
-                        userData = { ...userData, ...driverData };
-                        console.log('User is a driver');
-                        return;
-                    }
-                }
-                
-                // Check if instructor - using instructors node
-                const instructorSnapshot = await database.ref(`instructors/${currentUser.uid}`).once('value');
-                console.log('Instructor check:', instructorSnapshot.exists(), instructorSnapshot.val());
-                
-                if (instructorSnapshot.exists()) {
-                    const instructorData = instructorSnapshot.val();
-                    if (instructorData.status === 'active') {
-                        userRole = 'instructor';
-                        userData = { ...userData, ...instructorData };
-                        console.log('User is an instructor');
-                        return;
-                    }
-                }
-                
-                // Also check if there are any orders assigned to this user (they might be an assistant without record)
-                const ordersSnapshot = await database.ref('orders')
-                    .orderByChild('assignedTo')
-                    .equalTo(currentUser.uid)
-                    .once('value');
-                
-                if (ordersSnapshot.exists() && ordersSnapshot.val()) {
-                    const orders = ordersSnapshot.val();
-                    const orderCount = Object.keys(orders).length;
-                    console.log(`User has ${orderCount} assigned orders - treating as assistant`);
+            });
+            
+            // Try to find orders assigned to this user
+            const assignedOrders = [];
+            
+            Object.entries(allOrders).forEach(([id, order]) => {
+                // Check various possible assignment fields
+                if (order.assignedTo === currentUser.uid || 
+                    order.assignedTo === currentUser.uid.toString() ||
+                    order.assistantId === currentUser.uid ||
+                    order.driverId === currentUser.uid ||
+                    order.userId === currentUser.uid) {
                     
-                    // If they have assigned orders, they're likely an assistant
-                    if (orderCount > 0) {
-                        userRole = 'assistant';
-                        // Create assistant record if it doesn't exist
-                        const checkExisting = await database.ref(`delivery_assistants/${currentUser.uid}`).once('value');
-                        if (!checkExisting.exists()) {
-                            await database.ref(`delivery_assistants/${currentUser.uid}`).set({
-                                name: userData.name || currentUser.displayName || 'Assistant',
-                                email: currentUser.email,
-                                phone: userData.phone || '',
-                                status: 'active',
-                                verified: true
-                            });
-                        }
-                        return;
-                    }
+                    console.log(`Found matching order ${id} with assignment:`, order.assignedTo);
+                    assignedOrders.push({id, ...order});
+                }
+            });
+            
+            console.log(`Found ${assignedOrders.length} orders assigned to user`);
+            
+            // Process the orders into tasks
+            tasks = assignedOrders.map((order) => {
+                // Parse date properly
+                let timestamp = 0;
+                let dateStr = null;
+                
+                if (order.deliveryDate) {
+                    dateStr = order.deliveryDate;
+                    timestamp = new Date(order.deliveryDate).getTime();
+                } else if (order.orderDate) {
+                    dateStr = order.orderDate;
+                    timestamp = new Date(order.orderDate).getTime();
+                } else if (order.timestamp) {
+                    timestamp = order.timestamp;
+                    dateStr = new Date(order.timestamp).toISOString();
                 }
                 
-                console.log('User has no provider role');
+                // Ensure timestamp is valid
+                if (isNaN(timestamp)) {
+                    timestamp = Date.now();
+                }
                 
-            } catch (error) {
-                console.error('Error determining user role:', error);
-            }
-        }
+                return {
+                    id: order.id,
+                    orderId: order.id,
+                    date: dateStr,
+                    customerName: order.userName || order.fullName || 'Unknown',
+                    customerPhone: order.userPhone || order.phone || '',
+                    address: order.deliveryAddress || order.address || 'No address',
+                    deliveryFee: order.deliveryFee || 150,
+                    status: order.status || 'pending',
+                    items: order.items || [],
+                    timestamp: timestamp
+                };
+            });
 
-        // ========== RENDER PAGE BASED ON ROLE ==========
-        function renderPage() {
-            if (userRole) {
-                renderProviderPage();
-            } else {
-                renderNonProviderPage();
-            }
-        }
-
-        // ========== LOAD PROVIDER TASKS ==========
-        async function loadProviderTasks() {
-            try {
-                console.log('Loading tasks for provider:', currentUser.uid);
-                
-                const snapshot = await database.ref('orders')
-                    .orderByChild('assignedTo')
-                    .equalTo(currentUser.uid)
-                    .once('value');
-                
-                const data = snapshot.val() || {};
-                console.log('Tasks loaded:', data);
-                
-                tasks = Object.entries(data).map(([id, order]) => {
-                    // Parse date properly
-                    let timestamp = 0;
-                    if (order.deliveryDate) {
-                        timestamp = new Date(order.deliveryDate).getTime();
-                    } else if (order.orderDate) {
-                        timestamp = new Date(order.orderDate).getTime();
-                    } else if (order.timestamp) {
-                        timestamp = order.timestamp;
-                    }
-                    
-                    return {
-                        id,
-                        orderId: id,
-                        date: order.deliveryDate || order.orderDate || null,
-                        customerName: order.userName || order.fullName || 'Unknown',
-                        customerPhone: order.userPhone || order.phone || '',
-                        address: order.deliveryAddress || order.address || 'No address',
-                        deliveryFee: order.deliveryFee || 150,
-                        status: order.status || 'pending',
-                        items: order.items || [],
-                        timestamp: timestamp
-                    };
-                });
-
-                // Sort by date (newest first)
-                tasks.sort((a, b) => b.timestamp - a.timestamp);
-                filteredTasks = [...tasks];
-                
-                console.log('Processed tasks:', tasks.length);
-                
-            } catch (error) {
-                console.error('Error loading tasks:', error);
-                tasks = [];
-                filteredTasks = [];
-            }
-        }
-
-        // ========== RENDER PROVIDER PAGE ==========
-        async function renderProviderPage() {
-            await loadProviderTasks();
+            // Sort by date (newest first)
+            tasks.sort((a, b) => b.timestamp - a.timestamp);
+            filteredTasks = [...tasks];
             
-            let roleDisplay = '';
-            let roleIcon = '';
-            
-            switch(userRole) {
-                case 'assistant':
-                    roleDisplay = 'Delivery Assistant';
-                    roleIcon = 'fa-truck';
-                    break;
-                case 'driver':
-                    roleDisplay = 'Driver';
-                    roleIcon = 'fa-car';
-                    break;
-                case 'instructor':
-                    roleDisplay = 'Course Instructor';
-                    roleIcon = 'fa-chalkboard-teacher';
-                    break;
-                default:
-                    roleDisplay = 'Service Provider';
-                    roleIcon = 'fa-user-tie';
+            console.log('Processed tasks:', tasks.length);
+            if (tasks.length > 0) {
+                console.log('First task:', tasks[0]);
             }
+            
+        } catch (error) {
+            console.error('Error loading tasks:', error);
+            tasks = [];
+            filteredTasks = [];
+        }
+    }
 
-            const providerName = userData.name || currentUser.displayName || currentUser.email?.split('@')[0] || 'Provider';
-            const providerPhone = userData.phone || currentUser.phoneNumber || 'Not set';
-            const providerVehicle = userData.vehicle || 'Motorcycle';
-            const providerZone = userData.zone || 'Nairobi';
+    // ========== RENDER PROVIDER PAGE ==========
+    async function renderProviderPage() {
+        await loadProviderTasks();
+        
+        let roleDisplay = '';
+        let roleIcon = '';
+        
+        switch(userRole) {
+            case 'assistant':
+                roleDisplay = 'Delivery Assistant';
+                roleIcon = 'fa-truck';
+                break;
+            case 'driver':
+                roleDisplay = 'Driver';
+                roleIcon = 'fa-car';
+                break;
+            case 'instructor':
+                roleDisplay = 'Course Instructor';
+                roleIcon = 'fa-chalkboard-teacher';
+                break;
+            default:
+                roleDisplay = 'Service Provider';
+                roleIcon = 'fa-user-tie';
+        }
 
-            // Calculate stats
-            const activeTasks = tasks.filter(t => t.status === 'active' || t.status === 'out-for-delivery').length;
-            const completedTasks = tasks.filter(t => t.status === 'completed' || t.status === 'delivered').length;
-            const pendingTasks = tasks.filter(t => t.status === 'pending').length;
-            const totalEarnings = tasks
-                .filter(t => t.status === 'delivered' || t.status === 'completed')
-                .reduce((sum, t) => sum + (t.deliveryFee || 150), 0);
+        const providerName = userData.name || currentUser.displayName || currentUser.email?.split('@')[0] || 'Provider';
+        const providerPhone = userData.phone || currentUser.phoneNumber || 'Not set';
+        const providerVehicle = userData.vehicle || 'Motorcycle';
+        const providerZone = userData.zone || 'Nairobi';
 
-            const mainContent = document.getElementById('mainContent');
-            mainContent.innerHTML = `
-                <!-- Page Header -->
-                <div class="page-header">
-                    <div class="page-title">
-                        <h1>My Tasks</h1>
-                        <p>Manage your assigned tasks and deliveries</p>
-                    </div>
-                    <div class="role-badge">
-                        <i class="fas ${roleIcon}"></i> ${roleDisplay}
-                    </div>
+        // Calculate stats
+        const activeTasks = tasks.filter(t => t.status === 'active' || t.status === 'out-for-delivery').length;
+        const completedTasks = tasks.filter(t => t.status === 'completed' || t.status === 'delivered').length;
+        const pendingTasks = tasks.filter(t => t.status === 'pending').length;
+        const totalEarnings = tasks
+            .filter(t => t.status === 'delivered' || t.status === 'completed')
+            .reduce((sum, t) => sum + (t.deliveryFee || 150), 0);
+
+        const mainContent = document.getElementById('mainContent');
+        mainContent.innerHTML = `
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>My Tasks</h1>
+                    <p>Manage your assigned tasks and deliveries</p>
                 </div>
+                <div class="role-badge">
+                    <i class="fas ${roleIcon}"></i> ${roleDisplay}
+                </div>
+            </div>
 
-                <!-- Provider Profile -->
-                <div class="provider-profile">
-                    <div class="provider-avatar">
-                        <i class="fas ${roleIcon}"></i>
-                    </div>
-                    <div class="provider-info">
-                        <h2>${providerName}</h2>
-                        <div class="provider-meta">
+            <!-- Provider Profile -->
+            <div class="provider-profile">
+                <div class="provider-avatar">
+                    <i class="fas ${roleIcon}"></i>
+                </div>
+                <div class="provider-info">
+                    <h2>${providerName}</h2>
+                    <div class="provider-meta">
+                        <div class="provider-meta-item">
+                            <i class="fas fa-phone"></i>
+                            <span>${providerPhone}</span>
+                        </div>
+                        ${userRole === 'assistant' ? `
                             <div class="provider-meta-item">
-                                <i class="fas fa-phone"></i>
-                                <span>${providerPhone}</span>
+                                <i class="fas fa-motorcycle"></i>
+                                <span>${providerVehicle}</span>
                             </div>
-                            ${userRole === 'assistant' ? `
-                                <div class="provider-meta-item">
-                                    <i class="fas fa-motorcycle"></i>
-                                    <span>${providerVehicle}</span>
-                                </div>
-                            ` : ''}
-                            <div class="provider-meta-item">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>${providerZone}</span>
-                            </div>
+                        ` : ''}
+                        <div class="provider-meta-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${providerZone}</span>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Stats Cards -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">${activeTasks}</div>
-                        <div class="stat-label">Active Tasks</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">${pendingTasks}</div>
-                        <div class="stat-label">Pending</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">${completedTasks}</div>
-                        <div class="stat-label">Completed</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">KSh ${totalEarnings.toLocaleString()}</div>
-                        <div class="stat-label">Total Earnings</div>
-                    </div>
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">${activeTasks}</div>
+                    <div class="stat-label">Active Tasks</div>
                 </div>
-
-                <!-- Filters -->
-                <div class="filters">
-                    <input type="text" class="search-input" id="searchInput" placeholder="Search by order ID, customer...">
-                    <select class="filter-select" id="statusFilter">
-                        <option value="all">All Status</option>
-                        <option value="pending">Pending</option>
-                        <option value="active">Active</option>
-                        <option value="completed">Completed</option>
-                        <option value="cancelled">Cancelled</option>
-                    </select>
-                    <button class="action-btn" onclick="refreshTasks()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                <div class="stat-card">
+                    <div class="stat-value">${pendingTasks}</div>
+                    <div class="stat-label">Pending</div>
                 </div>
-
-                <!-- Tasks Table -->
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Date</th>
-                                <th>Customer</th>
-                                <th>Address</th>
-                                <th>Fee</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tasksTableBody">
-                            ${renderTasksTable()}
-                        </tbody>
-                    </table>
+                <div class="stat-card">
+                    <div class="stat-value">${completedTasks}</div>
+                    <div class="stat-label">Completed</div>
                 </div>
-            `;
+                <div class="stat-card">
+                    <div class="stat-value">KSh ${totalEarnings.toLocaleString()}</div>
+                    <div class="stat-label">Total Earnings</div>
+                </div>
+            </div>
 
-            // Add event listeners
-            document.getElementById('searchInput')?.addEventListener('input', filterTasks);
-            document.getElementById('statusFilter')?.addEventListener('change', filterTasks);
+            <!-- Filters -->
+            <div class="filters">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search by order ID, customer...">
+                <select class="filter-select" id="statusFilter">
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="active">Active</option>
+                    <option value="completed">Completed</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <button class="action-btn" onclick="refreshTasks()"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+
+            <!-- Tasks Table -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Address</th>
+                            <th>Fee</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tasksTableBody">
+                        ${renderTasksTable()}
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        // Add event listeners
+        document.getElementById('searchInput')?.addEventListener('input', filterTasks);
+        document.getElementById('statusFilter')?.addEventListener('change', filterTasks);
+    }
+
+    // ========== RENDER TASKS TABLE ==========
+    function renderTasksTable() {
+        if (filteredTasks.length === 0) {
+            return '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No tasks found</td></tr>';
         }
 
-        // ========== RENDER TASKS TABLE ==========
-        function renderTasksTable() {
-            if (filteredTasks.length === 0) {
-                return '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No tasks found</td></tr>';
+        let html = '';
+        filteredTasks.slice(0, 20).forEach(task => {
+            const date = task.date ? new Date(task.date).toLocaleDateString() : 'N/A';
+            let statusClass = 'status-pending';
+            
+            if (task.status === 'active' || task.status === 'out-for-delivery') {
+                statusClass = 'status-active';
+            } else if (task.status === 'completed' || task.status === 'delivered') {
+                statusClass = 'status-completed';
+            } else if (task.status === 'cancelled') {
+                statusClass = 'status-cancelled';
             }
 
-            let html = '';
-            filteredTasks.slice(0, 20).forEach(task => {
-                const date = task.date ? new Date(task.date).toLocaleDateString() : 'N/A';
-                let statusClass = 'status-pending';
-                
-                if (task.status === 'active' || task.status === 'out-for-delivery') {
-                    statusClass = 'status-active';
-                } else if (task.status === 'completed' || task.status === 'delivered') {
-                    statusClass = 'status-completed';
-                } else if (task.status === 'cancelled') {
-                    statusClass = 'status-cancelled';
-                }
-
-                html += `
-                    <tr>
-                        <td>#${task.id.slice(-8)}</td>
-                        <td>${date}</td>
-                        <td>
-                            ${task.customerName}<br>
-                            <small style="color: var(--text-muted);">${task.customerPhone || ''}</small>
-                        </td>
-                        <td>${task.address}</td>
-                        <td><span style="color: var(--gold);">KSh ${task.deliveryFee}</span></td>
-                        <td><span class="status-badge ${statusClass}">${task.status}</span></td>
-                        <td>
-                            <button class="action-btn view" onclick="viewTaskDetails('${task.id}')" title="View Details">
-                                <i class="fas fa-eye"></i>
+            html += `
+                <tr>
+                    <td>#${task.id.slice(-8)}</td>
+                    <td>${date}</td>
+                    <td>
+                        ${task.customerName}<br>
+                        <small style="color: var(--text-muted);">${task.customerPhone || ''}</small>
+                    </td>
+                    <td>${task.address}</td>
+                    <td><span style="color: var(--gold);">KSh ${task.deliveryFee}</span></td>
+                    <td><span class="status-badge ${statusClass}">${task.status}</span></td>
+                    <td>
+                        <button class="action-btn view" onclick="viewTaskDetails('${task.id}')" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        ${task.status === 'pending' ? `
+                            <button class="action-btn accept" onclick="acceptTask('${task.id}')" title="Accept">
+                                <i class="fas fa-check"></i>
                             </button>
-                            ${task.status === 'pending' ? `
-                                <button class="action-btn accept" onclick="acceptTask('${task.id}')" title="Accept">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                            ` : ''}
-                            ${task.status === 'active' || task.status === 'out-for-delivery' ? `
-                                <button class="action-btn complete" onclick="completeTask('${task.id}')" title="Complete">
-                                    <i class="fas fa-check-double"></i>
-                                </button>
-                            ` : ''}
-                        </td>
-                    </tr>
-                `;
-            });
-            
-            return html;
-        }
-
-        // ========== RENDER NON-PROVIDER PAGE ==========
-        function renderNonProviderPage() {
-            const mainContent = document.getElementById('mainContent');
-            mainContent.innerHTML = `
-                <!-- Page Header -->
-                <div class="page-header">
-                    <div class="page-title">
-                        <h1>My Tasks</h1>
-                        <p>Become a service provider to start earning</p>
-                    </div>
-                </div>
-
-                <!-- CTA Section -->
-                <div class="cta-section">
-                    <div class="cta-icon">
-                        <i class="fas fa-rocket"></i>
-                    </div>
-                    <h2 class="cta-title">Become a Service Provider</h2>
-                    <p class="cta-text">
-                        Turn your skills into income! Join our network of verified providers and start earning today.
-                    </p>
-                    
-                    <div class="cta-features">
-                        <div class="cta-feature">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Delivery Assistant</span>
-                        </div>
-                        <div class="cta-feature">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Ride Provider</span>
-                        </div>
-                        <div class="cta-feature">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Course Instructor</span>
-                        </div>
-                        <div class="cta-feature">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Service Partner</span>
-                        </div>
-                    </div>
-
-                    <div class="cta-buttons">
-                        <button class="cta-btn primary" onclick="upgradeToPro()">
-                            <i class="fas fa-crown"></i> Upgrade to Pro
-                        </button>
-                        <button class="cta-btn" onclick="learnMore()">
-                            <i class="fas fa-info-circle"></i> Learn More
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Benefits Section -->
-                <div style="margin-top: 3rem;">
-                    <h3 style="color: var(--gold); text-align: center; margin-bottom: 2rem;">Why Become a Provider?</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-                        <div style="text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.02); border-radius: 20px;">
-                            <i class="fas fa-clock" style="font-size: 2.5rem; color: var(--gold); margin-bottom: 1rem;"></i>
-                            <h4 style="color: var(--gold); margin-bottom: 0.5rem;">Flexible Hours</h4>
-                            <p style="color: var(--text-muted);">Work when you want, as much as you want</p>
-                        </div>
-                        <div style="text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.02); border-radius: 20px;">
-                            <i class="fas fa-wallet" style="font-size: 2.5rem; color: var(--gold); margin-bottom: 1rem;"></i>
-                            <h4 style="color: var(--gold); margin-bottom: 0.5rem;">Instant Earnings</h4>
-                            <p style="color: var(--text-muted);">Get paid per delivery, ride, or course</p>
-                        </div>
-                        <div style="text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.02); border-radius: 20px;">
-                            <i class="fas fa-shield-alt" style="font-size: 2.5rem; color: var(--gold); margin-bottom: 1rem;"></i>
-                            <h4 style="color: var(--gold); margin-bottom: 0.5rem;">Verified Status</h4>
-                            <p style="color: var(--text-muted);">Build trust with our verification system</p>
-                        </div>
-                    </div>
-                </div>
+                        ` : ''}
+                        ${task.status === 'active' || task.status === 'out-for-delivery' ? `
+                            <button class="action-btn complete" onclick="completeTask('${task.id}')" title="Complete">
+                                <i class="fas fa-check-double"></i>
+                            </button>
+                        ` : ''}
+                    </td>
+                </tr>
             `;
-        }
+        });
+        
+        return html;
+    }
 
-        // ========== TASK FILTERING ==========
-        window.filterTasks = function() {
-            const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
-            const statusFilter = document.getElementById('statusFilter')?.value || 'all';
-
-            filteredTasks = tasks.filter(task => {
-                const matchesSearch = 
-                    task.id.toLowerCase().includes(searchTerm) ||
-                    task.customerName.toLowerCase().includes(searchTerm) ||
-                    task.customerPhone?.toLowerCase().includes(searchTerm);
-                
-                const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
-                
-                return matchesSearch && matchesStatus;
-            });
-
-            const tbody = document.getElementById('tasksTableBody');
-            if (tbody) {
-                tbody.innerHTML = renderTasksTable();
-            }
-        };
-
-        // ========== TASK ACTIONS ==========
-        window.viewTaskDetails = function(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (!task) return;
-
-            let itemsHtml = '';
-            if (task.items && task.items.length > 0) {
-                itemsHtml = '<ul style="list-style: none; padding: 0;">';
-                task.items.forEach(item => {
-                    itemsHtml += `<li style="margin-bottom: 0.5rem;">• ${item.name || 'Product'} x${item.quantity || 1}</li>`;
-                });
-                itemsHtml += '</ul>';
-            } else {
-                itemsHtml = '<p>No items listed</p>';
-            }
-
-            const content = `
-                <div class="modal-field">
-                    <label>Order ID</label>
-                    <div class="field-value">#${task.id}</div>
+    // ========== RENDER NON-PROVIDER PAGE ==========
+    function renderNonProviderPage() {
+        const mainContent = document.getElementById('mainContent');
+        mainContent.innerHTML = `
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-title">
+                    <h1>My Tasks</h1>
+                    <p>Become a service provider to start earning</p>
                 </div>
-                <div class="modal-field">
-                    <label>Customer</label>
-                    <div class="field-value">
-                        <strong>${task.customerName}</strong><br>
-                        📞 ${task.customerPhone || 'No phone'}
+            </div>
+
+            <!-- CTA Section -->
+            <div class="cta-section">
+                <div class="cta-icon">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h2 class="cta-title">Become a Service Provider</h2>
+                <p class="cta-text">
+                    Turn your skills into income! Join our network of verified providers and start earning today.
+                </p>
+                
+                <div class="cta-features">
+                    <div class="cta-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Delivery Assistant</span>
+                    </div>
+                    <div class="cta-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Ride Provider</span>
+                    </div>
+                    <div class="cta-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Course Instructor</span>
+                    </div>
+                    <div class="cta-feature">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Service Partner</span>
                     </div>
                 </div>
-                <div class="modal-field">
-                    <label>Delivery Address</label>
-                    <div class="field-value">${task.address}</div>
+
+                <div class="cta-buttons">
+                    <button class="cta-btn primary" onclick="upgradeToPro()">
+                        <i class="fas fa-crown"></i> Upgrade to Pro
+                    </button>
+                    <button class="cta-btn" onclick="learnMore()">
+                        <i class="fas fa-info-circle"></i> Learn More
+                    </button>
                 </div>
-                <div class="modal-field">
-                    <label>Items</label>
-                    <div class="field-value">${itemsHtml}</div>
+            </div>
+
+            <!-- Benefits Section -->
+            <div style="margin-top: 3rem;">
+                <h3 style="color: var(--gold); text-align: center; margin-bottom: 2rem;">Why Become a Provider?</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                    <div style="text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.02); border-radius: 20px;">
+                        <i class="fas fa-clock" style="font-size: 2.5rem; color: var(--gold); margin-bottom: 1rem;"></i>
+                        <h4 style="color: var(--gold); margin-bottom: 0.5rem;">Flexible Hours</h4>
+                        <p style="color: var(--text-muted);">Work when you want, as much as you want</p>
+                    </div>
+                    <div style="text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.02); border-radius: 20px;">
+                        <i class="fas fa-wallet" style="font-size: 2.5rem; color: var(--gold); margin-bottom: 1rem;"></i>
+                        <h4 style="color: var(--gold); margin-bottom: 0.5rem;">Instant Earnings</h4>
+                        <p style="color: var(--text-muted);">Get paid per delivery, ride, or course</p>
+                    </div>
+                    <div style="text-align: center; padding: 1.5rem; background: rgba(255,255,255,0.02); border-radius: 20px;">
+                        <i class="fas fa-shield-alt" style="font-size: 2.5rem; color: var(--gold); margin-bottom: 1rem;"></i>
+                        <h4 style="color: var(--gold); margin-bottom: 0.5rem;">Verified Status</h4>
+                        <p style="color: var(--text-muted);">Build trust with our verification system</p>
+                    </div>
                 </div>
-                <div class="modal-field">
-                    <label>Delivery Fee</label>
-                    <div class="field-value"><span style="color: var(--gold);">KSh ${task.deliveryFee}</span></div>
-                </div>
-                <div class="modal-field">
-                    <label>Status</label>
-                    <div class="field-value"><span class="status-badge status-${task.status}">${task.status}</span></div>
-                </div>
-            `;
+            </div>
+        `;
+    }
 
-            document.getElementById('modalTitle').textContent = 'Task Details';
-            document.getElementById('modalBody').innerHTML = content;
-            document.getElementById('detailsModal').classList.add('active');
-            document.getElementById('modalOverlay').classList.add('active');
-        };
+    // ========== TASK FILTERING ==========
+    window.filterTasks = function() {
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        
+        if (!searchInput || !statusFilter) return;
+        
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value;
 
-        window.acceptTask = async function(taskId) {
-            if (!confirm('Accept this task?')) return;
-
-            showLoading(true);
-            try {
-                await database.ref(`orders/${taskId}`).update({
-                    status: 'active',
-                    acceptedAt: new Date().toISOString(),
-                    statusHistory: [
-                        ...(tasks.find(t => t.id === taskId)?.statusHistory || []),
-                        {
-                            status: 'active',
-                            timestamp: new Date().toISOString(),
-                            note: 'Accepted by provider'
-                        }
-                    ]
-                });
-                showToast('Task accepted successfully', 'success');
-                await loadProviderTasks();
-                filterTasks();
-            } catch (error) {
-                console.error('Error accepting task:', error);
-                showToast('Failed to accept task', 'error');
-            } finally {
-                showLoading(false);
-            }
-        };
-
-        window.completeTask = async function(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (!task) return;
-
-            const customerName = prompt('Enter customer name for confirmation:');
-            if (!customerName) return;
-
-            showLoading(true);
-            try {
-                await database.ref(`orders/${taskId}`).update({
-                    status: 'completed',
-                    completedAt: new Date().toISOString(),
-                    deliveryDate: new Date().toISOString(),
-                    completionProof: {
-                        customerName: customerName,
-                        timestamp: new Date().toISOString()
-                    },
-                    statusHistory: [
-                        ...(tasks.find(t => t.id === taskId)?.statusHistory || []),
-                        {
-                            status: 'completed',
-                            timestamp: new Date().toISOString(),
-                            note: `Completed - received by ${customerName}`
-                        }
-                    ]
-                });
-                showToast('Task completed successfully', 'success');
-                await loadProviderTasks();
-                filterTasks();
-            } catch (error) {
-                console.error('Error completing task:', error);
-                showToast('Failed to complete task', 'error');
-            } finally {
-                showLoading(false);
-            }
-        };
-
-        window.refreshTasks = function() {
-            if (userRole) {
-                loadProviderTasks().then(() => {
-                    filterTasks();
-                    showToast('Tasks refreshed', 'success');
-                });
-            }
-        };
-
-        // ========== NAVIGATION ==========
-        window.upgradeToPro = function() {
-            window.location.href = 'upgrade.html';
-        };
-
-        window.learnMore = function() {
-            window.location.href = 'pro-account.html';
-        };
-
-        // ========== UTILITY FUNCTIONS ==========
-        window.closeModal = function() {
-            document.getElementById('detailsModal').classList.remove('active');
-            document.getElementById('modalOverlay').classList.remove('active');
-        };
-
-        function showLoading(show) {
-            document.getElementById('loadingOverlay').classList.toggle('active', show);
-        }
-
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
+        filteredTasks = tasks.filter(task => {
+            const matchesSearch = 
+                task.id.toLowerCase().includes(searchTerm) ||
+                task.customerName.toLowerCase().includes(searchTerm) ||
+                (task.customerPhone && task.customerPhone.toLowerCase().includes(searchTerm));
             
-            const icons = { 
-                success: 'check-circle', 
-                error: 'exclamation-circle', 
-                warning: 'exclamation-triangle', 
-                info: 'info-circle' 
-            };
-            toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${message}</span>`;
+            const matchesStatus = statusValue === 'all' || task.status === statusValue;
             
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        function startAutoRefresh() {
-            setInterval(() => {
-                if (userRole) {
-                    loadProviderTasks().then(filterTasks);
-                }
-            }, 60000); // Refresh every minute
-        }
-
-        // ========== HANDLE LOGOUT ==========
-        window.handleLogout = async () => {
-            try {
-                showLoading(true);
-                await auth.signOut();
-                window.location.href = 'login.html';
-            } catch (error) {
-                showToast('Logout failed', 'error');
-                showLoading(false);
-            }
-        };
-
-        // ========== TOGGLE HAMBURGER ==========
-        window.toggleHamburger = function() {
-            document.getElementById('hamburgerPanel').classList.toggle('open');
-        };
-
-        document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
-
-        document.addEventListener('click', function(e) {
-            const panel = document.getElementById('hamburgerPanel');
-            const btn = document.getElementById('hamburgerBtn');
-            if (panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
-                panel.classList.remove('open');
-            }
+            return matchesSearch && matchesStatus;
         });
 
-        // ========== THEME TOGGLE ==========
-        window.toggleTheme = function() {
-            document.body.classList.toggle('light-theme');
-            const icon = document.getElementById('panelThemeIcon');
-            icon.classList.toggle('fa-moon', !document.body.classList.contains('light-theme'));
-            icon.classList.toggle('fa-sun', document.body.classList.contains('light-theme'));
-            localStorage.setItem('siteTheme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
-        };
-
-        if (localStorage.getItem('siteTheme') === 'light') {
-            document.body.classList.add('light-theme');
-            document.getElementById('panelThemeIcon').classList.replace('fa-moon', 'fa-sun');
+        const tbody = document.getElementById('tasksTableBody');
+        if (tbody) {
+            tbody.innerHTML = renderTasksTable();
         }
-    </script>
+    };
+
+    // ========== TASK ACTIONS ==========
+    window.viewTaskDetails = function(taskId) {
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+
+        let itemsHtml = '';
+        if (task.items && task.items.length > 0) {
+            itemsHtml = '<ul style="list-style: none; padding: 0;">';
+            task.items.forEach(item => {
+                itemsHtml += `<li style="margin-bottom: 0.5rem;">• ${item.name || 'Product'} x${item.quantity || 1}</li>`;
+            });
+            itemsHtml += '</ul>';
+        } else {
+            itemsHtml = '<p>No items listed</p>';
+        }
+
+        const content = `
+            <div class="modal-field">
+                <label>Order ID</label>
+                <div class="field-value">#${task.id}</div>
+            </div>
+            <div class="modal-field">
+                <label>Customer</label>
+                <div class="field-value">
+                    <strong>${task.customerName}</strong><br>
+                    📞 ${task.customerPhone || 'No phone'}
+                </div>
+            </div>
+            <div class="modal-field">
+                <label>Delivery Address</label>
+                <div class="field-value">${task.address}</div>
+            </div>
+            <div class="modal-field">
+                <label>Items</label>
+                <div class="field-value">${itemsHtml}</div>
+            </div>
+            <div class="modal-field">
+                <label>Delivery Fee</label>
+                <div class="field-value"><span style="color: var(--gold);">KSh ${task.deliveryFee}</span></div>
+            </div>
+            <div class="modal-field">
+                <label>Status</label>
+                <div class="field-value"><span class="status-badge status-${task.status}">${task.status}</span></div>
+            </div>
+        `;
+
+        document.getElementById('modalTitle').textContent = 'Task Details';
+        document.getElementById('modalBody').innerHTML = content;
+        document.getElementById('detailsModal').classList.add('active');
+        document.getElementById('modalOverlay').classList.add('active');
+    };
+
+    window.acceptTask = async function(taskId) {
+        if (!confirm('Accept this task?')) return;
+
+        showLoading(true);
+        try {
+            // Get current task to update status history
+            const taskSnapshot = await database.ref(`orders/${taskId}`).once('value');
+            const task = taskSnapshot.val() || {};
+            
+            const statusHistory = task.statusHistory || [];
+            statusHistory.push({
+                status: 'active',
+                timestamp: new Date().toISOString(),
+                note: 'Accepted by provider'
+            });
+
+            await database.ref(`orders/${taskId}`).update({
+                status: 'active',
+                acceptedAt: new Date().toISOString(),
+                statusHistory: statusHistory
+            });
+            
+            showToast('Task accepted successfully', 'success');
+            await loadProviderTasks();
+            filterTasks();
+        } catch (error) {
+            console.error('Error accepting task:', error);
+            showToast('Failed to accept task', 'error');
+        } finally {
+            showLoading(false);
+        }
+    };
+
+    window.completeTask = async function(taskId) {
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+
+        const customerName = prompt('Enter customer name for confirmation:');
+        if (!customerName) return;
+
+        showLoading(true);
+        try {
+            // Get current task to update status history
+            const taskSnapshot = await database.ref(`orders/${taskId}`).once('value');
+            const taskData = taskSnapshot.val() || {};
+            
+            const statusHistory = taskData.statusHistory || [];
+            statusHistory.push({
+                status: 'completed',
+                timestamp: new Date().toISOString(),
+                note: `Completed - received by ${customerName}`
+            });
+
+            await database.ref(`orders/${taskId}`).update({
+                status: 'completed',
+                completedAt: new Date().toISOString(),
+                deliveryDate: new Date().toISOString(),
+                completionProof: {
+                    customerName: customerName,
+                    timestamp: new Date().toISOString()
+                },
+                statusHistory: statusHistory
+            });
+            
+            showToast('Task completed successfully', 'success');
+            await loadProviderTasks();
+            filterTasks();
+        } catch (error) {
+            console.error('Error completing task:', error);
+            showToast('Failed to complete task', 'error');
+        } finally {
+            showLoading(false);
+        }
+    };
+
+    window.refreshTasks = function() {
+        if (userRole) {
+            loadProviderTasks().then(() => {
+                filterTasks();
+                showToast('Tasks refreshed', 'success');
+            });
+        }
+    };
+
+    // ========== NAVIGATION ==========
+    window.upgradeToPro = function() {
+        window.location.href = 'upgrade.html';
+    };
+
+    window.learnMore = function() {
+        window.location.href = 'pro-account.html';
+    };
+
+    // ========== UTILITY FUNCTIONS ==========
+    window.closeModal = function() {
+        document.getElementById('detailsModal').classList.remove('active');
+        document.getElementById('modalOverlay').classList.remove('active');
+    };
+
+    function showLoading(show) {
+        document.getElementById('loadingOverlay').classList.toggle('active', show);
+    }
+
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        const icons = { 
+            success: 'check-circle', 
+            error: 'exclamation-circle', 
+            warning: 'exclamation-triangle', 
+            info: 'info-circle' 
+        };
+        toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${message}</span>`;
+        
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    function startAutoRefresh() {
+        setInterval(() => {
+            if (userRole) {
+                loadProviderTasks().then(filterTasks);
+            }
+        }, 60000); // Refresh every minute
+    }
+
+    // ========== HANDLE LOGOUT ==========
+    window.handleLogout = async () => {
+        try {
+            showLoading(true);
+            await auth.signOut();
+            window.location.href = 'login.html';
+        } catch (error) {
+            showToast('Logout failed', 'error');
+            showLoading(false);
+        }
+    };
+
+    // ========== TOGGLE HAMBURGER ==========
+    window.toggleHamburger = function() {
+        document.getElementById('hamburgerPanel').classList.toggle('open');
+    };
+
+    document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
+
+    document.addEventListener('click', function(e) {
+        const panel = document.getElementById('hamburgerPanel');
+        const btn = document.getElementById('hamburgerBtn');
+        if (panel.classList.contains('open') && !panel.contains(e.target) && !btn.contains(e.target)) {
+            panel.classList.remove('open');
+        }
+    });
+
+    // ========== THEME TOGGLE ==========
+    window.toggleTheme = function() {
+        document.body.classList.toggle('light-theme');
+        const icon = document.getElementById('panelThemeIcon');
+        icon.classList.toggle('fa-moon', !document.body.classList.contains('light-theme'));
+        icon.classList.toggle('fa-sun', document.body.classList.contains('light-theme'));
+        localStorage.setItem('siteTheme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+    };
+
+    if (localStorage.getItem('siteTheme') === 'light') {
+        document.body.classList.add('light-theme');
+        document.getElementById('panelThemeIcon').classList.replace('fa-moon', 'fa-sun');
+    }
+</script>
 </body>
 </html>
