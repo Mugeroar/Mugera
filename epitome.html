@@ -17,10 +17,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -29,19 +31,23 @@
             --text-primary: #ffffff; --text-secondary: #e0e0e0; --text-muted: #aaaaaa;
             --border-light: #2a2a2a; --shadow-color: rgba(202,138,4,0.25);
             --nav-bg: rgba(10,10,10,0.95); --card-bg: #151515;
-            --glass-bg: rgba(20,20,20,0.3); --glass-border: rgba(255,255,255,0.1);
-            --glass-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            --toast-bg: rgba(20,20,20,0.95); --toast-border: var(--gold);
-            --header-height: 70px; --input-bg: rgba(255,255,255,0.05);
-            --input-focus-bg: rgba(255,255,255,0.1);
-            --danger: #dc2626; --success: #10b981;
+            --input-bg: rgba(255,255,255,0.05); --input-border: #2a2a2a;
+            --hover-bg: rgba(202,138,4,0.1);
+            --header-height: 70px;
+            --border-radius-sm: 12px;
+            --border-radius-md: 20px;
+            --border-radius-lg: 30px;
+            --border-radius-xl: 40px;
+            --border-radius-full: 9999px;
+            --notification: #ef4444;
         }
         body.light-theme {
             --bg-primary: #f8f5f0; --bg-secondary: #ffffff; --bg-card: #ffffff;
             --text-primary: #1a1a1a; --text-secondary: #2d2d2d; --text-muted: #555555;
             --border-light: #dddddd; --shadow-color: rgba(202,138,4,0.4);
             --nav-bg: rgba(255,255,255,0.95); --card-bg: #ffffff;
-            --input-bg: rgba(0,0,0,0.03); --input-focus-bg: rgba(0,0,0,0.05);
+            --input-bg: #f5f5f5; --input-border: #dddddd;
+            --hover-bg: rgba(202,138,4,0.05);
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -54,97 +60,288 @@
         .site-header {
             position: fixed; top: 0; width: 100%; height: var(--header-height);
             background: var(--nav-bg); backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--gold); z-index: 2000; padding: 0 1rem;
+            border-bottom: 1px solid var(--gold); z-index: 2000; padding: 0 1.5rem;
         }
         .header-container {
             max-width: 1400px; height: 100%; margin: 0 auto;
             display: flex; align-items: center; justify-content: space-between;
         }
         .site-logo {
-            height: 48px; border-radius: 12px; border: 2px solid var(--gold);
-            padding: 2px; background: var(--bg-primary);
+            height: 48px; border-radius: var(--border-radius-sm); border: 2px solid var(--gold);
+            padding: 2px; background: var(--bg-primary); transition: transform 0.3s;
         }
+        .site-logo:hover { transform: scale(1.05); }
+        
+        /* Desktop Actions */
         .header-desktop-actions { display: flex; align-items: center; gap: 1rem; }
-        .desktop-search {
-            position: relative; display: flex; align-items: center;
-            background: var(--input-bg); border: 1px solid var(--border-light);
-            border-radius: 40px; padding: 0.4rem 0.4rem 0.4rem 1.2rem;
-            min-width: 300px;
+        
+        /* Inbox Icon */
+        .inbox-icon {
+            position: relative;
+            background: var(--hover-bg);
+            border: 1px solid var(--gold);
+            border-radius: var(--border-radius-full);
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
         }
-        .desktop-search input {
-            background: transparent; border: none; color: var(--text-primary);
-            width: 100%; outline: none; padding: 0.5rem 0;
+        .inbox-icon:hover {
+            background: var(--gold);
+            color: black;
+            transform: scale(1.05);
         }
-        .desktop-search button {
-            background: var(--gold); border: none; width: 38px; height: 38px;
-            border-radius: 50%; color: black; cursor: pointer;
-            transition: 0.2s;
+        .inbox-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--notification);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            border: 2px solid var(--gold);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
-        .search-hints, .mobile-search-hints {
-            position: absolute; top: calc(100% + 8px); left: 0; right: 0;
-            background: var(--card-bg); border: 1px solid var(--gold);
-            border-radius: 20px; padding: 0.5rem 0; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            z-index: 2100; display: none; max-height: 300px; overflow-y: auto;
+        
+        /* Desktop Search */
+        .desktop-search { 
+            position: relative; 
+            display: flex; 
+            align-items: center; 
+            background: var(--input-bg); 
+            border: 1px solid var(--input-border); 
+            border-radius: var(--border-radius-full); 
+            padding: 0.4rem 0.4rem 0.4rem 1.2rem; 
+            transition: all 0.3s; 
+            min-width: 320px; 
+        }
+        .desktop-search:focus-within { 
+            border-color: var(--gold); 
+            box-shadow: 0 0 0 3px var(--shadow-color); 
+            background: var(--bg-secondary); 
+        }
+        .desktop-search input { 
+            background: transparent; 
+            border: none; 
+            color: var(--text-primary); 
+            font-size: 0.95rem; 
+            width: 100%; 
+            outline: none; 
+            padding: 0.5rem 0; 
+        }
+        .desktop-search input::placeholder { 
+            color: var(--text-muted); 
+            font-style: italic; 
+        }
+        .desktop-search button { 
+            background: var(--gold); 
+            border: none; 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 50%; 
+            color: black; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            flex-shrink: 0; 
+        }
+        .desktop-search button:hover { 
+            transform: scale(1.05); 
+            background: var(--gold-dark); 
+        }
+        
+        /* Search Hints */
+        .search-hints, .mobile-search-hints { 
+            position: absolute; 
+            top: calc(100% + 8px); 
+            left: 0; 
+            right: 0; 
+            background: var(--card-bg); 
+            border: 1px solid var(--gold); 
+            border-radius: var(--border-radius-md); 
+            padding: 0.5rem 0; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            z-index: 2100; 
+            display: none; 
+            max-height: 300px; 
+            overflow-y: auto; 
         }
         .search-hints.show, .mobile-search-hints.show { display: block; }
-        .hint-item {
-            padding: 0.8rem 1.2rem; cursor: pointer; display: flex; align-items: center; gap: 1rem;
-            transition: all 0.2s; color: var(--text-primary); border-bottom: 1px solid var(--border-light);
+        .hint-item { 
+            padding: 0.8rem 1.2rem; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 1rem; 
+            transition: all 0.2s; 
+            color: var(--text-primary); 
+            border-bottom: 1px solid var(--border-light); 
         }
         .hint-item:last-child { border-bottom: none; }
-        .hint-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
+        .hint-item:hover { background: var(--hover-bg); color: var(--gold); }
         .hint-item i { width: 24px; color: var(--gold); }
-        .hint-item .hint-category { font-size: 0.7rem; color: var(--text-muted); margin-left: auto; text-transform: uppercase; }
-        .user-menu {
-            display: flex; align-items: center; gap: 0.5rem; background: rgba(202,138,4,0.1);
-            border: 1px solid var(--gold); border-radius: 40px; padding: 0.3rem 0.3rem 0.3rem 1rem;
-            cursor: pointer; position: relative;
+        .hint-item .hint-category { 
+            font-size: 0.7rem; 
+            color: var(--text-muted); 
+            margin-left: auto; 
+            text-transform: uppercase; 
         }
-        .user-avatar { background: var(--gold); color: #000; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-        .logout-dropdown { position: absolute; top: 120%; right: 0; background: var(--card-bg); border: 1px solid var(--gold); border-radius: 20px; padding: 0.5rem; min-width: 120px; display: none; z-index: 1001; }
+        
+        /* User Menu */
+        .user-menu { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+            background: var(--hover-bg); 
+            border: 1px solid var(--gold); 
+            border-radius: var(--border-radius-full); 
+            padding: 0.3rem 0.3rem 0.3rem 1rem; 
+            cursor: pointer; 
+            position: relative; 
+        }
+        .user-name { 
+            color: var(--gold); 
+            font-weight: 500; 
+            font-size: 0.9rem; 
+            max-width: 120px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        }
+        .user-avatar { 
+            background: var(--gold); 
+            color: black; 
+            width: 35px; 
+            height: 35px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+        }
+        .logout-dropdown { 
+            position: absolute; 
+            top: 120%; 
+            right: 0; 
+            background: var(--card-bg); 
+            border: 1px solid var(--gold); 
+            border-radius: var(--border-radius-md); 
+            padding: 0.5rem; 
+            min-width: 120px; 
+            display: none; 
+            z-index: 1001; 
+        }
         .user-menu:hover .logout-dropdown { display: block; }
-        .logout-item { padding: 0.7rem 1rem; color: var(--text-primary); border-radius: 15px; transition: 0.2s; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
-        .logout-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
-        .login-button {
-            padding: 0.3rem 1.2rem; border-radius: 40px; gap: 0.5rem; display: flex; background: rgba(202,138,4,0.1);
-            border: 1px solid var(--gold); align-items: center; cursor: pointer; height: 42px;
+        .logout-item { 
+            padding: 0.7rem 1rem; 
+            color: var(--text-primary); 
+            border-radius: var(--border-radius-sm); 
+            transition: all 0.2s; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.5rem; 
         }
+        .logout-item:hover { background: var(--hover-bg); color: var(--gold); }
+        
+        /* Login Button */
+        .login-button {
+            padding: 0 1.2rem; 
+            border-radius: var(--border-radius-full); 
+            gap: 0.5rem; 
+            display: flex; 
+            background: var(--hover-bg); 
+            border: 1px solid var(--gold); 
+            align-items: center; 
+            cursor: pointer;
+            height: 42px;
+            transition: all 0.2s;
+        }
+        .login-button:hover { background: var(--gold); color: black; }
+        .login-button i { color: var(--gold); font-size: 1.2rem; }
+        .login-button:hover i { color: black; }
+        
+        /* Mobile Header */
         .mobile-header-group { display: none; align-items: center; gap: 0.8rem; }
         .mobile-search-icon, .hamburger-icon {
-            border: 1px solid var(--gold); color: var(--gold); width: 42px; height: 42px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 1.3rem; cursor: pointer;
+            border: 1px solid var(--gold); color: var(--gold); width: 42px; height: 42px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            font-size: 1.3rem; cursor: pointer; transition: all 0.2s; text-decoration: none;
         }
+        .mobile-search-icon:hover, .hamburger-icon:hover { background: var(--gold); color: black; }
+        
+        /* Mobile Search Overlay */
         .search-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; background: var(--nav-bg); backdrop-filter: blur(20px);
-            padding: 1rem; z-index: 2400; transform: translateY(-100%); transition: 0.3s; border-bottom: 2px solid var(--gold);
+            position: fixed; top: 0; left: 0; width: 100%; background: var(--nav-bg); 
+            backdrop-filter: blur(20px); padding: 1rem; z-index: 2400; 
+            transform: translateY(-100%); transition: transform 0.3s; border-bottom: 2px solid var(--gold);
         }
         .search-overlay.open { transform: translateY(0); }
         .search-row { display: flex; gap: 0.5rem; position: relative; }
-        .search-overlay input { flex: 1; padding: 1rem 1.2rem; background: var(--bg-secondary); border: 2px solid var(--gold); border-radius: 50px; color: var(--text-primary); }
-        .close-search { background: transparent; border: none; color: var(--text-muted); font-size: 2rem; width: 50px; cursor: pointer; }
+        .search-overlay input {
+            flex: 1; padding: 1.2rem 1.5rem; background: var(--bg-secondary); 
+            border: 2px solid var(--gold); border-radius: var(--border-radius-full); 
+            color: var(--text-primary); font-size: 1.1rem; outline: none;
+        }
+        .search-overlay button {
+            background: var(--gold); border: none; width: 60px; height: 60px; border-radius: 50%; 
+            color: black; font-size: 1.3rem; cursor: pointer;
+        }
+        .close-search {
+            background: transparent; border: none; color: var(--text-muted); font-size: 2.2rem;
+            cursor: pointer; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;
+        }
+        .close-search:hover { color: var(--gold); }
+        
+        /* Hamburger Panel */
         .hamburger-panel {
             position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
-            background: var(--nav-bg); backdrop-filter: blur(20px);
-            border-left: 1px solid var(--gold); padding: 2rem 1.5rem;
-            z-index: 2500; transition: right 0.3s ease; display: flex; flex-direction: column;
+            background: var(--nav-bg); backdrop-filter: blur(20px); border-left: 1px solid var(--gold);
+            padding: 2rem 1.5rem; z-index: 2500; transition: right 0.3s ease;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5); display: flex; flex-direction: column;
         }
         .hamburger-panel.open { right: 0; }
-        .panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; }
+        .panel-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-light); padding-bottom: 1rem;
+        }
         .panel-header h3 { font-family: 'Cinzel', serif; color: var(--gold); }
-        .close-panel { background: transparent; border: none; color: var(--text-muted); font-size: 1.8rem; cursor: pointer; }
+        .close-panel {
+            background: transparent; border: none; color: var(--text-muted); font-size: 1.8rem; cursor: pointer;
+        }
         .panel-quick-links { display: flex; flex-direction: column; gap: 0.5rem; margin: 2rem 0; }
         .panel-link {
-            padding: 0.9rem 1rem; background: rgba(255,255,255,0.03); border-radius: 30px; color: var(--text-primary); text-decoration: none;
-            display: flex; align-items: center; gap: 1rem; border: 1px solid transparent;
+            padding: 0.9rem 1rem; background: rgba(255,255,255,0.03); border-radius: var(--border-radius-lg);
+            color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 1rem;
+            border: 1px solid transparent; transition: 0.2s;
         }
-        .panel-link:hover { border-color: var(--gold); background: rgba(202,138,4,0.1); color: var(--gold); }
+        .panel-link:hover { border-color: var(--gold); background: var(--hover-bg); color: var(--gold); }
         .panel-link i { width: 24px; color: var(--gold); }
         .panel-theme-toggle {
             display: flex; align-items: center; justify-content: space-between; padding: 1rem;
-            background: rgba(255,255,255,0.03); border-radius: 40px; margin-top: auto; border: 1px solid var(--border-light);
+            background: rgba(255,255,255,0.03); border-radius: var(--border-radius-full);
+            margin-top: auto; border: 1px solid var(--border-light);
         }
-        .theme-toggle-btn { width: 45px; height: 45px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        /* Hero slider – clear visuals */
+        .theme-toggle-btn {
+            width: 45px; height: 45px; border-radius: 50%; background: var(--gold);
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+        
+        /* Hero Slider - Clear Visuals */
         .hero-slider {
             position: relative; height: 80vh; min-height: 600px; overflow: hidden;
         }
@@ -157,37 +354,42 @@
         .slide.active { opacity: 1; }
         .slide-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, rgba(0,0,0,0.5) 0%, rgba(20,20,20,0.3) 100%);
-        }
-        body.light-theme .slide-overlay {
-            background: linear-gradient(135deg, rgba(255,245,235,0.6) 0%, rgba(255,255,255,0.5) 100%);
+            background: linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(20,20,20,0.2) 100%);
         }
         .slide-content {
             position: relative; z-index: 10; max-width: 900px; padding: 2rem;
-            background: rgba(0,0,0,0.2); backdrop-filter: blur(3px); border-radius: 60px; border: 1px solid rgba(255,215,0,0.3);
+            background: rgba(0,0,0,0.2); backdrop-filter: blur(3px); border-radius: 60px;
+            border: 1px solid rgba(255,215,0,0.3);
         }
         .slide-content h2 {
-            font-family: 'Cinzel', serif; font-size: clamp(3rem, 6vw, 5rem); color: var(--gold);
-            margin-bottom: 1rem; text-shadow: 2px 2px 10px black;
+            font-family: 'Cinzel', serif; font-size: clamp(3rem, 6vw, 5rem);
+            color: var(--gold); margin-bottom: 1rem; text-shadow: 2px 2px 10px black;
         }
         .slide-content p {
-            font-size: 1.5rem; margin-bottom: 2rem; color: white; font-weight: 500; text-shadow: 0 2px 5px black;
+            font-size: 1.5rem; margin-bottom: 2rem; color: white; font-weight: 500;
+            text-shadow: 0 2px 5px black;
         }
         .slide-btn {
-            background: var(--gold); color: black; border: none; border-radius: 50px; padding: 1rem 2.5rem;
-            font-size: 1.3rem; font-weight: 600; cursor: pointer; box-shadow: 0 8px 20px rgba(202,138,4,0.6);
-            transition: 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 0.7rem;
+            background: var(--gold); color: black; border: none; border-radius: 50px;
+            padding: 1rem 2.5rem; font-size: 1.3rem; font-weight: 600; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(202,138,4,0.6); transition: 0.3s;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 0.7rem;
         }
         .slide-btn:hover { background: #b8860b; transform: translateY(-4px); }
         .slider-nav {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; z-index: 20;
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 1rem; z-index: 20;
         }
-        .slider-dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.5); border: 2px solid transparent; cursor: pointer; }
+        .slider-dot {
+            width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.5);
+            border: 2px solid transparent; cursor: pointer;
+        }
         .slider-dot.active { background: var(--gold); transform: scale(1.3); border-color: white; }
         .slider-arrow {
             position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.3);
             backdrop-filter: blur(5px); color: white; width: 50px; height: 50px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; z-index: 20; border: 1px solid var(--gold);
+            display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+            cursor: pointer; z-index: 20; border: 1px solid var(--gold);
         }
         .slider-arrow:hover { background: var(--gold); color: black; }
         .prev { left: 20px; } .next { right: 20px; }
@@ -199,7 +401,7 @@
         }
         .section-sub { text-align: center; color: var(--text-muted); max-width: 800px; margin: 0 auto 3rem; }
 
-        /* Car cards – large images, professional specs, learn more */
+        /* Car Cards */
         .car-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 2.5rem; margin-top: 2rem;
         }
@@ -248,7 +450,7 @@
         }
         .learn-btn:hover { background: var(--gold); color: black; }
 
-        /* Inquiry section – firebase connected */
+        /* Inquiry Section */
         .inquiry-premium {
             background: var(--card-bg); border-radius: 60px; border: 1px solid var(--gold);
             padding: 3rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8);
@@ -268,21 +470,34 @@
             padding: 1.2rem 2.5rem; font-size: 1.2rem; font-weight: 700; cursor: pointer;
             display: inline-flex; align-items: center; gap: 1rem; margin-top: 2rem;
         }
+        
+        /* Footer */
         .footer { background: var(--bg-secondary); padding: 3rem; text-align: center; border-top: 1px solid var(--border-light); }
         .footer a { color: var(--gold); text-decoration: none; }
+        .footer-logo { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--gold); margin-bottom: 0.5rem; }
+        .footer-copyright { color: var(--text-muted); font-size: 0.9rem; }
+        
+        /* Toast Message */
         .message-toast {
             position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
-            background: var(--toast-bg); backdrop-filter: blur(12px); border: 1px solid var(--toast-border);
-            border-radius: 60px; padding: 0.9rem 2rem; display: flex; align-items: center; gap: 1rem;
-            z-index: 10000; opacity: 0; visibility: hidden; transition: 0.4s;
+            background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--gold);
+            border-radius: var(--border-radius-full); padding: 1rem 2rem;
+            display: flex; align-items: center; gap: 1rem; z-index: 11000;
+            opacity: 0; visibility: hidden; transition: all 0.4s;
         }
-        .message-toast.show { opacity: 1; visibility: visible; }
-        .loading-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; display:flex; align-items:center; justify-content:center; z-index:10000; transition:0.5s; }
+        .message-toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+        .message-toast i { color: var(--gold); font-size: 1.2rem; }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0a0a0a;
+            display: flex; align-items: center; justify-content: center; z-index: 10000; transition: 0.5s;
+        }
 
-        @media (max-width:768px) {
-            .header-desktop-actions { display:none; }
-            .mobile-header-group { display:flex; }
-            .inquiry-grid { grid-template-columns:1fr; }
+        @media (max-width: 768px) {
+            .header-desktop-actions { display: none; }
+            .mobile-header-group { display: flex; }
+            .inquiry-grid { grid-template-columns: 1fr; }
             .inquiry-field.full-width { grid-column: span 1; }
             .car-image { height: 220px; }
         }
@@ -293,7 +508,7 @@
     <img src="https://i.postimg.cc/bwkN851g/20260304-1008-Image-Generation-remix-01kjvtr63ce54v1awen6j4n88x-1.webp" style="max-width:200px; border-radius:30px;" alt="EPITOME">
 </div>
 
-<!-- AUTH MODAL (minimal) -->
+<!-- AUTH MODAL (simplified) -->
 <div class="modal-overlay" id="modalOverlay" style="display:none;"></div>
 <div class="auth-modal" id="authModal" style="display:none;"></div>
 
@@ -302,29 +517,52 @@
     <div class="header-container">
         <img src="https://i.postimg.cc/bwkN851g/20260304-1008-Image-Generation-remix-01kjvtr63ce54v1awen6j4n88x-1.webp" alt="EPITOME" class="site-logo">
         <div class="header-desktop-actions">
-            <!-- SEARCH with hints -->
+            <!-- INBOX ICON -->
+            <a href="inbox.html" class="inbox-icon" title="Inbox" id="desktopInboxLink">
+                <i class="fas fa-inbox"></i>
+                <span class="inbox-badge" id="desktopInboxBadge" style="display: none;">0</span>
+            </a>
+            
+            <!-- SEARCH - Using external search-database.js -->
             <div class="desktop-search" id="desktopSearchContainer">
                 <input type="text" placeholder="Search EPITOME..." id="desktopSearchInput" autocomplete="off">
-                <button><i class="fas fa-search"></i></button>
+                <button onclick="window.performSearch ? window.performSearch(document.getElementById('desktopSearchInput').value) : console.log('search not ready')"><i class="fas fa-search"></i></button>
                 <div class="search-hints" id="desktopSearchHints"></div>
             </div>
-            <!-- user placeholder (simplified) -->
-            <div id="loginButtonDesktop" class="login-button" onclick="alert('Please use the inquiry form')">
-                <i class="fas fa-user-circle"></i><span>Account</span>
+            
+            <!-- USER MENU (Logged In) - Simplified -->
+            <div id="userMenuDesktop" class="user-menu" style="display: none;">
+                <span class="user-name" id="userDisplayNameDesktop"></span>
+                <div class="user-avatar" id="userAvatarDesktop">M</div>
+                <div class="logout-dropdown">
+                    <div class="logout-item" onclick="handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </div>
+                </div>
+            </div>
+            
+            <!-- LOGIN BUTTON (Logged Out) -->
+            <div id="loginButtonDesktop" class="login-button" onclick="openAuthModal ? openAuthModal() : alert('Please login')">
+                <i class="fas fa-user-circle"></i>
+                <span style="font-size:0.9rem;">Account</span>
             </div>
         </div>
         <div class="mobile-header-group">
             <div class="mobile-search-icon" id="mobileSearchBtn"><i class="fas fa-search"></i></div>
+            <a href="inbox.html" class="mobile-search-icon" style="text-decoration: none; position: relative;" id="mobileInboxLink">
+                <i class="fas fa-inbox"></i>
+                <span class="inbox-badge" id="mobileInboxBadge" style="display: none;">0</span>
+            </a>
             <div class="hamburger-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></div>
         </div>
     </div>
 </header>
 
-<!-- MOBILE SEARCH -->
+<!-- MOBILE SEARCH OVERLAY -->
 <div class="search-overlay" id="mobileSearchOverlay">
     <div class="search-row">
         <input type="text" placeholder="Search EPITOME..." id="mobileSearchInput" autocomplete="off">
-        <button><i class="fas fa-search"></i></button>
+        <button onclick="window.performSearch ? window.performSearch(document.getElementById('mobileSearchInput').value) : console.log('search not ready'); toggleMobileSearch();"><i class="fas fa-search"></i></button>
         <button class="close-search" onclick="toggleMobileSearch()"><i class="fas fa-times"></i></button>
         <div class="mobile-search-hints" id="mobileSearchHints"></div>
     </div>
@@ -332,18 +570,24 @@
 
 <!-- HAMBURGER PANEL -->
 <div class="hamburger-panel" id="hamburgerPanel">
-    <div class="panel-header"><h3>EPITOME</h3><button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button></div>
+    <div class="panel-header">
+        <h3>EPITOME</h3>
+        <button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button>
+    </div>
     <div class="panel-quick-links">
-        <a href="#" class="panel-link"><i class="fas fa-car"></i> Collection</a>
-        <a href="#" class="panel-link"><i class="fas fa-phone-alt"></i> Inquire</a>
+        <a href="#models" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-car"></i> Collection</a>
+        <a href="#inquiry" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-phone-alt"></i> Inquire</a>
+        <a href="inbox.html" class="panel-link" onclick="toggleHamburger()"><i class="fas fa-inbox"></i> Inbox</a>
     </div>
     <div class="panel-theme-toggle">
         <span><i class="fas fa-palette"></i> Theme</span>
-        <div class="theme-toggle-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="panelThemeIcon"></i></div>
+        <div class="theme-toggle-btn" onclick="toggleTheme()">
+            <i class="fas fa-moon" id="panelThemeIcon"></i>
+        </div>
     </div>
 </div>
 
-<!-- HERO SLIDER – clear images -->
+<!-- HERO SLIDER - Clear Images -->
 <section class="hero-slider">
     <div class="slide-container">
         <div class="slide active" style="background-image:url('https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=1964&auto=format&fit=crop');">
@@ -389,7 +633,13 @@
     </div>
     <div class="slider-arrow prev" onclick="changeSlide(-1)"><i class="fas fa-chevron-left"></i></div>
     <div class="slider-arrow next" onclick="changeSlide(1)"><i class="fas fa-chevron-right"></i></div>
-    <div class="slider-nav"><span class="slider-dot active" onclick="goToSlide(0)"></span><span class="slider-dot" onclick="goToSlide(1)"></span><span class="slider-dot" onclick="goToSlide(2)"></span><span class="slider-dot" onclick="goToSlide(3)"></span><span class="slider-dot" onclick="goToSlide(4)"></span></div>
+    <div class="slider-nav">
+        <span class="slider-dot active" onclick="goToSlide(0)"></span>
+        <span class="slider-dot" onclick="goToSlide(1)"></span>
+        <span class="slider-dot" onclick="goToSlide(2)"></span>
+        <span class="slider-dot" onclick="goToSlide(3)"></span>
+        <span class="slider-dot" onclick="goToSlide(4)"></span>
+    </div>
 </section>
 
 <div class="container">
@@ -397,7 +647,7 @@
     <p class="section-sub">Five extraordinary machines curated by I AM MUGERA. Each card links to a detailed page.</p>
 </div>
 
-<!-- CAR CARDS (large images, professional specs, learn more) -->
+<!-- CAR CARDS -->
 <div class="container" id="models">
     <div class="car-grid">
         <!-- Velar -->
@@ -498,8 +748,8 @@
     </div>
 </div>
 
-<!-- INQUIRY SECTION – FIREBASE CONNECTED -->
-<div class="container">
+<!-- INQUIRY SECTION - FIREBASE CONNECTED -->
+<div class="container" id="inquiry">
     <div class="inquiry-premium">
         <div class="inquiry-header">
             <i class="fas fa-envelope-open-text"></i>
@@ -543,18 +793,22 @@
     </div>
 </div>
 
-<!-- FOOTER with I AM MUGERA credit -->
+<!-- FOOTER -->
 <footer class="footer">
     <div class="footer-content">
         <div class="footer-logo">EPITOME · a division of I AM MUGERA</div>
         <div class="footer-copyright">
-            <p>© 2026 I AM MUGERA · <a href="#models">Collection</a> · <a href="#">Contact</a> · heritage & innovation</p>
+            <p>© 2026 I AM MUGERA · <a href="#models">Collection</a> · <a href="#inquiry">Contact</a> · heritage & innovation</p>
         </div>
     </div>
 </footer>
 
 <!-- TOAST MESSAGE -->
 <div id="elegantToast" class="message-toast"><i class="fas fa-globe-africa"></i><span id="toastMessage">message</span></div>
+
+<!-- External JavaScript Files (from your reference) -->
+<script src="search-database.js"></script>
+<script src="search-utils.js"></script>
 
 <script>
     // ========== FIREBASE CONFIG ==========
@@ -567,93 +821,52 @@
         messagingSenderId: "1024868637509",
         appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
     };
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    
+    // ========== INITIALIZE FIREBASE ==========
+    let database, auth;
+    let currentUser = null;
+    
+    try {
+        firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+        auth = firebase.auth();
+    } catch (e) { 
+        console.error('Firebase initialization error:', e); 
+    }
 
-    // ========== SEARCH DATABASE (EPITOME specific) ==========
-    const searchDatabase = [
-        { title: "Velar R-Dynamic", category: "SUV", icon: "fas fa-car", keywords: ["velar","range rover","suv","luxury","395hp","panoramic"], modelPage: "epitome-velar.html" },
-        { title: "Bentley GT", category: "Grand Tourer", icon: "fas fa-car", keywords: ["bentley","gt","w12","626hp","hand built"], modelPage: "epitome-gt.html" },
-        { title: "BMW M5 CS", category: "Sedan", icon: "fas fa-car", keywords: ["m5","bmw","cs","635hp","track"], modelPage: "epitome-m5.html" },
-        { title: "Mercedes S580e", category: "Luxury Sedan", icon: "fas fa-car", keywords: ["mercedes","s class","s580e","hybrid","executive"], modelPage: "epitome-sclass.html" },
-        { title: "Porsche 911 Carrera 4S", category: "Sports Car", icon: "fas fa-car", keywords: ["911","porsche","carrera","flat6","iconic"], modelPage: "epitome-911.html" },
-        { title: "EPITOME Collection", category: "Dealership", icon: "fas fa-store", keywords: ["epitome","dealership","i am mugera","car dealer","pre owned"], modelPage: "#models" },
-        { title: "Private Viewing", category: "Service", icon: "fas fa-calendar-check", keywords: ["inquiry","test drive","visit","appointment"], modelPage: "#inquiry" }
-    ];
-
-    // ========== SEARCH HINTS GENERATOR ==========
-    function generateSearchHints(query, containerId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        if (!query || query.length < 2) {
-            container.classList.remove('show');
-            container.innerHTML = '';
-            return;
-        }
-        query = query.toLowerCase().trim();
-        const matches = searchDatabase.filter(item =>
-            item.title.toLowerCase().includes(query) ||
-            item.keywords.some(k => k.includes(query))
-        ).slice(0, 6);
-
-        if (matches.length === 0) {
-            container.classList.remove('show');
-            container.innerHTML = '';
-            return;
-        }
-
-        let html = '';
-        matches.forEach(m => {
-            html += `<div class="hint-item" onclick="selectHint('${m.title.replace(/'/g, "\\'")}', '${m.modelPage}')">
-                <i class="${m.icon}"></i>
-                <span>${m.title}</span>
-                <span class="hint-category">${m.category}</span>
-            </div>`;
+    // ========== AUTH STATE LISTENER (simplified) ==========
+    if (auth) {
+        auth.onAuthStateChanged(user => {
+            currentUser = user;
+            
+            if (user) {
+                document.getElementById('userMenuDesktop').style.display = 'flex';
+                document.getElementById('loginButtonDesktop').style.display = 'none';
+                
+                const dn = user.displayName || user.email?.split('@')[0] || 'User';
+                document.getElementById('userDisplayNameDesktop').textContent = dn;
+                document.getElementById('userAvatarDesktop').textContent = dn.charAt(0).toUpperCase();
+                
+                // Pre-fill email in forms
+                document.getElementById('inquiryEmail').value = user.email || '';
+            } else {
+                document.getElementById('userMenuDesktop').style.display = 'none';
+                document.getElementById('loginButtonDesktop').style.display = 'flex';
+            }
         });
-        container.innerHTML = html;
-        container.classList.add('show');
     }
 
-    window.selectHint = function(title, page) {
-        showElegantMessage(`🔍 Showing: ${title}`, 'info');
-        if (page.startsWith('#')) {
-            document.querySelector(page)?.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            // in a real site you'd navigate, but for demo we show toast
-            showElegantMessage(`📄 Navigate to ${page} (demo)`, 'info');
-        }
-        // hide hints
-        document.getElementById('desktopSearchHints')?.classList.remove('show');
-        document.getElementById('mobileSearchHints')?.classList.remove('show');
+    // ========== SIMPLE AUTH FUNCTIONS ==========
+    window.openAuthModal = function() {
+        alert('Please login to access your account. Demo version.');
     };
-
-    function debounce(func, wait) {
-        let timeout;
-        return function(...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func(...args), wait);
-        };
-    }
-
-    // Attach search listeners
-    document.getElementById('desktopSearchInput')?.addEventListener('input', debounce(function(e) {
-        generateSearchHints(e.target.value, 'desktopSearchHints');
-    }, 200));
-    document.getElementById('mobileSearchInput')?.addEventListener('input', debounce(function(e) {
-        generateSearchHints(e.target.value, 'mobileSearchHints');
-    }, 200));
-
-    // Click outside to hide hints
-    document.addEventListener('click', function(e) {
-        const desktop = document.getElementById('desktopSearchContainer');
-        if (desktop && !desktop.contains(e.target)) {
-            document.getElementById('desktopSearchHints')?.classList.remove('show');
+    
+    window.handleLogout = async function() {
+        if (auth) {
+            await auth.signOut();
+            showElegantMessage('Logged out successfully', 'success');
         }
-        const mobileRow = document.querySelector('.search-overlay .search-row');
-        if (mobileRow && !mobileRow.contains(e.target)) {
-            document.getElementById('mobileSearchHints')?.classList.remove('show');
-        }
-    });
+    };
 
     // ========== INQUIRY FORM SUBMIT TO FIREBASE ==========
     document.getElementById('epitomeInquiryForm')?.addEventListener('submit', async function(e) {
@@ -684,10 +897,12 @@
                 modelInterest: model,
                 message: message || '',
                 timestamp: Date.now(),
+                uid: currentUser ? currentUser.uid : null,
                 status: 'new'
             });
             showElegantMessage('✅ Inquiry sent! EPITOME concierge will contact you soon.', 'success');
             this.reset();
+            if (currentUser?.email) document.getElementById('inquiryEmail').value = currentUser.email;
         } catch (error) {
             console.error(error);
             showElegantMessage('❌ Failed to send. Please try again.', 'error');
@@ -701,13 +916,15 @@
     let currentSlide = 0;
     const slides = document.querySelectorAll('.slide');
     const dots = document.querySelectorAll('.slider-dot');
-    function showSlide(index) {
+    
+    window.showSlide = function(index) {
         if (index >= slides.length) index = 0;
         if (index < 0) index = slides.length - 1;
         slides.forEach((s, i) => s.classList.toggle('active', i === index));
         dots.forEach((d, i) => d.classList.toggle('active', i === index));
         currentSlide = index;
-    }
+    };
+    
     window.changeSlide = (dir) => showSlide(currentSlide + dir);
     window.goToSlide = (idx) => showSlide(idx);
     setInterval(() => changeSlide(1), 5500);
@@ -724,6 +941,7 @@
             localStorage.setItem('siteTheme', 'dark');
         }
     };
+    
     (function() {
         if (localStorage.getItem('siteTheme') === 'light') {
             document.body.classList.add('light-theme');
@@ -742,11 +960,33 @@
             document.getElementById('mobileSearchHints')?.classList.remove('show');
         }
     };
+    
     document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
     document.getElementById('mobileSearchBtn')?.addEventListener('click', toggleMobileSearch);
 
-    // ========== TOAST ==========
-    function showElegantMessage(text, type = 'info') {
+    document.addEventListener('click', function(e) {
+        const panel = document.getElementById('hamburgerPanel');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        if (panel && panel.classList.contains('open')) {
+            if (!panel.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                panel.classList.remove('open');
+            }
+        }
+        
+        // Hide search hints when clicking outside
+        const desktopContainer = document.getElementById('desktopSearchContainer');
+        if (desktopContainer && !desktopContainer.contains(e.target)) {
+            document.getElementById('desktopSearchHints')?.classList.remove('show');
+        }
+        
+        const mobileRow = document.querySelector('.search-overlay .search-row');
+        if (mobileRow && !mobileRow.contains(e.target)) {
+            document.getElementById('mobileSearchHints')?.classList.remove('show');
+        }
+    });
+
+    // ========== TOAST MESSAGE ==========
+    window.showElegantMessage = function(text, type = 'info') {
         const toast = document.getElementById('elegantToast');
         document.getElementById('toastMessage').innerText = text;
         const icon = toast.querySelector('i');
@@ -755,8 +995,50 @@
         else icon.className = 'fas fa-globe-africa';
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 4000);
+    };
+
+    // ========== SEARCH SETUP - Using external search-utils.js ==========
+    // The search functionality is provided by search-utils.js
+    // It should expose window.generateSearchHints and window.performSearch
+    
+    // Connect search inputs to the external search functions
+    function setupSearch() {
+        const desktopInput = document.getElementById('desktopSearchInput');
+        const mobileInput = document.getElementById('mobileSearchInput');
+        
+        if (desktopInput && window.generateSearchHints) {
+            desktopInput.addEventListener('input', function(e) {
+                window.generateSearchHints(e.target.value, 'desktopSearchHints');
+            });
+        }
+        
+        if (mobileInput && window.generateSearchHints) {
+            mobileInput.addEventListener('input', function(e) {
+                window.generateSearchHints(e.target.value, 'mobileSearchHints');
+            });
+        }
     }
-    window.showElegantMessage = showElegantMessage; // expose globally
+    
+    // Make sure search is set up after scripts load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupSearch);
+    } else {
+        setupSearch();
+    }
+    
+    // Override performSearch if it exists, otherwise create it
+    window.performSearch = window.performSearch || function(query) {
+        if (!query?.trim()) { 
+            showElegantMessage('Enter a search term', 'info'); 
+            return; 
+        }
+        if (window.generateSearchHints) {
+            window.generateSearchHints(query, 'desktopSearchHints');
+        } else {
+            console.log('Search query:', query);
+            showElegantMessage(`Searching for: ${query}`, 'info');
+        }
+    };
 </script>
 </body>
 </html>
