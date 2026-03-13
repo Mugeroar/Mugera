@@ -53,11 +53,12 @@
             
             /* Ride Status Colors */
             --status-requested: #f59e0b;
-            --status-confirmed: #3b82f6;
-            --status-driver-assigned: #8b5cf6;
-            --status-ongoing: #10b981;
+            --status-assigned: #8b5cf6;
+            --status-en-route: #3b82f6;
             --status-completed: #10b981;
             --status-cancelled: #ef4444;
+            --status-scheduled: #8b5cf6;
+            --status-pending: #f59e0b;
         }
 
         body.light-theme {
@@ -580,28 +581,22 @@
             text-transform: uppercase;
         }
 
-        .status-requested {
-            background: rgba(245,158,11,0.15);
-            color: var(--warning);
-            border: 1px solid rgba(245,158,11,0.3);
-        }
-
-        .status-confirmed {
-            background: rgba(59,130,246,0.15);
-            color: var(--info);
-            border: 1px solid rgba(59,130,246,0.3);
-        }
-
-        .status-driver-assigned {
+        .status-scheduled {
             background: rgba(139,92,246,0.15);
             color: var(--purple);
             border: 1px solid rgba(139,92,246,0.3);
         }
 
-        .status-ongoing {
-            background: rgba(16,185,129,0.15);
-            color: var(--success);
-            border: 1px solid rgba(16,185,129,0.3);
+        .status-assigned {
+            background: rgba(139,92,246,0.15);
+            color: var(--purple);
+            border: 1px solid rgba(139,92,246,0.3);
+        }
+
+        .status-en-route {
+            background: rgba(59,130,246,0.15);
+            color: var(--info);
+            border: 1px solid rgba(59,130,246,0.3);
         }
 
         .status-completed {
@@ -614,6 +609,12 @@
             background: rgba(220,38,38,0.15);
             color: var(--danger);
             border: 1px solid rgba(220,38,38,0.3);
+        }
+
+        .status-pending {
+            background: rgba(245,158,11,0.15);
+            color: var(--warning);
+            border: 1px solid rgba(245,158,11,0.3);
         }
 
         .route-info {
@@ -1188,10 +1189,7 @@
 
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
-        <div style="text-align: center; padding: 3rem;">
-            <div class="loading-spinner" style="margin: 0 auto;"></div>
-            <p style="margin-top: 1rem; color: var(--text-muted);">Loading your rides...</p>
-        </div>
+        <!-- Content will be dynamically inserted here -->
     </main>
 
     <script>
@@ -1217,6 +1215,7 @@
         let rides = [];
         let filteredRides = [];
         let currentFilter = 'all';
+        let ridesListener = null;
 
         // ========== AUTH STATE LISTENER ==========
         auth.onAuthStateChanged(async (user) => {
@@ -1226,11 +1225,10 @@
                 
                 try {
                     await loadUserData();
-                    await loadUserRides();
-                    renderPage();
+                    await setupRidesListener();
                 } catch (error) {
                     console.error('Error:', error);
-                    showToast('Error loading rides', 'error');
+                    showToast('Error loading rides: ' + error.message, 'error');
                     renderLoginPage();
                 } finally {
                     showLoading(false);
@@ -1242,10 +1240,19 @@
 
         // ========== LOAD USER DATA ==========
         async function loadUserData() {
-            const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
-            if (userSnapshot.exists()) {
-                userData = userSnapshot.val();
-            } else {
+            try {
+                const userSnapshot = await database.ref(`users/${currentUser.uid}`).once('value');
+                if (userSnapshot.exists()) {
+                    userData = userSnapshot.val();
+                } else {
+                    userData = {
+                        name: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
+                        email: currentUser.email,
+                        uid: currentUser.uid
+                    };
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
                 userData = {
                     name: currentUser.displayName || currentUser.email?.split('@')[0] || 'User',
                     email: currentUser.email,
@@ -1271,45 +1278,95 @@
             document.getElementById('panelLoggedIn').style.display = 'flex';
         }
 
-        // ========== LOAD USER RIDES ==========
-        async function loadUserRides() {
-            try {
-                // This assumes you have a 'rides' node in your database
-                // If your rides are stored differently, adjust the path
-                const snapshot = await database.ref('rides')
-                    .orderByChild('userId')
-                    .equalTo(currentUser.uid)
-                    .once('value');
-                
+        // ========== SETUP RIDES LISTENER ==========
+        function setupRidesListener() {
+            // Remove existing listener
+            if (ridesListener) {
+                ridesListener.off();
+            }
+
+            // Set up new listener for pickme_rides
+            const ridesRef = database.ref('pickme_rides')
+                .orderByChild('userId')
+                .equalTo(currentUser.uid);
+
+            ridesListener = ridesRef.on('value', (snapshot) => {
                 const data = snapshot.val() || {};
                 
+                // Convert to array and parse
                 rides = Object.entries(data).map(([id, ride]) => {
-                    // Parse date
+                    // Parse date and time
                     let timestamp = ride.bookingDate ? new Date(ride.bookingDate).getTime() : 
                                    ride.timestamp ? ride.timestamp : Date.now();
                     
+                    let pickupTime = '';
+                    if (ride.pickup?.scheduledDateTime) {
+                        const date = new Date(ride.pickup.scheduledDateTime);
+                        pickupTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    } else if (ride.pickup?.time) {
+                        pickupTime = ride.pickup.time;
+                    }
+
+                    let displayDate = '';
+                    if (ride.bookingDate) {
+                        displayDate = new Date(ride.bookingDate).toLocaleDateString();
+                    } else if (ride.timestamp) {
+                        displayDate = new Date(ride.timestamp).toLocaleDateString();
+                    } else {
+                        displayDate = 'N/A';
+                    }
+
+                    // Get passenger count
+                    const passengerCount = ride.passengers?.count || 
+                                          (ride.passengers?.details?.length || 1);
+
                     return {
                         id: id,
                         rideId: id.slice(-8).toUpperCase(),
                         fullId: id,
                         date: ride.bookingDate || ride.timestamp || null,
-                        displayDate: ride.bookingDate ? new Date(ride.bookingDate).toLocaleDateString() : 
-                                    ride.timestamp ? new Date(ride.timestamp).toLocaleDateString() : 'N/A',
-                        pickup: ride.pickup || ride.pickupAddress || 'Not specified',
-                        dropoff: ride.dropoff || ride.destination || ride.dropoffAddress || 'Not specified',
-                        pickupTime: ride.pickupTime || null,
-                        driverName: ride.driverName || null,
-                        driverPhone: ride.driverPhone || null,
-                        driverVehicle: ride.driverVehicle || null,
-                        driverPlate: ride.driverPlate || null,
-                        fare: ride.fare || ride.estimatedFare || 0,
-                        distance: ride.distance || null,
-                        duration: ride.duration || null,
-                        status: ride.status || 'requested',
-                        vehicleType: ride.vehicleType || 'Standard',
+                        displayDate: displayDate,
+                        bookingDate: ride.bookingDate,
+                        timestamp: timestamp,
+                        
+                        // Route info
+                        pickup: ride.pickup?.address || ride.pickup || 'Not specified',
+                        dropoff: ride.dropoff?.address || ride.dropoff || 'Not specified',
+                        pickupZone: ride.pickup?.zone || '',
+                        dropoffZone: ride.dropoff?.zone || '',
+                        pickupTime: pickupTime,
+                        
+                        // Driver info
+                        driver: ride.driver || null,
+                        driverName: ride.driver?.name || null,
+                        driverPhone: ride.driver?.phone || null,
+                        driverVehicle: ride.driver?.vehicle || null,
+                        driverPlate: ride.driver?.plate || null,
+                        
+                        // Ride details
+                        serviceType: ride.serviceType || 'instant',
+                        fare: ride.fare || 0,
+                        distance: ride.distance || 'N/A',
+                        passengers: passengerCount,
+                        passengerDetails: ride.passengers?.details || [],
+                        
+                        // Status
+                        status: ride.status || 'pending',
+                        
+                        // Payment
                         paymentMethod: ride.paymentMethod || 'M-Pesa',
-                        notes: ride.notes || '',
-                        timestamp: timestamp
+                        
+                        // Additional
+                        purpose: ride.purpose || '',
+                        specialRequirements: ride.specialRequirements || '',
+                        notes: ride.notes || ride.completionNotes || '',
+                        
+                        // Rating
+                        rating: ride.rating || null,
+                        review: ride.review || null,
+                        
+                        // History
+                        statusHistory: ride.statusHistory || []
                     };
                 });
 
@@ -1318,12 +1375,14 @@
                 filteredRides = [...rides];
                 
                 console.log(`Loaded ${rides.length} rides for user`);
-                
-            } catch (error) {
+                renderPage();
+            }, (error) => {
                 console.error('Error loading rides:', error);
+                showToast('Error loading rides', 'error');
                 rides = [];
                 filteredRides = [];
-            }
+                renderPage();
+            });
         }
 
         // ========== RENDER FUNCTIONS ==========
@@ -1370,7 +1429,7 @@
                 <!-- Welcome Banner -->
                 <div class="welcome-banner">
                     <div class="welcome-text">
-                        <h1>Welcome back, ${displayName}! 👋</h1>
+                        <h1>Welcome back, ${escapeHtml(displayName)}! 👋</h1>
                         <p>Ready to go somewhere? Book your first ride.</p>
                     </div>
                     <div class="welcome-actions">
@@ -1406,8 +1465,8 @@
                 <!-- Welcome Banner -->
                 <div class="welcome-banner">
                     <div class="welcome-text">
-                        <h1>Welcome back, ${displayName}! 👋</h1>
-                        <p>You have ${stats.total} ride${stats.total !== 1 ? 's' : ''} • ${stats.completed} completed</p>
+                        <h1>Welcome back, ${escapeHtml(displayName)}! 👋</h1>
+                        <p>You have ${stats.total} ride${stats.total !== 1 ? 's' : ''} • ${stats.completed} completed • KSh ${stats.totalSpent.toLocaleString()} spent</p>
                     </div>
                     <div class="welcome-actions">
                         <div class="action-icon-btn" onclick="bookRide()" title="Book a Ride">
@@ -1479,12 +1538,12 @@
                     </div>
                     <select class="filter-select" id="statusFilter" onchange="filterRides()">
                         <option value="all">All Status</option>
-                        <option value="requested">Requested</option>
-                        <option value="confirmed">Confirmed</option>
-                        <option value="driver-assigned">Driver Assigned</option>
-                        <option value="ongoing">Ongoing</option>
+                        <option value="pending">Pending</option>
+                        <option value="assigned">Assigned</option>
+                        <option value="en-route">En Route</option>
                         <option value="completed">Completed</option>
                         <option value="cancelled">Cancelled</option>
+                        <option value="scheduled">Scheduled</option>
                     </select>
                     <button class="refresh-btn" onclick="refreshRides()" title="Refresh">
                         <i class="fas fa-sync-alt"></i>
@@ -1498,7 +1557,10 @@
             `;
 
             // Add event listeners
-            document.getElementById('searchInput').addEventListener('input', filterRides);
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', filterRides);
+            }
         }
 
         function renderRideCards() {
@@ -1514,6 +1576,8 @@
             let html = '';
             filteredRides.forEach(ride => {
                 const statusClass = `status-${ride.status}`;
+                const serviceIcon = ride.serviceType === 'instant' ? 'fa-bolt' : 
+                                   ride.serviceType === 'scheduled' ? 'fa-calendar' : 'fa-car';
                 
                 html += `
                     <div class="ride-card" onclick="viewRideDetails('${ride.id}')">
@@ -1525,12 +1589,12 @@
                         <div class="route-info">
                             <div class="route-point">
                                 <span class="route-label">FROM</span>
-                                <span class="route-address" title="${ride.pickup}">${ride.pickup}</span>
+                                <span class="route-address" title="${escapeHtml(ride.pickup)}">${escapeHtml(ride.pickup)}</span>
                             </div>
                             <i class="fas fa-arrow-right route-arrow"></i>
                             <div class="route-point">
                                 <span class="route-label">TO</span>
-                                <span class="route-address" title="${ride.dropoff}">${ride.dropoff}</span>
+                                <span class="route-address" title="${escapeHtml(ride.dropoff)}">${escapeHtml(ride.dropoff)}</span>
                             </div>
                         </div>
 
@@ -1540,9 +1604,9 @@
                                     <i class="fas fa-user"></i>
                                 </div>
                                 <div class="driver-details">
-                                    <div class="driver-name">${ride.driverName}</div>
+                                    <div class="driver-name">${escapeHtml(ride.driverName)}</div>
                                     <div class="driver-vehicle">
-                                        <i class="fas fa-car"></i> ${ride.driverVehicle || 'Vehicle'} · ${ride.driverPlate || ''}
+                                        <i class="fas fa-car"></i> ${escapeHtml(ride.driverVehicle || 'Vehicle')} · ${escapeHtml(ride.driverPlate || '')}
                                     </div>
                                 </div>
                             </div>
@@ -1551,19 +1615,19 @@
                         <div class="ride-details">
                             <div class="detail-item">
                                 <i class="fas fa-calendar"></i>
-                                <span>${ride.displayDate}</span>
+                                <span>${escapeHtml(ride.displayDate)}</span>
                             </div>
                             <div class="detail-item">
                                 <i class="fas fa-clock"></i>
-                                <span>${ride.pickupTime || 'Not scheduled'}</span>
+                                <span>${escapeHtml(ride.pickupTime || 'Not scheduled')}</span>
                             </div>
                             <div class="detail-item">
-                                <i class="fas fa-credit-card"></i>
-                                <span>${ride.paymentMethod}</span>
+                                <i class="fas fa-user"></i>
+                                <span>${ride.passengers} passenger${ride.passengers !== 1 ? 's' : ''}</span>
                             </div>
                             <div class="detail-item">
-                                <i class="fas fa-car-side"></i>
-                                <span>${ride.vehicleType}</span>
+                                <i class="fas ${serviceIcon}"></i>
+                                <span>${escapeHtml(ride.serviceType)}</span>
                             </div>
                         </div>
 
@@ -1573,17 +1637,22 @@
                                 <button class="card-action-btn" onclick="viewRideDetails('${ride.id}')" title="View Details">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                ${ride.status === 'requested' || ride.status === 'confirmed' ? `
+                                ${(ride.status === 'pending' || ride.status === 'scheduled') ? `
                                     <button class="card-action-btn cancel" onclick="cancelRide('${ride.id}')" title="Cancel Ride">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 ` : ''}
-                                ${ride.status === 'ongoing' ? `
+                                ${ride.status === 'en-route' ? `
                                     <button class="card-action-btn track" onclick="trackRide('${ride.id}')" title="Track Ride">
                                         <i class="fas fa-map-marker-alt"></i>
                                     </button>
                                     <button class="card-action-btn contact" onclick="contactDriver('${ride.id}')" title="Contact Driver">
                                         <i class="fas fa-phone"></i>
+                                    </button>
+                                ` : ''}
+                                ${ride.status === 'completed' && !ride.rating ? `
+                                    <button class="card-action-btn" onclick="rateRide('${ride.id}')" title="Rate Ride">
+                                        <i class="fas fa-star"></i>
                                     </button>
                                 ` : ''}
                             </div>
@@ -1597,7 +1666,7 @@
 
         function getRideStats() {
             const total = rides.length;
-            const ongoing = rides.filter(r => r.status === 'ongoing' || r.status === 'driver-assigned').length;
+            const ongoing = rides.filter(r => r.status === 'assigned' || r.status === 'en-route').length;
             const completed = rides.filter(r => r.status === 'completed').length;
             const cancelled = rides.filter(r => r.status === 'cancelled').length;
             const totalSpent = rides
@@ -1639,7 +1708,7 @@
             const statusFilter = document.getElementById('statusFilter');
             if (statusFilter) {
                 if (status === 'ongoing') {
-                    statusFilter.value = 'ongoing';
+                    statusFilter.value = 'assigned';
                 } else if (status === 'completed') {
                     statusFilter.value = 'completed';
                 } else if (status === 'cancelled') {
@@ -1676,11 +1745,29 @@
             if (!ride) return;
 
             const statusClass = `status-${ride.status}`;
+            const passengerList = ride.passengerDetails && ride.passengerDetails.length > 0 ? 
+                ride.passengerDetails.map(p => `<li>${escapeHtml(p.name)} (${p.age} years)</li>`).join('') : 
+                `<li>${ride.passengers} passenger(s)</li>`;
             
+            const statusHistory = ride.statusHistory && ride.statusHistory.length > 0 ?
+                ride.statusHistory.map(h => `
+                    <div style="margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(202,138,4,0.05); border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--gold); text-transform: capitalize;">${h.status}</span>
+                            <span style="color: var(--text-muted); font-size: 0.8rem;">${new Date(h.timestamp).toLocaleString()}</span>
+                        </div>
+                        ${h.note ? `<div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">${h.note}</div>` : ''}
+                    </div>
+                `).join('') : 'No status history available';
+
             const content = `
                 <div class="modal-field">
                     <label>Ride ID</label>
-                    <div class="field-value">#${ride.fullId}</div>
+                    <div class="field-value">#${ride.rideId} (${ride.id})</div>
+                </div>
+                <div class="modal-field">
+                    <label>Service Type</label>
+                    <div class="field-value" style="text-transform: capitalize;">${ride.serviceType}</div>
                 </div>
                 <div class="modal-field">
                     <label>Booking Date</label>
@@ -1690,8 +1777,8 @@
                 <div class="modal-field">
                     <label>Route</label>
                     <div class="field-value">
-                        <strong>From:</strong> ${ride.pickup}<br>
-                        <strong>To:</strong> ${ride.dropoff}
+                        <strong>From:</strong> ${escapeHtml(ride.pickup)} (${ride.pickupZone || 'N/A'})<br>
+                        <strong>To:</strong> ${escapeHtml(ride.dropoff)} (${ride.dropoffZone || 'N/A'})
                     </div>
                 </div>
 
@@ -1700,45 +1787,63 @@
                     <div class="field-value">${ride.pickupTime || 'Not scheduled'}</div>
                 </div>
 
-                ${ride.driverName ? `
+                ${ride.driver ? `
                     <div class="modal-field">
                         <label>Driver Details</label>
                         <div class="field-value">
-                            <strong>Name:</strong> ${ride.driverName}<br>
-                            <strong>Phone:</strong> ${ride.driverPhone || 'N/A'}<br>
-                            <strong>Vehicle:</strong> ${ride.driverVehicle || 'N/A'} · ${ride.driverPlate || 'N/A'}
+                            <strong>Name:</strong> ${escapeHtml(ride.driver.name || 'N/A')}<br>
+                            <strong>Phone:</strong> ${escapeHtml(ride.driver.phone || 'N/A')}<br>
+                            <strong>Vehicle:</strong> ${escapeHtml(ride.driver.vehicle || 'N/A')} · ${escapeHtml(ride.driver.plate || 'N/A')}
                         </div>
                     </div>
                 ` : ''}
 
                 <div class="modal-field">
+                    <label>Passengers (${ride.passengers})</label>
+                    <div class="field-value">
+                        <ul style="margin-left: 1.5rem;">
+                            ${passengerList}
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="modal-field">
                     <label>Ride Details</label>
                     <div class="field-value">
-                        <strong>Vehicle Type:</strong> ${ride.vehicleType}<br>
-                        <strong>Distance:</strong> ${ride.distance || 'N/A'}<br>
-                        <strong>Duration:</strong> ${ride.duration || 'N/A'}<br>
-                        <strong>Payment Method:</strong> ${ride.paymentMethod}
+                        <strong>Distance:</strong> ${ride.distance}<br>
+                        <strong>Fare:</strong> KSh ${ride.fare.toLocaleString()}<br>
+                        <strong>Payment Method:</strong> ${ride.paymentMethod}<br>
+                        ${ride.purpose ? `<strong>Purpose:</strong> ${escapeHtml(ride.purpose)}<br>` : ''}
+                        ${ride.specialRequirements ? `<strong>Special Requirements:</strong> ${escapeHtml(ride.specialRequirements)}<br>` : ''}
+                        ${ride.notes ? `<strong>Notes:</strong> ${escapeHtml(ride.notes)}` : ''}
                     </div>
                 </div>
 
-                ${ride.notes ? `
+                ${ride.rating ? `
                     <div class="modal-field">
-                        <label>Special Notes</label>
-                        <div class="field-value">${ride.notes}</div>
+                        <label>Your Rating</label>
+                        <div class="field-value">
+                            <div style="color: var(--gold);">
+                                ${Array(5).fill().map((_, i) => 
+                                    `<i class="fas fa-star" style="color: ${i < ride.rating ? 'var(--gold)' : 'var(--text-muted)'};"></i>`
+                                ).join('')}
+                            </div>
+                            ${ride.review ? `<p style="margin-top: 0.5rem; color: var(--text-secondary);">${escapeHtml(ride.review)}</p>` : ''}
+                        </div>
                     </div>
                 ` : ''}
-
-                <div style="background: rgba(202,138,4,0.05); padding: 1rem; border-radius: 12px; margin: 1rem 0;">
-                    <div style="display: flex; justify-content: space-between; font-weight: 700; color: var(--gold);">
-                        <span>Total Fare:</span>
-                        <span>KSh ${ride.fare.toLocaleString()}</span>
-                    </div>
-                </div>
 
                 <div class="modal-field">
                     <label>Status</label>
                     <div class="field-value">
                         <span class="ride-status ${statusClass}" style="display: inline-block;">${ride.status}</span>
+                    </div>
+                </div>
+
+                <div class="modal-field">
+                    <label>Status History</label>
+                    <div class="field-value" style="max-height: 200px; overflow-y: auto;">
+                        ${statusHistory}
                     </div>
                 </div>
             `;
@@ -1755,18 +1860,32 @@
             showLoading(true);
             
             try {
-                await database.ref(`rides/${rideId}`).update({
+                await database.ref(`pickme_rides/${rideId}`).update({
                     status: 'cancelled',
-                    cancelledAt: new Date().toISOString()
+                    cancelledAt: new Date().toISOString(),
+                    statusHistory: firebase.database.ServerValue.increment(1) // This will be handled better with a transaction
+                });
+
+                // Get current status history
+                const snapshot = await database.ref(`pickme_rides/${rideId}/statusHistory`).once('value');
+                const currentHistory = snapshot.val() || [];
+                
+                // Add new status
+                currentHistory.push({
+                    status: 'cancelled',
+                    timestamp: new Date().toISOString(),
+                    note: 'Ride cancelled by user'
+                });
+
+                await database.ref(`pickme_rides/${rideId}`).update({
+                    statusHistory: currentHistory
                 });
                 
                 showToast('Ride cancelled successfully', 'success');
-                await loadUserRides();
-                renderRidesPage();
                 
             } catch (error) {
                 console.error('Error cancelling ride:', error);
-                showToast('Failed to cancel ride', 'error');
+                showToast('Failed to cancel ride: ' + error.message, 'error');
             } finally {
                 showLoading(false);
             }
@@ -1790,17 +1909,22 @@
             window.location.href = `tel:${ride.driverPhone}`;
         };
 
+        window.rateRide = function(rideId) {
+            // This would open a rating modal - you can implement this later
+            showToast('Rating feature coming soon!', 'info');
+        };
+
         window.bookRide = function() {
             window.location.href = 'pickme.html';
         };
 
         window.refreshRides = function() {
             showLoading(true);
-            loadUserRides().then(() => {
-                renderRidesPage();
-                showToast('Rides refreshed', 'success');
+            // Listener will automatically update
+            setTimeout(() => {
                 showLoading(false);
-            }).catch(() => showLoading(false));
+                showToast('Rides refreshed', 'success');
+            }, 1000);
         };
 
         // ========== AUTH FUNCTIONS ==========
@@ -1858,6 +1982,13 @@
         };
 
         // ========== UTILITY FUNCTIONS ==========
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         function showLoading(show) {
             const overlay = document.getElementById('loadingOverlay');
             if (overlay) {
@@ -1876,7 +2007,7 @@
                 warning: 'exclamation-triangle', 
                 info: 'info-circle' 
             };
-            toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${message}</span>`;
+            toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${escapeHtml(message)}</span>`;
             
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
