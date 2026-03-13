@@ -66,6 +66,13 @@ const SEARCH_DATABASE = [
         url: "delivery-assistant.html" 
     },
     { 
+        title: "DRIVING ASSISTANT", 
+        category: "JOB", 
+        icon: "fas fa-car", 
+        keywords: ["drive","emergency","package","driver","assistant"], 
+        url: "driving-assistant.html" 
+    },
+    { 
         title: "DATA ENTRY MASTERY", 
         category: "COURSE", 
         icon: "fas fa-table", 
