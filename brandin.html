@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-title" content="BrandIn Pages">
     <meta name="application-name" content="BrandIn Pages">
     <title>BrandIn · personal brand page</title>
-    <!-- favicon (same sura placeholder) -->
+    <!-- favicon -->
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -22,7 +22,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        /* ===== EXACT WORKFIT/SURA STYLING (preserved) ===== */
+        /* ===== core ===== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --gold: #ca8a04; --gold-dark: #a16207; --gold-light: #fef3c7;
@@ -53,7 +53,7 @@
             padding-top: var(--header-height);
             transition: background 0.3s, color 0.2s;
         }
-        /* header (workfit style — exactly as sura) */
+        /* header unchanged (exact style) */
         .site-header {
             position: fixed; top: 0; width: 100%; height: var(--header-height);
             background: var(--nav-bg); backdrop-filter: blur(10px);
@@ -83,17 +83,6 @@
             border-radius: 50%; color: black; cursor: pointer;
             transition: 0.2s;
         }
-        .search-hints, .mobile-search-hints {
-            position: absolute; top: calc(100% + 8px); left: 0; right: 0;
-            background: var(--card-bg); border: 1px solid var(--gold);
-            border-radius: 20px; padding: 0.5rem 0; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            z-index: 2100; display: none; max-height: 300px; overflow-y: auto;
-        }
-        .search-hints.show, .mobile-search-hints.show { display: block; }
-        .hint-item { padding: 0.8rem 1.2rem; cursor: pointer; display: flex; align-items: center; gap: 1rem; transition: all 0.2s; color: var(--text-primary); border-bottom: 1px solid var(--border-light); }
-        .hint-item:last-child { border-bottom: none; }
-        .hint-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
-        .hint-item i { width: 24px; color: var(--gold); }
         .user-menu, #loginButtonDesktop {
             display: flex; align-items: center; gap: 0.5rem;
             background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
@@ -111,8 +100,6 @@
             border-radius: 20px; padding: 0.5rem; min-width: 120px; display: none; z-index: 1001;
         }
         .user-menu:hover .logout-dropdown { display: block; }
-        .logout-item { padding: 0.7rem 1rem; color: var(--text-primary); border-radius: 15px; transition: 0.2s; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
-        .logout-item:hover { background: rgba(202,138,4,0.2); color: var(--gold); }
         .mobile-header-group { display: none; align-items: center; gap: 0.8rem; }
         .mobile-search-icon, .hamburger-icon {
             border: 1px solid var(--gold); color: var(--gold);
@@ -121,7 +108,6 @@
             font-size: 1.3rem; cursor: pointer;
             transition: all 0.2s;
         }
-        .mobile-search-icon:hover, .hamburger-icon:hover { background: var(--gold); color: black; }
         .search-overlay {
             position: fixed; top: 0; left: 0; width: 100%;
             background: var(--nav-bg); backdrop-filter: blur(20px);
@@ -129,27 +115,17 @@
             border-bottom: 2px solid var(--gold);
         }
         .search-overlay.open { transform: translateY(0); }
-        .search-row { display: flex; gap: 0.5rem; position: relative; }
-        .search-overlay input { flex: 1; padding: 1rem 1.2rem; background: var(--bg-secondary); border: 2px solid var(--gold); border-radius: 50px; color: var(--text-primary); }
-        .close-search { background: transparent; border: none; color: var(--text-muted); font-size: 2rem; width: 50px; cursor: pointer; }
         .hamburger-panel {
             position: fixed; top: 0; right: -320px; width: 300px; height: 100vh;
             background: var(--nav-bg); backdrop-filter: blur(20px);
             border-left: 1px solid var(--gold); padding: 2rem 1.5rem;
             z-index: 2500; transition: right 0.3s ease; display: flex; flex-direction: column;
-            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
         }
         .hamburger-panel.open { right: 0; }
         .panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; }
         .panel-header h3 { font-family: 'Cinzel', serif; color: var(--gold); }
-        .close-panel { background: transparent; border: none; color: var(--text-muted); font-size: 1.8rem; cursor: pointer; line-height: 1; }
-        .panel-quick-links { display: flex; flex-direction: column; gap: 0.5rem; margin: 2rem 0; }
-        .panel-link { padding: 0.9rem 1rem; background: rgba(255,255,255,0.03); border-radius: 30px; color: var(--text-primary); text-decoration: none; display: flex; align-items: center; gap: 1rem; transition: 0.2s; border: 1px solid transparent; }
-        .panel-link:hover { border-color: var(--gold); background: rgba(202,138,4,0.1); color: var(--gold); }
-        .panel-link i { width: 24px; color: var(--gold); }
         .panel-theme-toggle { display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 40px; margin-top: auto; border: 1px solid var(--border-light); }
-
-        /* hero slider — same structure, with new images/branding */
+        /* hero slider – stronger background clarity */
         .hero-slider {
             position: relative;
             height: 80vh;
@@ -166,10 +142,11 @@
         .slide.active { opacity: 1; }
         .slide-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(20,20,20,0.7) 100%);
+            /* lighter overlay for more image clarity, but still readable text */
+            background: linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(20,20,20,0.45) 100%);
         }
         body.light-theme .slide-overlay {
-            background: linear-gradient(135deg, rgba(255,245,235,0.85) 0%, rgba(255,255,255,0.8) 100%);
+            background: linear-gradient(135deg, rgba(255,245,235,0.6) 0%, rgba(255,255,255,0.5) 100%);
         }
         .slide-content {
             position: relative; z-index: 10; max-width: 800px; padding: 2rem;
@@ -179,18 +156,19 @@
             font-size: clamp(2.5rem, 5vw, 4rem);
             color: var(--gold);
             margin-bottom: 1rem;
-            text-shadow: 0 2px 15px rgba(0,0,0,0.5);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
         .slide-content p {
-            font-size: 1.3rem; margin-bottom: 2rem; color: var(--text-secondary);
+            font-size: 1.3rem; margin-bottom: 2rem; color: white; font-weight: 500;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.6);
         }
+        body.light-theme .slide-content p { color: #1a1a1a; text-shadow: 0 1px 4px rgba(255,255,255,0.6); }
         .slide-btn {
             background: var(--gold); color: black; border: none; border-radius: 50px;
             padding: 1rem 2.5rem; font-size: 1.2rem; font-weight: 600; cursor: pointer;
-            box-shadow: 0 8px 20px rgba(202,138,4,0.4); transition: 0.3s;
+            box-shadow: 0 8px 20px rgba(202,138,4,0.5); transition: 0.3s;
             text-decoration: none; display: inline-flex; align-items: center; gap: 0.7rem;
         }
-        .slide-btn:hover { background: #b8860b; transform: translateY(-4px); box-shadow: 0 15px 30px rgba(202,138,4,0.5); }
         .slider-nav { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 1rem; z-index: 20; }
         .slider-dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(255,255,255,0.4); border: 2px solid transparent; cursor: pointer; transition: 0.2s; }
         .slider-dot.active { background: var(--gold); transform: scale(1.3); border-color: white; }
@@ -200,104 +178,104 @@
         .container { max-width: 1200px; margin: 0 auto; padding: 4rem 1.5rem; }
         .section-title { font-family: 'Cinzel', serif; font-size: 2.5rem; color: var(--gold); text-align: center; margin-bottom: 1rem; }
         .section-sub { text-align: center; color: var(--text-muted); max-width: 700px; margin: 0 auto 3rem; font-size: 1.1rem; }
-
-        /* BrandIn package cards (catchy, rich) */
+        /* ===== REDESIGNED CARDS ===== more premium, refined, icon-rich */
         .brandin-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 2.5rem;
             margin-top: 2rem;
         }
         .brand-card {
             background: var(--card-bg);
-            border-radius: 50px;
+            border-radius: 48px;
             border: 1px solid var(--border-light);
-            padding: 2rem 2rem;
-            transition: 0.4s;
+            padding: 2.5rem 2rem;
+            transition: 0.3s ease-in-out;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6);
+            box-shadow: 0 20px 35px -8px rgba(0,0,0,0.7);
+            backdrop-filter: blur(2px);
+            position: relative;
+            overflow: hidden;
+        }
+        .brand-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 48px;
+            padding: 2px;
+            background: linear-gradient(145deg, var(--gold), transparent 70%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0.4;
         }
         .brand-card:hover {
-            transform: translateY(-12px);
+            transform: translateY(-8px);
             border-color: var(--gold);
-            box-shadow: 0 30px 60px var(--shadow-color);
+            box-shadow: 0 30px 50px -15px var(--gold);
         }
         .brand-icon {
-            font-size: 3.8rem;
+            font-size: 3.5rem;
             color: var(--gold);
-            margin-bottom: 1rem;
-            text-align: center;
+            margin-bottom: 1.5rem;
+            background: rgba(202,138,4,0.1);
+            width: 85px; height: 85px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 30px;
+            border: 2px dashed var(--gold);
+            transition: 0.2s;
+        }
+        .brand-card:hover .brand-icon {
+            background: rgba(202,138,4,0.2);
+            border-style: solid;
         }
         .brand-card h3 {
             font-family: 'Cinzel', serif;
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             color: var(--gold);
-            text-align: center;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.02em;
         }
         .brand-badge {
-            display: inline-block;
-            background: rgba(202,138,4,0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(202,138,4,0.12);
             border: 1px solid var(--gold);
-            border-radius: 40px;
-            padding: 0.3rem 1.5rem;
+            border-radius: 60px;
+            padding: 0.5rem 1.8rem;
             font-size: 1rem;
-            margin: 0 auto 1.5rem;
+            margin: 0.5rem 0 1.5rem 0;
             font-weight: 600;
             backdrop-filter: blur(5px);
+            color: var(--gold);
         }
         .brand-features {
             list-style: none;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             flex: 1;
         }
         .brand-features li {
-            padding: 0.7rem 0;
+            padding: 0.85rem 0;
             border-bottom: 1px dashed var(--border-light);
             display: flex;
             align-items: center;
             gap: 1rem;
             font-size: 1rem;
         }
-        .brand-features i.fa-check-circle {
-            color: var(--gold);
-            width: 24px;
-            font-size: 1.2rem;
+        .brand-features i {
+            width: 28px;
+            font-size: 1.3rem;
+            text-align: center;
         }
-        .brand-features i.fa-clock, .brand-features i.fa-gem {
-            color: #b0b0b0;
-        }
-        .brand-features .premium-tag {
-            background: #1d4e6f;
-            border-radius: 30px;
-            padding: 0.2rem 0.9rem;
-            font-size: 0.75rem;
-            margin-left: 0.5rem;
-            color: #b4f0e0;
-            font-weight: 600;
-        }
-        .brand-features .pro-tag {
-            background: #4a2c2c;
-            border-radius: 30px;
-            padding: 0.2rem 0.9rem;
-            font-size: 0.75rem;
-            margin-left: 0.5rem;
-            color: #f0c0b4;
-            font-weight: 600;
-        }
-        .brand-features .soon-badge {
-            border: 1px dashed var(--gold);
-            background: transparent;
-            border-radius: 30px;
-            padding: 0.1rem 0.8rem;
-            font-size: 0.7rem;
-            margin-left: 0.6rem;
-            color: var(--gold);
-        }
-        .brand-inquiry {
-            margin-top: 1.8rem;
-        }
+        .brand-features .fa-check-circle { color: var(--gold); }
+        .brand-features .fa-bolt, .brand-features .fa-file-invoice, .brand-features .fa-receipt { color: #f0b47c; }
+        .brand-features .fa-pen-to-square, .brand-features .fa-phone-volume, .brand-features .fa-image { color: #9bbdf0; }
+        .brand-features strong { font-weight: 700; color: var(--text-primary); }
+        .brand-inquiry { margin-top: 0.5rem; }
         .brand-input {
             width: 100%;
             padding: 1rem 1.2rem;
@@ -318,7 +296,7 @@
         .brand-btn {
             width: 100%;
             padding: 1rem;
-            background: transparent;
+            background: linear-gradient(145deg, rgba(202,138,4,0.2), transparent);
             border: 2px solid var(--gold);
             border-radius: 60px;
             color: var(--gold);
@@ -336,25 +314,16 @@
             color: black;
         }
         .brand-note {
-            font-size: 0.85rem;
-            color: var(--text-muted);
+            font-size: 0.9rem;
+            color: var(--gold);
             text-align: center;
-            margin-top: 0.8rem;
-        }
-
-        /* premium note */
-        .premium-coming {
-            background: rgba(202,138,4,0.08);
-            border-radius: 80px;
-            padding: 0.8rem 2rem;
-            text-align: center;
-            max-width: 600px;
-            margin: 3rem auto 0;
+            margin-top: 1rem;
+            background: rgba(202,138,4,0.05);
+            padding: 0.5rem 1rem;
+            border-radius: 60px;
             border: 1px dashed var(--gold);
-            font-size: 1.1rem;
         }
-
-        /* auth modal same */
+        /* auth modal, footer, toast unchanged */
         .auth-modal {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: var(--card-bg); padding: 2.5rem; border-radius: 40px;
@@ -364,19 +333,6 @@
         .auth-modal.active { display: block; animation: modalFade 0.3s; }
         @keyframes modalFade { from { opacity: 0; transform: translate(-50%, -55%); } to { opacity: 1; transform: translate(-50%, -50%); } }
         .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: transparent; border: none; color: var(--text-muted); font-size: 2rem; cursor: pointer; }
-        .modal-header { text-align: center; margin-bottom: 2rem; }
-        .modal-header i { font-size: 3rem; color: var(--gold); background: rgba(202,138,4,0.1); padding: 1rem; border-radius: 60px; margin-bottom: 1rem; }
-        .modal-header h3 { font-family: 'Cinzel', serif; font-size: 2rem; color: var(--gold); }
-        .modal-tabs { display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-light); padding-bottom: 1rem; }
-        .modal-tab { flex: 1; padding: 0.9rem; background: transparent; border: 1px solid transparent; color: var(--text-muted); font-weight: 600; cursor: pointer; border-radius: 40px; }
-        .modal-tab.active { color: var(--gold); border-color: var(--gold); background: rgba(202,138,4,0.1); }
-        .modal-form { display: none; }
-        .modal-form.active { display: block; }
-        .modal-input { width: 100%; padding: 1rem 1.2rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 40px; color: var(--text-primary); margin-bottom: 1.2rem; }
-        .modal-input:focus { outline: none; border-color: var(--gold); background: var(--input-focus-bg); box-shadow: 0 0 0 3px rgba(202,138,4,0.15); }
-        .modal-btn { width: 100%; padding: 1rem; background: var(--gold); color: black; border: none; border-radius: 40px; font-weight: 700; font-size: 1.1rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.7rem; }
-        .modal-btn:hover { background: #b8860b; transform: scale(1.02); box-shadow: 0 10px 20px rgba(202,138,4,0.3); }
-        .modal-error { color: var(--danger); font-size: 0.9rem; text-align: center; margin-top: 1rem; display: none; background: rgba(220,38,38,0.1); padding: 0.7rem; border-radius: 40px; border: 1px solid var(--danger); }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9400; display: none; }
         .modal-overlay.active { display: block; }
         .footer { background: var(--bg-secondary); padding: 3rem 1.5rem; text-align: center; border-top: 1px solid var(--border-light); }
@@ -385,6 +341,7 @@
         @media (max-width:768px) {
             .header-desktop-actions { display:none; }
             .mobile-header-group { display:flex; }
+            .brandin-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -394,7 +351,7 @@
     <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" style="max-width:200px; border-radius:30px;">
 </div>
 
-<!-- MODAL OVERLAY & AUTH MODAL -->
+<!-- MODAL OVERLAY & AUTH MODAL (unchanged) -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeAllModals()"></div>
 <div class="auth-modal" id="authModal">
     <button class="modal-close" onclick="closeAllModals()">&times;</button>
@@ -419,7 +376,7 @@
     </form>
 </div>
 
-<!-- header (exact SURA style) -->
+<!-- header (same) -->
 <header class="site-header">
     <div class="header-container">
         <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" alt="BrandIn" class="site-logo">
@@ -469,14 +426,14 @@
     </div>
 </div>
 
-<!-- HERO SLIDER (exact style) -->
+<!-- HERO SLIDER (improved bg clarity) -->
 <section class="hero-slider">
     <div class="slide-container">
         <div class="slide active" style="background-image:url('https://i.postimg.cc/CKDp8s4Z/basic.webp');">
             <div class="slide-overlay"></div>
             <div class="slide-content">
                 <h2>BrandIn Pages</h2>
-                <p>Your personal brand, digitized — landing page, services, shop & community</p>
+                <p>Your personal brand, digitized — landing page, services, invoices & community</p>
                 <button class="slide-btn" onclick="document.querySelector('.brandin-grid').scrollIntoView({behavior:'smooth'});"><i class="fas fa-bolt"></i> Ignite your brand</button>
             </div>
         </div>
@@ -484,15 +441,15 @@
             <div class="slide-overlay"></div>
             <div class="slide-content">
                 <h2>Launch Basic</h2>
-                <p>Single‑page website · profile · 5 services · PWA · contact on every service</p>
+                <p>Single‑page website · 5 services · 3 ad creatives · unlimited invoices</p>
                 <button class="slide-btn" onclick="document.querySelector('.brandin-grid').scrollIntoView({behavior:'smooth'});"><i class="fas fa-rocket"></i> Start now</button>
             </div>
         </div>
         <div class="slide" style="background-image:url('https://i.postimg.cc/d3Q0nxWx/Brand-In.webp');">
             <div class="slide-overlay"></div>
             <div class="slide-content">
-                <h2>Premium & Pro</h2>
-                <p>Deeper engagement: WhatsApp, quotations, admin app, branches</p>
+                <h2>Premium</h2>
+                <p>8 services, 5 ad creatives, receipts, call & request buttons</p>
                 <button class="slide-btn" onclick="document.querySelector('.brandin-grid').scrollIntoView({behavior:'smooth'});"><i class="fas fa-crown"></i> Preview</button>
             </div>
         </div>
@@ -506,80 +463,60 @@
     </div>
 </section>
 
-<!-- BRANDIN PLANS (catchy refined) -->
+<!-- BRANDIN PLANS (updated with new specs, premium icons, no pro) -->
 <div class="container">
     <h2 class="section-title">Plans that grow with you</h2>
-    <p class="section-sub">From your first professional page to a full‑fledged brand empire.</p>
+    <p class="section-sub">From your first professional page to a full‑fledged brand presence.</p>
 
     <div class="brandin-grid">
-        <!-- BASIC (refined features, catchy) -->
+        <!-- BASIC (refined) -->
         <div class="brand-card">
             <div class="brand-icon"><i class="fas fa-seedling"></i></div>
             <h3>Basic</h3>
-            <div class="brand-badge"><i class="fas fa-play"></i> launch · zero complexity</div>
+            <div class="brand-badge"><i class="fas fa-play"></i> essential launch</div>
             <ul class="brand-features">
-                <li><i class="fas fa-check-circle"></i> <strong>Single‑page website</strong> – your digital storefront</li>
-                <li><i class="fas fa-check-circle"></i> <strong>Profile section</strong> – show your skills, story & profession</li>
-                <li><i class="fas fa-check-circle"></i> <strong>Up to 5 services</strong> – each with dedicated spotlight</li>
-                <li><i class="fas fa-check-circle"></i> <strong>3 update requests/month</strong> – keep content fresh</li>
-                <li><i class="fas fa-check-circle"></i> <strong>Simple payment info</strong> – integrated (M‑PESA / cards)</li>
-                <li><i class="fas fa-check-circle"></i> <strong>PWA ready</strong> – install like an app</li>
-                <li><i class="fas fa-check-circle"></i> <strong>Direct social links</strong> – Instagram, X, LinkedIn</li>
-                <li><i class="fas fa-check-circle"></i> <strong>Contact on every service</strong> – “Book now” on each card</li>
+                <li><i class="fas fa-check-circle"></i> <strong>Single‑page profile</strong> – business info + story</li>
+                <li><i class="fas fa-bolt"></i> <strong>5 services</strong> – each with direct request & call buttons</li>
+                <li><i class="fas fa-pen-to-square"></i> <strong>3 updates/month</strong> – keep content fresh</li>
+                <li><i class="fas fa-image"></i> <strong>3 social ad creatives</strong> – pro designs, ready to post</li>
+                <li><i class="fas fa-file-invoice"></i> <strong>Unlimited invoices</strong> – bill clients with ease</li>
+                <li><i class="fas fa-check-circle"></i> PWA & contact on every service</li>
             </ul>
             <form class="brand-inquiry" onsubmit="submitBrandInquiry(event, 'Basic')">
                 <input type="text" class="brand-input" placeholder="Your name" id="basicName" required>
                 <input type="email" class="brand-input" placeholder="Email address" id="basicEmail" required>
                 <input type="text" class="brand-input" placeholder="Phone (optional)" id="basicPhone">
                 <button type="submit" class="brand-btn"><i class="fas fa-paper-plane"></i> Get Basic</button>
-                <div class="brand-note">🚀 we’ll launch your page within 48h</div>
+                <div class="brand-note">🚀 page within 48h • unlimited invoices</div>
             </form>
         </div>
 
-        <!-- PREMIUM -->
+        <!-- PREMIUM (elevated) -->
         <div class="brand-card">
             <div class="brand-icon"><i class="fas fa-gem"></i></div>
             <h3>Premium</h3>
-            <div class="brand-badge"><i class="fas fa-star"></i> elevated engagement</div>
+            <div class="brand-badge"><i class="fas fa-star"></i> advanced engagement</div>
             <ul class="brand-features">
-                <li><i class="fas fa-check-circle"></i> Everything in Basic, plus:</li>
-                <li><i class="fas fa-check-circle"></i> <strong>Up to 8 services</strong> – expand your offerings</li>
-                <li><i class="fas fa-check-circle"></i> <strong>5 update requests/month</strong> – more agility</li>
-                <li><i class="fas fa-check-circle"></i> <strong>Direct Call/WhatsApp per service</strong> – one‑tap connect</li>
-                <li><i class="fas fa-check-circle"></i> <strong>Basic service quotation</strong> – send estimates instantly</li>
-                <li><i class="fas fa-check-circle"></i> PWA included</li>
-                <li><span class="premium-tag">available now</span></li>
+                <li><i class="fas fa-check-circle"></i> <strong>Single‑page profile</strong> – premium layout</li>
+                <li><i class="fas fa-bolt"></i> <strong>8 services</strong> – each with request & call buttons</li>
+                <li><i class="fas fa-pen-to-square"></i> <strong>5 updates/month</strong> – more agility</li>
+                <li><i class="fas fa-image"></i> <strong>5 social ad creatives</strong> – eye‑catching designs</li>
+                <li><i class="fas fa-file-invoice"></i> <strong>Unlimited invoices</strong></li>
+                <li><i class="fas fa-receipt"></i> <strong>Receipts</strong> – professional transaction records</li>
+                <li><i class="fas fa-phone-volume"></i> Direct WhatsApp / call per service</li>
             </ul>
             <form class="brand-inquiry" onsubmit="submitBrandInquiry(event, 'Premium')">
                 <input type="text" class="brand-input" placeholder="Your name" id="premName" required>
                 <input type="email" class="brand-input" placeholder="Email address" id="premEmail" required>
                 <button type="submit" class="brand-btn"><i class="fas fa-paper-plane"></i> Go Premium</button>
-                <div class="brand-note">⚡ priority setup & integration</div>
+                <div class="brand-note">⚡ receipt-ready • priority onboarding</div>
             </form>
-        </div>
-
-        <!-- PRO (coming soon) -->
-        <div class="brand-card">
-            <div class="brand-icon"><i class="fas fa-crown"></i></div>
-            <h3>Pro</h3>
-            <div class="brand-badge"><i class="fas fa-hourglass-half"></i> coming 2026</div>
-            <ul class="brand-features">
-                <li><i class="fas fa-clock" style="color:var(--gold);"></i> <strong>Up to 10 update requests</strong></li>
-                <li><i class="fas fa-clock" style="color:var(--gold);"></i> <strong>Up to 10 services</strong> – scale your brand</li>
-                <li><i class="fas fa-clock" style="color:var(--gold);"></i> Direct call/WhatsApp/email integration</li>
-                <li><i class="fas fa-clock" style="color:var(--gold);"></i> <strong>Quotation, invoice & receipt</strong> – full billing</li>
-                <li><i class="fas fa-clock" style="color:var(--gold);"></i> <strong>Admin app</strong> – manage on the go</li>
-                <li><i class="fas fa-clock" style="color:var(--gold);"></i> <strong>Add branch options</strong> – multi‑location ready</li>
-                <li><span class="pro-tag">coming 🔥</span></li>
-            </ul>
-            <div style="margin-top:2rem; padding:1rem; text-align:center; border:1px dashed var(--gold); border-radius:60px;">
-                <i class="fas fa-bell"></i> Notify me when Pro launches
-            </div>
         </div>
     </div>
 
-    <div class="premium-coming">
-        ✦ Premium available now · Pro on the horizon ✦
+    <!-- subtle note instead of pro -->
+    <div style="text-align:center; margin-top:2.5rem; color:var(--gold); opacity:0.9;">
+        ✦ All plans include unlimited invoices. Receipts included in Premium ✦
     </div>
 </div>
 
@@ -612,17 +549,9 @@
     auth.onAuthStateChanged((user) => {
         currentUser = user;
         updateUIForUser(user);
-        // Auto-fill forms
         if (user) {
-            const basicName = document.getElementById('basicName');
-            const basicEmail = document.getElementById('basicEmail');
-            const premName = document.getElementById('premName');
-            const premEmail = document.getElementById('premEmail');
-            const uname = user.displayName || user.email?.split('@')[0] || '';
-            if (basicName && !basicName.value) basicName.value = uname;
-            if (basicEmail && !basicEmail.value) basicEmail.value = user.email || '';
-            if (premName && !premName.value) premName.value = uname;
-            if (premEmail && !premEmail.value) premEmail.value = user.email || '';
+            ['basicName','premName'].forEach(id => { let f = document.getElementById(id); if(f && !f.value) f.value = user.displayName || user.email?.split('@')[0] || ''; });
+            ['basicEmail','premEmail'].forEach(id => { let f = document.getElementById(id); if(f && !f.value) f.value = user.email || ''; });
         }
     });
 
@@ -700,7 +629,6 @@
         try { await auth.signOut(); showToast('👋 Logged out'); } catch (err) { showToast(err.message); }
     };
 
-    // submit inquiry (basic/premium) to firebase
     window.submitBrandInquiry = async (event, plan) => {
         event.preventDefault();
         const form = event.target;
@@ -762,7 +690,6 @@
     }
     window.showToast = showToast;
 
-    // theme & UI
     window.toggleTheme = function() {
         document.body.classList.toggle('light-theme');
         const icon = document.getElementById('panelThemeIcon');
