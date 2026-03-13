@@ -45,6 +45,7 @@
             --inspired: #2e7d32;
             --danger: #dc2626;
             --success: #10b981;
+            --fabrics: #8b5cf6;
         }
         body.light-theme {
             --bg-primary: #f8f5f0; --bg-secondary: #ffffff; --bg-card: #ffffff;
@@ -71,28 +72,45 @@
             pointer-events: auto;
         }
         
-        /* Loading Overlay */
+        /* Loading Overlay - INITIAL STARTUP ICON RETAINED */
         .loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #0a0a0a; display: flex; align-items: center; 
-            justify-content: center; z-index: 10000; transition: 0.5s;
+            background: #0a0a0a; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 10000; 
+            transition: opacity 0.8s ease, visibility 0.8s ease;
         }
-        .loading-overlay.hidden { opacity: 0; visibility: hidden; }
+        .loading-overlay.hidden { 
+            opacity: 0; 
+            visibility: hidden; 
+        }
         .loading-logo {
-            width: min(180px, 40vw); border-radius: 50%; border: 3px solid var(--gold);
-            box-shadow: 0 0 40px rgba(202,138,4,0.5); margin-bottom: 2rem;
+            width: min(180px, 40vw); 
+            height: auto;
+            border-radius: 50%; 
+            border: 3px solid var(--gold); 
+            box-shadow: 0 0 40px rgba(202,138,4,0.5); 
+            margin-bottom: 2rem; 
+            object-fit: cover;
         }
         .typing-container {
-            font-family: 'Cinzel', serif; font-size: clamp(1.8rem, 6vw, 3.5rem);
+            font-family: 'Cinzel', serif; 
+            font-size: clamp(1.8rem, 6vw, 3.5rem);
             background: linear-gradient(135deg, #f5e7c8, #ca8a04, #f5e7c8);
-            -webkit-background-clip: text; background-clip: text; color: transparent;
-            text-shadow: 0 0 15px rgba(202,138,4,0.6); letter-spacing: 4px;
+            -webkit-background-clip: text; 
+            background-clip: text; 
+            color: transparent;
+            text-shadow: 0 0 15px rgba(202,138,4,0.6); 
+            letter-spacing: 4px;
             white-space: nowrap;
         }
         .cursor {
-            display: inline-block; width: 4px; height: 1.2em;
-            background-color: var(--gold); margin-left: 8px;
-            animation: blink 0.8s step-end infinite; vertical-align: middle;
+            display: inline-block; 
+            width: 4px; 
+            height: 1.2em;
+            background-color: var(--gold); 
+            margin-left: 8px;
+            animation: blink 0.8s step-end infinite; 
+            vertical-align: middle;
         }
         @keyframes blink { 50% { opacity: 0; } }
         
@@ -356,7 +374,7 @@
         .epitome-purpose p { font-size: 1.1rem; line-height: 1.8; }
         .epitome-purpose b { color: var(--gold); }
         
-        /* Section Headers (matching index) */
+        /* Section Headers */
         .section-header {
             text-align: center;
             margin-bottom: 3rem;
@@ -378,7 +396,7 @@
             margin: 0 auto;
         }
         
-        /* Activities Grid - EXACTLY like index page */
+        /* Activities Grid */
         .activities-section {
             max-width: 1200px;
             margin: 5rem auto;
@@ -466,10 +484,10 @@
             gap: 0.8rem;
         }
         
-        /* Specific badge colors */
+        /* Badge Colors */
         .cars-badge { color: var(--gold); border-color: var(--gold); }
         .bikes-badge { color: var(--eye); border-color: var(--eye); }
-        .accessories-badge { color: var(--inspired); border-color: var(--inspired); }
+        .fabrics-badge { color: var(--fabrics); border-color: var(--fabrics); }
         
         /* Footer */
         .footer {
@@ -633,7 +651,7 @@
     </style>
 </head>
 <body>
-<!-- LOADING OVERLAY -->
+<!-- LOADING OVERLAY - INITIAL STARTUP ICON RETAINED -->
 <div class="loading-overlay" id="loadingOverlay">
     <img src="https://i.postimg.cc/bwkN851g/20260304-1008-Image-Generation-remix-01kjvtr63ce54v1awen6j4n88x-1.webp" alt="EPITOME" class="loading-logo">
     <div class="typing-container">
@@ -656,10 +674,10 @@
                     <span class="inbox-badge" id="desktopInboxBadge" style="display: none;">0</span>
                 </a>
                 
-                <!-- SEARCH -->
+                <!-- SEARCH - Using external JavaScript files -->
                 <div class="desktop-search" id="desktopSearchContainer">
                     <input type="text" placeholder="Search EPITOME..." id="desktopSearchInput" autocomplete="off">
-                    <button onclick="window.performSearch(document.getElementById('desktopSearchInput').value)"><i class="fas fa-search"></i></button>
+                    <button onclick="window.performSearch ? window.performSearch(document.getElementById('desktopSearchInput').value) : console.log('search not ready')"><i class="fas fa-search"></i></button>
                     <div class="search-hints" id="desktopSearchHints"></div>
                 </div>
                 
@@ -697,7 +715,7 @@
     <div class="search-overlay" id="mobileSearchOverlay">
         <div class="search-row">
             <input type="text" placeholder="Search EPITOME..." id="mobileSearchInput" autocomplete="off">
-            <button onclick="window.performSearch(document.getElementById('mobileSearchInput').value); toggleMobileSearch();"><i class="fas fa-search"></i></button>
+            <button onclick="window.performSearch ? window.performSearch(document.getElementById('mobileSearchInput').value) : console.log('search not ready'); toggleMobileSearch();"><i class="fas fa-search"></i></button>
             <button class="close-search" onclick="toggleMobileSearch()"><i class="fas fa-times"></i></button>
             <div class="mobile-search-hints" id="mobileSearchHints"></div>
         </div>
@@ -733,7 +751,7 @@
         <div class="panel-quick-links">
             <a href="#" class="panel-link" onclick="navigateToCars(); toggleHamburger();"><i class="fas fa-car"></i> AUTOMOTIVE</a>
             <a href="#" class="panel-link" onclick="navigateToBikes(); toggleHamburger();"><i class="fas fa-motorcycle"></i> TWO WHEELS</a>
-            <a href="#" class="panel-link" onclick="navigateToAccessories(); toggleHamburger();"><i class="fas fa-tshirt"></i> ACCESSORIES</a>
+            <a href="#" class="panel-link" onclick="navigateToAccessories(); toggleHamburger();"><i class="fas fa-tshirt"></i> FABRICS & ACCESSORIES</a>
             <a href="inbox.html" class="panel-link" onclick="toggleHamburger();" style="position: relative; display: flex; align-items: center; justify-content: space-between;">
                 <span><i class="fas fa-inbox"></i> MUGERA CHAT</span>
                 <span class="inbox-badge" id="panelInboxBadge" style="display: none; position: relative; top: 0; right: 0; margin-left: 8px;">0</span>
@@ -753,14 +771,14 @@
     <section class="epitome-hero">
         <div class="hero-container">
             <h1 class="epitome-title">EPITOME</h1>
-            <p class="epitome-sub">CARS · BIKES · ACCESSORIES</p>
+            <p class="epitome-sub">CARS · BIKES · AUTOMOTIVE FABRICS</p>
             <div class="epitome-purpose">
-                <p><b>EPITOME</b> is where trusted brands meet affordability. Your perfect car, bike, or accessories await. Experience perfection unfolding.</p>
+                <p><b>EPITOME</b> is where trusted brands meet affordability. Your perfect car, bike, or automotive fabrics await. Experience perfection unfolding.</p>
             </div>
         </div>
     </section>
 
-    <!-- CARS SECTION - ACTIVITIES GRID STYLE -->
+    <!-- CARS SECTION -->
     <section class="activities-section" id="cars">
         <div class="section-header">
             <h2>Automotive Excellence</h2>
@@ -769,17 +787,17 @@
         
         <div class="activities-grid">
             <!-- Mazda CX-5 Card -->
-            <div class="activity-card" onclick="navigateTo('epitome-cars.html#cx5')">
+            <div class="activity-card" onclick="navigateTo('epitome-cars.html')">
                 <img src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=2070&auto=format&fit=crop" alt="Mazda CX-5" class="card-image" loading="lazy">
                 <div class="card-content">
                     <span class="feature-badge cars-badge"><i class="fas fa-gem"></i> Signature SUV</span>
                     <h3>MAZDA CX‑5</h3>
-                    <p>KODO design · SKYACTIV technology · i‑ACTIV AWD · 187 hp · 6.8 L/100km · Wireless Apple CarPlay</p>
-                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-cars.html#cx5')">Explore CX‑5 <i class="fas fa-arrow-right"></i></button>
+                    <p>KODO design · SKYACTIV technology · i‑ACTIV AWD · Wireless Apple CarPlay</p>
+                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-cars.html')">Explore CX‑5 <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
             
-            <!-- Coming Soon - More Cars -->
+            <!-- More Vehicles Card -->
             <div class="activity-card" onclick="navigateTo('epitome-cars.html')">
                 <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=2070&auto=format&fit=crop" alt="More Vehicles" class="card-image" loading="lazy">
                 <div class="card-content">
@@ -792,7 +810,7 @@
         </div>
     </section>
 
-    <!-- BIKES SECTION - ACTIVITIES GRID STYLE -->
+    <!-- BIKES SECTION -->
     <section class="activities-section" id="bikes">
         <div class="section-header">
             <h2>Two Wheels · One Purpose</h2>
@@ -801,89 +819,133 @@
         
         <div class="activities-grid">
             <!-- Sport Bike -->
-            <div class="activity-card" onclick="navigateTo('epitome-bikes.html#sport')">
+            <div class="activity-card" onclick="navigateTo('epitome-bikes.html')">
                 <img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?q=80&w=2070&auto=format&fit=crop" alt="Sport Motorcycle" class="card-image" loading="lazy">
                 <div class="card-content">
                     <span class="feature-badge bikes-badge"><i class="fas fa-motorcycle"></i> Sport</span>
                     <h3>SPORT PERFORMANCE</h3>
                     <p>High-performance machines built for speed and agility. Advanced aerodynamics and precision handling.</p>
-                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-bikes.html#sport')">Explore sport <i class="fas fa-arrow-right"></i></button>
+                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-bikes.html')">Explore sport <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
             
             <!-- Cruiser / Touring -->
-            <div class="activity-card" onclick="navigateTo('epitome-bikes.html#cruiser')">
+            <div class="activity-card" onclick="navigateTo('epitome-bikes.html')">
                 <img src="https://images.unsplash.com/photo-1558981359-21902a58b05e?q=80&w=2070&auto=format&fit=crop" alt="Cruiser Motorcycle" class="card-image" loading="lazy">
                 <div class="card-content">
                     <span class="feature-badge bikes-badge"><i class="fas fa-motorcycle"></i> Cruiser</span>
                     <h3>CRUISER & TOURING</h3>
                     <p>Comfort and style for the open road. Built for long journeys with classic design and modern reliability.</p>
-                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-bikes.html#cruiser')">Explore cruisers <i class="fas fa-arrow-right"></i></button>
+                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-bikes.html')">Explore cruisers <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
             
             <!-- Adventure -->
-            <div class="activity-card" onclick="navigateTo('epitome-bikes.html#adventure')">
+            <div class="activity-card" onclick="navigateTo('epitome-bikes.html')">
                 <img src="https://images.unsplash.com/photo-1558981852-426c3c93758a?q=80&w=2070&auto=format&fit=crop" alt="Adventure Motorcycle" class="card-image" loading="lazy">
                 <div class="card-content">
                     <span class="feature-badge bikes-badge"><i class="fas fa-motorcycle"></i> Adventure</span>
                     <h3>ADVENTURE READY</h3>
                     <p>Versatile machines for both on and off-road. Rugged, durable, and ready for any terrain.</p>
-                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-bikes.html#adventure')">Explore adventure <i class="fas fa-arrow-right"></i></button>
+                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-bikes.html')">Explore adventure <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ACCESSORIES SECTION - ACTIVITIES GRID STYLE -->
+    <!-- AUTOMOTIVE FABRICS & ACCESSORIES SECTION -->
     <section class="activities-section" id="accessories">
         <div class="section-header">
-            <h2>Automotive Accessories</h2>
-            <p>From custom seat covers to bespoke interior details — personalise your ride.</p>
+            <h2>Automotive Fabrics & Accessories</h2>
+            <p>Premium fabrics for interior and exterior protection. Sun proofs, custom seat covers, umbrellas, car pillows and more.</p>
         </div>
         
         <div class="activities-grid">
-            <!-- Seat Covers -->
-            <div class="activity-card" onclick="navigateTo('epitome-accessories.html#seat-covers')">
-                <img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=1964&auto=format&fit=crop" alt="Seat Covers" class="card-image" loading="lazy">
+            <!-- Sun Proofs -->
+            <div class="activity-card" onclick="navigateTo('epitome-accessories.html')">
+                <img src="https://images.unsplash.com/photo-1621998071957-5ef2b1c0e867?q=80&w=2070&auto=format&fit=crop" alt="Sun Proofs" class="card-image" loading="lazy">
                 <div class="card-content">
-                    <span class="feature-badge accessories-badge"><i class="fas fa-chair"></i> Interior</span>
-                    <h3>PREMIUM SEAT COVERS</h3>
-                    <p>Custom-fit covers in leather, fabric, and sport mesh. Protect your seats in style.</p>
-                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-accessories.html#seat-covers')">Shop covers <i class="fas fa-arrow-right"></i></button>
+                    <span class="feature-badge fabrics-badge"><i class="fas fa-sun"></i> UV Protection</span>
+                    <h3>SUN PROOFS</h3>
+                    <p>Premium heat-reflective sun screens for windscreens and windows. Protect your interior from UV damage and keep your car cooler.</p>
+                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-accessories.html')">Shop sun proofs <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+            
+            <!-- Custom Seat Covers -->
+            <div class="activity-card" onclick="navigateTo('epitome-accessories.html')">
+                <img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?q=80&w=1964&auto=format&fit=crop" alt="Custom Seat Covers" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <span class="feature-badge fabrics-badge"><i class="fas fa-chair"></i> Interior</span>
+                    <h3>CUSTOM SEAT COVERS</h3>
+                    <p>Tailor-made covers in premium leather, breathable fabric, and sport mesh. Perfect fit for every vehicle make and model.</p>
+                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-accessories.html')">Shop seat covers <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+            
+            <!-- Automotive Umbrellas -->
+            <div class="activity-card" onclick="navigateTo('epitome-accessories.html')">
+                <img src="https://images.unsplash.com/photo-1611386732315-f7a94eb1c334?q=80&w=1974&auto=format&fit=crop" alt="Automotive Umbrellas" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <span class="feature-badge fabrics-badge"><i class="fas fa-umbrella"></i> Protection</span>
+                    <h3>AUTOMOTIVE UMBRELLAS</h3>
+                    <p>Heavy-duty, wind-resistant umbrellas with ergonomic handles. Compact storage fits in door pockets. Available in various colors.</p>
+                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-accessories.html')">Shop umbrellas <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+            
+            <!-- Car Pillows -->
+            <div class="activity-card" onclick="navigateTo('epitome-accessories.html')">
+                <img src="https://images.unsplash.com/photo-1625813502229-1d2037d4ef86?q=80&w=1964&auto=format&fit=crop" alt="Car Pillows" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <span class="feature-badge fabrics-badge"><i class="fas fa-bed"></i> Comfort</span>
+                    <h3>CAR PILLOWS</h3>
+                    <p>Ergonomic neck and lumbar pillows for long drives. Memory foam with breathable, washable covers in multiple colors.</p>
+                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-accessories.html')">Shop pillows <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+            
+            <!-- Steering Wheel Covers -->
+            <div class="activity-card" onclick="navigateTo('epitome-accessories.html')">
+                <img src="https://images.unsplash.com/photo-1581540222194-0def2dda95b8?q=80&w=2070&auto=format&fit=crop" alt="Steering Wheel Cover" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <span class="feature-badge fabrics-badge"><i class="fas fa-circle"></i> Grip</span>
+                    <h3>STEERING WHEEL COVERS</h3>
+                    <p>Premium leather and fabric steering wheel covers. Enhance grip, comfort, and style. Custom fit for all vehicle types.</p>
+                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-accessories.html')">Shop covers <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
             
             <!-- Floor Mats -->
-            <div class="activity-card" onclick="navigateTo('epitome-accessories.html#floor-mats')">
+            <div class="activity-card" onclick="navigateTo('epitome-accessories.html')">
                 <img src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?q=80&w=2071&auto=format&fit=crop" alt="Floor Mats" class="card-image" loading="lazy">
                 <div class="card-content">
-                    <span class="feature-badge accessories-badge"><i class="fas fa-layer-group"></i> Protection</span>
+                    <span class="feature-badge fabrics-badge"><i class="fas fa-layer-group"></i> Protection</span>
                     <h3>ALL-WEATHER FLOOR MATS</h3>
-                    <p>Heavy-duty protection for your vehicle's interior. Custom-molded for perfect fit.</p>
-                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-accessories.html#floor-mats')">Shop mats <i class="fas fa-arrow-right"></i></button>
+                    <p>Heavy-duty, custom-molded floor mats. Trap dirt, water, and snow. Easy to clean and maintain.</p>
+                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-accessories.html')">Shop mats <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
             
-            <!-- Steering Wheels -->
-            <div class="activity-card" onclick="navigateTo('epitome-accessories.html#steering')">
-                <img src="https://images.unsplash.com/photo-1581540222194-0def2dda95b8?q=80&w=2070&auto=format&fit=crop" alt="Steering Wheel" class="card-image" loading="lazy">
+            <!-- Car Covers -->
+            <div class="activity-card" onclick="navigateTo('epitome-accessories.html')">
+                <img src="https://images.unsplash.com/photo-1605515298946-db62e1e7c619?q=80&w=2070&auto=format&fit=crop" alt="Car Cover" class="card-image" loading="lazy">
                 <div class="card-content">
-                    <span class="feature-badge accessories-badge"><i class="fas fa-circle"></i> Custom</span>
-                    <h3>CUSTOM STEERING WHEELS</h3>
-                    <p>Upgrade your driving experience with premium leather, wood, or carbon fiber wheels.</p>
-                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-accessories.html#steering')">Browse wheels <i class="fas fa-arrow-right"></i></button>
+                    <span class="feature-badge fabrics-badge"><i class="fas fa-umbrella"></i> Exterior</span>
+                    <h3>CAR COVERS</h3>
+                    <p>Weather-resistant outdoor and indoor car covers. Protect from sun, rain, dust, and scratches. Custom sizes available.</p>
+                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-accessories.html')">Shop car covers <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
             
-            <!-- Interior Trim -->
-            <div class="activity-card" onclick="navigateTo('epitome-accessories.html#trim')">
-                <img src="https://images.unsplash.com/photo-1620891549027-942f95a22e3e?q=80&w=2070&auto=format&fit=crop" alt="Interior Trim" class="card-image" loading="lazy">
+            <!-- Fabric Care Kits -->
+            <div class="activity-card" onclick="navigateTo('epitome-accessories.html')">
+                <img src="https://images.unsplash.com/photo-1607863680198-23d4b2825ab1?q=80&w=2070&auto=format&fit=crop" alt="Fabric Care" class="card-image" loading="lazy">
                 <div class="card-content">
-                    <span class="feature-badge accessories-badge"><i class="fas fa-border-all"></i> Styling</span>
-                    <h3>INTERIOR TRIM KITS</h3>
-                    <p>Carbon fiber, wood, or aluminum accents. Transform your cabin's personality.</p>
-                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-accessories.html#trim')">View trim <i class="fas fa-arrow-right"></i></button>
+                    <span class="feature-badge fabrics-badge"><i class="fas fa-soap"></i> Maintenance</span>
+                    <h3>FABRIC CARE KITS</h3>
+                    <p>Specialized cleaners and protectants for automotive fabrics. Keep your interior looking new.</p>
+                    <button class="card-link" onclick="event.stopPropagation(); navigateTo('epitome-accessories.html')">Shop care kits <i class="fas fa-arrow-right"></i></button>
                 </div>
             </div>
         </div>
@@ -942,6 +1004,10 @@
     <i class="fas fa-globe-africa"></i>
     <span id="toastMessage">message</span>
 </div>
+
+<!-- External JavaScript Files (linked as per your structure) -->
+<script src="search-database.js"></script>
+<script src="search-utils.js"></script>
 
 <script>
     // ========== FIREBASE CONFIG ==========
@@ -1026,7 +1092,7 @@
             if (unreadCount > 0) {
                 document.title = `(${unreadCount}) EPITOME`;
             } else {
-                document.title = 'EPITOME · I AM MUGERA';
+                document.title = 'EPITOME · I AM MUGERA | cars · bikes · accessories';
             }
         });
     }
@@ -1270,46 +1336,35 @@
         });
     });
 
-    // ========== SEARCH FUNCTIONALITY ==========
-    function debounce(func, wait) {
-        let timeout;
-        return function(...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func(...args), wait);
-        };
-    }
-    
-    const debouncedDesktop = debounce(function() {
-        if (window.generateSearchHints) {
-            window.generateSearchHints(document.getElementById('desktopSearchInput')?.value, 'desktopSearchHints');
-        }
-    }, 200);
-    
-    const debouncedMobile = debounce(function() {
-        if (window.generateSearchHints) {
-            window.generateSearchHints(document.getElementById('mobileSearchInput')?.value, 'mobileSearchHints');
-        }
-    }, 200);
-
-    document.getElementById('desktopSearchInput')?.addEventListener('input', debouncedDesktop);
-    document.getElementById('mobileSearchInput')?.addEventListener('input', debouncedMobile);
-
-    document.addEventListener('click', function(e) {
-        const desktopContainer = document.getElementById('desktopSearchContainer');
-        if (desktopContainer && !desktopContainer.contains(e.target)) {
-            document.getElementById('desktopSearchHints')?.classList.remove('show');
+    // ========== SEARCH SETUP ==========
+    // This uses the external search-utils.js functions
+    function setupSearch() {
+        const desktopInput = document.getElementById('desktopSearchInput');
+        const mobileInput = document.getElementById('mobileSearchInput');
+        
+        if (desktopInput && window.generateSearchHints) {
+            desktopInput.addEventListener('input', function(e) {
+                window.generateSearchHints(e.target.value, 'desktopSearchHints');
+            });
         }
         
-        const mobileRow = document.querySelector('.search-overlay .search-row');
-        if (mobileRow && !mobileRow.contains(e.target)) {
-            document.getElementById('mobileSearchHints')?.classList.remove('show');
+        if (mobileInput && window.generateSearchHints) {
+            mobileInput.addEventListener('input', function(e) {
+                window.generateSearchHints(e.target.value, 'mobileSearchHints');
+            });
         }
-    });
-
-    window.performSearch = function(query) {
-        if (!query?.trim()) {
-            showElegantMessage('Enter a search term', 'info');
-            return;
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupSearch);
+    } else {
+        setupSearch();
+    }
+    
+    window.performSearch = window.performSearch || function(query) {
+        if (!query?.trim()) { 
+            showElegantMessage('Enter a search term', 'info'); 
+            return; 
         }
         showElegantMessage(`Searching EPITOME for: ${query}`, 'info');
     };
@@ -1339,6 +1394,16 @@
                 panel.classList.remove('open');
             }
         }
+        
+        const desktopContainer = document.getElementById('desktopSearchContainer');
+        if (desktopContainer && !desktopContainer.contains(e.target)) {
+            document.getElementById('desktopSearchHints')?.classList.remove('show');
+        }
+        
+        const mobileRow = document.querySelector('.search-overlay .search-row');
+        if (mobileRow && !mobileRow.contains(e.target)) {
+            document.getElementById('mobileSearchHints')?.classList.remove('show');
+        }
     });
 
     // ========== THEME TOGGLE ==========
@@ -1359,8 +1424,6 @@
         document.body.classList.add('light-theme');
         document.getElementById('panelThemeIcon')?.classList.replace('fa-moon', 'fa-sun');
     }
-
-    console.log('EPITOME page loaded');
 </script>
 </body>
 </html>
