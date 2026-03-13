@@ -37,14 +37,14 @@
             
             --bg-primary: #0a0a0a;
             --bg-secondary: #111111;
-            --bg-card: rgba(20,20,20,0.8);
+            --bg-card: rgba(20,20,20,0.95);
             --text-primary: #ffffff;
             --text-secondary: #e0e0e0;
             --text-muted: #aaaaaa;
             --border-light: #2a2a2a;
             --shadow-color: rgba(202,138,4,0.25);
             --nav-bg: rgba(10,10,10,0.95);
-            --card-bg: #151515;
+            --card-bg: #1a1a1a;
             --glass-bg: rgba(20,20,20,0.3);
             --glass-border: rgba(255,255,255,0.1);
             --glass-shadow: 0 20px 50px rgba(0,0,0,0.5);
@@ -939,7 +939,7 @@
             color: var(--blue);
         }
 
-        /* Modal */
+        /* ========== IMPROVED MODAL STYLES ========== */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -949,91 +949,441 @@
             display: none;
         }
         .modal-overlay.active { display: block; }
+
         .modal {
             position: fixed;
             top: 50%; left: 50%;
             transform: translate(-50%,-50%);
             background: var(--card-bg);
-            padding: 2rem;
             border-radius: 30px;
             border: 2px solid var(--gold);
             z-index: 9500;
-            max-width: 500px;
+            max-width: 600px;
             width: 90%;
+            max-height: 85vh;
             display: none;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
         }
-        .modal.active { display: block; animation: modalFadeIn 0.3s; }
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: translate(-50%,-60%); }
-            to { opacity: 1; transform: translate(-50%,-50%); }
+        .modal.active { 
+            display: flex; 
+            animation: modalSlideIn 0.3s ease-out;
         }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%,-55%);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%,-50%);
+            }
+        }
+
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-light);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--gold);
+            background: linear-gradient(90deg, rgba(202,138,4,0.1), transparent);
+            border-radius: 28px 28px 0 0;
+            flex-shrink: 0;
         }
+
         .modal-header h3 {
             font-family: 'Cinzel', serif;
             color: var(--gold);
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+
+        .modal-header h3 i {
+            font-size: 1.5rem;
+        }
+
         .modal-close {
             background: transparent;
             border: none;
             color: var(--text-muted);
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             cursor: pointer;
+            transition: all 0.2s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
         }
-        .modal-body {
-            margin-bottom: 1.5rem;
-        }
-        .modal-field {
-            margin-bottom: 1rem;
-        }
-        .modal-field label {
-            display: block;
+
+        .modal-close:hover {
             color: var(--gold);
-            margin-bottom: 0.3rem;
-            font-size: 0.9rem;
+            background: rgba(202,138,4,0.1);
+            transform: rotate(90deg);
         }
-        .modal-field .field-value {
-            padding: 0.8rem;
-            background: var(--input-bg);
-            border-radius: 12px;
-            color: var(--text-primary);
-            word-break: break-word;
+
+        .modal-body {
+            padding: 1.5rem 2rem;
+            overflow-y: auto;
+            flex: 1;
+            scrollbar-width: thin;
+            scrollbar-color: var(--gold) var(--bg-secondary);
         }
-        .modal-actions {
+
+        .modal-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 10px;
+        }
+
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(202,138,4,0.2);
             display: flex;
             gap: 1rem;
             justify-content: flex-end;
+            background: rgba(0,0,0,0.2);
+            border-radius: 0 0 28px 28px;
+            flex-shrink: 0;
+        }
+
+        /* Ride Details Modal Grid Layout */
+        .ride-details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-card {
+            background: rgba(202,138,4,0.05);
+            border: 1px solid rgba(202,138,4,0.2);
+            border-radius: 16px;
+            padding: 1rem;
+            transition: all 0.2s;
+        }
+
+        .detail-card:hover {
+            border-color: var(--gold);
+            background: rgba(202,138,4,0.08);
+        }
+
+        .detail-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .detail-label i {
+            color: var(--gold);
+            font-size: 0.8rem;
+        }
+
+        .detail-content {
+            color: var(--text-primary);
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .detail-content strong {
+            color: var(--gold);
+        }
+
+        .route-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .route-stop {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .route-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(202,138,4,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .route-stop-info {
+            flex: 1;
+        }
+
+        .route-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .route-address {
+            font-weight: 500;
+        }
+
+        .route-zone {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        .route-connector {
+            margin-left: 15px;
+            width: 2px;
+            height: 30px;
+            background: linear-gradient(to bottom, var(--gold), rgba(202,138,4,0.3));
+        }
+
+        .customer-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .customer-avatar {
+            width: 50px;
+            height: 50px;
+            background: rgba(202,138,4,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--gold);
+            border: 2px solid var(--gold);
+        }
+
+        .customer-details {
+            flex: 1;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--gold);
+            margin-bottom: 0.2rem;
+        }
+
+        .customer-contact {
+            display: flex;
+            gap: 1rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .customer-contact a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        .customer-contact a:hover {
+            text-decoration: underline;
+        }
+
+        .status-timeline {
+            margin: 1.5rem 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--gold);
+            margin-top: 0.3rem;
+            position: relative;
+        }
+
+        .timeline-dot::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 5px;
+            width: 2px;
+            height: 40px;
+            background: linear-gradient(to bottom, var(--gold), transparent);
+        }
+
+        .timeline-item:last-child .timeline-dot::before {
+            display: none;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-status {
+            font-weight: 600;
+            color: var(--gold);
+            text-transform: capitalize;
+        }
+
+        .timeline-time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .timeline-note {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+        }
+
+        .fare-breakdown {
+            background: rgba(202,138,4,0.1);
+            border: 1px solid var(--gold);
+            border-radius: 16px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .fare-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+        }
+
+        .fare-row.total {
+            border-top: 1px solid rgba(202,138,4,0.3);
+            margin-top: 0.5rem;
+            padding-top: 0.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            font-size: 1.1rem;
+        }
+
+        .rating-display {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: var(--gold);
+            font-size: 1.1rem;
+        }
+
+        .rating-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Auth Modal Specific */
+        .auth-modal {
+            max-width: 450px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 1rem;
+            background: transparent;
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .auth-tab.active {
+            background: var(--gold);
+            color: black;
         }
 
         /* Route Completion Modal */
-        .route-upload-area {
-            border: 2px dashed var(--gold);
-            border-radius: 20px;
-            padding: 2rem;
-            text-align: center;
-            margin: 1rem 0;
-            cursor: pointer;
+        .completion-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
-        .route-upload-area:hover {
-            background: rgba(202,138,4,0.05);
+
+        .form-section {
+            background: rgba(202,138,4,0.03);
+            border: 1px solid rgba(202,138,4,0.2);
+            border-radius: 16px;
+            padding: 1.2rem;
         }
-        .route-upload-area i {
-            font-size: 3rem;
+
+        .section-title {
             color: var(--gold);
+            font-weight: 600;
             margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        .route-preview {
-            max-width: 100%;
-            max-height: 200px;
-            margin-top: 1rem;
-            border-radius: 10px;
-            display: none;
+
+        .rating-selector {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .rating-option {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(202,138,4,0.1);
+            border: 2px solid transparent;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rating-option:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .rating-option.selected {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: black;
         }
 
         /* Loading and Toast */
@@ -1177,6 +1527,27 @@
             .profile-details { justify-content: center; }
             .form-row { grid-template-columns: 1fr; }
             .tab-navigation { flex-direction: column; }
+            
+            /* Responsive Modal */
+            .modal {
+                max-height: 90vh;
+                width: 95%;
+            }
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: 1rem;
+            }
+            .ride-details-grid {
+                grid-template-columns: 1fr;
+            }
+            .customer-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            .customer-contact {
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -1189,50 +1560,67 @@
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Modal for viewing ride details -->
+    <!-- IMPROVED RIDE DETAILS MODAL -->
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
     <div class="modal" id="detailsModal">
         <div class="modal-header">
-            <h3 id="modalTitle">Ride Details</h3>
+            <h3><i class="fas fa-car"></i> Ride Details</h3>
             <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-body" id="modalBody">
-            <!-- Dynamic content -->
+            <!-- Dynamic content will be inserted here -->
         </div>
-        <div class="modal-actions">
+        <div class="modal-footer">
             <button class="action-btn" onclick="closeModal()">Close</button>
         </div>
     </div>
 
-    <!-- Modal for route completion -->
+    <!-- IMPROVED ROUTE COMPLETION MODAL -->
     <div class="modal-overlay" id="routeModalOverlay" onclick="closeRouteModal()"></div>
     <div class="modal" id="routeModal">
         <div class="modal-header">
-            <h3>Complete Ride</h3>
+            <h3><i class="fas fa-check-circle"></i> Complete Ride</h3>
             <button class="modal-close" onclick="closeRouteModal()"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-body" id="routeModalBody">
-            <p style="margin-bottom: 1rem;">Confirm that you have completed this ride.</p>
-            <div style="margin-top: 1rem;">
-                <label class="form-label">Customer Name</label>
-                <input type="text" class="form-control" id="routeCustomerName" placeholder="Enter customer name">
-            </div>
-            <div style="margin-top: 1rem;">
-                <label class="form-label">Additional Notes</label>
-                <textarea class="form-control" id="routeNotes" rows="3" placeholder="Any notes about the ride"></textarea>
-            </div>
-            <div style="margin-top: 1rem;">
-                <label class="form-label">Rating (1-5)</label>
-                <select class="form-control" id="routeRating">
-                    <option value="5">5 - Excellent</option>
-                    <option value="4">4 - Good</option>
-                    <option value="3">3 - Average</option>
-                    <option value="2">2 - Below Average</option>
-                    <option value="1">1 - Poor</option>
-                </select>
+            <div class="completion-form">
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-user"></i>
+                        <span>Customer Information</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Customer Name *</label>
+                        <input type="text" class="form-control" id="routeCustomerName" placeholder="Enter customer name">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-star"></i>
+                        <span>Rate Your Customer</span>
+                    </div>
+                    <div class="rating-selector" id="ratingSelector">
+                        <div class="rating-option" data-rating="1" onclick="selectRating(1)">1</div>
+                        <div class="rating-option" data-rating="2" onclick="selectRating(2)">2</div>
+                        <div class="rating-option" data-rating="3" onclick="selectRating(3)">3</div>
+                        <div class="rating-option" data-rating="4" onclick="selectRating(4)">4</div>
+                        <div class="rating-option selected" data-rating="5" onclick="selectRating(5)">5</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-notes-medical"></i>
+                        <span>Additional Notes</span>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" id="routeNotes" rows="3" placeholder="Any notes about the ride (optional)"></textarea>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="modal-actions">
+        <div class="modal-footer">
             <button class="action-btn" onclick="closeRouteModal()">Cancel</button>
             <button class="action-btn success" onclick="completeRide()">Complete Ride</button>
         </div>
@@ -1297,95 +1685,95 @@
         </div>
     </div>
 
-    <!-- Auth Modal -->
+    <!-- IMPROVED AUTH MODAL -->
     <div class="modal-overlay" id="authModalOverlay" onclick="closeAuthModal()"></div>
-    <div class="auth-modal" id="authModal" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: var(--card-bg); padding: 2rem; border-radius: 30px; border: 2px solid var(--gold); z-index: 9500; max-width: 450px; width: 90%; display: none;">
-        <button class="modal-close" onclick="closeAuthModal()" style="position: absolute; top: 1rem; right: 1rem; background: transparent; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer;">&times;</button>
-        <div class="modal-header" style="text-align: center; margin-bottom: 2rem;">
-            <i class="fas fa-car" style="font-size: 3rem; color: var(--gold); margin-bottom: 1rem;"></i>
-            <h3 style="font-family: 'Cinzel', serif; color: var(--gold);">PICK ME Driver Portal</h3>
-            <p style="color: var(--text-muted);">Login or request to become a driver</p>
+    <div class="modal auth-modal" id="authModal">
+        <div class="modal-header">
+            <h3><i class="fas fa-car"></i> PICK ME Driver Portal</h3>
+            <button class="modal-close" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
         </div>
-        <div class="auth-tabs" style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-            <button class="auth-tab" id="loginAuthTab" onclick="switchAuthTab('login')" style="flex: 1; padding: 1rem; background: transparent; border: 1px solid var(--gold); border-radius: 30px; color: var(--text-muted); cursor: pointer;">Login</button>
-            <button class="auth-tab active" id="requestAuthTab" onclick="switchAuthTab('request')" style="flex: 1; padding: 1rem; background: transparent; border: 1px solid var(--gold); border-radius: 30px; color: var(--text-muted); cursor: pointer;">Request Access</button>
+        <div class="modal-body">
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginAuthTab" onclick="switchAuthTab('login')">Login</button>
+                <button class="auth-tab" id="requestAuthTab" onclick="switchAuthTab('request')">Request Access</button>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)" style="display: block;">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required>
+                </div>
+                <div class="modal-error" id="loginError" style="color: var(--danger); text-align: center; margin-bottom: 1rem; display: none;"></div>
+                <button type="submit" class="action-btn" style="width: 100%; justify-content: center; padding: 1rem;">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+            
+            <!-- Request Access Form -->
+            <form id="requestForm" onsubmit="handleDriverRequest(event)" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" class="form-control" id="requestName" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email *</label>
+                    <input type="email" class="form-control" id="requestEmail" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phone Number *</label>
+                    <input type="tel" class="form-control" id="requestPhone" placeholder="e.g. 0712 345 678" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Vehicle Type *</label>
+                        <select class="form-control" id="requestVehicle" required>
+                            <option value="">Select</option>
+                            <option value="Sedan">Sedan</option>
+                            <option value="SUV">SUV</option>
+                            <option value="Hatchback">Hatchback</option>
+                            <option value="Van">Van</option>
+                            <option value="Minibus">Minibus</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">License Plate *</label>
+                        <input type="text" class="form-control" id="requestPlate" placeholder="e.g. Kxx 123A" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Service Zone *</label>
+                        <select class="form-control" id="requestZone" required>
+                            <option value="">Select</option>
+                            <option value="Nairobi Central">Nairobi Central</option>
+                            <option value="Westlands">Westlands</option>
+                            <option value="Kilimani">Kilimani</option>
+                            <option value="Lavington">Lavington</option>
+                            <option value="Karen">Karen</option>
+                            <option value="Eastlands">Eastlands</option>
+                            <option value="All Nairobi">All Nairobi</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Years Experience</label>
+                        <input type="number" class="form-control" id="requestExperience" placeholder="e.g. 3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Why do you want to be a PICK ME driver?</label>
+                    <textarea class="form-control" id="requestReason" rows="3" placeholder="Tell us why you'd like to join..."></textarea>
+                </div>
+                <div class="modal-error" id="requestError" style="color: var(--danger); text-align: center; margin-bottom: 1rem; display: none;"></div>
+                <button type="submit" class="action-btn success" style="width: 100%; justify-content: center; padding: 1rem;">
+                    <i class="fas fa-paper-plane"></i> Submit Request
+                </button>
+            </form>
         </div>
-        
-        <!-- Login Form -->
-        <form id="loginForm" onsubmit="handleLogin(event)" style="display: none;">
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Email</label>
-                <input type="email" class="form-control" id="loginEmail" placeholder="Enter your email" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
-            </div>
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Password</label>
-                <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
-            </div>
-            <div class="modal-error" id="loginError" style="color: var(--danger); text-align: center; margin-bottom: 1rem; display: none;"></div>
-            <button type="submit" class="btn" style="width: 100%; padding: 1rem; background: var(--gold); color: black; border: none; border-radius: 30px; font-weight: 600; cursor: pointer;">
-                <i class="fas fa-sign-in-alt"></i> Login
-            </button>
-        </form>
-        
-        <!-- Request Access Form -->
-        <form id="requestForm" onsubmit="handleDriverRequest(event)">
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Full Name *</label>
-                <input type="text" class="form-control" id="requestName" placeholder="Enter your full name" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
-            </div>
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Email *</label>
-                <input type="email" class="form-control" id="requestEmail" placeholder="Enter your email" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
-            </div>
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Phone Number *</label>
-                <input type="tel" class="form-control" id="requestPhone" placeholder="e.g. 0712 345 678" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
-            </div>
-            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                <div class="form-group">
-                    <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Vehicle Type *</label>
-                    <select class="form-control" id="requestVehicle" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
-                        <option value="">Select</option>
-                        <option value="Sedan">Sedan</option>
-                        <option value="SUV">SUV</option>
-                        <option value="Hatchback">Hatchback</option>
-                        <option value="Van">Van</option>
-                        <option value="Minibus">Minibus</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">License Plate *</label>
-                    <input type="text" class="form-control" id="requestPlate" placeholder="e.g. Kxx 123A" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
-                </div>
-            </div>
-            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                <div class="form-group">
-                    <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Service Zone *</label>
-                    <select class="form-control" id="requestZone" required style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
-                        <option value="">Select</option>
-                        <option value="Nairobi Central">Nairobi Central</option>
-                        <option value="Westlands">Westlands</option>
-                        <option value="Kilimani">Kilimani</option>
-                        <option value="Lavington">Lavington</option>
-                        <option value="Karen">Karen</option>
-                        <option value="Eastlands">Eastlands</option>
-                        <option value="All Nairobi">All Nairobi</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Years Experience</label>
-                    <input type="number" class="form-control" id="requestExperience" placeholder="e.g. 3" style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 30px; color: var(--text-primary);">
-                </div>
-            </div>
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label class="form-label" style="display: block; color: var(--gold); margin-bottom: 0.5rem;">Why do you want to be a PICK ME driver?</label>
-                <textarea class="form-control" id="requestReason" rows="3" placeholder="Tell us why you'd like to join..." style="width: 100%; padding: 1rem; background: var(--input-bg); border: 1px solid var(--border-light); border-radius: 20px; color: var(--text-primary);"></textarea>
-            </div>
-            <div class="modal-error" id="requestError" style="color: var(--danger); text-align: center; margin-bottom: 1rem; display: none;"></div>
-            <button type="submit" class="btn" style="width: 100%; padding: 1rem; background: var(--gold); color: black; border: none; border-radius: 30px; font-weight: 600; cursor: pointer;">
-                <i class="fas fa-paper-plane"></i> Submit Request
-            </button>
-        </form>
     </div>
 
     <!-- Main Content -->
@@ -1692,6 +2080,7 @@
         let calendar = null;
         let currentWeekStart = new Date();
         currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1); // Monday
+        let selectedRating = 5;
 
         // ========== AUTH STATE LISTENER ==========
         auth.onAuthStateChanged(async (user) => {
@@ -2287,7 +2676,7 @@
                                     </button>
                                 ` : ''}
                                 ${ride.status === 'completed' ? `
-                                    <button class="table-btn view" onclick="viewRideReceipt('${ride.id}')" title="View Receipt">
+                                    <button class="table-btn view" onclick="viewRideDetails('${ride.id}')" title="View Receipt">
                                         <i class="fas fa-receipt"></i>
                                     </button>
                                 ` : ''}
@@ -2363,13 +2752,13 @@
 
         // ========== AUTH FUNCTIONS ==========
         window.openAuthModal = function(tab = 'login') {
-            document.getElementById('authModal').style.display = 'block';
+            document.getElementById('authModal').classList.add('active');
             document.getElementById('authModalOverlay').classList.add('active');
             switchAuthTab(tab);
         };
 
         window.closeAuthModal = function() {
-            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('authModal').classList.remove('active');
             document.getElementById('authModalOverlay').classList.remove('active');
             document.getElementById('loginError').style.display = 'none';
             document.getElementById('requestError').style.display = 'none';
@@ -2514,95 +2903,161 @@
             }
         };
 
-        // ========== RIDE ACTIONS ==========
+        // ========== IMPROVED RIDE ACTIONS WITH BETTER MODAL ==========
         window.viewRideDetails = function(rideId) {
             const ride = allAssignedRides.find(r => r.id === rideId);
             if (!ride) return;
 
             const date = ride.bookingDate ? new Date(ride.bookingDate).toLocaleString() : 'N/A';
             const statusClass = `status-${ride.status}`;
+            
+            // Create status timeline HTML
+            let statusHistoryHtml = '';
+            if (ride.statusHistory && ride.statusHistory.length > 0) {
+                statusHistoryHtml = ride.statusHistory.map((item, index) => `
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-status">${item.status}</div>
+                            <div class="timeline-time">${new Date(item.timestamp).toLocaleString()}</div>
+                            ${item.note ? `<div class="timeline-note">${item.note}</div>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            }
 
             const content = `
-                <div class="modal-field">
-                    <label>Ride ID</label>
-                    <div class="field-value">#${ride.rideId}</div>
-                </div>
-                <div class="modal-field">
-                    <label>Date & Time</label>
-                    <div class="field-value">${date}</div>
-                </div>
-                <div class="modal-field">
-                    <label>Service Type</label>
-                    <div class="field-value">${ride.type === 'scheduled' ? 'Scheduled' : 'Instant'}</div>
-                </div>
-                <div class="modal-field">
-                    <label>Customer</label>
-                    <div class="field-value">
-                        <strong>${ride.customerName}</strong><br>
-                        📞 ${ride.customerPhone || 'N/A'}<br>
-                        ✉️ ${ride.customerEmail || 'N/A'}
+                <div class="ride-details-grid">
+                    <div class="detail-card full-width">
+                        <div class="detail-label"><i class="fas fa-hashtag"></i> Ride ID</div>
+                        <div class="detail-content"><strong>#${ride.rideId}</strong></div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-label"><i class="fas fa-calendar"></i> Date & Time</div>
+                        <div class="detail-content">${date}</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-label"><i class="fas fa-tag"></i> Service Type</div>
+                        <div class="detail-content"><span class="service-badge ${ride.type === 'scheduled' ? 'service-scheduled' : 'service-ride'}">${ride.type}</span></div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-label"><i class="fas fa-info-circle"></i> Status</div>
+                        <div class="detail-content"><span class="status-badge ${statusClass}">${ride.status}</span></div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-label"><i class="fas fa-money-bill"></i> Fare</div>
+                        <div class="detail-content"><strong style="color: var(--gold);">KSh ${(ride.fare || 0).toLocaleString()}</strong></div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-label"><i class="fas fa-road"></i> Distance</div>
+                        <div class="detail-content">${ride.distance}</div>
                     </div>
                 </div>
-                <div class="modal-field">
-                    <label>Pickup</label>
-                    <div class="field-value">
-                        📍 ${ride.pickupAddress}<br>
-                        Zone: ${ride.pickupZone || 'N/A'}
+
+                <div class="route-timeline">
+                    <div class="route-stop">
+                        <div class="route-icon"><i class="fas fa-circle"></i></div>
+                        <div class="route-stop-info">
+                            <div class="route-label">PICKUP</div>
+                            <div class="route-address">${ride.pickupAddress}</div>
+                            <div class="route-zone">Zone: ${ride.pickupZone || 'N/A'}</div>
+                        </div>
+                    </div>
+                    <div class="route-connector"></div>
+                    <div class="route-stop">
+                        <div class="route-icon"><i class="fas fa-flag-checkered"></i></div>
+                        <div class="route-stop-info">
+                            <div class="route-label">DROPOFF</div>
+                            <div class="route-address">${ride.dropoffAddress}</div>
+                            <div class="route-zone">Zone: ${ride.dropoffZone || 'N/A'}</div>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-field">
-                    <label>Dropoff</label>
-                    <div class="field-value">
-                        📍 ${ride.dropoffAddress}<br>
-                        Zone: ${ride.dropoffZone || 'N/A'}
+
+                <div class="customer-info">
+                    <div class="customer-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="customer-details">
+                        <div class="customer-name">${ride.customerName}</div>
+                        <div class="customer-contact">
+                            <a href="tel:${ride.customerPhone}"><i class="fas fa-phone"></i> ${ride.customerPhone || 'N/A'}</a>
+                            <span><i class="fas fa-envelope"></i> ${ride.customerEmail || 'N/A'}</span>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-field">
-                    <label>Ride Details</label>
-                    <div class="field-value">
-                        Distance: ${ride.distance}<br>
-                        Fare: KSh ${(ride.fare || 0).toLocaleString()}<br>
-                        Status: <span class="status-badge ${statusClass}">${ride.status}</span>
-                    </div>
-                </div>
+
                 ${ride.rating ? `
-                <div class="modal-field">
-                    <label>Rating</label>
-                    <div class="field-value">${'⭐'.repeat(ride.rating)} (${ride.rating}/5)</div>
-                </div>
-                ` : ''}
-                ${ride.assignedAt ? `
-                <div class="modal-field">
-                    <label>Assigned</label>
-                    <div class="field-value">${new Date(ride.assignedAt).toLocaleString()}</div>
-                </div>
-                ` : ''}
-                ${ride.completedAt ? `
-                <div class="modal-field">
-                    <label>Completed</label>
-                    <div class="field-value">${new Date(ride.completedAt).toLocaleString()}</div>
-                </div>
-                ` : ''}
-                ${ride.statusHistory && ride.statusHistory.length > 0 ? `
-                <div class="modal-field">
-                    <label>Status History</label>
-                    <div class="field-value" style="max-height: 150px; overflow-y: auto;">
-                        ${ride.statusHistory.map(h => `
-                            <div style="margin-bottom: 0.3rem; font-size: 0.85rem;">
-                                <span style="color: var(--gold);">${h.status}</span> - 
-                                ${new Date(h.timestamp).toLocaleString()}
-                                ${h.note ? `<br><small>${h.note}</small>` : ''}
+                    <div class="detail-card full-width">
+                        <div class="detail-label"><i class="fas fa-star"></i> Customer Rating</div>
+                        <div class="detail-content">
+                            <div class="rating-display">
+                                ${Array(5).fill().map((_, i) => 
+                                    `<i class="fas fa-star" style="color: ${i < ride.rating ? 'var(--gold)' : 'var(--text-muted)'};"></i>`
+                                ).join('')}
+                                <span class="rating-text">(${ride.rating}/5)</span>
                             </div>
-                        `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+
+                <div class="fare-breakdown">
+                    <div class="fare-row">
+                        <span>Base Fare</span>
+                        <span>KSh ${(ride.fare * 0.8).toFixed(0)}</span>
+                    </div>
+                    <div class="fare-row">
+                        <span>Distance Fee</span>
+                        <span>KSh ${(ride.fare * 0.2).toFixed(0)}</span>
+                    </div>
+                    <div class="fare-row total">
+                        <span>Total</span>
+                        <span>KSh ${ride.fare.toLocaleString()}</span>
                     </div>
                 </div>
+
+                ${ride.assignedAt ? `
+                    <div class="detail-card full-width">
+                        <div class="detail-label"><i class="fas fa-clock"></i> Assigned At</div>
+                        <div class="detail-content">${new Date(ride.assignedAt).toLocaleString()}</div>
+                    </div>
+                ` : ''}
+
+                ${ride.completedAt ? `
+                    <div class="detail-card full-width">
+                        <div class="detail-label"><i class="fas fa-check-circle"></i> Completed At</div>
+                        <div class="detail-content">${new Date(ride.completedAt).toLocaleString()}</div>
+                    </div>
+                ` : ''}
+
+                ${statusHistoryHtml ? `
+                    <div class="detail-card full-width">
+                        <div class="detail-label"><i class="fas fa-history"></i> Status History</div>
+                        <div class="status-timeline">
+                            ${statusHistoryHtml}
+                        </div>
+                    </div>
                 ` : ''}
             `;
 
-            document.getElementById('modalTitle').textContent = 'Ride Details';
             document.getElementById('modalBody').innerHTML = content;
             document.getElementById('detailsModal').classList.add('active');
             document.getElementById('modalOverlay').classList.add('active');
+        };
+
+        window.selectRating = function(rating) {
+            selectedRating = rating;
+            document.querySelectorAll('.rating-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (parseInt(opt.dataset.rating) === rating) {
+                    opt.classList.add('selected');
+                }
+            });
         };
 
         window.closeModal = function() {
@@ -2655,6 +3110,13 @@
 
         window.openRouteModal = function(rideId) {
             currentRideId = rideId;
+            selectedRating = 5;
+            document.querySelectorAll('.rating-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.dataset.rating === '5') {
+                    opt.classList.add('selected');
+                }
+            });
             document.getElementById('routeModal').classList.add('active');
             document.getElementById('routeModalOverlay').classList.add('active');
         };
@@ -2664,7 +3126,6 @@
             document.getElementById('routeModalOverlay').classList.remove('active');
             document.getElementById('routeCustomerName').value = '';
             document.getElementById('routeNotes').value = '';
-            document.getElementById('routeRating').value = '5';
             currentRideId = null;
         };
 
@@ -2673,7 +3134,6 @@
             
             const customerName = document.getElementById('routeCustomerName').value.trim();
             const notes = document.getElementById('routeNotes').value.trim();
-            const rating = parseInt(document.getElementById('routeRating').value);
             
             if (!customerName) {
                 showToast('Please enter customer name', 'warning');
@@ -2691,7 +3151,7 @@
                     completedAt: new Date().toISOString(),
                     customerName: customerName,
                     completionNotes: notes,
-                    rating: rating,
+                    rating: selectedRating,
                     statusHistory: [
                         ...currentHistory,
                         {
@@ -2712,10 +3172,6 @@
             } finally {
                 showLoading(false);
             }
-        };
-
-        window.viewRideReceipt = function(rideId) {
-            showToast('Receipt details coming soon', 'info');
         };
 
         window.refreshData = function() {
@@ -2759,10 +3215,17 @@
             toast.className = `toast ${type}`;
             
             const icons = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
-            toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${message}</span>`;
+            toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${escapeHtml(message)}</span>`;
             
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         function updateLastUpdated() {
