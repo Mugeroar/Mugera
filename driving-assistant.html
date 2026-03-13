@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FullCalendar for schedule display -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -380,6 +383,172 @@
         .detail-item i {
             color: var(--gold);
             width: 20px;
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: rgba(255,255,255,0.03);
+            padding: 0.5rem;
+            border-radius: 60px;
+            border: 1px solid rgba(202,138,4,0.2);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.8rem 1.8rem;
+            background: transparent;
+            border: none;
+            border-radius: 40px;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--gold);
+            background: rgba(202,138,4,0.05);
+        }
+
+        .tab-btn.active {
+            background: var(--gold);
+            color: black;
+        }
+
+        .tab-btn.active i {
+            color: black;
+        }
+
+        /* Calendar Container */
+        .calendar-container {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        #calendar {
+            background: transparent;
+            color: var(--text-primary);
+        }
+
+        .fc {
+            background: transparent;
+        }
+
+        .fc .fc-toolbar-title {
+            color: var(--gold);
+            font-family: 'Cinzel', serif;
+        }
+
+        .fc .fc-button-primary {
+            background: rgba(202,138,4,0.1);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .fc .fc-button-primary:hover {
+            background: var(--gold);
+            color: black;
+            border-color: var(--gold);
+        }
+
+        .fc .fc-button-primary:disabled {
+            background: rgba(202,138,4,0.05);
+            border-color: rgba(202,138,4,0.2);
+            color: var(--text-muted);
+        }
+
+        .fc .fc-daygrid-day-number,
+        .fc .fc-col-header-cell-cushion {
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .fc .fc-day-today {
+            background: rgba(202,138,4,0.1) !important;
+        }
+
+        .fc-event {
+            cursor: pointer;
+            padding: 2px 4px;
+            border: none;
+        }
+
+        .fc-event.instant-ride {
+            background: var(--blue);
+            border-left: 3px solid var(--gold);
+        }
+
+        .fc-event.scheduled-ride {
+            background: var(--purple);
+            border-left: 3px solid var(--gold);
+        }
+
+        .fc-event.completed-ride {
+            background: var(--success);
+            opacity: 0.7;
+        }
+
+        /* Schedule Cards */
+        .schedule-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .schedule-card:hover {
+            transform: translateX(5px);
+            border-color: var(--gold);
+            background: rgba(202,138,4,0.05);
+        }
+
+        .schedule-time {
+            min-width: 80px;
+            text-align: center;
+            padding: 0.5rem;
+            background: rgba(202,138,4,0.1);
+            border-radius: 15px;
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .schedule-details {
+            flex: 1;
+        }
+
+        .schedule-route {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .schedule-customer {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .schedule-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
 
         /* Service Type Badges */
@@ -925,6 +1094,77 @@
             to { opacity: 1; transform: translateX(0); }
         }
 
+        /* Schedule Timeline */
+        .timeline-container {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-date {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--gold);
+        }
+
+        .timeline-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .timeline-content {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(202,138,4,0.03);
+            border-radius: 16px;
+            border-left: 3px solid var(--gold);
+        }
+
+        .timeline-time {
+            min-width: 80px;
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .timeline-info {
+            flex: 1;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .timeline-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .timeline-badge {
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
         @media (max-width: 768px) {
             .header-desktop-actions { display: none; }
             .mobile-header-group { display: flex; }
@@ -936,6 +1176,7 @@
             .profile-card { flex-direction: column; text-align: center; }
             .profile-details { justify-content: center; }
             .form-row { grid-template-columns: 1fr; }
+            .tab-navigation { flex-direction: column; }
         }
     </style>
 </head>
@@ -1042,11 +1283,11 @@
             </div>
         </div>
         <div class="panel-quick-links">
-            <a href="#" class="panel-link" onclick="showSection('active'); toggleHamburger();"><i class="fas fa-car"></i> Active Rides</a>
-            <a href="#" class="panel-link" onclick="showSection('completed'); toggleHamburger();"><i class="fas fa-check-circle"></i> Completed</a>
-            <a href="#" class="panel-link" onclick="showSection('all'); toggleHamburger();"><i class="fas fa-list"></i> All Rides</a>
-            <a href="#" class="panel-link" onclick="showSection('scheduled'); toggleHamburger();"><i class="fas fa-calendar"></i> Scheduled</a>
-            <a href="wallet.html" class="panel-link" onclick="showProfile(); toggleHamburger();"><i class="fas fa-user-cog"></i> My Wallet</a>
+            <a href="#" class="panel-link" onclick="switchView('dashboard'); toggleHamburger();"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="#" class="panel-link" onclick="switchView('calendar'); toggleHamburger();"><i class="fas fa-calendar-alt"></i> Calendar</a>
+            <a href="#" class="panel-link" onclick="switchView('timeline'); toggleHamburger();"><i class="fas fa-clock"></i> Timeline</a>
+            <a href="#" class="panel-link" onclick="switchView('rides'); toggleHamburger();"><i class="fas fa-list"></i> All Rides</a>
+            <a href="wallet.html" class="panel-link"><i class="fas fa-wallet"></i> My Wallet</a>
         </div>
         <div class="panel-theme-toggle">
             <span><i class="fas fa-palette"></i> Dark / Light</span>
@@ -1199,7 +1440,6 @@
 
         <!-- Stats Grid (visible when approved) -->
         <div class="stats-grid" id="statsGrid" style="display: none;">
-            <!-- Active Rides -->
             <div class="stat-card">
                 <div class="stat-header">
                     <span class="stat-title">Active Rides</span>
@@ -1211,7 +1451,6 @@
                 </div>
             </div>
 
-            <!-- Scheduled Rides -->
             <div class="stat-card">
                 <div class="stat-header">
                     <span class="stat-title">Scheduled</span>
@@ -1223,7 +1462,6 @@
                 </div>
             </div>
 
-            <!-- Completed Today -->
             <div class="stat-card">
                 <div class="stat-header">
                     <span class="stat-title">Completed Today</span>
@@ -1235,7 +1473,6 @@
                 </div>
             </div>
 
-            <!-- Total Rides -->
             <div class="stat-card">
                 <div class="stat-header">
                     <span class="stat-title">Total Rides</span>
@@ -1247,7 +1484,6 @@
                 </div>
             </div>
 
-            <!-- Rating -->
             <div class="stat-card">
                 <div class="stat-header">
                     <span class="stat-title">Rating</span>
@@ -1259,7 +1495,6 @@
                 </div>
             </div>
 
-            <!-- Earnings -->
             <div class="stat-card">
                 <div class="stat-header">
                     <span class="stat-title">Today's Earnings</span>
@@ -1272,60 +1507,143 @@
             </div>
         </div>
 
-        <!-- Filters (visible when approved) -->
-        <div class="filters" id="filtersSection" style="display: none;">
-            <input type="text" class="search-input" id="searchInput" placeholder="Search by ride ID, customer name, pickup location...">
-            <select class="filter-select" id="statusFilter">
-                <option value="all">All Status</option>
-                <option value="assigned">Assigned</option>
-                <option value="en-route">En Route</option>
-                <option value="completed">Completed</option>
-                <option value="scheduled">Scheduled</option>
-                <option value="cancelled">Cancelled</option>
-            </select>
-            <select class="filter-select" id="typeFilter">
-                <option value="all">All Types</option>
-                <option value="instant">Instant</option>
-                <option value="scheduled">Scheduled</option>
-            </select>
-            <button class="action-btn" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+        <!-- Tab Navigation (visible when approved) -->
+        <div class="tab-navigation" id="tabNav" style="display: none;">
+            <button class="tab-btn active" onclick="switchView('dashboard')">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </button>
+            <button class="tab-btn" onclick="switchView('calendar')">
+                <i class="fas fa-calendar-alt"></i> Calendar
+            </button>
+            <button class="tab-btn" onclick="switchView('timeline')">
+                <i class="fas fa-clock"></i> Timeline
+            </button>
+            <button class="tab-btn" onclick="switchView('rides')">
+                <i class="fas fa-list"></i> All Rides
+            </button>
         </div>
 
-        <!-- Rides Section (visible when approved) -->
-        <div class="section-header" id="ridesHeader" style="display: none;">
-            <div class="section-title">
-                <i class="fas fa-car" id="ridesIcon"></i>
-                <span id="ridesTitle">My Rides</span>
+        <!-- Dashboard View (default) -->
+        <div id="dashboardView" style="display: block;">
+            <!-- Schedule Overview -->
+            <div class="timeline-container">
+                <div class="timeline-header">
+                    <div class="timeline-date">Today's Schedule</div>
+                    <div class="timeline-nav">
+                        <button class="action-btn" onclick="loadTodaySchedule()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    </div>
+                </div>
+                <div class="timeline-content" id="todaySchedule">
+                    <p style="text-align: center; color: var(--text-muted);">Loading today's schedule...</p>
+                </div>
             </div>
-            <div class="section-actions">
-                <button class="action-btn" onclick="showSection('active')"><i class="fas fa-clock"></i> Active</button>
-                <button class="action-btn" onclick="showSection('scheduled')"><i class="fas fa-calendar"></i> Scheduled</button>
-                <button class="action-btn" onclick="showSection('completed')"><i class="fas fa-check-circle"></i> Completed</button>
-                <button class="action-btn" onclick="showSection('all')"><i class="fas fa-list"></i> All</button>
+
+            <!-- Quick Actions -->
+            <div class="filters" id="quickActions">
+                <button class="action-btn pickup" onclick="filterRidesByStatus('assigned')"><i class="fas fa-play"></i> Ready to Pickup</button>
+                <button class="action-btn primary" onclick="filterRidesByStatus('en-route')"><i class="fas fa-route"></i> En Route</button>
+                <button class="action-btn success" onclick="filterRidesByStatus('completed')"><i class="fas fa-check-circle"></i> Completed</button>
+                <button class="action-btn" onclick="filterRidesByStatus('scheduled')"><i class="fas fa-calendar"></i> Scheduled</button>
+                <button class="action-btn" onclick="showAllRides()"><i class="fas fa-list"></i> All</button>
+            </div>
+
+            <!-- Upcoming Rides Table -->
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="fas fa-clock"></i>
+                    <span>Upcoming Rides</span>
+                </div>
+                <div class="section-actions">
+                    <button class="action-btn" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="upcomingTable">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Time</th>
+                            <th>Customer</th>
+                            <th>Pickup</th>
+                            <th>Dropoff</th>
+                            <th>Fare</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="upcomingTableBody">
+                        <tr><td colspan="8" style="text-align: center;">Loading upcoming rides...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- Rides Table (visible when approved) -->
-        <div class="table-container" id="tableContainer" style="display: none;">
-            <table id="ridesTable">
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>Ride ID</th>
-                        <th>Date/Time</th>
-                        <th>Customer</th>
-                        <th>Pickup</th>
-                        <th>Dropoff</th>
-                        <th>Distance</th>
-                        <th>Fare</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="ridesTableBody">
-                    <tr><td colspan="10" style="text-align: center;">Loading your rides...</td></tr>
-                </tbody>
-            </table>
+        <!-- Calendar View -->
+        <div id="calendarView" style="display: none;">
+            <div class="calendar-container">
+                <div id="calendar"></div>
+            </div>
+        </div>
+
+        <!-- Timeline View -->
+        <div id="timelineView" style="display: none;">
+            <div class="timeline-container">
+                <div class="timeline-header">
+                    <div class="timeline-date" id="timelineDate">This Week</div>
+                    <div class="timeline-nav">
+                        <button class="action-btn" onclick="previousWeek()"><i class="fas fa-chevron-left"></i></button>
+                        <button class="action-btn" onclick="currentWeek()"><i class="fas fa-circle"></i></button>
+                        <button class="action-btn" onclick="nextWeek()"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                <div class="timeline-content" id="timelineContent">
+                    <!-- Dynamic timeline content -->
+                </div>
+            </div>
+        </div>
+
+        <!-- All Rides View -->
+        <div id="ridesView" style="display: none;">
+            <!-- Filters -->
+            <div class="filters">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search by ride ID, customer name, pickup location...">
+                <select class="filter-select" id="statusFilter">
+                    <option value="all">All Status</option>
+                    <option value="assigned">Assigned</option>
+                    <option value="en-route">En Route</option>
+                    <option value="completed">Completed</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <select class="filter-select" id="typeFilter">
+                    <option value="all">All Types</option>
+                    <option value="instant">Instant</option>
+                    <option value="scheduled">Scheduled</option>
+                </select>
+                <button class="action-btn" onclick="refreshData()"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+
+            <!-- Rides Table -->
+            <div class="table-container">
+                <table id="ridesTable">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Date/Time</th>
+                            <th>Customer</th>
+                            <th>Pickup</th>
+                            <th>Dropoff</th>
+                            <th>Fare</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ridesTableBody">
+                        <tr><td colspan="8" style="text-align: center;">Loading your rides...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Welcome Message (shown when not logged in) -->
@@ -1366,11 +1684,14 @@
         // Global state
         let currentUser = null;
         let currentDriver = null;
-        let driverStatus = null; // 'approved', 'pending', 'rejected', null
-        let assignedRides = [];
+        let driverStatus = null;
+        let allAssignedRides = [];
         let filteredRides = [];
         let currentRideId = null;
-        let currentView = 'all'; // 'all', 'active', 'completed', 'scheduled'
+        let currentView = 'dashboard';
+        let calendar = null;
+        let currentWeekStart = new Date();
+        currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1); // Monday
 
         // ========== AUTH STATE LISTENER ==========
         auth.onAuthStateChanged(async (user) => {
@@ -1378,7 +1699,6 @@
                 currentUser = user;
                 await checkDriverStatus(user);
             } else {
-                // User is logged out
                 showWelcomeUI();
             }
         });
@@ -1386,7 +1706,6 @@
         // Check driver status in database
         async function checkDriverStatus(user) {
             try {
-                // Check in drivers node (separate from delivery_assistants)
                 const driverSnapshot = await database.ref(`drivers/${user.uid}`).once('value');
                 
                 if (driverSnapshot.exists()) {
@@ -1396,7 +1715,6 @@
                         ...driverData
                     };
                     
-                    // Check verification status
                     if (driverData.verified === true || driverData.status === 'active') {
                         driverStatus = 'approved';
                         showDriverUI();
@@ -1408,16 +1726,13 @@
                         driverStatus = 'rejected';
                         showRejectedUI(driverData);
                     } else {
-                        // Unknown status, treat as pending
                         driverStatus = 'pending';
                         showPendingUI(driverData);
                     }
                 } else {
-                    // Check if user has a pending request
                     const requestSnapshot = await database.ref('driver_requests').orderByChild('email').equalTo(user.email).once('value');
                     
                     if (requestSnapshot.exists()) {
-                        // User has a pending request
                         const requests = requestSnapshot.val();
                         const requestId = Object.keys(requests)[0];
                         const requestData = requests[requestId];
@@ -1429,7 +1744,6 @@
                         driverStatus = 'pending';
                         showPendingUI(requestData);
                     } else {
-                        // No record found - show welcome UI
                         showWelcomeUI();
                     }
                 }
@@ -1449,12 +1763,13 @@
             document.getElementById('pendingVerificationCard').style.display = 'none';
             document.getElementById('rejectedCard').style.display = 'none';
             document.getElementById('statsGrid').style.display = 'none';
-            document.getElementById('filtersSection').style.display = 'none';
-            document.getElementById('ridesHeader').style.display = 'none';
-            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('tabNav').style.display = 'none';
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('calendarView').style.display = 'none';
+            document.getElementById('timelineView').style.display = 'none';
+            document.getElementById('ridesView').style.display = 'none';
             document.getElementById('headerDriverBadge').style.display = 'none';
             
-            // Update user menu
             document.getElementById('userMenuDesktop').style.display = 'none';
             document.getElementById('loginButtonDesktop').style.display = 'flex';
             document.getElementById('panelLoggedOut').style.display = 'flex';
@@ -1467,12 +1782,13 @@
             document.getElementById('pendingVerificationCard').style.display = 'block';
             document.getElementById('rejectedCard').style.display = 'none';
             document.getElementById('statsGrid').style.display = 'none';
-            document.getElementById('filtersSection').style.display = 'none';
-            document.getElementById('ridesHeader').style.display = 'none';
-            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('tabNav').style.display = 'none';
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('calendarView').style.display = 'none';
+            document.getElementById('timelineView').style.display = 'none';
+            document.getElementById('ridesView').style.display = 'none';
             document.getElementById('headerDriverBadge').style.display = 'none';
             
-            // Show request date
             if (driverData.timestamp) {
                 const date = new Date(driverData.timestamp).toLocaleDateString();
                 document.getElementById('requestDate').textContent = date;
@@ -1492,12 +1808,13 @@
             document.getElementById('pendingVerificationCard').style.display = 'none';
             document.getElementById('rejectedCard').style.display = 'block';
             document.getElementById('statsGrid').style.display = 'none';
-            document.getElementById('filtersSection').style.display = 'none';
-            document.getElementById('ridesHeader').style.display = 'none';
-            document.getElementById('tableContainer').style.display = 'none';
+            document.getElementById('tabNav').style.display = 'none';
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('calendarView').style.display = 'none';
+            document.getElementById('timelineView').style.display = 'none';
+            document.getElementById('ridesView').style.display = 'none';
             document.getElementById('headerDriverBadge').style.display = 'none';
             
-            // Show rejection reason if available
             if (driverData.rejectionReason) {
                 document.getElementById('rejectionReason').textContent = driverData.rejectionReason;
             }
@@ -1514,9 +1831,11 @@
             document.getElementById('pendingVerificationCard').style.display = 'none';
             document.getElementById('rejectedCard').style.display = 'none';
             document.getElementById('statsGrid').style.display = 'grid';
-            document.getElementById('filtersSection').style.display = 'flex';
-            document.getElementById('ridesHeader').style.display = 'flex';
-            document.getElementById('tableContainer').style.display = 'block';
+            document.getElementById('tabNav').style.display = 'flex';
+            document.getElementById('dashboardView').style.display = 'block';
+            document.getElementById('calendarView').style.display = 'none';
+            document.getElementById('timelineView').style.display = 'none';
+            document.getElementById('ridesView').style.display = 'none';
             document.getElementById('headerDriverBadge').style.display = 'inline-block';
             
             document.getElementById('userMenuDesktop').style.display = 'flex';
@@ -1525,6 +1844,7 @@
             document.getElementById('panelLoggedIn').style.display = 'flex';
             
             updateDriverProfile();
+            initCalendar();
         }
 
         function updateUserUI(user) {
@@ -1546,6 +1866,499 @@
                 document.getElementById('profilePlate').textContent = currentDriver.plate || '-';
                 document.getElementById('profileZone').textContent = currentDriver.zone || 'Nairobi';
             }
+        }
+
+        // ========== VIEW NAVIGATION ==========
+        window.switchView = function(view) {
+            currentView = view;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Hide all views
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('calendarView').style.display = 'none';
+            document.getElementById('timelineView').style.display = 'none';
+            document.getElementById('ridesView').style.display = 'none';
+            
+            // Show selected view
+            document.getElementById(`${view}View`).style.display = 'block';
+            
+            if (view === 'calendar' && calendar) {
+                calendar.render();
+            } else if (view === 'timeline') {
+                renderTimeline();
+            } else if (view === 'rides') {
+                renderRidesTable(allAssignedRides);
+            }
+        };
+
+        // ========== CALENDAR INITIALIZATION ==========
+        function initCalendar() {
+            const calendarEl = document.getElementById('calendar');
+            if (!calendarEl) return;
+
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                themeSystem: 'standard',
+                height: 'auto',
+                eventTimeFormat: {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    meridiem: 'short'
+                },
+                eventClick: function(info) {
+                    const rideId = info.event.extendedProps.rideId;
+                    viewRideDetails(rideId);
+                },
+                events: function(fetchInfo, successCallback, failureCallback) {
+                    const events = [];
+                    
+                    allAssignedRides.forEach(ride => {
+                        let startDate = null;
+                        let endDate = null;
+                        
+                        if (ride.bookingDate) {
+                            startDate = new Date(ride.bookingDate);
+                            if (ride.type === 'scheduled' && ride.pickupDateTime) {
+                                startDate = new Date(ride.pickupDateTime);
+                            }
+                            
+                            // Set end time (estimated 1 hour after start)
+                            endDate = new Date(startDate);
+                            endDate.setHours(endDate.getHours() + 1);
+                            
+                            let className = 'instant-ride';
+                            if (ride.type === 'scheduled') className = 'scheduled-ride';
+                            if (ride.status === 'completed') className = 'completed-ride';
+                            
+                            events.push({
+                                title: `${ride.customerName || 'Ride'} - KSh ${ride.fare}`,
+                                start: startDate.toISOString(),
+                                end: endDate.toISOString(),
+                                className: className,
+                                extendedProps: {
+                                    rideId: ride.id,
+                                    status: ride.status,
+                                    fare: ride.fare
+                                }
+                            });
+                        }
+                    });
+                    
+                    successCallback(events);
+                }
+            });
+        }
+
+        // ========== TIMELINE FUNCTIONS ==========
+        function renderTimeline() {
+            const startOfWeek = new Date(currentWeekStart);
+            const endOfWeek = new Date(currentWeekStart);
+            endOfWeek.setDate(endOfWeek.getDate() + 6);
+            
+            document.getElementById('timelineDate').textContent = 
+                `${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()}`;
+            
+            const weekRides = allAssignedRides.filter(ride => {
+                if (!ride.bookingDate) return false;
+                const rideDate = new Date(ride.bookingDate);
+                return rideDate >= startOfWeek && rideDate <= endOfWeek;
+            });
+
+            // Group by day
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            let html = '';
+            
+            for (let i = 0; i < 7; i++) {
+                const currentDate = new Date(startOfWeek);
+                currentDate.setDate(startOfWeek.getDate() + i);
+                const dateStr = currentDate.toDateString();
+                
+                const dayRides = weekRides.filter(ride => {
+                    const rideDate = new Date(ride.bookingDate).toDateString();
+                    return rideDate === dateStr;
+                });
+                
+                dayRides.sort((a, b) => {
+                    const timeA = a.pickupTime || a.bookingDate || '';
+                    const timeB = b.pickupTime || b.bookingDate || '';
+                    return timeA.localeCompare(timeB);
+                });
+                
+                html += `
+                    <div style="margin-bottom: 1.5rem;">
+                        <h3 style="color: var(--gold); margin-bottom: 0.5rem;">${days[i]}, ${currentDate.toLocaleDateString()}</h3>
+                        ${dayRides.length === 0 ? 
+                            '<p style="color: var(--text-muted); padding: 0.5rem;">No rides scheduled</p>' : 
+                            dayRides.map(ride => `
+                                <div class="timeline-item" onclick="viewRideDetails('${ride.id}')">
+                                    <div class="timeline-time">
+                                        ${ride.pickupTime || new Date(ride.bookingDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                    </div>
+                                    <div class="timeline-info">
+                                        <div class="timeline-title">
+                                            ${ride.customerName} → ${ride.dropoffAddress}
+                                        </div>
+                                        <div class="timeline-subtitle">
+                                            <i class="fas fa-map-pin"></i> ${ride.pickupAddress}
+                                        </div>
+                                        <div style="margin-top: 0.3rem;">
+                                            <span class="service-badge ${ride.type === 'scheduled' ? 'service-scheduled' : 'service-ride'}">${ride.type}</span>
+                                            <span class="status-badge status-${ride.status}" style="margin-left: 0.5rem;">${ride.status}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+                `;
+            }
+            
+            document.getElementById('timelineContent').innerHTML = html;
+        }
+
+        window.previousWeek = function() {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            renderTimeline();
+        };
+
+        window.currentWeek = function() {
+            currentWeekStart = new Date();
+            currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1);
+            renderTimeline();
+        };
+
+        window.nextWeek = function() {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            renderTimeline();
+        };
+
+        // ========== LOAD DRIVER DATA ==========
+        async function loadDriverData() {
+            if (!currentDriver || driverStatus !== 'approved') return;
+            
+            showLoading(true);
+            
+            try {
+                await loadAssignedRides();
+                updateStats();
+                renderTodaySchedule();
+                renderUpcomingRides();
+                renderRidesTable(allAssignedRides);
+                updateLastUpdated();
+                
+                if (calendar) {
+                    calendar.refetchEvents();
+                }
+                
+                if (currentView === 'timeline') {
+                    renderTimeline();
+                }
+                
+                showToast('Schedule loaded', 'success');
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showToast('Error loading schedule', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function loadAssignedRides() {
+            if (!currentDriver) return;
+
+            try {
+                const snapshot = await database.ref('pickme_rides').once('value');
+                const data = snapshot.val() || {};
+                
+                allAssignedRides = Object.entries(data)
+                    .map(([id, ride]) => {
+                        let bookingDateTime = ride.bookingDate || ride.timestamp;
+                        let pickupTime = ride.pickup?.time || null;
+                        
+                        if (ride.pickup?.scheduledDateTime) {
+                            bookingDateTime = ride.pickup.scheduledDateTime;
+                            pickupTime = new Date(ride.pickup.scheduledDateTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        }
+                        
+                        return {
+                            id,
+                            type: ride.serviceType || 'instant',
+                            rideId: id.slice(-8).toUpperCase(),
+                            bookingDate: bookingDateTime,
+                            pickupTime: pickupTime,
+                            customerName: ride.customer?.name || ride.userName || 'Unknown',
+                            customerEmail: ride.customer?.email || ride.userEmail || '',
+                            customerPhone: ride.customer?.phone || ride.userPhone || '',
+                            pickupAddress: ride.pickup?.address || 'Pickup location',
+                            pickupZone: ride.pickup?.zone || '',
+                            dropoffAddress: ride.dropoff?.address || '',
+                            dropoffZone: ride.dropoff?.zone || '',
+                            distance: ride.distance || '0 km',
+                            fare: ride.fare || 0,
+                            status: ride.status || 'pending',
+                            assignedTo: ride.driver?.id,
+                            assignedName: ride.driver?.name,
+                            assignedAt: ride.driver?.assignedAt || null,
+                            completedAt: ride.completedAt || null,
+                            rating: ride.rating || null,
+                            statusHistory: ride.statusHistory || []
+                        };
+                    })
+                    .filter(ride => ride.assignedTo === currentDriver.id);
+
+                allAssignedRides.sort((a, b) => {
+                    const dateA = a.bookingDate ? new Date(a.bookingDate).getTime() : 0;
+                    const dateB = b.bookingDate ? new Date(b.bookingDate).getTime() : 0;
+                    return dateB - dateA;
+                });
+
+                filteredRides = [...allAssignedRides];
+                
+            } catch (error) {
+                console.error('Error loading assigned rides:', error);
+            }
+        }
+
+        function renderTodaySchedule() {
+            const today = new Date().toDateString();
+            const todayRides = allAssignedRides.filter(ride => {
+                if (!ride.bookingDate) return false;
+                return new Date(ride.bookingDate).toDateString() === today;
+            });
+
+            todayRides.sort((a, b) => {
+                const timeA = a.pickupTime || a.bookingDate || '';
+                const timeB = b.pickupTime || b.bookingDate || '';
+                return timeA.localeCompare(timeB);
+            });
+
+            const container = document.getElementById('todaySchedule');
+            
+            if (todayRides.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">No rides scheduled for today</p>';
+                return;
+            }
+
+            let html = '';
+            todayRides.forEach(ride => {
+                const timeLabel = ride.pickupTime || 
+                    (ride.bookingDate ? new Date(ride.bookingDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'TBD');
+                
+                html += `
+                    <div class="schedule-card" onclick="viewRideDetails('${ride.id}')">
+                        <div class="schedule-time">${timeLabel}</div>
+                        <div class="schedule-details">
+                            <div class="schedule-route">
+                                <i class="fas fa-map-pin"></i> ${ride.pickupAddress} → ${ride.dropoffAddress}
+                            </div>
+                            <div class="schedule-customer">
+                                <i class="fas fa-user"></i> ${ride.customerName} • KSh ${ride.fare}
+                            </div>
+                        </div>
+                        <span class="schedule-status status-${ride.status}">${ride.status}</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function renderUpcomingRides() {
+            const now = new Date();
+            const upcomingRides = allAssignedRides
+                .filter(ride => {
+                    if (ride.status === 'completed' || ride.status === 'cancelled') return false;
+                    if (!ride.bookingDate) return false;
+                    return new Date(ride.bookingDate) >= now;
+                })
+                .sort((a, b) => {
+                    const dateA = a.bookingDate ? new Date(a.bookingDate) : new Date();
+                    const dateB = b.bookingDate ? new Date(b.bookingDate) : new Date();
+                    return dateA - dateB;
+                })
+                .slice(0, 10);
+
+            const tbody = document.getElementById('upcomingTableBody');
+            
+            if (upcomingRides.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No upcoming rides</td></tr>';
+                return;
+            }
+
+            let html = '';
+            upcomingRides.forEach(ride => {
+                const date = ride.bookingDate ? new Date(ride.bookingDate).toLocaleString() : 'N/A';
+                const typeBadge = ride.type === 'scheduled' 
+                    ? '<span class="service-badge service-scheduled">Scheduled</span>'
+                    : '<span class="service-badge service-ride">Instant</span>';
+                const statusClass = `status-${ride.status}`;
+                
+                html += `
+                    <tr>
+                        <td>${typeBadge}</td>
+                        <td>${date}</td>
+                        <td>
+                            <strong>${ride.customerName}</strong><br>
+                            <small>${ride.customerPhone || ''}</small>
+                        </td>
+                        <td>${ride.pickupAddress || 'N/A'}</td>
+                        <td>${ride.dropoffAddress || 'N/A'}</td>
+                        <td>KSh ${(ride.fare || 0).toLocaleString()}</td>
+                        <td><span class="status-badge ${statusClass}">${ride.status}</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="table-btn view" onclick="viewRideDetails('${ride.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${ride.status === 'assigned' ? `
+                                    <button class="table-btn route" onclick="startRide('${ride.id}')" title="Start Ride">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                ` : ''}
+                                ${ride.status === 'en-route' ? `
+                                    <button class="table-btn navigate" onclick="navigateToCustomer('${ride.dropoffAddress}')" title="Navigate">
+                                        <i class="fas fa-map-marked-alt"></i>
+                                    </button>
+                                    <button class="table-btn complete" onclick="openRouteModal('${ride.id}')" title="Complete Ride">
+                                        <i class="fas fa-check-circle"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function renderRidesTable(rides) {
+            const tbody = document.getElementById('ridesTableBody');
+            
+            if (rides.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No rides found</td></tr>';
+                return;
+            }
+
+            let html = '';
+            rides.forEach(ride => {
+                const date = ride.bookingDate ? new Date(ride.bookingDate).toLocaleString() : 'N/A';
+                const typeBadge = ride.type === 'scheduled' 
+                    ? '<span class="service-badge service-scheduled">Scheduled</span>'
+                    : '<span class="service-badge service-ride">Instant</span>';
+                const statusClass = `status-${ride.status}`;
+                
+                html += `
+                    <tr>
+                        <td>${typeBadge}</td>
+                        <td>${date}</td>
+                        <td>
+                            <strong>${ride.customerName}</strong><br>
+                            <small>${ride.customerPhone || ''}</small>
+                        </td>
+                        <td>${ride.pickupAddress || 'N/A'}</td>
+                        <td>${ride.dropoffAddress || 'N/A'}</td>
+                        <td>KSh ${(ride.fare || 0).toLocaleString()}</td>
+                        <td><span class="status-badge ${statusClass}">${ride.status}</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="table-btn view" onclick="viewRideDetails('${ride.id}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${ride.status === 'assigned' ? `
+                                    <button class="table-btn route" onclick="startRide('${ride.id}')" title="Start Ride">
+                                        <i class="fas fa-play"></i>
+                                    </button>
+                                ` : ''}
+                                ${ride.status === 'en-route' ? `
+                                    <button class="table-btn navigate" onclick="navigateToCustomer('${ride.dropoffAddress}')" title="Navigate">
+                                        <i class="fas fa-map-marked-alt"></i>
+                                    </button>
+                                    <button class="table-btn complete" onclick="openRouteModal('${ride.id}')" title="Complete Ride">
+                                        <i class="fas fa-check-circle"></i>
+                                    </button>
+                                ` : ''}
+                                ${ride.status === 'completed' ? `
+                                    <button class="table-btn view" onclick="viewRideReceipt('${ride.id}')" title="View Receipt">
+                                        <i class="fas fa-receipt"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function filterRidesByStatus(status) {
+            if (!allAssignedRides.length) return;
+            
+            const filtered = allAssignedRides.filter(ride => ride.status === status);
+            renderRidesTable(filtered);
+            switchView('rides');
+            
+            // Highlight the filter in quick actions
+            document.querySelectorAll('#quickActions .action-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        window.showAllRides = function() {
+            renderRidesTable(allAssignedRides);
+            switchView('rides');
+            
+            document.querySelectorAll('#quickActions .action-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        };
+
+        function updateStats() {
+            const today = new Date().toDateString();
+            
+            const activeRides = allAssignedRides.filter(r => 
+                r.status === 'assigned' || r.status === 'en-route'
+            ).length;
+            
+            document.getElementById('activeRides').textContent = activeRides;
+            
+            const scheduledRides = allAssignedRides.filter(r => 
+                r.status === 'scheduled'
+            ).length;
+            
+            document.getElementById('scheduledRides').textContent = scheduledRides;
+            
+            const completedToday = allAssignedRides.filter(r => 
+                r.status === 'completed' && 
+                r.completedAt && 
+                new Date(r.completedAt).toDateString() === today
+            ).length;
+            
+            document.getElementById('completedToday').textContent = completedToday;
+            
+            const totalRides = allAssignedRides.filter(r => r.status === 'completed').length;
+            document.getElementById('totalRides').textContent = totalRides;
+            
+            const completedRides = allAssignedRides.filter(r => r.status === 'completed' && r.rating);
+            const avgRating = completedRides.length > 0 
+                ? (completedRides.reduce((sum, r) => sum + (r.rating || 0), 0) / completedRides.length).toFixed(1)
+                : '5.0';
+            document.getElementById('driverRating').textContent = avgRating;
+            
+            const todayEarnings = allAssignedRides
+                .filter(r => r.status === 'completed' && r.completedAt && new Date(r.completedAt).toDateString() === today)
+                .reduce((sum, r) => sum + (r.fare || 0), 0);
+            document.getElementById('todayEarnings').textContent = `KSh ${todayEarnings.toLocaleString()}`;
         }
 
         // ========== AUTH FUNCTIONS ==========
@@ -1630,22 +2443,16 @@
             showLoading(true);
             
             try {
-                // First, create the user account if they don't exist
                 let user = currentUser;
                 
                 if (!user) {
-                    // Generate a temporary password
                     const tempPassword = Math.random().toString(36).slice(-8);
                     const userCredential = await auth.createUserWithEmailAndPassword(email, tempPassword);
                     user = userCredential.user;
-                    
-                    // Update profile with name
                     await user.updateProfile({ displayName: name });
-                    
                     // TODO: Send email with temporary password
                 }
                 
-                // Save request to driver_requests node (separate from assistant_requests)
                 const requestData = {
                     name,
                     email,
@@ -1663,7 +2470,6 @@
                 
                 await database.ref('driver_requests').push(requestData);
                 
-                // Save to drivers node with pending status
                 await database.ref(`drivers/${user.uid}`).set({
                     name,
                     email,
@@ -1683,7 +2489,6 @@
                 showToast('Request submitted successfully! You will be notified once verified.', 'success');
                 closeAuthModal();
                 
-                // Refresh auth state
                 await checkDriverStatus(user);
                 
             } catch (error) {
@@ -1709,265 +2514,21 @@
             }
         };
 
-        // ========== LOAD DRIVER DATA ==========
-        async function loadDriverData() {
-            if (!currentDriver || driverStatus !== 'approved') return;
-            
-            showLoading(true);
-            
-            try {
-                await loadAssignedRides();
-                applyFilters();
-                updateStats();
-                updateLastUpdated();
-                showToast('Rides loaded', 'success');
-            } catch (error) {
-                console.error('Error loading data:', error);
-                showToast('Error loading data', 'error');
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // Load rides assigned to this driver from pickme_rides node
-        async function loadAssignedRides() {
-            if (!currentDriver) return;
-
-            try {
-                const snapshot = await database.ref('pickme_rides').once('value');
-                const data = snapshot.val() || {};
-                
-                assignedRides = Object.entries(data)
-                    .map(([id, ride]) => ({
-                        id,
-                        type: ride.serviceType || 'instant',
-                        rideId: id,
-                        bookingDate: ride.bookingDate || ride.timestamp || null,
-                        scheduledTime: ride.scheduledTime || null,
-                        customerName: ride.customer?.name || ride.userName || 'Unknown',
-                        customerEmail: ride.customer?.email || ride.userEmail || '',
-                        customerPhone: ride.customer?.phone || ride.userPhone || '',
-                        pickupAddress: ride.pickup?.address || 'Pickup location',
-                        pickupZone: ride.pickup?.zone || '',
-                        dropoffAddress: ride.dropoff?.address || '',
-                        dropoffZone: ride.dropoff?.zone || '',
-                        distance: ride.distance || '0 km',
-                        fare: ride.fare || 0,
-                        status: ride.status || 'pending',
-                        assignedTo: ride.driver?.id,
-                        assignedName: ride.driver?.name,
-                        assignedAt: ride.driver?.assignedAt || null,
-                        completedAt: ride.completedAt || null,
-                        rating: ride.rating || null,
-                        statusHistory: ride.statusHistory || []
-                    }))
-                    .filter(ride => ride.assignedTo === currentDriver.id);
-
-                // Sort by date (newest first)
-                assignedRides.sort((a, b) => {
-                    const dateA = a.bookingDate ? new Date(a.bookingDate).getTime() : 0;
-                    const dateB = b.bookingDate ? new Date(b.bookingDate).getTime() : 0;
-                    return dateB - dateA;
-                });
-
-                filteredRides = [...assignedRides];
-                
-            } catch (error) {
-                console.error('Error loading assigned rides:', error);
-            }
-        }
-
-        // ========== UPDATE STATS ==========
-        function updateStats() {
-            const today = new Date().toDateString();
-            
-            // Active rides (assigned or en-route)
-            const activeRides = assignedRides.filter(r => 
-                r.status === 'assigned' || r.status === 'en-route'
-            ).length;
-            
-            document.getElementById('activeRides').textContent = activeRides;
-            
-            // Scheduled rides (future bookings)
-            const scheduledRides = assignedRides.filter(r => 
-                r.status === 'scheduled'
-            ).length;
-            
-            document.getElementById('scheduledRides').textContent = scheduledRides;
-            
-            // Completed today
-            const completedToday = assignedRides.filter(r => 
-                r.status === 'completed' && 
-                r.completedAt && 
-                new Date(r.completedAt).toDateString() === today
-            ).length;
-            
-            document.getElementById('completedToday').textContent = completedToday;
-            
-            // Total rides
-            const totalRides = assignedRides.filter(r => r.status === 'completed').length;
-            document.getElementById('totalRides').textContent = totalRides;
-            
-            // Average rating
-            const completedRides = assignedRides.filter(r => r.status === 'completed' && r.rating);
-            const avgRating = completedRides.length > 0 
-                ? (completedRides.reduce((sum, r) => sum + (r.rating || 0), 0) / completedRides.length).toFixed(1)
-                : '5.0';
-            document.getElementById('driverRating').textContent = avgRating;
-            
-            // Today's earnings
-            const todayEarnings = assignedRides
-                .filter(r => r.status === 'completed' && r.completedAt && new Date(r.completedAt).toDateString() === today)
-                .reduce((sum, r) => sum + (r.fare || 0), 0);
-            document.getElementById('todayEarnings').textContent = `KSh ${todayEarnings.toLocaleString()}`;
-        }
-
-        // ========== APPLY FILTERS ==========
-        function applyFilters() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value;
-            const typeFilter = document.getElementById('typeFilter').value;
-
-            filteredRides = assignedRides.filter(ride => {
-                // Search filter
-                const matchesSearch = 
-                    ride.id?.toLowerCase().includes(searchTerm) ||
-                    ride.customerName?.toLowerCase().includes(searchTerm) ||
-                    ride.pickupAddress?.toLowerCase().includes(searchTerm) ||
-                    ride.dropoffAddress?.toLowerCase().includes(searchTerm) ||
-                    ride.customerPhone?.toLowerCase().includes(searchTerm);
-                
-                // Status filter
-                const matchesStatus = statusFilter === 'all' || ride.status === statusFilter;
-                
-                // Type filter
-                const matchesType = typeFilter === 'all' || ride.type === typeFilter;
-                
-                return matchesSearch && matchesStatus && matchesType;
-            });
-
-            // Apply current view filter
-            applyViewFilter();
-        }
-
-        function applyViewFilter() {
-            let rides = [...filteredRides];
-
-            if (currentView === 'active') {
-                rides = rides.filter(r => 
-                    r.status === 'assigned' || r.status === 'en-route'
-                );
-            } else if (currentView === 'completed') {
-                rides = rides.filter(r => r.status === 'completed');
-            } else if (currentView === 'scheduled') {
-                rides = rides.filter(r => r.status === 'scheduled');
-            }
-
-            renderRides(rides);
-        }
-
-        // ========== RENDER RIDES ==========
-        function renderRides(rides) {
-            const tbody = document.getElementById('ridesTableBody');
-            
-            if (rides.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center;">No rides found</td></tr>';
-                return;
-            }
-
-            let html = '';
-            rides.forEach(ride => {
-                const date = ride.bookingDate ? new Date(ride.bookingDate).toLocaleString() : 'N/A';
-                const statusClass = `status-${ride.status}`;
-                const typeBadge = ride.type === 'scheduled' 
-                    ? '<span class="service-badge service-scheduled">Scheduled</span>'
-                    : '<span class="service-badge service-ride">Instant</span>';
-                
-                html += `
-                    <tr>
-                        <td>${typeBadge}</td>
-                        <td>#${ride.id.slice(-8)}</td>
-                        <td>${date}</td>
-                        <td>
-                            <strong>${ride.customerName}</strong><br>
-                            <small>${ride.customerPhone || ''}</small>
-                        </td>
-                        <td>${ride.pickupAddress || 'N/A'}</td>
-                        <td>${ride.dropoffAddress || 'N/A'}</td>
-                        <td>${ride.distance}</td>
-                        <td>KSh ${(ride.fare || 0).toLocaleString()}</td>
-                        <td><span class="status-badge ${statusClass}">${ride.status}</span></td>
-                        <td>
-                            <div class="table-actions">
-                                <button class="table-btn view" onclick="viewRideDetails('${ride.id}')" title="View Details">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                ${ride.status === 'assigned' ? `
-                                    <button class="table-btn route" onclick="startRide('${ride.id}')" title="Start Ride">
-                                        <i class="fas fa-play"></i>
-                                    </button>
-                                ` : ''}
-                                ${ride.status === 'en-route' ? `
-                                    <button class="table-btn navigate" onclick="navigateToCustomer('${ride.dropoffAddress}')" title="Navigate">
-                                        <i class="fas fa-map-marked-alt"></i>
-                                    </button>
-                                    <button class="table-btn complete" onclick="openRouteModal('${ride.id}')" title="Complete Ride">
-                                        <i class="fas fa-check-circle"></i>
-                                    </button>
-                                ` : ''}
-                                ${ride.status === 'completed' ? `
-                                    <button class="table-btn view" onclick="viewRideReceipt('${ride.id}')" title="View Receipt">
-                                        <i class="fas fa-receipt"></i>
-                                    </button>
-                                ` : ''}
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-            
-            tbody.innerHTML = html;
-        }
-
-        // ========== SECTION NAVIGATION ==========
-        window.showSection = function(section) {
-            currentView = section;
-            
-            if (section === 'active') {
-                document.getElementById('ridesTitle').textContent = 'Active Rides';
-                document.getElementById('ridesIcon').className = 'fas fa-car';
-            } else if (section === 'completed') {
-                document.getElementById('ridesTitle').textContent = 'Completed Rides';
-                document.getElementById('ridesIcon').className = 'fas fa-check-circle';
-            } else if (section === 'scheduled') {
-                document.getElementById('ridesTitle').textContent = 'Scheduled Rides';
-                document.getElementById('ridesIcon').className = 'fas fa-calendar';
-            } else {
-                document.getElementById('ridesTitle').textContent = 'All Rides';
-                document.getElementById('ridesIcon').className = 'fas fa-list';
-            }
-            
-            applyFilters();
-        };
-
-        window.showProfile = function() {
-            document.getElementById('profileCard').scrollIntoView({ behavior: 'smooth' });
-        };
-
-        // ========== VIEW RIDE DETAILS ==========
+        // ========== RIDE ACTIONS ==========
         window.viewRideDetails = function(rideId) {
-            const ride = assignedRides.find(r => r.id === rideId);
+            const ride = allAssignedRides.find(r => r.id === rideId);
             if (!ride) return;
 
             const date = ride.bookingDate ? new Date(ride.bookingDate).toLocaleString() : 'N/A';
+            const statusClass = `status-${ride.status}`;
 
             const content = `
                 <div class="modal-field">
                     <label>Ride ID</label>
-                    <div class="field-value">#${ride.id}</div>
+                    <div class="field-value">#${ride.rideId}</div>
                 </div>
                 <div class="modal-field">
-                    <label>Booking Date</label>
+                    <label>Date & Time</label>
                     <div class="field-value">${date}</div>
                 </div>
                 <div class="modal-field">
@@ -1979,7 +2540,7 @@
                     <div class="field-value">
                         <strong>${ride.customerName}</strong><br>
                         📞 ${ride.customerPhone || 'N/A'}<br>
-                        Email: ${ride.customerEmail || 'N/A'}
+                        ✉️ ${ride.customerEmail || 'N/A'}
                     </div>
                 </div>
                 <div class="modal-field">
@@ -2001,7 +2562,7 @@
                     <div class="field-value">
                         Distance: ${ride.distance}<br>
                         Fare: KSh ${(ride.fare || 0).toLocaleString()}<br>
-                        Status: <span class="status-badge status-${ride.status}">${ride.status}</span>
+                        Status: <span class="status-badge ${statusClass}">${ride.status}</span>
                     </div>
                 </div>
                 ${ride.rating ? `
@@ -2022,6 +2583,20 @@
                     <div class="field-value">${new Date(ride.completedAt).toLocaleString()}</div>
                 </div>
                 ` : ''}
+                ${ride.statusHistory && ride.statusHistory.length > 0 ? `
+                <div class="modal-field">
+                    <label>Status History</label>
+                    <div class="field-value" style="max-height: 150px; overflow-y: auto;">
+                        ${ride.statusHistory.map(h => `
+                            <div style="margin-bottom: 0.3rem; font-size: 0.85rem;">
+                                <span style="color: var(--gold);">${h.status}</span> - 
+                                ${new Date(h.timestamp).toLocaleString()}
+                                ${h.note ? `<br><small>${h.note}</small>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : ''}
             `;
 
             document.getElementById('modalTitle').textContent = 'Ride Details';
@@ -2035,18 +2610,20 @@
             document.getElementById('modalOverlay').classList.remove('active');
         };
 
-        // ========== START RIDE ==========
         window.startRide = async function(rideId) {
             if (!confirm('Start this ride? You will be en route to pickup.')) return;
             
             showLoading(true);
             
             try {
+                const ride = allAssignedRides.find(r => r.id === rideId);
+                const currentHistory = ride?.statusHistory || [];
+                
                 await database.ref(`pickme_rides/${rideId}`).update({
                     status: 'en-route',
                     startedAt: new Date().toISOString(),
                     statusHistory: [
-                        ...(assignedRides.find(r => r.id === rideId)?.statusHistory || []),
+                        ...currentHistory,
                         {
                             status: 'en-route',
                             timestamp: new Date().toISOString(),
@@ -2057,7 +2634,6 @@
 
                 showToast('Ride started! Head to pickup location.', 'success');
                 await loadDriverData();
-                showSection('active');
                 
             } catch (error) {
                 console.error('Error starting ride:', error);
@@ -2067,7 +2643,6 @@
             }
         };
 
-        // ========== NAVIGATE TO CUSTOMER ==========
         window.navigateToCustomer = function(address) {
             if (!address) {
                 showToast('No address provided', 'warning');
@@ -2078,7 +2653,6 @@
             window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
         };
 
-        // ========== RIDE COMPLETION ==========
         window.openRouteModal = function(rideId) {
             currentRideId = rideId;
             document.getElementById('routeModal').classList.add('active');
@@ -2109,6 +2683,9 @@
             showLoading(true);
             
             try {
+                const ride = allAssignedRides.find(r => r.id === currentRideId);
+                const currentHistory = ride?.statusHistory || [];
+                
                 await database.ref(`pickme_rides/${currentRideId}`).update({
                     status: 'completed',
                     completedAt: new Date().toISOString(),
@@ -2116,7 +2693,7 @@
                     completionNotes: notes,
                     rating: rating,
                     statusHistory: [
-                        ...(assignedRides.find(r => r.id === currentRideId)?.statusHistory || []),
+                        ...currentHistory,
                         {
                             status: 'completed',
                             timestamp: new Date().toISOString(),
@@ -2128,7 +2705,6 @@
                 showToast('Ride completed! Thank you.', 'success');
                 closeRouteModal();
                 await loadDriverData();
-                showSection('completed');
                 
             } catch (error) {
                 console.error('Error completing ride:', error);
@@ -2142,13 +2718,37 @@
             showToast('Receipt details coming soon', 'info');
         };
 
-        // ========== UTILITY FUNCTIONS ==========
         window.refreshData = function() {
             if (driverStatus === 'approved') {
                 loadDriverData();
             }
         };
 
+        window.filterRides = function() {
+            if (!allAssignedRides.length) return;
+            
+            const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+            const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+            const typeFilter = document.getElementById('typeFilter')?.value || 'all';
+
+            filteredRides = allAssignedRides.filter(ride => {
+                const matchesSearch = 
+                    ride.id?.toLowerCase().includes(searchTerm) ||
+                    ride.customerName?.toLowerCase().includes(searchTerm) ||
+                    ride.pickupAddress?.toLowerCase().includes(searchTerm) ||
+                    ride.dropoffAddress?.toLowerCase().includes(searchTerm) ||
+                    ride.customerPhone?.toLowerCase().includes(searchTerm);
+                
+                const matchesStatus = statusFilter === 'all' || ride.status === statusFilter;
+                const matchesType = typeFilter === 'all' || ride.type === typeFilter;
+                
+                return matchesSearch && matchesStatus && matchesType;
+            });
+
+            renderRidesTable(filteredRides);
+        };
+
+        // ========== UTILITY FUNCTIONS ==========
         function showLoading(show) {
             document.getElementById('loadingOverlay').classList.toggle('active', show);
         }
@@ -2185,9 +2785,9 @@
         }
 
         // ========== EVENT LISTENERS ==========
-        document.getElementById('searchInput')?.addEventListener('input', applyFilters);
-        document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
-        document.getElementById('typeFilter')?.addEventListener('change', applyFilters);
+        document.getElementById('searchInput')?.addEventListener('input', filterRides);
+        document.getElementById('statusFilter')?.addEventListener('change', filterRides);
+        document.getElementById('typeFilter')?.addEventListener('change', filterRides);
 
         // ========== TOGGLE HAMBURGER ==========
         window.toggleHamburger = function() {
@@ -2218,7 +2818,7 @@
             document.getElementById('panelThemeIcon').classList.replace('fa-moon', 'fa-sun');
         }
 
-        // Initialize date
+        // Initialize
         updateCurrentDate();
         startAutoRefresh();
     </script>
