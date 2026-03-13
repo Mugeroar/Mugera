@@ -598,6 +598,22 @@
             border-radius: 20px;
             cursor: pointer;
         }
+        .driver-select-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Driver Schedule Info */
+        .driver-schedule-info {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        .driver-schedule-info.available {
+            color: var(--success);
+        }
+        .driver-schedule-info.unavailable {
+            color: var(--danger);
+        }
 
         /* Modal Actions */
         .modal-actions {
@@ -1339,7 +1355,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Pickup Zone *</label>
-                        <select class="form-control" id="sameDayPickupZone" required>
+                        <select class="form-control" id="sameDayPickupZone" required onchange="loadAvailableDriversForScheduled('sameDay')">
                             <option value="">Select zone</option>
                             <option value="Nairobi Central">Nairobi Central</option>
                             <option value="Westlands">Westlands</option>
@@ -1375,10 +1391,20 @@
                 </div>
                 <div id="sameDayPassengerList" class="passenger-list"></div>
 
+                <div class="form-group" id="sameDayDriversSection" style="display: none;">
+                    <label class="form-label">Select Driver (Optional)</label>
+                    <div class="drivers-list" id="sameDayDriversList"></div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+                        Leave empty to auto-assign a driver closer to the time.
+                    </p>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">Special Requirements</label>
                     <textarea class="form-control form-textarea" id="sameDayRequirements" placeholder="e.g., wheelchair access, extra luggage, etc."></textarea>
                 </div>
+
+                <input type="hidden" id="sameDaySelectedDriver">
 
                 <div class="modal-actions">
                     <button type="button" class="modal-btn modal-btn-secondary" onclick="closeSameDayModal()">Cancel</button>
@@ -1405,11 +1431,11 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Pickup Date *</label>
-                        <input type="date" class="form-control" id="scheduledDate" min="" required>
+                        <input type="date" class="form-control" id="scheduledDate" min="" required onchange="loadAvailableDriversForScheduled('scheduled')">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Pickup Time *</label>
-                        <input type="time" class="form-control" id="scheduledTime" required>
+                        <input type="time" class="form-control" id="scheduledTime" required onchange="loadAvailableDriversForScheduled('scheduled')">
                     </div>
                 </div>
 
@@ -1420,7 +1446,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Pickup Zone *</label>
-                        <select class="form-control" id="scheduledPickupZone" required>
+                        <select class="form-control" id="scheduledPickupZone" required onchange="loadAvailableDriversForScheduled('scheduled')">
                             <option value="">Select zone</option>
                             <option value="Nairobi Central">Nairobi Central</option>
                             <option value="Westlands">Westlands</option>
@@ -1456,6 +1482,14 @@
                 </div>
                 <div id="scheduledPassengerList" class="passenger-list"></div>
 
+                <div class="form-group" id="scheduledDriversSection" style="display: none;">
+                    <label class="form-label">Select Driver (Optional)</label>
+                    <div class="drivers-list" id="scheduledDriversList"></div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
+                        Leave empty to auto-assign a driver closer to the time.
+                    </p>
+                </div>
+
                 <div class="form-group">
                     <label class="form-label">Trip Purpose</label>
                     <select class="form-control" id="scheduledPurpose">
@@ -1472,6 +1506,8 @@
                     <label class="form-label">Special Requirements</label>
                     <textarea class="form-control form-textarea" id="scheduledRequirements" placeholder="Any special needs or requests"></textarea>
                 </div>
+
+                <input type="hidden" id="scheduledSelectedDriver">
 
                 <div class="modal-actions">
                     <button type="button" class="modal-btn modal-btn-secondary" onclick="closeScheduledModal()">Cancel</button>
@@ -1505,6 +1541,7 @@
         let currentRatingRide = null;
         let currentRating = 5;
         let ridesListener = null;
+        let allDrivers = {}; // Cache for all drivers
 
         // ========== AUTH STATE LISTENER ==========
         auth.onAuthStateChanged((user) => {
@@ -1517,6 +1554,9 @@
                 document.getElementById('panelLoggedIn').style.display = 'flex';
                 
                 prefillUserData(user);
+                
+                // Load all drivers for schedule checking
+                loadAllDrivers();
                 
                 // Set up real-time listener for user's rides
                 setupRidesListener(user.uid);
@@ -1536,6 +1576,175 @@
                 showEmptyRides();
             }
         });
+
+        function loadAllDrivers() {
+            database.ref('drivers').once('value')
+                .then(snapshot => {
+                    allDrivers = snapshot.val() || {};
+                })
+                .catch(error => console.error('Error loading drivers:', error));
+        }
+
+        function checkDriverAvailability(driverId, scheduledDateTime) {
+            return new Promise((resolve) => {
+                if (!scheduledDateTime) {
+                    resolve(true);
+                    return;
+                }
+
+                // Convert scheduledDateTime to ISO string for comparison
+                const scheduledTime = new Date(scheduledDateTime).getTime();
+                const bufferMinutes = 60; // 1 hour buffer before and after
+                const bufferMs = bufferMinutes * 60 * 1000;
+
+                // Query for any rides assigned to this driver around that time
+                database.ref('pickme_rides')
+                    .orderByChild('driver/id')
+                    .equalTo(driverId)
+                    .once('value')
+                    .then(snapshot => {
+                        const rides = snapshot.val() || {};
+                        let isAvailable = true;
+
+                        Object.values(rides).forEach(ride => {
+                            if (ride.status === 'scheduled' || ride.status === 'assigned') {
+                                let rideTime;
+                                if (ride.pickup?.scheduledDateTime) {
+                                    rideTime = new Date(ride.pickup.scheduledDateTime).getTime();
+                                } else if (ride.bookingDate) {
+                                    rideTime = new Date(ride.bookingDate).getTime();
+                                }
+
+                                if (rideTime) {
+                                    // Check if times overlap (within buffer window)
+                                    if (Math.abs(rideTime - scheduledTime) < bufferMs) {
+                                        isAvailable = false;
+                                    }
+                                }
+                            }
+                        });
+
+                        resolve(isAvailable);
+                    })
+                    .catch(error => {
+                        console.error('Error checking driver availability:', error);
+                        resolve(true); // Assume available on error
+                    });
+            });
+        }
+
+        window.loadAvailableDriversForScheduled = async function(type) {
+            const zone = document.getElementById(type + 'PickupZone').value;
+            const date = document.getElementById(type + 'Date')?.value;
+            const time = document.getElementById(type + 'Time')?.value;
+            
+            if (!zone) return;
+
+            const driversList = document.getElementById(type + 'DriversList');
+            const driversSection = document.getElementById(type + 'DriversSection');
+            
+            driversSection.style.display = 'block';
+            driversList.innerHTML = '<div style="text-align: center; padding: 1rem;"><div class="loading-spinner"></div><p style="margin-top: 0.5rem;">Checking driver availability...</p></div>';
+
+            try {
+                const snapshot = await database.ref('drivers').once('value');
+                const drivers = snapshot.val() || {};
+
+                // Calculate scheduled datetime if both date and time are provided
+                let scheduledDateTime = null;
+                if (date && time) {
+                    scheduledDateTime = new Date(date + 'T' + time).toISOString();
+                }
+
+                const driverPromises = Object.entries(drivers)
+                    .filter(([id, driver]) => 
+                        driver.verified === true && 
+                        (driver.status === 'active' || driver.status === 'available') &&
+                        driver.zone === zone
+                    )
+                    .map(async ([id, driver]) => {
+                        const isAvailable = scheduledDateTime ? 
+                            await checkDriverAvailability(id, scheduledDateTime) : true;
+                        return { id, ...driver, isAvailable };
+                    });
+
+                const driversWithAvailability = await Promise.all(driverPromises);
+                const availableDriversList = driversWithAvailability.filter(d => d.isAvailable);
+                const unavailableDriversList = driversWithAvailability.filter(d => !d.isAvailable);
+
+                if (availableDriversList.length === 0 && unavailableDriversList.length === 0) {
+                    driversList.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                            <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                            <p>No drivers available in ${zone} at the moment.</p>
+                            <p style="font-size: 0.9rem; margin-top: 0.5rem;">Please try a different zone.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+
+                if (availableDriversList.length > 0) {
+                    html += '<p style="color: var(--success); margin-bottom: 0.5rem;"><i class="fas fa-check-circle"></i> Available Drivers:</p>';
+                    availableDriversList.forEach(driver => {
+                        html += `
+                            <div class="driver-item" onclick="selectDriverForScheduled('${driver.id}', '${type}')" data-id="${driver.id}">
+                                <div class="driver-info">
+                                    <div class="driver-avatar">${driver.name ? driver.name.charAt(0) : 'D'}</div>
+                                    <div class="driver-details">
+                                        <h4>${driver.name || 'Driver'}</h4>
+                                        <p><i class="fas fa-car"></i> ${driver.vehicle || 'Car'} · ${driver.plate || 'N/A'}</p>
+                                        <p><i class="fas fa-star"></i> ${driver.rating || 5.0} · ${driver.totalRides || 0} rides</p>
+                                        <p class="driver-schedule-info available"><i class="fas fa-calendar-check"></i> Available for this time</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="driver-select-btn" onclick="event.stopPropagation(); selectDriverForScheduled('${driver.id}', '${type}')">Select</button>
+                            </div>
+                        `;
+                    });
+                }
+
+                if (unavailableDriversList.length > 0) {
+                    html += '<p style="color: var(--danger); margin-top: 1rem; margin-bottom: 0.5rem;"><i class="fas fa-times-circle"></i> Unavailable for this time:</p>';
+                    unavailableDriversList.forEach(driver => {
+                        html += `
+                            <div class="driver-item" style="opacity: 0.6;">
+                                <div class="driver-info">
+                                    <div class="driver-avatar">${driver.name ? driver.name.charAt(0) : 'D'}</div>
+                                    <div class="driver-details">
+                                        <h4>${driver.name || 'Driver'}</h4>
+                                        <p><i class="fas fa-car"></i> ${driver.vehicle || 'Car'} · ${driver.plate || 'N/A'}</p>
+                                        <p class="driver-schedule-info unavailable"><i class="fas fa-calendar-times"></i> Already booked for this time</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="driver-select-btn" disabled>Unavailable</button>
+                            </div>
+                        `;
+                    });
+                }
+
+                driversList.innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading drivers:', error);
+                driversList.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--danger);">Error loading drivers</div>';
+            }
+        };
+
+        window.selectDriverForScheduled = function(driverId, type) {
+            document.querySelectorAll(`#${type}DriversList .driver-item`).forEach(item => {
+                item.classList.remove('selected');
+            });
+
+            const selectedElement = document.querySelector(`[data-id="${driverId}"]`);
+            if (selectedElement) {
+                selectedElement.classList.add('selected');
+            }
+
+            document.getElementById(`${type}SelectedDriver`).value = driverId;
+            showToast(`Driver selected`, 'success');
+        };
 
         function setupRidesListener(userId) {
             const ridesRef = database.ref('pickme_rides')
@@ -1604,8 +1813,8 @@
                                 <div class="detail-label">Passengers</div>
                             </div>
                             <div class="detail-item">
-                                <div class="detail-value">${ride.distance || '5'}</div>
-                                <div class="detail-label">km</div>
+                                <div class="detail-value">${ride.fare || 0}</div>
+                                <div class="detail-label">KSh</div>
                             </div>
                         </div>
 
@@ -1913,6 +2122,8 @@
             document.getElementById('sameDayModalOverlay').classList.remove('active');
             document.getElementById('sameDayForm').reset();
             document.getElementById('sameDayPassengerList').innerHTML = '';
+            document.getElementById('sameDayDriversSection').style.display = 'none';
+            document.getElementById('sameDayDriversList').innerHTML = '';
         };
         
         // ========== SCHEDULED MODAL FUNCTIONS ==========
@@ -1937,6 +2148,8 @@
             document.getElementById('scheduledModalOverlay').classList.remove('active');
             document.getElementById('scheduledForm').reset();
             document.getElementById('scheduledPassengerList').innerHTML = '';
+            document.getElementById('scheduledDriversSection').style.display = 'none';
+            document.getElementById('scheduledDriversList').innerHTML = '';
         };
 
         window.loadAvailableDrivers = async function(type) {
@@ -2010,50 +2223,6 @@
             selectedDriver = availableDrivers.find(d => d.id === driverId);
             document.getElementById('instantSelectedDriver').value = driverId;
             showToast(`Driver ${selectedDriver?.name || ''} selected`, 'success');
-        };
-        // Add these functions to the global scope right after the emergency and instant functions
-
-        // ========== SAME DAY MODAL FUNCTIONS ==========
-        window.openSameDayModal = function() {
-            if (!currentUser) {
-                openAuthModal();
-                showToast('Please login to book a ride', 'warning');
-                return;
-            }
-            document.getElementById('sameDayModal').classList.add('active');
-            document.getElementById('sameDayModalOverlay').classList.add('active');
-            generatePassengerFields('sameDay');
-        };
-        
-        window.closeSameDayModal = function() {
-            document.getElementById('sameDayModal').classList.remove('active');
-            document.getElementById('sameDayModalOverlay').classList.remove('active');
-            document.getElementById('sameDayForm').reset();
-            document.getElementById('sameDayPassengerList').innerHTML = '';
-        };
-        
-        // ========== SCHEDULED MODAL FUNCTIONS ==========
-        window.openScheduledModal = function() {
-            if (!currentUser) {
-                openAuthModal();
-                showToast('Please login to book a ride', 'warning');
-                return;
-            }
-            document.getElementById('scheduledModal').classList.add('active');
-            document.getElementById('scheduledModalOverlay').classList.add('active');
-            generatePassengerFields('scheduled');
-            
-            // Set minimum date to tomorrow
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            document.getElementById('scheduledDate').min = tomorrow.toISOString().split('T')[0];
-        };
-        
-        window.closeScheduledModal = function() {
-            document.getElementById('scheduledModal').classList.remove('active');
-            document.getElementById('scheduledModalOverlay').classList.remove('active');
-            document.getElementById('scheduledForm').reset();
-            document.getElementById('scheduledPassengerList').innerHTML = '';
         };
 
         // ========== PASSENGER FIELDS GENERATOR ==========
@@ -2143,7 +2312,6 @@
                     status: 'assigned',
                     bookingDate: new Date().toISOString(),
                     fare: fare,
-                    distance: '5',
                     statusHistory: [
                         {
                             status: 'assigned',
@@ -2216,6 +2384,23 @@
                     }
                 }
 
+                const selectedDriverId = document.getElementById('sameDaySelectedDriver').value;
+                let driverInfo = null;
+                
+                if (selectedDriverId) {
+                    const driverSnapshot = await database.ref(`drivers/${selectedDriverId}`).once('value');
+                    const driver = driverSnapshot.val();
+                    if (driver) {
+                        driverInfo = {
+                            id: selectedDriverId,
+                            name: driver.name,
+                            vehicle: driver.vehicle,
+                            plate: driver.plate,
+                            assignedAt: new Date().toISOString()
+                        };
+                    }
+                }
+
                 const fare = calculateFare(
                     document.getElementById('sameDayPickupZone').value,
                     document.getElementById('sameDayDropoffZone').value
@@ -2245,21 +2430,24 @@
                         details: passengers
                     },
                     specialRequirements: document.getElementById('sameDayRequirements').value,
-                    status: 'pending',
+                    status: driverInfo ? 'assigned' : 'pending',
                     bookingDate: new Date().toISOString(),
                     fare: fare,
-                    distance: '5',
                     statusHistory: [
                         {
-                            status: 'pending',
+                            status: driverInfo ? 'assigned' : 'pending',
                             timestamp: new Date().toISOString(),
-                            note: 'Same day ride request submitted'
+                            note: driverInfo ? 'Ride assigned to selected driver' : 'Same day ride request submitted'
                         }
                     ]
                 };
 
+                if (driverInfo) {
+                    rideData.driver = driverInfo;
+                }
+
                 await database.ref('pickme_rides').push(rideData);
-                showToast('Ride scheduled! We will assign a driver.', 'success');
+                showToast(driverInfo ? 'Ride assigned to selected driver!' : 'Ride scheduled! We will assign a driver.', 'success');
                 
                 setTimeout(() => {
                     closeSameDayModal();
@@ -2319,6 +2507,33 @@
                     }
                 }
 
+                const selectedDriverId = document.getElementById('scheduledSelectedDriver').value;
+                let driverInfo = null;
+                
+                if (selectedDriverId) {
+                    // Verify driver is still available for this time
+                    const isAvailable = await checkDriverAvailability(selectedDriverId, scheduledDateTime.toISOString());
+                    
+                    if (!isAvailable) {
+                        showToast('Selected driver is no longer available for this time', 'warning');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Schedule Ride';
+                        return;
+                    }
+
+                    const driverSnapshot = await database.ref(`drivers/${selectedDriverId}`).once('value');
+                    const driver = driverSnapshot.val();
+                    if (driver) {
+                        driverInfo = {
+                            id: selectedDriverId,
+                            name: driver.name,
+                            vehicle: driver.vehicle,
+                            plate: driver.plate,
+                            assignedAt: new Date().toISOString()
+                        };
+                    }
+                }
+
                 const fare = calculateFare(
                     document.getElementById('scheduledPickupZone').value,
                     document.getElementById('scheduledDropoffZone').value
@@ -2347,21 +2562,26 @@
                     },
                     purpose: document.getElementById('scheduledPurpose').value,
                     specialRequirements: document.getElementById('scheduledRequirements').value,
-                    status: 'scheduled',
+                    status: driverInfo ? 'assigned' : 'scheduled',
                     bookingDate: new Date().toISOString(),
                     fare: fare,
-                    distance: '5',
                     statusHistory: [
                         {
-                            status: 'scheduled',
+                            status: driverInfo ? 'assigned' : 'scheduled',
                             timestamp: new Date().toISOString(),
-                            note: `Scheduled for ${scheduledDateTime.toLocaleString()}`
+                            note: driverInfo ? 
+                                `Scheduled with driver ${driverInfo.name} for ${scheduledDateTime.toLocaleString()}` : 
+                                `Scheduled for ${scheduledDateTime.toLocaleString()}`
                         }
                     ]
                 };
 
+                if (driverInfo) {
+                    rideData.driver = driverInfo;
+                }
+
                 await database.ref('pickme_rides').push(rideData);
-                showToast('Ride scheduled successfully!', 'success');
+                showToast(driverInfo ? 'Ride scheduled with selected driver!' : 'Ride scheduled successfully!', 'success');
                 
                 setTimeout(() => {
                     closeScheduledModal();
