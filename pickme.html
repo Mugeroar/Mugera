@@ -692,11 +692,14 @@
             max-width: 550px;
             max-height: 85vh;
             overflow: hidden;
-            display: flex;
+            display: none;
             flex-direction: column;
             position: relative;
             z-index: 10000;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .modal.active { 
+            display: flex;
             animation: modalFadeIn 0.2s ease-out;
         }
 
@@ -1639,16 +1642,15 @@
     </main>
 
     <!-- Main Page Landmark Search Modal -->
-    <div class="modal-overlay" id="landmarkModal" onclick="if(event.target===this) closeLandmarkSearch()">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 id="modalTitle">Select Location</h3>
-                <button class="modal-close" onclick="closeLandmarkSearch()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <input type="text" class="search-input" id="landmarkSearch" placeholder="Search landmarks..." onkeyup="filterLandmarks()">
-                <div class="landmarks-list" id="landmarksList"></div>
-            </div>
+    <div class="modal-overlay" id="landmarkModal" onclick="if(event.target===this) closeLandmarkSearch()"></div>
+    <div class="modal" id="landmarkModalContent">
+        <div class="modal-header">
+            <h3 id="modalTitle">Select Location</h3>
+            <button class="modal-close" onclick="closeLandmarkSearch()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <input type="text" class="search-input" id="landmarkSearch" placeholder="Search landmarks..." onkeyup="filterLandmarks()">
+            <div class="landmarks-list" id="landmarksList"></div>
         </div>
     </div>
 
@@ -1918,16 +1920,15 @@
     </div>
 
     <!-- Universal Modal Landmark Search (for all service modals) -->
-    <div class="modal-overlay" id="modalLandmarkModal" onclick="if(event.target===this) closeModalLandmarkSearch()">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 id="modalLandmarkTitle">Select Location</h3>
-                <button class="modal-close" onclick="closeModalLandmarkSearch()"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <input type="text" class="search-input" id="modalLandmarkSearch" placeholder="Search landmarks..." onkeyup="filterModalLandmarks()">
-                <div class="landmarks-list" id="modalLandmarksList"></div>
-            </div>
+    <div class="modal-overlay" id="modalLandmarkModal" onclick="if(event.target===this) closeModalLandmarkSearch()"></div>
+    <div class="modal" id="modalLandmarkContent">
+        <div class="modal-header">
+            <h3 id="modalLandmarkTitle">Select Location</h3>
+            <button class="modal-close" onclick="closeModalLandmarkSearch()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <input type="text" class="search-input" id="modalLandmarkSearch" placeholder="Search landmarks..." onkeyup="filterModalLandmarks()">
+            <div class="landmarks-list" id="modalLandmarksList"></div>
         </div>
     </div>
 
@@ -2152,11 +2153,13 @@
             document.getElementById('modalTitle').innerHTML = 
                 type === 'pickup' ? 'Select Pickup Location' : 'Select Destination';
             document.getElementById('landmarkModal').classList.add('active');
+            document.getElementById('landmarkModalContent').classList.add('active');
             renderLandmarksList(landmarks);
         }
 
         function closeLandmarkSearch() {
             document.getElementById('landmarkModal').classList.remove('active');
+            document.getElementById('landmarkModalContent').classList.remove('active');
             document.getElementById('landmarkSearch').value = '';
         }
 
@@ -2231,11 +2234,13 @@
             currentModalDisplayId = displayId;
             document.getElementById('modalLandmarkTitle').innerHTML = 'Select Location';
             document.getElementById('modalLandmarkModal').classList.add('active');
+            document.getElementById('modalLandmarkContent').classList.add('active');
             renderModalLandmarksList(landmarks);
         }
 
         function closeModalLandmarkSearch() {
             document.getElementById('modalLandmarkModal').classList.remove('active');
+            document.getElementById('modalLandmarkContent').classList.remove('active');
             document.getElementById('modalLandmarkSearch').value = '';
             currentModalField = null;
             currentModalDisplayId = null;
