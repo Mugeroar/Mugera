@@ -515,7 +515,7 @@
             border-color: var(--gold);
         }
 
-        /* Location Input Styles for Modals - FIXED */
+        /* Location Input Styles for Modals */
         .modal-location-input {
             background: var(--input-bg);
             border: 1px solid var(--border-light);
@@ -691,15 +691,14 @@
             width: 90%;
             max-width: 550px;
             max-height: 85vh;
-            overflow: hidden;
-            display: none;
-            flex-direction: column;
+            overflow-y: auto;
             position: relative;
             z-index: 10000;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: none;
         }
         .modal.active { 
-            display: flex;
+            display: block;
             animation: modalFadeIn 0.2s ease-out;
         }
 
@@ -725,7 +724,9 @@
             padding: 1.5rem 2rem;
             border-bottom: 1px solid var(--gold);
             background: var(--card-bg);
-            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1;
         }
 
         .modal-header h3 {
@@ -764,24 +765,6 @@
 
         .modal-body {
             padding: 1.5rem 2rem;
-            overflow-y: auto;
-            flex: 1;
-            scrollbar-width: thin;
-            scrollbar-color: var(--gold) var(--bg-secondary);
-        }
-
-        .modal-body::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .modal-body::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-            border-radius: 10px;
-        }
-
-        .modal-body::-webkit-scrollbar-thumb {
-            background: var(--gold);
-            border-radius: 10px;
         }
 
         .modal-actions {
@@ -980,68 +963,6 @@
             0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
             70% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); }
             100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
-        }
-
-        /* Drivers List */
-        .drivers-list {
-            margin: 1rem 0;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .driver-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem;
-            background: var(--input-bg);
-            border: 1px solid var(--border-light);
-            border-radius: 20px;
-            margin-bottom: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .driver-item:hover {
-            border-color: var(--gold);
-        }
-        .driver-item.selected {
-            border-color: var(--gold);
-            background: rgba(202,138,4,0.1);
-        }
-        .driver-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .driver-avatar {
-            width: 50px;
-            height: 50px;
-            background: var(--gold);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: black;
-        }
-        .driver-details h4 {
-            color: var(--gold);
-            margin-bottom: 0.2rem;
-        }
-        .driver-details p {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-        .driver-select-btn {
-            padding: 0.5rem 1rem;
-            background: var(--gold);
-            color: black;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-        .driver-select-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
 
         /* Rating Stars */
@@ -1410,7 +1331,7 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <!-- Rating Modal -->
-    <div class="modal-overlay" id="ratingModalOverlay" onclick="closeRatingModal()"></div>
+    <div class="modal-overlay" id="ratingModalOverlay"></div>
     <div class="modal" id="ratingModal">
         <div class="modal-header">
             <h3>Rate Your Ride</h3>
@@ -1490,7 +1411,7 @@
     </div>
 
     <!-- Auth Modal -->
-    <div class="modal-overlay" id="authModalOverlay" onclick="closeAuthModal()"></div>
+    <div class="modal-overlay" id="authModalOverlay"></div>
     <div class="modal" id="authModal">
         <div class="modal-header">
             <h3>Login to PICK ME</h3>
@@ -1642,8 +1563,8 @@
     </main>
 
     <!-- Main Page Landmark Search Modal -->
-    <div class="modal-overlay" id="landmarkModal" onclick="if(event.target===this) closeLandmarkSearch()"></div>
-    <div class="modal" id="landmarkModalContent">
+    <div class="modal-overlay" id="landmarkModalOverlay"></div>
+    <div class="modal" id="landmarkModal">
         <div class="modal-header">
             <h3 id="modalTitle">Select Location</h3>
             <button class="modal-close" onclick="closeLandmarkSearch()"><i class="fas fa-times"></i></button>
@@ -1655,7 +1576,7 @@
     </div>
 
     <!-- EMERGENCY MODAL -->
-    <div class="modal-overlay" id="emergencyModalOverlay" onclick="closeEmergencyModal()"></div>
+    <div class="modal-overlay" id="emergencyModalOverlay"></div>
     <div class="modal emergency-modal" id="emergencyModal">
         <div class="modal-header emergency-header">
             <h3><i class="fas fa-exclamation-triangle"></i> EMERGENCY ASSISTANCE</h3>
@@ -1720,8 +1641,8 @@
         </div>
     </div>
 
-    <!-- INSTANT MODAL - FIXED STYLING -->
-    <div class="modal-overlay" id="instantModalOverlay" onclick="closeInstantModal()"></div>
+    <!-- INSTANT MODAL -->
+    <div class="modal-overlay" id="instantModalOverlay"></div>
     <div class="modal" id="instantModal">
         <div class="modal-header">
             <h3><i class="fas fa-bolt"></i> Instant Ride</h3>
@@ -1770,8 +1691,8 @@
         </div>
     </div>
 
-    <!-- SAME DAY MODAL - FIXED STYLING -->
-    <div class="modal-overlay" id="sameDayModalOverlay" onclick="closeSameDayModal()"></div>
+    <!-- SAME DAY MODAL -->
+    <div class="modal-overlay" id="sameDayModalOverlay"></div>
     <div class="modal" id="sameDayModal">
         <div class="modal-header">
             <h3><i class="fas fa-calendar-day"></i> Same Day Ride</h3>
@@ -1841,8 +1762,8 @@
         </div>
     </div>
 
-    <!-- SCHEDULED MODAL - FIXED STYLING -->
-    <div class="modal-overlay" id="scheduledModalOverlay" onclick="closeScheduledModal()"></div>
+    <!-- SCHEDULED MODAL -->
+    <div class="modal-overlay" id="scheduledModalOverlay"></div>
     <div class="modal" id="scheduledModal">
         <div class="modal-header">
             <h3><i class="fas fa-calendar-alt"></i> Scheduled Ride</h3>
@@ -1920,8 +1841,8 @@
     </div>
 
     <!-- Universal Modal Landmark Search (for all service modals) -->
-    <div class="modal-overlay" id="modalLandmarkModal" onclick="if(event.target===this) closeModalLandmarkSearch()"></div>
-    <div class="modal" id="modalLandmarkContent">
+    <div class="modal-overlay" id="modalLandmarkOverlay"></div>
+    <div class="modal" id="modalLandmarkModal">
         <div class="modal-header">
             <h3 id="modalLandmarkTitle">Select Location</h3>
             <button class="modal-close" onclick="closeModalLandmarkSearch()"><i class="fas fa-times"></i></button>
@@ -2149,17 +2070,22 @@
 
         // ========== MAIN PAGE LANDMARK SEARCH ==========
         function openLandmarkSearch(type) {
+            if (!currentUser) {
+                openAuthModal();
+                showToast('Please login to select a location', 'warning');
+                return;
+            }
             currentModalType = type;
             document.getElementById('modalTitle').innerHTML = 
                 type === 'pickup' ? 'Select Pickup Location' : 'Select Destination';
+            document.getElementById('landmarkModalOverlay').classList.add('active');
             document.getElementById('landmarkModal').classList.add('active');
-            document.getElementById('landmarkModalContent').classList.add('active');
             renderLandmarksList(landmarks);
         }
 
         function closeLandmarkSearch() {
+            document.getElementById('landmarkModalOverlay').classList.remove('active');
             document.getElementById('landmarkModal').classList.remove('active');
-            document.getElementById('landmarkModalContent').classList.remove('active');
             document.getElementById('landmarkSearch').value = '';
         }
 
@@ -2230,17 +2156,22 @@
 
         // ========== MODAL LANDMARK SEARCH (UNIVERSAL) ==========
         function openModalLandmarkSearch(fieldId, displayId) {
+            if (!currentUser) {
+                openAuthModal();
+                showToast('Please login to select a location', 'warning');
+                return;
+            }
             currentModalField = fieldId;
             currentModalDisplayId = displayId;
             document.getElementById('modalLandmarkTitle').innerHTML = 'Select Location';
+            document.getElementById('modalLandmarkOverlay').classList.add('active');
             document.getElementById('modalLandmarkModal').classList.add('active');
-            document.getElementById('modalLandmarkContent').classList.add('active');
             renderModalLandmarksList(landmarks);
         }
 
         function closeModalLandmarkSearch() {
+            document.getElementById('modalLandmarkOverlay').classList.remove('active');
             document.getElementById('modalLandmarkModal').classList.remove('active');
-            document.getElementById('modalLandmarkContent').classList.remove('active');
             document.getElementById('modalLandmarkSearch').value = '';
             currentModalField = null;
             currentModalDisplayId = null;
@@ -2808,14 +2739,14 @@
                 showToast('Please login to book a ride', 'warning');
                 return;
             }
-            document.getElementById('instantModal').classList.add('active');
             document.getElementById('instantModalOverlay').classList.add('active');
+            document.getElementById('instantModal').classList.add('active');
             generatePassengerFields('instant');
         }
 
         function closeInstantModal() {
-            document.getElementById('instantModal').classList.remove('active');
             document.getElementById('instantModalOverlay').classList.remove('active');
+            document.getElementById('instantModal').classList.remove('active');
             document.getElementById('instantForm').reset();
             document.getElementById('instantPickupId').value = '';
             document.getElementById('instantDropoffId').value = '';
@@ -2833,14 +2764,14 @@
                 showToast('Please login to book a ride', 'warning');
                 return;
             }
-            document.getElementById('sameDayModal').classList.add('active');
             document.getElementById('sameDayModalOverlay').classList.add('active');
+            document.getElementById('sameDayModal').classList.add('active');
             generatePassengerFields('sameDay');
         }
 
         function closeSameDayModal() {
-            document.getElementById('sameDayModal').classList.remove('active');
             document.getElementById('sameDayModalOverlay').classList.remove('active');
+            document.getElementById('sameDayModal').classList.remove('active');
             document.getElementById('sameDayForm').reset();
             document.getElementById('sameDayPickupId').value = '';
             document.getElementById('sameDayDropoffId').value = '';
@@ -2858,8 +2789,8 @@
                 showToast('Please login to book a ride', 'warning');
                 return;
             }
-            document.getElementById('scheduledModal').classList.add('active');
             document.getElementById('scheduledModalOverlay').classList.add('active');
+            document.getElementById('scheduledModal').classList.add('active');
             generatePassengerFields('scheduled');
             
             const tomorrow = new Date();
@@ -2868,8 +2799,8 @@
         }
 
         function closeScheduledModal() {
-            document.getElementById('scheduledModal').classList.remove('active');
             document.getElementById('scheduledModalOverlay').classList.remove('active');
+            document.getElementById('scheduledModal').classList.remove('active');
             document.getElementById('scheduledForm').reset();
             document.getElementById('scheduledPickupId').value = '';
             document.getElementById('scheduledDropoffId').value = '';
@@ -2887,14 +2818,44 @@
                 showToast('Please login to access emergency services', 'warning');
                 return;
             }
-            document.getElementById('emergencyModal').classList.add('active');
             document.getElementById('emergencyModalOverlay').classList.add('active');
+            document.getElementById('emergencyModal').classList.add('active');
         }
 
         function closeEmergencyModal() {
-            document.getElementById('emergencyModal').classList.remove('active');
             document.getElementById('emergencyModalOverlay').classList.remove('active');
+            document.getElementById('emergencyModal').classList.remove('active');
             document.getElementById('emergencyForm').reset();
+        }
+
+        function openAuthModal() {
+            document.getElementById('authModalOverlay').classList.add('active');
+            document.getElementById('authModal').classList.add('active');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModalOverlay').classList.remove('active');
+            document.getElementById('authModal').classList.remove('active');
+            document.getElementById('loginError').style.display = 'none';
+        }
+
+        function openRatingModal(rideId, driverName) {
+            currentRatingRide = rideId;
+            currentRating = 5;
+            document.getElementById('ratingDriverName').textContent = driverName;
+            document.getElementById('ratingModalOverlay').classList.add('active');
+            document.getElementById('ratingModal').classList.add('active');
+            
+            document.querySelectorAll('.rating-star').forEach((star, i) => {
+                star.classList.add('filled');
+            });
+        }
+
+        function closeRatingModal() {
+            document.getElementById('ratingModalOverlay').classList.remove('active');
+            document.getElementById('ratingModal').classList.remove('active');
+            document.getElementById('ratingReview').value = '';
+            currentRatingRide = null;
         }
 
         // ========== PASSENGER FIELDS GENERATOR ==========
@@ -3025,17 +2986,6 @@
         }
 
         // ========== AUTH FUNCTIONS ==========
-        function openAuthModal() {
-            document.getElementById('authModal').classList.add('active');
-            document.getElementById('authModalOverlay').classList.add('active');
-        }
-
-        function closeAuthModal() {
-            document.getElementById('authModal').classList.remove('active');
-            document.getElementById('authModalOverlay').classList.remove('active');
-            document.getElementById('loginError').style.display = 'none';
-        }
-
         function handleLogin(e) {
             e.preventDefault();
             
@@ -3139,25 +3089,6 @@
         }
 
         // ========== RATING FUNCTIONS ==========
-        function openRatingModal(rideId, driverName) {
-            currentRatingRide = rideId;
-            currentRating = 5;
-            document.getElementById('ratingDriverName').textContent = driverName;
-            document.getElementById('ratingModal').classList.add('active');
-            document.getElementById('ratingModalOverlay').classList.add('active');
-            
-            document.querySelectorAll('.rating-star').forEach((star, i) => {
-                star.classList.add('filled');
-            });
-        }
-
-        function closeRatingModal() {
-            document.getElementById('ratingModal').classList.remove('active');
-            document.getElementById('ratingModalOverlay').classList.remove('active');
-            document.getElementById('ratingReview').value = '';
-            currentRatingRide = null;
-        }
-
         document.querySelectorAll('.rating-star').forEach(star => {
             star.addEventListener('click', function() {
                 const rating = parseInt(this.dataset.rating);
@@ -3215,9 +3146,16 @@
                 info: 'info-circle' 
             };
             
-            toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${message}</span>`;
+            toast.innerHTML = `<i class="fas fa-${icons[type]}"></i><span>${escapeHtml(message)}</span>`;
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         function toggleHamburger() {
@@ -3265,8 +3203,8 @@
                     if (this.id === 'scheduledModalOverlay') closeScheduledModal();
                     if (this.id === 'authModalOverlay') closeAuthModal();
                     if (this.id === 'ratingModalOverlay') closeRatingModal();
-                    if (this.id === 'landmarkModal') closeLandmarkSearch();
-                    if (this.id === 'modalLandmarkModal') closeModalLandmarkSearch();
+                    if (this.id === 'landmarkModalOverlay') closeLandmarkSearch();
+                    if (this.id === 'modalLandmarkOverlay') closeModalLandmarkSearch();
                 }
             });
         });
@@ -3278,7 +3216,7 @@
             }
         });
 
-        console.log('PICK ME page loaded with universal location selection');
+        console.log('PICK ME page loaded with working modals');
     </script>
 </body>
 </html>
