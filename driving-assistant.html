@@ -129,6 +129,10 @@
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-weight: bold;
         }
+        .user-name {
+            color: var(--gold); font-weight: 500; font-size: 0.9rem;
+            max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
         .logout-dropdown {
             position: absolute; top: 120%; right: 0;
             background: var(--card-bg); border: 1px solid var(--gold);
@@ -151,6 +155,24 @@
             font-size: 1.3rem; cursor: pointer; transition: all 0.2s;
         }
         .hamburger-icon:hover { background: var(--gold); color: black; }
+
+        /* Location Indicator */
+        .location-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(202,138,4,0.1);
+            border: 1px solid var(--gold);
+            border-radius: 40px;
+            padding: 0.3rem 1rem;
+            font-size: 0.9rem;
+        }
+        .location-indicator i {
+            color: var(--gold);
+        }
+        .location-indicator.active i {
+            color: var(--success);
+        }
 
         /* Hamburger panel */
         .hamburger-panel {
@@ -257,6 +279,70 @@
         }
         .dashboard-header p i {
             color: var(--gold);
+        }
+
+        /* Location Banner for Drivers */
+        .location-banner {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .location-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .location-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(202,138,4,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--gold);
+        }
+        .location-icon i {
+            font-size: 1.2rem;
+            color: var(--gold);
+        }
+        .location-details h3 {
+            color: var(--gold);
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+        .location-details p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .detect-btn {
+            background: var(--gold);
+            color: black;
+            border: none;
+            border-radius: 40px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        .detect-btn:hover {
+            background: var(--gold-dark);
+            transform: scale(1.02);
+        }
+        .detect-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         /* Stats Grid */
@@ -1302,6 +1388,33 @@
             font-size: 0.9rem;
         }
 
+        /* Distance & Fare Info */
+        .distance-info {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 16px;
+            padding: 0.8rem 1rem;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .distance-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .distance-value {
+            color: var(--success);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .fare-calculator-note {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+            text-align: center;
+        }
+
         /* Auth Modal Specific */
         .auth-modal {
             max-width: 450px;
@@ -1527,6 +1640,7 @@
             .profile-details { justify-content: center; }
             .form-row { grid-template-columns: 1fr; }
             .tab-navigation { flex-direction: column; }
+            .location-banner { flex-direction: column; text-align: center; }
             
             /* Responsive Modal */
             .modal {
@@ -1634,6 +1748,11 @@
                 <span class="driver-badge" id="headerDriverBadge" style="display: none;">DRIVER</span>
             </div>
             <div class="header-desktop-actions">
+                <!-- Location Indicator for Drivers -->
+                <div class="location-indicator" id="locationIndicator" style="display: none;">
+                    <i class="fas fa-circle"></i>
+                    <span id="locationStatus">Location unknown</span>
+                </div>
                 <div id="userMenuDesktop" class="user-menu" style="display:none;">
                     <span class="user-name" id="userDisplayNameDesktop">Driver</span>
                     <div class="user-avatar" id="userAvatarDesktop">D</div>
@@ -1756,6 +1875,7 @@
                             <option value="Lavington">Lavington</option>
                             <option value="Karen">Karen</option>
                             <option value="Eastlands">Eastlands</option>
+                            <option value="Kawangware">Kawangware</option>
                             <option value="All Nairobi">All Nairobi</option>
                         </select>
                     </div>
@@ -1782,6 +1902,23 @@
         <div class="dashboard-header">
             <h1>PICK ME Driver Portal</h1>
             <p><i class="fas fa-calendar-alt"></i> <span id="currentDate"></span> | <span id="dataLastUpdated">Loading...</span></p>
+        </div>
+
+        <!-- Location Banner for Drivers (visible when approved) -->
+        <div class="location-banner" id="driverLocationBanner" style="display: none;">
+            <div class="location-info">
+                <div class="location-icon">
+                    <i class="fas fa-map-pin"></i>
+                </div>
+                <div class="location-details">
+                    <h3 id="driverLocationName">Your Current Location</h3>
+                    <p id="driverLocationCoords">Click detect to update your position</p>
+                </div>
+            </div>
+            <button class="detect-btn" id="detectDriverLocationBtn" onclick="detectDriverLocation()">
+                <i class="fas fa-location-dot"></i>
+                Update Location
+            </button>
         </div>
 
         <!-- Driver Profile Card (visible when approved) -->
@@ -2069,6 +2206,72 @@
         const database = firebase.database();
         const auth = firebase.auth();
 
+        // ========== FARE CALCULATOR CLASS ==========
+        class FareCalculator {
+            constructor() {
+                this.baseFare = 100;
+                this.perKmRate = 50;
+                this.minimumFare = 150;
+                this.landmarks = [];
+                this.landmarksById = {};
+            }
+
+            haversineDistance(lat1, lon1, lat2, lon2) {
+                const R = 6371;
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = 
+                    Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                return R * c;
+            }
+
+            calculateFare(distanceKm) {
+                const fare = this.baseFare + (distanceKm * this.perKmRate);
+                const finalFare = Math.max(fare, this.minimumFare);
+                
+                return {
+                    distanceKm: Math.round(distanceKm * 10) / 10,
+                    baseFare: this.baseFare,
+                    distanceCharge: Math.round(distanceKm * this.perKmRate),
+                    totalFare: Math.round(finalFare),
+                    formattedFare: `KSh ${Math.round(finalFare).toLocaleString()}`,
+                    formattedDistance: `${Math.round(distanceKm * 10) / 10} km`,
+                    duration: Math.round(distanceKm * 3),
+                    minimumApplied: fare < this.minimumFare
+                };
+            }
+
+            async loadLandmarks() {
+                try {
+                    const snapshot = await database.ref('kawangware_locations').once('value');
+                    const data = snapshot.val() || {};
+                    
+                    this.landmarks = [];
+                    this.landmarksById = {};
+                    
+                    for (let id in data) {
+                        const landmark = {
+                            id: id,
+                            ...data[id]
+                        };
+                        this.landmarks.push(landmark);
+                        this.landmarksById[id] = landmark;
+                    }
+                    
+                    console.log(`✅ Loaded ${this.landmarks.length} landmarks`);
+                } catch (error) {
+                    console.error('Error loading landmarks:', error);
+                }
+            }
+
+            getLandmarkNameById(id) {
+                return this.landmarksById[id]?.name || id;
+            }
+        }
+
         // Global state
         let currentUser = null;
         let currentDriver = null;
@@ -2081,11 +2284,14 @@
         let currentWeekStart = new Date();
         currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1); // Monday
         let selectedRating = 5;
+        let driverLocation = null;
+        const fareCalc = new FareCalculator();
 
         // ========== AUTH STATE LISTENER ==========
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
+                await fareCalc.loadLandmarks();
                 await checkDriverStatus(user);
             } else {
                 showWelcomeUI();
@@ -2108,6 +2314,7 @@
                         driverStatus = 'approved';
                         showDriverUI();
                         loadDriverData();
+                        detectDriverLocation(); // Auto-detect location when approved
                     } else if (driverData.status === 'pending' || driverData.verified === false) {
                         driverStatus = 'pending';
                         showPendingUI(driverData);
@@ -2145,6 +2352,113 @@
             }
         }
 
+        // ========== DRIVER LOCATION DETECTION ==========
+        function detectDriverLocation() {
+            const btn = document.getElementById('detectDriverLocationBtn');
+            const statusEl = document.getElementById('locationStatus');
+            const indicator = document.getElementById('locationIndicator');
+            const locationNameEl = document.getElementById('driverLocationName');
+            const locationCoordsEl = document.getElementById('driverLocationCoords');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Detecting...';
+            statusEl.innerHTML = 'Getting location...';
+            
+            if (!navigator.geolocation) {
+                showToast('Geolocation not supported', 'error');
+                resetLocationButton();
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    driverLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        accuracy: position.coords.accuracy,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    locationCoordsEl.innerHTML = 
+                        `${driverLocation.lat.toFixed(4)}, ${driverLocation.lng.toFixed(4)} (${Math.round(driverLocation.accuracy)}m accuracy)`;
+                    
+                    indicator.classList.add('active');
+                    statusEl.innerHTML = 'Location active';
+                    
+                    // Find nearest landmark
+                    findNearestLandmark();
+                    
+                    // Update driver location in database
+                    updateDriverLocationInDB();
+                    
+                    showToast('Location updated successfully', 'success');
+                    resetLocationButton();
+                },
+                (error) => {
+                    let message = 'Location error';
+                    if (error.code === 1) message = 'Please allow location access';
+                    if (error.code === 2) message = 'Location unavailable';
+                    if (error.code === 3) message = 'Location request timeout';
+                    
+                    showToast(message, 'error');
+                    statusEl.innerHTML = 'Location failed';
+                    resetLocationButton();
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 300000 // 5 minutes cache
+                }
+            );
+        }
+
+        function resetLocationButton() {
+            const btn = document.getElementById('detectDriverLocationBtn');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-location-dot"></i> Update Location';
+            }
+        }
+
+        function findNearestLandmark() {
+            if (!driverLocation || fareCalc.landmarks.length === 0) return;
+            
+            let nearest = null;
+            let minDistance = Infinity;
+            
+            fareCalc.landmarks.forEach(landmark => {
+                const distance = fareCalc.haversineDistance(
+                    driverLocation.lat, driverLocation.lng,
+                    landmark.coordinates.lat, landmark.coordinates.lng
+                );
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearest = landmark;
+                }
+            });
+            
+            if (nearest) {
+                document.getElementById('driverLocationName').innerHTML = 
+                    `Near: ${nearest.name} (${Math.round(minDistance * 1000)}m)`;
+            }
+        }
+
+        async function updateDriverLocationInDB() {
+            if (!currentDriver || !driverLocation) return;
+            
+            try {
+                await database.ref(`drivers/${currentDriver.id}/lastLocation`).set({
+                    lat: driverLocation.lat,
+                    lng: driverLocation.lng,
+                    accuracy: driverLocation.accuracy,
+                    timestamp: driverLocation.timestamp
+                });
+            } catch (error) {
+                console.error('Error updating driver location:', error);
+            }
+        }
+
         // ========== UI STATE MANAGEMENT ==========
         function showWelcomeUI() {
             document.getElementById('welcomeMessage').style.display = 'block';
@@ -2158,6 +2472,8 @@
             document.getElementById('timelineView').style.display = 'none';
             document.getElementById('ridesView').style.display = 'none';
             document.getElementById('headerDriverBadge').style.display = 'none';
+            document.getElementById('driverLocationBanner').style.display = 'none';
+            document.getElementById('locationIndicator').style.display = 'none';
             
             document.getElementById('userMenuDesktop').style.display = 'none';
             document.getElementById('loginButtonDesktop').style.display = 'flex';
@@ -2177,6 +2493,8 @@
             document.getElementById('timelineView').style.display = 'none';
             document.getElementById('ridesView').style.display = 'none';
             document.getElementById('headerDriverBadge').style.display = 'none';
+            document.getElementById('driverLocationBanner').style.display = 'none';
+            document.getElementById('locationIndicator').style.display = 'none';
             
             if (driverData.timestamp) {
                 const date = new Date(driverData.timestamp).toLocaleDateString();
@@ -2203,6 +2521,8 @@
             document.getElementById('timelineView').style.display = 'none';
             document.getElementById('ridesView').style.display = 'none';
             document.getElementById('headerDriverBadge').style.display = 'none';
+            document.getElementById('driverLocationBanner').style.display = 'none';
+            document.getElementById('locationIndicator').style.display = 'none';
             
             if (driverData.rejectionReason) {
                 document.getElementById('rejectionReason').textContent = driverData.rejectionReason;
@@ -2226,6 +2546,8 @@
             document.getElementById('timelineView').style.display = 'none';
             document.getElementById('ridesView').style.display = 'none';
             document.getElementById('headerDriverBadge').style.display = 'inline-block';
+            document.getElementById('driverLocationBanner').style.display = 'flex';
+            document.getElementById('locationIndicator').style.display = 'flex';
             
             document.getElementById('userMenuDesktop').style.display = 'flex';
             document.getElementById('loginButtonDesktop').style.display = 'none';
@@ -2477,6 +2799,18 @@
                             pickupTime = new Date(ride.pickup.scheduledDateTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                         }
                         
+                        // Resolve landmark names if they're IDs
+                        let pickupAddress = ride.pickup?.address || 'Pickup location';
+                        let dropoffAddress = ride.dropoff?.address || '';
+                        
+                        if (ride.pickup?.id && fareCalc.landmarksById[ride.pickup.id]) {
+                            pickupAddress = fareCalc.landmarksById[ride.pickup.id].name;
+                        }
+                        
+                        if (ride.dropoff?.id && fareCalc.landmarksById[ride.dropoff.id]) {
+                            dropoffAddress = fareCalc.landmarksById[ride.dropoff.id].name;
+                        }
+                        
                         return {
                             id,
                             type: ride.serviceType || 'instant',
@@ -2486,11 +2820,11 @@
                             customerName: ride.customer?.name || ride.userName || 'Unknown',
                             customerEmail: ride.customer?.email || ride.userEmail || '',
                             customerPhone: ride.customer?.phone || ride.userPhone || '',
-                            pickupAddress: ride.pickup?.address || 'Pickup location',
+                            pickupAddress: pickupAddress,
                             pickupZone: ride.pickup?.zone || '',
-                            dropoffAddress: ride.dropoff?.address || '',
+                            dropoffAddress: dropoffAddress,
                             dropoffZone: ride.dropoff?.zone || '',
-                            distance: ride.distance || '0 km',
+                            distance: ride.distance ? `${ride.distance} km` : 'Calculated',
                             fare: ride.fare || 0,
                             status: ride.status || 'pending',
                             assignedTo: ride.driver?.id,
@@ -2911,6 +3245,12 @@
             const date = ride.bookingDate ? new Date(ride.bookingDate).toLocaleString() : 'N/A';
             const statusClass = `status-${ride.status}`;
             
+            // Calculate fare breakdown (simulated)
+            const distance = ride.distance ? parseFloat(ride.distance) : (ride.fare - 100) / 50;
+            const distanceKm = distance > 0 ? distance : 5;
+            const baseFare = 100;
+            const distanceCharge = ride.fare - baseFare;
+            
             // Create status timeline HTML
             let statusHistoryHtml = '';
             if (ride.statusHistory && ride.statusHistory.length > 0) {
@@ -2955,8 +3295,13 @@
                     
                     <div class="detail-card">
                         <div class="detail-label"><i class="fas fa-road"></i> Distance</div>
-                        <div class="detail-content">${ride.distance}</div>
+                        <div class="detail-content">${distanceKm.toFixed(1)} km</div>
                     </div>
+                </div>
+
+                <div class="distance-info">
+                    <span class="distance-label"><i class="fas fa-calculator"></i> Fare Calculation (Base 100 + 50/km)</span>
+                    <span class="distance-value">${distanceKm.toFixed(1)} km × 50 = KSh ${distanceCharge}</span>
                 </div>
 
                 <div class="route-timeline">
@@ -2965,7 +3310,7 @@
                         <div class="route-stop-info">
                             <div class="route-label">PICKUP</div>
                             <div class="route-address">${ride.pickupAddress}</div>
-                            <div class="route-zone">Zone: ${ride.pickupZone || 'N/A'}</div>
+                            <div class="route-zone">Zone: ${ride.pickupZone || 'Kawangware'}</div>
                         </div>
                     </div>
                     <div class="route-connector"></div>
@@ -2974,7 +3319,7 @@
                         <div class="route-stop-info">
                             <div class="route-label">DROPOFF</div>
                             <div class="route-address">${ride.dropoffAddress}</div>
-                            <div class="route-zone">Zone: ${ride.dropoffZone || 'N/A'}</div>
+                            <div class="route-zone">Zone: ${ride.dropoffZone || 'Kawangware'}</div>
                         </div>
                     </div>
                 </div>
@@ -3009,16 +3354,19 @@
                 <div class="fare-breakdown">
                     <div class="fare-row">
                         <span>Base Fare</span>
-                        <span>KSh ${(ride.fare * 0.8).toFixed(0)}</span>
+                        <span>KSh 100</span>
                     </div>
                     <div class="fare-row">
-                        <span>Distance Fee</span>
-                        <span>KSh ${(ride.fare * 0.2).toFixed(0)}</span>
+                        <span>Distance Fee (${distanceKm.toFixed(1)} km × 50)</span>
+                        <span>KSh ${distanceCharge}</span>
                     </div>
                     <div class="fare-row total">
                         <span>Total</span>
                         <span>KSh ${ride.fare.toLocaleString()}</span>
                     </div>
+                </div>
+                <div class="fare-calculator-note">
+                    <i class="fas fa-info-circle"></i> Fare calculated automatically based on distance
                 </div>
 
                 ${ride.assignedAt ? `
