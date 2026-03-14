@@ -68,21 +68,95 @@
             padding: 2px; background: var(--bg-primary);
         }
         .header-desktop-actions { display: flex; align-items: center; gap: 1.5rem; }
+        
+        /* ===== PERFECTLY STYLED SEARCH BAR (functional) ===== */
         .desktop-search {
-            position: relative; display: flex; align-items: center;
-            background: rgba(255,255,255,0.08); border: 1px solid var(--border-light);
-            border-radius: 40px; padding: 0.4rem 0.4rem 0.4rem 1.2rem;
-            min-width: 260px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid var(--border-light);
+            border-radius: 40px;
+            padding: 0.2rem 0.2rem 0.2rem 1.2rem;
+            min-width: 300px;
+            backdrop-filter: blur(4px);
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+        .desktop-search:focus-within {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(202,138,4,0.2);
         }
         .desktop-search input {
-            background: transparent; border: none; color: var(--text-primary);
-            width: 100%; outline: none; padding: 0.5rem 0;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            width: 100%;
+            outline: none;
+            padding: 0.7rem 0;
+            font-size: 1rem;
+        }
+        .desktop-search input::placeholder {
+            color: var(--text-muted);
+            font-weight: 300;
         }
         .desktop-search button {
-            background: var(--gold); border: none; width: 38px; height: 38px;
-            border-radius: 50%; color: black; cursor: pointer;
+            background: var(--gold);
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            color: black;
+            cursor: pointer;
             transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
         }
+        .desktop-search button:hover {
+            background: var(--gold-dark);
+            transform: scale(1.05);
+        }
+        /* search hints dropdown */
+        .search-hints {
+            position: absolute;
+            top: 110%;
+            left: 0;
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--gold);
+            border-radius: 24px;
+            padding: 0.5rem 0;
+            z-index: 2100;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+        .search-hints.active {
+            display: block;
+        }
+        .hint-item {
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: 0.1s;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .hint-item:last-child {
+            border-bottom: none;
+        }
+        .hint-item:hover {
+            background: rgba(202,138,4,0.15);
+        }
+        .hint-item i {
+            color: var(--gold);
+            width: 24px;
+            font-size: 1.1rem;
+        }
+        
         .user-menu, #loginButtonDesktop {
             display: flex; align-items: center; gap: 0.5rem;
             background: rgba(202,138,4,0.1); border: 1px solid var(--gold);
@@ -142,7 +216,6 @@
         .slide.active { opacity: 1; }
         .slide-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            /* lighter overlay for more image clarity, but still readable text */
             background: linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(20,20,20,0.45) 100%);
         }
         body.light-theme .slide-overlay {
@@ -179,10 +252,10 @@
         .section-title { font-family: 'Cinzel', serif; font-size: 2.5rem; color: var(--gold); text-align: center; margin-bottom: 1rem; }
         .section-sub { text-align: center; color: var(--text-muted); max-width: 700px; margin: 0 auto 3rem; font-size: 1.1rem; }
         
-        /* ===== SINGLE CARD (basic plan only) ===== */
+        /* ===== BASIC PLAN CARD (only specified features) ===== */
         .basic-card {
             max-width: 650px;
-            margin: 2rem auto 4rem;
+            margin: 2rem auto 1.5rem;
             background: var(--card-bg);
             border-radius: 48px;
             border: 1px solid var(--border-light);
@@ -269,11 +342,28 @@
             font-weight: 700;
             color: var(--text-primary);
         }
-        .demo-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.8rem;
+        /* inquiry button inside card */
+        .brand-inquiry {
+            margin-top: 1rem;
+        }
+        .brand-input {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 60px;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            transition: 0.2s;
+        }
+        .brand-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: var(--input-focus-bg);
+            box-shadow: 0 0 0 3px rgba(202,138,4,0.15);
+        }
+        .brand-btn {
             width: 100%;
             padding: 1rem;
             background: linear-gradient(145deg, rgba(202,138,4,0.2), transparent);
@@ -284,14 +374,16 @@
             font-size: 1.2rem;
             cursor: pointer;
             transition: 0.25s;
-            text-decoration: none;
-            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
         }
-        .demo-btn:hover {
+        .brand-btn:hover {
             background: var(--gold);
             color: black;
         }
-        .plan-note {
+        .brand-note {
             font-size: 0.9rem;
             color: var(--gold);
             text-align: center;
@@ -300,6 +392,30 @@
             padding: 0.5rem 1rem;
             border-radius: 60px;
             border: 1px dashed var(--gold);
+        }
+        /* view demo button (separate, below card) */
+        .demo-btn-wrapper {
+            text-align: center;
+            margin: 1rem auto 3rem;
+        }
+        .demo-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            background: linear-gradient(145deg, rgba(202,138,4,0.2), transparent);
+            border: 2px solid var(--gold);
+            border-radius: 60px;
+            color: var(--gold);
+            font-weight: 700;
+            font-size: 1.3rem;
+            padding: 1rem 3rem;
+            text-decoration: none;
+            transition: 0.25s;
+        }
+        .demo-btn:hover {
+            background: var(--gold);
+            color: black;
         }
         
         /* auth modal, footer, toast unchanged */
@@ -320,6 +436,7 @@
         @media (max-width:768px) {
             .header-desktop-actions { display:none; }
             .mobile-header-group { display:flex; }
+            .desktop-search { min-width: auto; }
         }
     </style>
 </head>
@@ -359,11 +476,13 @@
     <div class="header-container">
         <img src="https://i.postimg.cc/bwkN851g/20260304_1008_Image_Generation_remix_01kjvtr63ce54v1awen6j4n88x-1.webp" alt="BrandIn" class="site-logo">
         <div class="header-desktop-actions">
+            <!-- desktop search: perfectly styled, functional -->
             <div class="desktop-search" id="desktopSearchContainer">
-                <input type="text" placeholder="Search BrandIn..." id="desktopSearchInput" autocomplete="off">
-                <button onclick="showToast('🔍 Search coming soon')"><i class="fas fa-search"></i></button>
+                <input type="text" placeholder="Search BrandIn (basic, services...)" id="desktopSearchInput" autocomplete="off">
+                <button id="desktopSearchButton"><i class="fas fa-search"></i></button>
                 <div class="search-hints" id="desktopSearchHints"></div>
             </div>
+
             <div id="userMenuDesktop" class="user-menu" style="display:none;">
                 <span class="user-name" id="userDisplayNameDesktop">User</span>
                 <div class="user-avatar" id="userAvatarDesktop">U</div>
@@ -380,13 +499,14 @@
     </div>
 </header>
 
-<!-- mobile search overlay -->
+<!-- mobile search overlay (also functional) -->
 <div class="search-overlay" id="mobileSearchOverlay">
-    <div class="search-row">
-        <input type="text" placeholder="Search BrandIn..." id="mobileSearchInput" autocomplete="off">
-        <button onclick="showToast('🔍 Search coming'); toggleMobileSearch();"><i class="fas fa-search"></i></button>
-        <button class="close-search" onclick="toggleMobileSearch()"><i class="fas fa-times"></i></button>
+    <div class="search-row" style="display:flex; gap:0.5rem; position:relative;">
+        <input type="text" id="mobileSearchInput" placeholder="Search..." style="flex:1; background:var(--input-bg); border:1px solid var(--gold); border-radius:40px; padding:0.8rem; color:var(--text-primary);">
+        <button id="mobileSearchButton" style="background:var(--gold); border:none; border-radius:50%; width:45px;"><i class="fas fa-search"></i></button>
+        <button class="close-search" onclick="toggleMobileSearch()" style="background:transparent; border:1px solid var(--gold); border-radius:50%; width:45px; color:var(--gold);"><i class="fas fa-times"></i></button>
     </div>
+    <div class="search-hints" id="mobileSearchHints" style="position:relative; top:5px; width:100%;"></div>
 </div>
 
 <!-- hamburger panel -->
@@ -419,7 +539,7 @@
             <div class="slide-overlay"></div>
             <div class="slide-content">
                 <h2>Launch Basic</h2>
-                <p>Single‑page website · 5 services · 3 ad creatives · unlimited invoices</p>
+                <p>Single‑page website · 5 service listings · 3 professional ads · 3 updates/month</p>
                 <button class="slide-btn" onclick="document.querySelector('.basic-card').scrollIntoView({behavior:'smooth'});"><i class="fas fa-rocket"></i> Start now</button>
             </div>
         </div>
@@ -441,7 +561,7 @@
     </div>
 </section>
 
-<!-- SINGLE BASIC PLAN CARD -->
+<!-- SINGLE BASIC PLAN CARD with only the 4 features and inquiry button -->
 <div class="container">
     <h2 class="section-title">Start with Basic</h2>
     <p class="section-sub">Everything you need to launch your personal brand.</p>
@@ -451,16 +571,23 @@
         <h3>Basic</h3>
         <div class="plan-badge"><i class="fas fa-play"></i> essential launch</div>
         <ul class="features-list">
-            <li><i class="fas fa-check-circle"></i> <strong>Single‑page profile</strong> – business info + story</li>
-            <li><i class="fas fa-bolt"></i> <strong>5 services</strong> – each with direct request & call buttons</li>
-            <li><i class="fas fa-pen-to-square"></i> <strong>3 updates/month</strong> – keep content fresh</li>
-            <li><i class="fas fa-image"></i> <strong>3 social ad creatives</strong> – pro designs, ready to post</li>
-            <li><i class="fas fa-file-invoice"></i> <strong>Unlimited invoices</strong> – bill clients with ease</li>
-            <li><i class="fas fa-check-circle"></i> PWA & contact on every service</li>
+            <li><i class="fas fa-check-circle"></i> <strong>Single page info page</strong> – about your business</li>
+            <li><i class="fas fa-bolt"></i> <strong>5 service listings</strong> – each with contact buttons</li>
+            <li><i class="fas fa-image"></i> <strong>3 professional ads per month</strong> – ready to post</li>
+            <li><i class="fas fa-pen-to-square"></i> <strong>Up to 3 updates per month</strong> – keep content fresh</li>
         </ul>
-        <!-- View Demo Button -->
+        <!-- Inquiry form inside card (exactly as original) -->
+        <form class="brand-inquiry" onsubmit="submitBrandInquiry(event, 'Basic')">
+            <input type="text" class="brand-input" placeholder="Your name" id="basicName" required>
+            <input type="email" class="brand-input" placeholder="Email address" id="basicEmail" required>
+            <button type="submit" class="brand-btn"><i class="fas fa-paper-plane"></i> Get Basic</button>
+            <div class="brand-note">🚀 page within 48h</div>
+        </form>
+    </div>
+    
+    <!-- View Demo button (separate, below card) -->
+    <div class="demo-btn-wrapper">
         <a href="brandinn-basic-demo.html" class="demo-btn"><i class="fas fa-eye"></i> View Demo</a>
-        <div class="plan-note">🚀 page within 48h • unlimited invoices</div>
     </div>
 </div>
 
@@ -472,6 +599,10 @@
 
 <!-- toast -->
 <div id="elegantToast" class="message-toast"><i class="fas fa-globe-africa"></i><span id="toastMessage">message</span></div>
+
+<!-- External search scripts (must be loaded before init) -->
+<script src="search-database.js"></script>
+<script src="search-utils.js"></script>
 
 <script>
     // Firebase config (unchanged)
@@ -493,6 +624,12 @@
     auth.onAuthStateChanged((user) => {
         currentUser = user;
         updateUIForUser(user);
+        if (user) {
+            const nameField = document.getElementById('basicName');
+            const emailField = document.getElementById('basicEmail');
+            if (nameField && !nameField.value) nameField.value = user.displayName || user.email?.split('@')[0] || '';
+            if (emailField && !emailField.value) emailField.value = user.email || '';
+        }
     });
 
     function updateUIForUser(user) {
@@ -569,6 +706,42 @@
         try { await auth.signOut(); showToast('👋 Logged out'); } catch (err) { showToast(err.message); }
     };
 
+    window.submitBrandInquiry = async (event, plan) => {
+        event.preventDefault();
+        const form = event.target;
+        const nameInput = form.querySelector('input[type="text"]');
+        const emailInput = form.querySelector('input[type="email"]');
+        const name = nameInput?.value.trim() || '';
+        const email = emailInput?.value.trim() || '';
+
+        if (!name || !email) { showToast('Please fill name and email'); return; }
+
+        const btn = form.querySelector('button');
+        const original = btn.innerHTML;
+        btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> sending...';
+
+        try {
+            const ref = database.ref('brandin_inquiries').push();
+            await ref.set({
+                plan: plan,
+                name, email,
+                uid: currentUser ? currentUser.uid : null,
+                timestamp: Date.now(),
+                status: 'new'
+            });
+            showToast(`✨ ${plan} inquiry sent! We’ll contact you.`);
+            form.reset();
+            if (currentUser) {
+                if (nameInput) nameInput.value = currentUser.displayName || currentUser.email?.split('@')[0] || '';
+                if (emailInput) emailInput.value = currentUser.email || '';
+            }
+        } catch (err) {
+            showToast('❌ Error, try again');
+        } finally {
+            btn.disabled = false; btn.innerHTML = original;
+        }
+    };
+
     // slider
     let currentSlide = 0;
     const slides = document.querySelectorAll('.slide');
@@ -616,6 +789,24 @@
     window.toggleMobileSearch = function() { document.getElementById('mobileSearchOverlay').classList.toggle('open'); };
     document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
     document.getElementById('mobileSearchBtn')?.addEventListener('click', toggleMobileSearch);
+
+    // --- Initialize search from external scripts ---
+    window.addEventListener('load', function() {
+        if (typeof window.initializeSearch === 'function') {
+            window.initializeSearch();
+        } else {
+            // Fallback: show a toast when search is attempted
+            const searchBtn = document.getElementById('desktopSearchButton');
+            const searchInput = document.getElementById('desktopSearchInput');
+            if (searchBtn) {
+                searchBtn.addEventListener('click', function() {
+                    const query = searchInput.value.trim();
+                    if (query) showToast(`🔍 Searching for "${query}"...`);
+                    else showToast('Please enter a search term');
+                });
+            }
+        }
+    });
 </script>
 </body>
 </html>
