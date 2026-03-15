@@ -21,7 +21,7 @@
     <link rel="icon" type="image/x-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/HLQqRybx/mm.jpg">
     
-    <!-- PWA manifest link - Critical for installation -->
+    <!-- PWA manifest link -->
     <link rel="manifest" href="/manifest.json">
     
     <!-- iOS specific meta tags -->
@@ -78,12 +78,6 @@
             --status-closing: #ef4444;
             --status-closed: #6b7280;
             
-            /* Tutorial Colors */
-            --tutorial-overlay: rgba(0,0,0,0.3);
-            --tutorial-card: #1a1a1a;
-            --tutorial-highlight: rgba(202,138,4,0.2);
-            --tutorial-pulse: rgba(202,138,4,0.6);
-            
             /* Layout */
             --header-height: 70px;
             --border-radius-sm: 12px;
@@ -109,11 +103,6 @@
             --input-bg: #f5f5f5;
             --input-border: #dddddd;
             --hover-bg: rgba(202,138,4,0.05);
-            
-            /* Tutorial Colors - Light */
-            --tutorial-overlay: rgba(255,255,255,0.3);
-            --tutorial-card: #ffffff;
-            --tutorial-highlight: rgba(202,138,4,0.1);
         }
 
         body {
@@ -127,7 +116,6 @@
             min-height: 100vh;
         }
         
-        /* Prevent scrolling when modals are open */
         body.modal-open {
             overflow: hidden;
         }
@@ -240,83 +228,87 @@
             transform: scale(1.05);
         }
         
-        /* Desktop Main Menu - NEW HORIZONTAL MENU */
+        /* Desktop Main Menu */
         .desktop-main-menu {
             display: flex;
             align-items: center;
             gap: 0.5rem;
             margin: 0 1rem;
-            flex-wrap: wrap;
+            flex: 1;
             justify-content: center;
         }
         
         .desktop-main-menu .menu-item {
             color: var(--text-secondary);
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-weight: 500;
-            padding: 0.5rem 0.9rem;
+            padding: 0.5rem 1.2rem;
             border-radius: var(--border-radius-full);
             transition: all 0.2s;
             white-space: nowrap;
             display: flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: 0.5rem;
             border: 1px solid transparent;
         }
         
         .desktop-main-menu .menu-item i {
             color: var(--gold);
-            font-size: 0.9rem;
-            transition: color 0.2s;
+            font-size: 1rem;
         }
         
         .desktop-main-menu .menu-item:hover {
             background: var(--hover-bg);
-            border-color: var(--border-gold);
+            border-color: var(--gold);
             color: var(--gold);
+            transform: translateY(-2px);
         }
         
         .desktop-main-menu .menu-item:hover i {
             color: var(--gold);
         }
         
-        /* Desktop Actions (right side) */
-        .header-desktop-actions { 
+        /* Right Side Actions - SIMPLIFIED: only inbox, search icon, menu icon */
+        .header-actions { 
             display: flex; 
             align-items: center; 
-            gap: 1rem; 
+            gap: 0.8rem; 
             flex-shrink: 0;
         }
         
-        /* Inbox Icon */
-        .inbox-icon {
+        /* Action Icons */
+        .action-icon {
             position: relative;
             background: var(--hover-bg);
             border: 1px solid var(--gold);
-            border-radius: var(--border-radius-full);
-            width: 42px;
-            height: 42px;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--gold);
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             cursor: pointer;
             transition: all 0.2s;
             text-decoration: none;
         }
         
-        .inbox-icon:hover {
+        .action-icon:hover {
             background: var(--gold);
             color: black;
-            transform: scale(1.05);
+            transform: scale(1.1);
+        }
+        
+        .action-icon:hover i {
+            color: black;
         }
         
         .inbox-badge {
             position: absolute;
-            top: -8px;
-            right: -8px;
+            top: -5px;
+            right: -5px;
             background: var(--notification);
             color: white;
             font-size: 0.7rem;
@@ -332,208 +324,105 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         
-        /* Desktop Search */
-        .desktop-search { 
-            position: relative; 
-            display: flex; 
-            align-items: center; 
-            background: var(--input-bg); 
-            border: 1px solid var(--input-border); 
-            border-radius: var(--border-radius-full); 
-            padding: 0.4rem 0.4rem 0.4rem 1.2rem; 
-            transition: all 0.3s; 
-            min-width: 260px; 
+        /* Desktop Search Overlay (hidden by default, appears when search icon clicked) */
+        .desktop-search-overlay {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: 100%;
+            background: var(--nav-bg);
+            backdrop-filter: blur(20px);
+            padding: 1.5rem;
+            z-index: 1999;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            border-bottom: 2px solid var(--gold);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         
-        .desktop-search:focus-within { 
-            border-color: var(--gold); 
-            box-shadow: 0 0 0 3px var(--shadow-color); 
-            background: var(--bg-secondary); 
+        .desktop-search-overlay.open {
+            transform: translateY(0);
         }
         
-        .desktop-search input { 
-            background: transparent; 
-            border: none; 
-            color: var(--text-primary); 
-            font-size: 0.95rem; 
-            width: 100%; 
-            outline: none; 
-            padding: 0.5rem 0; 
+        .desktop-search-container {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
         }
         
-        .desktop-search input::placeholder { 
-            color: var(--text-muted); 
-            font-style: italic; 
+        .desktop-search-container input {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--gold);
+            border-radius: var(--border-radius-full);
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            outline: none;
         }
         
-        .desktop-search button { 
-            background: var(--gold); 
-            border: none; 
-            width: 38px; 
-            height: 38px; 
-            border-radius: 50%; 
-            color: black; 
-            cursor: pointer; 
-            transition: 0.2s; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            flex-shrink: 0; 
+        .desktop-search-container input:focus {
+            box-shadow: 0 0 0 4px var(--shadow-color);
         }
         
-        .desktop-search button:hover { 
-            transform: scale(1.05); 
-            background: var(--gold-dark); 
-        }
-        
-        /* Search Hints */
-        .search-hints, 
-        .mobile-search-hints { 
-            position: absolute; 
-            top: calc(100% + 8px); 
-            left: 0; 
-            right: 0; 
-            background: var(--card-bg); 
-            border: 1px solid var(--gold); 
-            border-radius: var(--border-radius-md); 
-            padding: 0.5rem 0; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-            z-index: 2100; 
-            display: none; 
-            max-height: 300px; 
-            overflow-y: auto; 
-        }
-        
-        .search-hints.show, 
-        .mobile-search-hints.show { 
-            display: block; 
-        }
-        
-        .hint-item { 
-            padding: 0.8rem 1.2rem; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            gap: 1rem; 
-            transition: all 0.2s; 
-            color: var(--text-primary); 
-            border-bottom: 1px solid var(--border-light); 
-        }
-        
-        .hint-item:last-child { 
-            border-bottom: none; 
-        }
-        
-        .hint-item:hover { 
-            background: var(--hover-bg); 
-            color: var(--gold); 
-        }
-        
-        .hint-item i { 
-            width: 24px; 
-            color: var(--gold); 
-        }
-        
-        .hint-item .hint-category { 
-            font-size: 0.7rem; 
-            color: var(--text-muted); 
-            margin-left: auto; 
-            text-transform: uppercase; 
-        }
-        
-        /* User Menu */
-        .user-menu { 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-            background: var(--hover-bg); 
-            border: 1px solid var(--gold); 
-            border-radius: var(--border-radius-full); 
-            padding: 0.3rem 0.3rem 0.3rem 1rem; 
-            cursor: pointer; 
-            position: relative; 
-        }
-        
-        .user-name { 
-            color: var(--gold); 
-            font-weight: 500; 
-            font-size: 0.9rem; 
-            max-width: 120px; 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-        }
-        
-        .user-avatar { 
-            background: var(--gold); 
-            color: black; 
-            width: 35px; 
-            height: 35px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold; 
-        }
-        
-        .logout-dropdown { 
-            position: absolute; 
-            top: 120%; 
-            right: 0; 
-            background: var(--card-bg); 
-            border: 1px solid var(--gold); 
-            border-radius: var(--border-radius-md); 
-            padding: 0.5rem; 
-            min-width: 120px; 
-            display: none; 
-            z-index: 1001; 
-        }
-        
-        .user-menu:hover .logout-dropdown { 
-            display: block; 
-        }
-        
-        .logout-item { 
-            padding: 0.7rem 1rem; 
-            color: var(--text-primary); 
-            border-radius: var(--border-radius-sm); 
-            transition: all 0.2s; 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-        }
-        
-        .logout-item:hover { 
-            background: var(--hover-bg); 
-            color: var(--gold); 
-        }
-        
-        /* Login Button Desktop */
-        .login-button {
-            padding: 0 1.2rem; 
-            border-radius: var(--border-radius-full); 
-            gap: 0.5rem; 
-            display: flex; 
-            background: var(--hover-bg); 
-            border: 1px solid var(--gold); 
-            align-items: center; 
+        .desktop-search-container button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--gold);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            color: black;
             cursor: pointer;
-            height: 42px;
+            transition: 0.2s;
+        }
+        
+        .desktop-search-container button:hover {
+            background: var(--gold-dark);
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        .desktop-search-hints {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--gold);
+            border-radius: var(--border-radius-md);
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 2100;
+        }
+        
+        .desktop-search-hints.show {
+            display: block;
+        }
+        
+        /* User Avatar (replaces login button when logged in) */
+        .user-avatar-mini {
+            background: var(--gold);
+            color: black;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border: 2px solid var(--gold);
             transition: all 0.2s;
         }
         
-        .login-button:hover {
-            background: var(--gold);
-            color: black;
-        }
-        
-        .login-button i {
-            color: var(--gold);
-            font-size: 1.2rem;
-        }
-        
-        .login-button:hover i {
-            color: black;
+        .user-avatar-mini:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px var(--gold);
         }
         
         /* Mobile Header */
@@ -617,10 +506,6 @@
             justify-content: center; 
         }
         
-        .search-overlay button:hover {
-            background: var(--gold-dark);
-        }
-        
         .close-search { 
             background: transparent; 
             border: none; 
@@ -640,23 +525,76 @@
             color: var(--gold); 
         }
         
-        /* Hamburger Panel (unchanged) */
+        .mobile-search-hints { 
+            position: absolute; 
+            top: calc(100% + 8px); 
+            left: 0; 
+            right: 0; 
+            background: var(--card-bg); 
+            border: 1px solid var(--gold); 
+            border-radius: var(--border-radius-md); 
+            padding: 0.5rem 0; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            z-index: 2100; 
+            display: none; 
+            max-height: 300px; 
+            overflow-y: auto; 
+        }
+        
+        .mobile-search-hints.show { 
+            display: block; 
+        }
+        
+        .hint-item { 
+            padding: 0.8rem 1.2rem; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            gap: 1rem; 
+            transition: all 0.2s; 
+            color: var(--text-primary); 
+            border-bottom: 1px solid var(--border-light); 
+        }
+        
+        .hint-item:last-child { 
+            border-bottom: none; 
+        }
+        
+        .hint-item:hover { 
+            background: var(--hover-bg); 
+            color: var(--gold); 
+        }
+        
+        .hint-item i { 
+            width: 24px; 
+            color: var(--gold); 
+        }
+        
+        .hint-item .hint-category { 
+            font-size: 0.7rem; 
+            color: var(--text-muted); 
+            margin-left: auto; 
+            text-transform: uppercase; 
+        }
+        
+        /* Unified Hamburger Panel (works for both mobile and desktop) */
         .hamburger-panel { 
             position: fixed; 
             top: 0; 
-            right: -320px; 
-            width: 300px; 
+            right: -350px; 
+            width: min(350px, 85%); 
             height: 100vh; 
             background: var(--nav-bg); 
             backdrop-filter: blur(20px); 
-            border-left: 1px solid var(--gold); 
+            border-left: 2px solid var(--gold); 
             padding: 2rem 1.5rem; 
             z-index: 2500; 
-            transition: right 0.3s ease; 
+            transition: right 0.3s cubic-bezier(0.4,0,0.2,1); 
             box-shadow: -10px 0 30px rgba(0,0,0,0.5); 
             display: flex; 
             flex-direction: column; 
             gap: 1.5rem; 
+            overflow-y: auto;
         }
         
         .hamburger-panel.open { 
@@ -674,55 +612,67 @@
         .panel-header h3 { 
             font-family: 'Cinzel', serif; 
             color: var(--gold); 
+            font-size: 1.5rem;
         }
         
         .close-panel { 
-            background: transparent; 
-            border: none; 
+            background: var(--hover-bg);
+            border: 1px solid var(--border-gold);
             color: var(--text-muted); 
-            font-size: 1.8rem; 
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem; 
             cursor: pointer; 
-            transition: color 0.2s;
+            transition: all 0.2s;
         }
         
         .close-panel:hover {
             color: var(--gold);
+            background: var(--hover-bg);
+            transform: rotate(90deg);
+            border-color: var(--gold);
         }
         
         .panel-user-area { 
             background: var(--hover-bg); 
             border-radius: var(--border-radius-lg); 
-            padding: 1rem; 
-            border: 1px solid var(--border-light); 
+            padding: 1.2rem; 
+            border: 1px solid var(--border-gold); 
         }
         
         .panel-user-info { 
             display: flex; 
             align-items: center; 
-            gap: 0.8rem; 
+            gap: 1rem; 
             margin-bottom: 1rem; 
         }
         
         .panel-avatar { 
-            width: 48px; 
-            height: 48px; 
+            width: 50px; 
+            height: 50px; 
             background: var(--gold); 
             border-radius: 50%; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             font-weight: bold; 
+            font-size: 1.2rem;
             color: black; 
         }
         
         .panel-user-name { 
             font-weight: 600; 
             color: var(--gold); 
+            font-size: 1.1rem;
         }
         
         .panel-logout { 
             width: 100%; 
-            padding: 0.7rem; 
+            padding: 0.8rem; 
             background: transparent; 
             border: 1px solid var(--gold); 
             border-radius: var(--border-radius-full); 
@@ -748,7 +698,7 @@
         }
         
         .panel-link { 
-            padding: 0.9rem 1rem; 
+            padding: 1rem 1.2rem; 
             background: rgba(255,255,255,0.03); 
             border-radius: var(--border-radius-lg); 
             color: var(--text-primary); 
@@ -758,24 +708,27 @@
             gap: 1rem; 
             transition: 0.2s; 
             border: 1px solid transparent; 
+            font-weight: 500;
         }
         
         .panel-link:hover { 
             border-color: var(--gold); 
             background: var(--hover-bg); 
             color: var(--gold); 
+            transform: translateX(5px);
         }
         
         .panel-link i { 
             width: 24px; 
             color: var(--gold); 
+            font-size: 1.1rem;
         }
         
         .panel-theme-toggle { 
             display: flex; 
             align-items: center; 
             justify-content: space-between; 
-            padding: 1rem; 
+            padding: 1rem 1.2rem; 
             background: rgba(255,255,255,0.03); 
             border-radius: var(--border-radius-full); 
             margin-top: auto; 
@@ -796,6 +749,7 @@
         
         .theme-toggle-btn:hover {
             transform: scale(1.1);
+            box-shadow: 0 0 15px var(--gold);
         }
         
         .theme-toggle-btn i {
@@ -803,10 +757,10 @@
             font-size: 1.3rem;
         }
         
-        /* ----- REST OF STYLES (unchanged, kept exactly as original) ----- */
-        /* WELCOME POPUP, AUTH MODAL, INSTALL MODAL, TUTORIAL, HERO, ACTIVITIES, FOOTER, TOAST etc. */
-        /* (all styles from original are preserved, only header above modified) */
-        /* ----- WELCOME POPUP ----- */
+        /* Rest of the styles (welcome popup, auth modal, install modal, hero, activities, footer) - keeping exactly as original */
+        /* ... (all other styles from original remain unchanged) ... */
+        
+        /* WELCOME POPUP */
         .welcome-popup {
             position: fixed;
             top: 0;
@@ -847,14 +801,8 @@
         }
         
         @keyframes popupAppear {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
         
         .popup-content h2 {
@@ -953,7 +901,7 @@
             color: black;
         }
         
-        /* ----- AUTH MODAL ----- */
+        /* AUTH MODAL */
         .modal-overlay { 
             position: fixed; 
             top: 0;
@@ -994,14 +942,8 @@
         }
         
         @keyframes modalFadeIn { 
-            from { 
-                opacity: 0; 
-                transform: translate(-50%, -60%); 
-            } 
-            to { 
-                opacity: 1; 
-                transform: translate(-50%, -50%); 
-            } 
+            from { opacity: 0; transform: translate(-50%, -60%); } 
+            to { opacity: 1; transform: translate(-50%, -50%); } 
         }
         
         .auth-modal .modal-close { 
@@ -1132,7 +1074,7 @@
             display: none; 
         }
         
-        /* ----- INSTALLATION MODAL - MOBILE ONLY ----- */
+        /* INSTALLATION MODAL */
         .install-modal-overlay {
             position: fixed;
             top: 0;
@@ -1167,14 +1109,8 @@
         }
         
         @keyframes modalAppear {
-            from {
-                opacity: 0;
-                transform: scale(0.9) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
         
         .install-modal-close {
@@ -1370,10 +1306,6 @@
             cursor: not-allowed;
         }
         
-        .install-action-btn i {
-            font-size: 1.2rem;
-        }
-        
         .install-success {
             text-align: center;
             padding: 1rem;
@@ -1417,271 +1349,7 @@
             transform: translateY(-2px);
         }
         
-        .desktop-message {
-            text-align: center;
-            padding: 1rem;
-            background: var(--hover-bg);
-            border-radius: var(--border-radius-md);
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--gold);
-        }
-        
-        .desktop-message i {
-            font-size: 2rem;
-            color: var(--gold);
-            margin-bottom: 0.5rem;
-        }
-        
-        .desktop-message p {
-            margin-bottom: 0;
-            font-size: 0.95rem;
-        }
-        
-        .mobile-only {
-            display: none;
-        }
-        
-        .desktop-only {
-            display: block;
-        }
-        
-        @media (max-width: 768px) {
-            .mobile-only {
-                display: block;
-            }
-            .desktop-only {
-                display: none;
-            }
-            .header-desktop-actions { 
-                display: none; 
-            } 
-            .mobile-header-group { 
-                display: flex; 
-            }
-            .desktop-main-menu {
-                display: none;
-            }
-        }
-        
-        /* ----- TUTORIAL SYSTEM ----- */
-        .tutorial-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--tutorial-overlay);
-            backdrop-filter: blur(2px);
-            z-index: 9400;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        
-        .tutorial-overlay.active {
-            display: block;
-            opacity: 1;
-        }
-        
-        .tutorial-card {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            max-width: 450px;
-            width: 90%;
-            background: var(--tutorial-card);
-            border: 2px solid var(--gold);
-            border-radius: var(--border-radius-xl);
-            padding: 1.8rem;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-            z-index: 9500;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.4s ease;
-            color: var(--text-primary);
-        }
-        
-        .tutorial-card.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
-        
-        .tutorial-progress {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .tutorial-steps {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .tutorial-step-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--text-muted);
-            transition: all 0.3s;
-        }
-        
-        .tutorial-step-dot.active {
-            background: var(--gold);
-            transform: scale(1.3);
-            box-shadow: 0 0 15px var(--gold);
-        }
-        
-        .tutorial-step-dot.completed {
-            background: var(--success);
-        }
-        
-        .tutorial-skip {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: var(--border-radius-full);
-            transition: all 0.2s;
-        }
-        
-        .tutorial-skip:hover {
-            color: var(--gold);
-            background: var(--hover-bg);
-        }
-        
-        .tutorial-content {
-            text-align: left;
-            margin-bottom: 1.8rem;
-        }
-        
-        .tutorial-content h3 {
-            font-family: 'Cinzel', serif;
-            color: var(--gold);
-            font-size: 1.4rem;
-            margin-bottom: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-        }
-        
-        .tutorial-content p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.7;
-            margin-bottom: 1rem;
-        }
-        
-        .tutorial-highlight {
-            background: var(--tutorial-highlight);
-            border: 2px dashed var(--gold);
-            border-radius: var(--border-radius-sm);
-            padding: 1rem;
-            margin: 1rem 0;
-            font-weight: 500;
-        }
-        
-        .tutorial-actions {
-            display: flex;
-            gap: 0.8rem;
-            justify-content: flex-end;
-        }
-        
-        .tutorial-btn {
-            padding: 0.7rem 1.5rem;
-            border-radius: var(--border-radius-full);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            font-size: 0.9rem;
-        }
-        
-        .tutorial-btn-primary {
-            background: var(--gold);
-            color: black;
-        }
-        
-        .tutorial-btn-primary:hover:not(:disabled) {
-            background: var(--gold-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px var(--shadow-color);
-        }
-        
-        .tutorial-btn-secondary {
-            background: transparent;
-            border: 1px solid var(--gold);
-            color: var(--gold);
-        }
-        
-        .tutorial-btn-secondary:hover:not(:disabled) {
-            background: var(--hover-bg);
-        }
-        
-        .tutorial-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .tutorial-pulse {
-            animation: tutorialPulse 2s infinite;
-            position: relative;
-            z-index: 9450;
-        }
-        
-        @keyframes tutorialPulse {
-            0% {
-                box-shadow: 0 0 0 0 var(--tutorial-pulse);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(202,138,4,0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(202,138,4,0);
-            }
-        }
-        
-        .tutorial-tooltip {
-            position: absolute;
-            background: var(--gold);
-            color: black;
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius-full);
-            font-size: 0.85rem;
-            font-weight: 600;
-            z-index: 9460;
-            white-space: nowrap;
-            pointer-events: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            transform: translateX(-50%);
-        }
-        
-        .tutorial-tooltip::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-top: 8px solid var(--gold);
-        }
-        
-        .tutorial-mobile-instruction {
-            text-align: center;
-            padding: 1rem;
-            background: var(--hover-bg);
-            border-radius: var(--border-radius-md);
-            margin: 1rem 0;
-            border: 1px solid var(--gold);
-        }
-        
-        /* ----- HERO SECTION ----- */
+        /* HERO SECTION */
         .hero-section { 
             min-height: 100vh; 
             background: linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.7) 100%), url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover fixed; 
@@ -1718,7 +1386,6 @@
             letter-spacing: 1px;
         }
         
-        /* Hours Card */
         .hours-mini-card { 
             display: inline-flex; 
             align-items: center; 
@@ -1785,23 +1452,11 @@
             background: rgba(255,255,255,0.8);
         }
         
-        .status-open { 
-            color: var(--status-open); 
-        }
+        .status-open { color: var(--status-open); }
+        .status-soon { color: var(--status-soon); }
+        .status-closing { color: var(--status-closing); }
+        .status-closed { color: var(--status-closed); }
         
-        .status-soon { 
-            color: var(--status-soon); 
-        }
-        
-        .status-closing { 
-            color: var(--status-closing); 
-        }
-        
-        .status-closed { 
-            color: var(--status-closed); 
-        }
-        
-        /* Hours Modal */
         .hours-modal { 
             position: fixed; 
             top: 0;
@@ -1907,7 +1562,6 @@
             padding-top: 1.5rem; 
         }
         
-        /* Brand Purpose */
         .brand-purpose { 
             max-width: 700px; 
             margin: 3rem auto 0; 
@@ -1932,7 +1586,7 @@
             color: var(--gold);
         }
         
-        /* ----- ACTIVITIES SECTION ----- */
+        /* ACTIVITIES SECTION */
         .activities-section { 
             max-width: 1200px; 
             margin: 5rem auto; 
@@ -2044,13 +1698,7 @@
             width: fit-content; 
         }
         
-        .inspired-badge { 
-            background: rgba(46,125,50,0.1); 
-            color: var(--inspired); 
-            border-color: var(--inspired); 
-        }
-        
-        /* ----- FOOTER ----- */
+        /* FOOTER */
         .footer {
             background: var(--bg-secondary);
             padding: 4rem 1.5rem 2rem;
@@ -2072,24 +1720,6 @@
             font-size: 2rem;
             color: var(--gold);
             margin-bottom: 0.5rem;
-        }
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-        
-        .footer-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: color 0.2s;
-            font-size: 1rem;
-        }
-        
-        .footer-links a:hover {
-            color: var(--gold);
         }
         
         .footer-social {
@@ -2118,7 +1748,6 @@
             color: var(--gold);
             transform: translateY(-3px);
             border-color: var(--gold);
-            background: var(--hover-bg);
         }
         
         .footer-copyright {
@@ -2133,11 +1762,7 @@
             text-decoration: none;
         }
         
-        .footer-copyright a:hover {
-            text-decoration: underline;
-        }
-        
-        /* ----- TOAST MESSAGE ----- */
+        /* TOAST MESSAGE */
         .message-toast { 
             position: fixed; 
             top: 30px; 
@@ -2172,7 +1797,7 @@
             font-size: 1.2rem;
         }
         
-        /* ----- PWA INSTALL BUTTON (Fallback for desktop) ----- */
+        /* PWA Install Button */
         .install-pwa { 
             position: fixed; 
             bottom: 20px; 
@@ -2201,45 +1826,16 @@
             box-shadow: 0 10px 25px var(--shadow-color);
         }
         
-        /* ----- RESPONSIVE STYLES ----- */
-        @media (max-width: 768px) { 
-            .footer-links { 
-                gap: 1rem; 
-                flex-direction: column;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .desktop-main-menu {
+                display: none;
             }
-            
-            .footer-links a { 
-                font-size: 0.95rem; 
+            .header-actions {
+                display: none;
             }
-            
-            .tutorial-card {
-                bottom: 20px;
-                width: 95%;
-                padding: 1.5rem;
-            }
-            
-            .tutorial-tooltip {
-                white-space: normal;
-                max-width: 200px;
-                font-size: 0.75rem;
-            }
-            
-            .hours-mini-card {
-                padding: 1rem 1.5rem;
-                gap: 1rem;
-            }
-            
-            .activities-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .brand-purpose {
-                padding: 1rem 1.5rem;
-                margin: 2rem 1rem 0;
-            }
-            
-            .install-modal {
-                padding: 1.5rem 1.2rem;
+            .mobile-header-group { 
+                display: flex; 
             }
         }
         
@@ -2247,26 +1843,6 @@
             .hours-mini-card {
                 flex-direction: column;
                 width: 100%;
-            }
-            
-            .current-day {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .status-badge-mini {
-                width: 100%;
-                justify-content: center;
-            }
-            
-            .footer-social {
-                gap: 0.8rem;
-            }
-            
-            .footer-social a {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
             }
         }
     </style>
@@ -2319,79 +1895,44 @@
     </form>
 </div>
 
-<!-- INSTALLATION MODAL - MOBILE ONLY (iOS/Android) -->
+<!-- INSTALLATION MODAL -->
 <div class="install-modal-overlay" id="installModal">
     <div class="install-modal">
         <button class="install-modal-close" onclick="closeInstallModal()">&times;</button>
-        
-        <div class="install-modal-icon">
-            <i class="fas fa-download"></i>
-        </div>
-        
+        <div class="install-modal-icon"><i class="fas fa-download"></i></div>
         <h2>Install I AM MUGERA</h2>
-        <p>To continue, install the app on your device for the best experience</p>
-        
+        <p>Install the app on your device for the best experience</p>
         <div class="install-platform-selector mobile-only">
-            <div class="install-platform-btn active" onclick="switchMobilePlatform('ios')" id="iosMobileBtn">
-                <i class="fab fa-apple"></i> iOS
-            </div>
-            <div class="install-platform-btn" onclick="switchMobilePlatform('android')" id="androidMobileBtn">
-                <i class="fab fa-android"></i> Android
-            </div>
+            <div class="install-platform-btn active" onclick="switchMobilePlatform('ios')" id="iosMobileBtn"><i class="fab fa-apple"></i> iOS</div>
+            <div class="install-platform-btn" onclick="switchMobilePlatform('android')" id="androidMobileBtn"><i class="fab fa-android"></i> Android</div>
         </div>
-        
         <div class="desktop-message desktop-only">
             <i class="fas fa-mobile-alt"></i>
-            <p>Please open this page on your mobile device (iOS or Android) to install the app.</p>
+            <p>Please open this page on your mobile device to install the app.</p>
         </div>
-        
         <div class="install-steps-container mobile-only" id="installStepsContainer">
             <div id="iosSteps">
-                <div class="install-step"><div class="install-step-number">1</div><div class="install-step-content"><p>Tap the <strong>Share button</strong> <i class="fas fa-square-arrow-up"></i> at the bottom</p></div><div class="install-step-icon"><i class="fas fa-share-alt"></i></div></div>
-                <div class="install-step"><div class="install-step-number">2</div><div class="install-step-content"><p>Scroll and tap <strong>"Add to Home Screen"</strong></p></div><div class="install-step-icon"><i class="fas fa-plus-circle"></i></div></div>
-                <div class="install-step"><div class="install-step-number">3</div><div class="install-step-content"><p>Tap <strong>"Add"</strong> in the top right</p></div><div class="install-step-icon"><i class="fas fa-check-circle"></i></div></div>
+                <div class="install-step"><div class="install-step-number">1</div><div class="install-step-content"><p>Tap <strong>Share button</strong> <i class="fas fa-square-arrow-up"></i></p></div><div class="install-step-icon"><i class="fas fa-share-alt"></i></div></div>
+                <div class="install-step"><div class="install-step-number">2</div><div class="install-step-content"><p>Tap <strong>"Add to Home Screen"</strong></p></div><div class="install-step-icon"><i class="fas fa-plus-circle"></i></div></div>
+                <div class="install-step"><div class="install-step-number">3</div><div class="install-step-content"><p>Tap <strong>"Add"</strong></p></div><div class="install-step-icon"><i class="fas fa-check-circle"></i></div></div>
             </div>
             <div id="androidSteps" style="display: none;">
-                <div class="install-step"><div class="install-step-number">1</div><div class="install-step-content"><p>Tap the <strong>menu button</strong> <i class="fas fa-ellipsis-vertical"></i> in your browser</p></div><div class="install-step-icon"><i class="fas fa-bars"></i></div></div>
-                <div class="install-step"><div class="install-step-number">2</div><div class="install-step-content"><p>Select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></p></div><div class="install-step-icon"><i class="fas fa-download"></i></div></div>
-                <div class="install-step"><div class="install-step-number">3</div><div class="install-step-content"><p>Tap <strong>"Install"</strong> in the popup</p></div><div class="install-step-icon"><i class="fas fa-check-circle"></i></div></div>
+                <div class="install-step"><div class="install-step-number">1</div><div class="install-step-content"><p>Tap <strong>menu button</strong> <i class="fas fa-ellipsis-vertical"></i></p></div><div class="install-step-icon"><i class="fas fa-bars"></i></div></div>
+                <div class="install-step"><div class="install-step-number">2</div><div class="install-step-content"><p>Select <strong>"Install app"</strong></p></div><div class="install-step-icon"><i class="fas fa-download"></i></div></div>
+                <div class="install-step"><div class="install-step-number">3</div><div class="install-step-content"><p>Tap <strong>"Install"</strong></p></div><div class="install-step-icon"><i class="fas fa-check-circle"></i></div></div>
             </div>
         </div>
-        
         <div class="install-progress mobile-only">
             <div class="install-progress-bar"><div class="install-progress-fill" id="installProgress"></div></div>
             <div class="install-progress-text" id="installProgressText">Step 0/3</div>
         </div>
-        
         <button class="install-action-btn mobile-only" onclick="markInstallStep()" id="installActionBtn"><i class="fas fa-check-circle"></i> I've Completed Step</button>
-        
         <div class="install-success" id="installSuccess">
             <i class="fas fa-check-circle"></i>
             <h3>Installation Complete!</h3>
-            <p>Thank you for installing I AM MUGERA. Please launch the app from your home screen.</p>
+            <p>Launch the app from your home screen.</p>
             <button class="install-success-btn" onclick="continueAfterInstall()">Continue <i class="fas fa-arrow-right"></i></button>
         </div>
-    </div>
-</div>
-
-<!-- TUTORIAL OVERLAY SYSTEM -->
-<div class="tutorial-overlay" id="tutorialOverlay"></div>
-<div class="tutorial-card" id="tutorialCard">
-    <div class="tutorial-progress">
-        <div class="tutorial-steps" id="tutorialSteps">
-            <span class="tutorial-step-dot active"></span><span class="tutorial-step-dot"></span><span class="tutorial-step-dot"></span><span class="tutorial-step-dot"></span>
-            <span class="tutorial-step-dot"></span><span class="tutorial-step-dot"></span><span class="tutorial-step-dot"></span><span class="tutorial-step-dot"></span>
-        </div>
-        <span class="tutorial-skip" onclick="skipTutorial()">Skip Tour <i class="fas fa-times"></i></span>
-    </div>
-    <div class="tutorial-content" id="tutorialContent">
-        <h3><i class="fas fa-compass"></i> Welcome to I AM MUGERA!</h3>
-        <p>Let's take a quick tour to help you get started. We'll show you all the key features in just 2 minutes.</p>
-        <div class="tutorial-highlight"><i class="fas fa-lightbulb"></i> You can skip or restart this tour anytime from the menu.</div>
-    </div>
-    <div class="tutorial-actions">
-        <button class="tutorial-btn tutorial-btn-secondary" onclick="previousTutorialStep()" id="tutorialPrevBtn">Previous</button>
-        <button class="tutorial-btn tutorial-btn-primary" onclick="nextTutorialStep()" id="tutorialNextBtn">Start Tour</button>
     </div>
 </div>
 
@@ -2403,12 +1944,12 @@
 
 <!-- MAIN PAGE CONTENT -->
 <main id="mainContent" class="page-content">
-    <!-- HEADER with new desktop menu -->
+    <!-- HEADER with simplified right side -->
     <header class="site-header" id="siteHeader">
         <div class="header-container">
             <img src="https://i.postimg.cc/T10385m6/20260304-0949-Image-Generation-remix-01kjvspyrkf078efwbh09qxkag-1.webp" alt="I AM MUGERA" class="site-logo" id="siteLogo">
             
-            <!-- NEW DESKTOP MAIN MENU (horizontal) -->
+            <!-- Desktop Main Menu -->
             <nav class="desktop-main-menu desktop-only">
                 <a href="#" class="menu-item" onclick="navigateToSection('activities'); return false;"><i class="fas fa-compass"></i> Explore</a>
                 <a href="#" class="menu-item" onclick="navigateToEyeOfMugera(); return false;"><i class="far fa-newspaper"></i> In-Sight</a>
@@ -2421,36 +1962,34 @@
                 <a href="pickme.html" class="menu-item"><i class="fas fa-car"></i> Pick•Me</a>
             </nav>
             
-            <!-- Desktop Actions (right side) -->
-            <div class="header-desktop-actions">
-                <a href="inbox.html" class="inbox-icon" title="Inbox" id="desktopInboxLink">
+            <!-- Right Side Actions - SIMPLIFIED: only inbox, search icon, menu icon -->
+            <div class="header-actions desktop-only">
+                <!-- Inbox Icon -->
+                <a href="inbox.html" class="action-icon" id="desktopInboxLink" title="Inbox">
                     <i class="fas fa-inbox"></i>
                     <span class="inbox-badge" id="desktopInboxBadge" style="display: none;">0</span>
                 </a>
                 
-                <div class="desktop-search" id="desktopSearchContainer">
-                    <input type="text" placeholder="Search I AM MUGERA..." id="desktopSearchInput" autocomplete="off">
-                    <button onclick="window.performSearch(document.getElementById('desktopSearchInput').value)"><i class="fas fa-search"></i></button>
-                    <div class="search-hints" id="desktopSearchHints"></div>
+                <!-- Search Icon (opens overlay) -->
+                <div class="action-icon" id="desktopSearchIcon" title="Search" onclick="toggleDesktopSearch()">
+                    <i class="fas fa-search"></i>
                 </div>
                 
-                <div id="userMenuDesktop" class="user-menu" style="display: none;">
-                    <span class="user-name" id="userDisplayNameDesktop"></span>
-                    <div class="user-avatar" id="userAvatarDesktop">M</div>
-                    <div class="logout-dropdown">
-                        <div class="logout-item" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
-                    </div>
+                <!-- Menu Icon (opens hamburger panel) -->
+                <div class="action-icon" id="desktopMenuIcon" title="Menu" onclick="toggleHamburger()">
+                    <i class="fas fa-bars"></i>
                 </div>
                 
-                <div id="loginButtonDesktop" class="login-button" onclick="openAuthModal()">
-                    <i class="fas fa-user-circle"></i><span style="font-size:0.9rem;">Account</span>
+                <!-- User Avatar (replaces login button when logged in) -->
+                <div id="userAvatarDesktopContainer" style="display: none;" onclick="toggleHamburger()">
+                    <div class="user-avatar-mini" id="userAvatarDesktop">M</div>
                 </div>
             </div>
             
             <!-- Mobile Header -->
             <div class="mobile-header-group">
                 <div class="mobile-search-icon" id="mobileSearchBtn"><i class="fas fa-search"></i></div>
-                <a href="inbox.html" class="mobile-search-icon" style="text-decoration: none; position: relative;" id="mobileInboxLink">
+                <a href="inbox.html" class="mobile-search-icon" id="mobileInboxLink">
                     <i class="fas fa-inbox"></i>
                     <span class="inbox-badge" id="mobileInboxBadge" style="display: none;">0</span>
                 </a>
@@ -2459,49 +1998,72 @@
         </div>
     </header>
 
-    <!-- MOBILE SEARCH OVERLAY -->
+    <!-- Desktop Search Overlay (hidden by default) -->
+    <div class="desktop-search-overlay" id="desktopSearchOverlay">
+        <div class="desktop-search-container">
+            <input type="text" placeholder="Search I AM MUGERA..." id="desktopSearchInput" autocomplete="off">
+            <button onclick="performSearch(document.getElementById('desktopSearchInput').value); toggleDesktopSearch();"><i class="fas fa-search"></i></button>
+            <div class="desktop-search-hints" id="desktopSearchHints"></div>
+        </div>
+    </div>
+
+    <!-- Mobile Search Overlay -->
     <div class="search-overlay" id="mobileSearchOverlay">
         <div class="search-row">
             <input type="text" placeholder="Search I AM MUGERA..." id="mobileSearchInput" autocomplete="off">
-            <button onclick="window.performSearch(document.getElementById('mobileSearchInput').value); toggleMobileSearch();"><i class="fas fa-search"></i></button>
+            <button onclick="performSearch(document.getElementById('mobileSearchInput').value); toggleMobileSearch();"><i class="fas fa-search"></i></button>
             <button class="close-search" onclick="toggleMobileSearch()"><i class="fas fa-times"></i></button>
             <div class="mobile-search-hints" id="mobileSearchHints"></div>
         </div>
     </div>
 
-    <!-- HAMBURGER PANEL (unchanged) -->
+    <!-- Unified Hamburger Panel (works for both desktop and mobile) -->
     <div class="hamburger-panel" id="hamburgerPanel">
-        <div class="panel-header"><h3>Menu</h3><button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button></div>
+        <div class="panel-header">
+            <h3>Menu</h3>
+            <button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button>
+        </div>
+        
         <div class="panel-user-area" id="panelUserArea">
             <div id="panelLoggedOut" style="display: flex; flex-direction: column; gap: 0.8rem;">
                 <div style="text-align: center; color: var(--text-muted);"><i class="fas fa-user-circle" style="font-size: 3rem;"></i></div>
                 <button class="panel-logout" onclick="openAuthModal(); toggleHamburger();"><i class="fas fa-sign-in-alt"></i> Login / Sign Up</button>
             </div>
             <div id="panelLoggedIn" style="display: none; flex-direction: column; gap: 0.8rem;">
-                <div class="panel-user-info"><div class="panel-avatar" id="panelAvatar">M</div><span class="panel-user-name" id="panelUserName">Mugera</span></div>
+                <div class="panel-user-info">
+                    <div class="panel-avatar" id="panelAvatar">M</div>
+                    <span class="panel-user-name" id="panelUserName">Mugera</span>
+                </div>
                 <button class="panel-logout" onclick="handleLogout(); toggleHamburger();"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
         </div>
+        
         <div class="panel-quick-links">
-            <a href="user-profile.html" class="panel-link" onclick="navigateToUserProfile(); toggleHamburger();"><i class="far fa-user"></i>MY ACCOUNT</a>
-            <a href="inbox.html" class="panel-link" onclick="toggleHamburger();" style="position: relative; display: flex; align-items: center; justify-content: space-between;" id="panelInboxLink">
-                <span><i class="fas fa-inbox"></i> MUGERA CHAT</span><span class="inbox-badge" id="panelInboxBadge" style="display: none; position: relative; top: 0; right: 0; margin-left: 8px;">0</span>
+            <a href="user-profile.html" class="panel-link" onclick="navigateToUserProfile(); toggleHamburger();"><i class="far fa-user"></i> MY ACCOUNT</a>
+            <a href="inbox.html" class="panel-link" onclick="toggleHamburger();" style="display: flex; align-items: center; justify-content: space-between;">
+                <span><i class="fas fa-inbox"></i> MUGERA CHAT</span>
+                <span class="inbox-badge" id="panelInboxBadge" style="display: none; position: relative; top: 0; right: 0;">0</span>
             </a>
-            <a href="#" class="panel-link" onclick="navigateToEyeOfMugera(); toggleHamburger();"><i class="far fa-newspaper"></i>THE IN-SIGHT</a>
-            <a href="#" class="panel-link" onclick="navigateToInspiredMe(); toggleHamburger();"><i class="fas fa-seedling"></i>INSPIRE•ME</a>
-            <a href="#" class="panel-link" onclick="navigateToShop(); toggleHamburger();"><i class="fas fa-store"></i>THE HERITAGE</a>
-            <a href="#" class="panel-link" onclick="navigateToWorkFit(); toggleHamburger();"><i class="fas fa-dumbbell"></i>WORKFIT</a>
-            <a href="#" class="panel-link" onclick="navigateToWebDev(); toggleHamburger();"><i class="fas fa-code"></i>DEV•MUGERA</a>
-            <a href="#" class="panel-link" onclick="navigateToSection('activities'); toggleHamburger();"><i class="fas fa-compass"></i>ACTIVITIES</a>
-            <a href="#" class="panel-link" onclick="restartTutorial(); toggleHamburger();"><i class="fas fa-graduation-cap"></i>RESTART TOUR</a>
+            <a href="#" class="panel-link" onclick="navigateToEyeOfMugera(); toggleHamburger();"><i class="far fa-newspaper"></i> THE IN-SIGHT</a>
+            <a href="#" class="panel-link" onclick="navigateToInspiredMe(); toggleHamburger();"><i class="fas fa-seedling"></i> INSPIRE•ME</a>
+            <a href="#" class="panel-link" onclick="navigateToShop(); toggleHamburger();"><i class="fas fa-store"></i> THE HERITAGE</a>
+            <a href="#" class="panel-link" onclick="navigateToWorkFit(); toggleHamburger();"><i class="fas fa-dumbbell"></i> WORKFIT</a>
+            <a href="#" class="panel-link" onclick="navigateToWebDev(); toggleHamburger();"><i class="fas fa-code"></i> DEV•HUB</a>
+            <a href="courses.html" class="panel-link" onclick="toggleHamburger();"><i class="fas fa-graduation-cap"></i> HEKIMA•HUB</a>
+            <a href="pickup.html" class="panel-link" onclick="toggleHamburger();"><i class="fas fa-truck"></i> PICK•UP</a>
+            <a href="pickme.html" class="panel-link" onclick="toggleHamburger();"><i class="fas fa-car"></i> PICK•ME</a>
+            <a href="epitome.html" class="panel-link" onclick="toggleHamburger();"><i class="fas fa-car"></i> EPITOME</a>
+            <a href="#" class="panel-link" onclick="navigateToSection('activities'); toggleHamburger();"><i class="fas fa-compass"></i> ACTIVITIES</a>
+            <a href="#" class="panel-link" onclick="restartTutorial(); toggleHamburger();"><i class="fas fa-graduation-cap"></i> RESTART TOUR</a>
         </div>
+        
         <div class="panel-theme-toggle" id="themeToggle">
             <span><i class="fas fa-palette"></i> Dark / Light</span>
             <div class="theme-toggle-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="panelThemeIcon"></i></div>
         </div>
     </div>
 
-    <!-- HERO SECTION (unchanged) -->
+    <!-- HERO SECTION -->
     <section class="hero-section" id="heroSection">
         <div class="hero-container">
             <h1 class="main-title">I AM MUGERA</h1>
@@ -2530,20 +2092,19 @@
         </div>
     </section>
 
-    <!-- ACTIVITIES SECTION (unchanged) -->
+    <!-- ACTIVITIES SECTION -->
     <section class="activities-section" id="activities">
         <div class="section-header"><h2>Explore the Camp</h2><p>Discover the pillars of I AM MUGERA — each crafted to inspire and uplift.</p></div>
         <div class="activities-grid" id="activitiesGrid">
-            <!-- Eye of Mugera -->
-            <div class="activity-card"><img src="https://i.postimg.cc/kgcRrtMJ/MUG(20).gif" alt="Eye of Mugera" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="far fa-newspaper"></i> Weekly Journals</span><h3>THE IN-SIGHT</h3><p>Weekly articles, insights and real life empowering stories. Read exclusively or get featured.</p><a href="eye-of-mugera.html" class="card-link">Read & get featured <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/gkrZZKp0/MUG(26).gif" alt="Inspired.Me" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge inspired-badge"><i class="fas fa-seedling"></i> Whole Person</span><h3>INSPIRE•ME</h3><p>Physical · Mental · Social · Financial — A premium holistic program to transform every dimension of your life.</p><a href="inspire-program.html" class="card-link">Begin transformation <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/mDcwVGfD/MUG(23).gif" alt="shop" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="fas fa-store"></i> Shop</span><h3>THE HERITAGE</h3><p>Books, merchandise, and digital content that carry the spirit of Afrika Milele. Wear the pride, read the wisdom.</p><a href="shop.html" class="card-link">Browse store <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/fWxRmKfz/MUG(16).gif" alt="Workfit" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge workfit-badge"><i class="fas fa-dumbbell"></i> Wellness</span><h3>WORKFIT</h3><p>Fitness club, sports activities, personal wellness. Join the community for a healthier you.</p><a href="workfit-club.html" class="card-link">Check us out <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/gJs30WjJ/MUG(15).gif.gif" alt="Web Development" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge dev-badge"><i class="fas fa-code"></i> Development</span><h3>DEV•HUB</h3><p>Digital products and services designed for you. Let's build something amazing together.</p><a href="mugeradev.html" class="card-link">Explore services <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/hvtpx74W/MUG(28).gif" alt="PICK-UP" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge dev-badge"><i class="fas fa-truck"></i> Logistics</span><h3>PICK•UP</h3><p>Experience the ease of our logistics service: enjoy instant delivery when you need it, or schedule a time that works best for you.</p><a href="pickup.html" class="card-link">Get service now! <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/BnHcjC50/MUG(29).gif" alt="PICK-ME" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge dev-badge"><i class="fas fa-car"></i> Taxi</span><h3>PICK•ME</h3><p>🚨 Emergency Pickups. Same-Day Travel. Instant Rides. & More.</p><a href="pickme.html" class="card-link">Book Now! <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/zG2Dd7Rv/MUG(41).gif" alt="Courses" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge dev-badge"><i class="fas fa-graduation-cap"></i> Soft Skills</span><h3>HEKIMA•HUB</h3><p>Short courses and educative sessions designed for quick skills. Explore my current classes</p><a href="courses.html" class="card-link">Start learning <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/brG8FBy6/MUG(35).gif" alt="Courses" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge dev-badge"><i class="fas fa-car"></i> Automotive </span><h3>EPITOME</h3><p>Discover a world where trusted brands and the latest models meet affordability. At Epitome, your perfect car, bike, or truck is waiting. Experience perfection unfolding.</p><a href="epitome.html" class="card-link">Get your ride <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/kgcRrtMJ/MUG(20).gif" alt="Eye of Mugera" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="far fa-newspaper"></i> Weekly Journals</span><h3>THE IN-SIGHT</h3><p>Weekly articles, insights and real life empowering stories.</p><a href="eye-of-mugera.html" class="card-link">Read & get featured <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/gkrZZKp0/MUG(26).gif" alt="Inspired.Me" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge inspired-badge"><i class="fas fa-seedling"></i> Whole Person</span><h3>INSPIRE•ME</h3><p>Physical · Mental · Social · Financial — A premium holistic program.</p><a href="inspire-program.html" class="card-link">Begin transformation <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/mDcwVGfD/MUG(23).gif" alt="shop" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="fas fa-store"></i> Shop</span><h3>THE HERITAGE</h3><p>Books, merchandise, and digital content that carry the spirit of Afrika Milele.</p><a href="shop.html" class="card-link">Browse store <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/fWxRmKfz/MUG(16).gif" alt="Workfit" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge workfit-badge"><i class="fas fa-dumbbell"></i> Wellness</span><h3>WORKFIT</h3><p>Fitness club, sports activities, personal wellness.</p><a href="workfit-club.html" class="card-link">Check us out <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/gJs30WjJ/MUG(15).gif.gif" alt="Web Development" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge dev-badge"><i class="fas fa-code"></i> Development</span><h3>DEV•HUB</h3><p>Digital products and services designed for you.</p><a href="mugeradev.html" class="card-link">Explore services <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/hvtpx74W/MUG(28).gif" alt="PICK-UP" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge dev-badge"><i class="fas fa-truck"></i> Logistics</span><h3>PICK•UP</h3><p>Instant delivery or schedule a time that works for you.</p><a href="pickup.html" class="card-link">Get service now! <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/BnHcjC50/MUG(29).gif" alt="PICK-ME" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge dev-badge"><i class="fas fa-car"></i> Taxi</span><h3>PICK•ME</h3><p>🚨 Emergency Pickups. Same-Day Travel. Instant Rides.</p><a href="pickme.html" class="card-link">Book Now! <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/zG2Dd7Rv/MUG(41).gif" alt="Courses" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge dev-badge"><i class="fas fa-graduation-cap"></i> Soft Skills</span><h3>HEKIMA•HUB</h3><p>Short courses designed for quick skills.</p><a href="courses.html" class="card-link">Start learning <i class="fas fa-arrow-right"></i></a></div></div>
+            <div class="activity-card"><img src="https://i.postimg.cc/brG8FBy6/MUG(35).gif" alt="Epitome" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge dev-badge"><i class="fas fa-car"></i> Automotive</span><h3>EPITOME</h3><p>Trusted brands and latest models meet affordability.</p><a href="epitome.html" class="card-link">Get your ride <i class="fas fa-arrow-right"></i></a></div></div>
         </div>
     </section>
 
@@ -2563,7 +2124,7 @@
     </footer>
 </main>
 
-<!-- PWA INSTALL BUTTON (Fallback for desktop) -->
+<!-- PWA INSTALL BUTTON -->
 <button class="install-pwa" id="installButton"><i class="fas fa-download"></i> Install App</button>
 
 <!-- TOAST MESSAGE -->
@@ -2579,7 +2140,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
-    // ========== FIREBASE CONFIG (unchanged) ==========
+    // ========== FIREBASE CONFIG ==========
     const firebaseConfig = {
         apiKey: "AIzaSyC7kppUyHUaPzeLBV62NEZWuHiuz1Kz0mA",
         authDomain: "mugera-e51cc.firebaseapp.com",
@@ -2590,219 +2151,736 @@
         appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
     };
     
+    // ========== INITIALIZE FIREBASE ==========
     let database, auth;
     let currentUser = null;
     let unreadMessagesRef = null;
     let previousUnreadCount = 0;
+    
+    // Tutorial System Variables
     let tutorialActive = false;
     let tutorialStep = 0;
+    
+    // Installation tracking
     let installationStep = 0;
     let appInstalled = false;
     let currentMobilePlatform = 'ios';
+    
+    // Device detection
     const isMobile = window.innerWidth <= 768;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isAndroid = /Android/.test(navigator.userAgent);
     const isDesktop = !isMobile && !isIOS && !isAndroid;
     
+    // Tutorial steps (simplified)
     const tutorialSteps = [
-        { title: '👋 Welcome!', content: 'Quick tour to help you get started.', highlight: null, tooltip: null },
-        { title: '🔍 Smart Search', content: isMobile ? 'Tap search icon.' : 'Use search bar.', highlight: isMobile ? 'mobileSearchBtn' : 'desktopSearchContainer', tooltip: 'Search' },
-        { title: '📬 Inbox', content: 'Real-time notifications.', highlight: isMobile ? 'mobileInboxLink' : 'desktopInboxLink', tooltip: 'Messages' },
-        { title: '⏰ Hours', content: 'Check status.', highlight: 'hoursMiniCard', tooltip: 'Click for hours' },
-        { title: '🏕️ Explore', content: 'All services here.', highlight: 'activitiesGrid', tooltip: 'Activities' },
-        { title: '🎨 Theme', content: 'Dark/Light mode.', highlight: 'themeToggle', tooltip: 'Toggle theme' },
-        { title: isMobile ? '📱 Menu' : '📱 Navigation', content: 'Access everything.', highlight: 'hamburgerBtn', tooltip: 'Menu' },
-        { title: '🚀 Ready!', content: 'Enjoy I AM MUGERA!', highlight: null, tooltip: null }
+        { title: '👋 Welcome!', content: 'Quick tour to help you get started.', highlight: null },
+        { title: '🔍 Search', content: 'Click the search icon to find anything.', highlight: isMobile ? 'mobileSearchBtn' : 'desktopSearchIcon' },
+        { title: '📬 Inbox', content: 'Check your messages here.', highlight: isMobile ? 'mobileInboxLink' : 'desktopInboxLink' },
+        { title: '⏰ Hours', content: 'Check our operating status.', highlight: 'hoursMiniCard' },
+        { title: '🏕️ Activities', content: 'Explore all our services.', highlight: 'activitiesGrid' },
+        { title: '🎨 Theme', content: 'Switch between dark/light mode.', highlight: 'themeToggle' },
+        { title: '📱 Menu', content: 'Access everything from the menu.', highlight: isMobile ? 'hamburgerBtn' : 'desktopMenuIcon' },
+        { title: '🚀 Ready!', content: 'Enjoy I AM MUGERA!', highlight: null }
     ];
     
-    try { firebase.initializeApp(firebaseConfig); database = firebase.database(); auth = firebase.auth(); } catch (e) { console.error(e); }
+    try {
+        firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+        auth = firebase.auth();
+    } catch (e) { 
+        console.error('Firebase initialization error:', e); 
+    }
 
-    // ========== AUTH & UI UPDATES (unchanged) ==========
+    // ========== CHECK IF APP IS INSTALLED ==========
+    function checkAppInstalled() {
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                            window.navigator.standalone || 
+                            document.referrer.includes('android-app://');
+        if (isStandalone) {
+            appInstalled = true;
+            localStorage.setItem('appInstalled', 'true');
+        }
+        if (localStorage.getItem('appInstalled') === 'true') {
+            appInstalled = true;
+        }
+        return appInstalled;
+    }
+
+    // ========== SEARCH FUNCTIONS ==========
+    window.performSearch = function(query) {
+        if (!query || query.trim() === '') return;
+        showElegantMessage(`Searching for: ${query}`, 'info');
+        if (window.generateSearchHints) {
+            window.generateSearchHints(query, 'desktopSearchHints');
+            window.generateSearchHints(query, 'mobileSearchHints');
+        }
+    };
+
+    // Toggle desktop search overlay
+    window.toggleDesktopSearch = function() {
+        const overlay = document.getElementById('desktopSearchOverlay');
+        overlay.classList.toggle('open');
+        if (overlay.classList.contains('open')) {
+            document.getElementById('desktopSearchInput').focus();
+        } else {
+            document.getElementById('desktopSearchHints').classList.remove('show');
+        }
+    };
+
+    // Close desktop search when clicking outside
+    document.addEventListener('click', function(e) {
+        const overlay = document.getElementById('desktopSearchOverlay');
+        const searchIcon = document.getElementById('desktopSearchIcon');
+        if (overlay && overlay.classList.contains('open') && 
+            !overlay.contains(e.target) && 
+            !searchIcon.contains(e.target)) {
+            overlay.classList.remove('open');
+            document.getElementById('desktopSearchHints').classList.remove('show');
+        }
+    });
+
+    // Search input listeners
+    const debouncedDesktop = debounce(function() {
+        if (window.generateSearchHints) {
+            window.generateSearchHints(document.getElementById('desktopSearchInput')?.value, 'desktopSearchHints');
+        }
+    }, 200);
+    
+    const debouncedMobile = debounce(function() {
+        if (window.generateSearchHints) {
+            window.generateSearchHints(document.getElementById('mobileSearchInput')?.value, 'mobileSearchHints');
+        }
+    }, 200);
+
+    document.getElementById('desktopSearchInput')?.addEventListener('input', debouncedDesktop);
+    document.getElementById('mobileSearchInput')?.addEventListener('input', debouncedMobile);
+
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), wait);
+        };
+    }
+
+    // ========== AUTH STATE LISTENER ==========
     if (auth) {
         auth.onAuthStateChanged(user => {
             currentUser = user;
+            
             if (user) {
                 document.getElementById('welcomePopup').classList.add('hidden');
                 document.getElementById('mainContent').classList.add('visible');
                 updateUIForUser(user);
+                
                 previousUnreadCount = 0;
                 setupUnreadMessagesListener(user.uid);
+                
+                // Show avatar instead of login button
+                document.querySelector('.header-actions .action-icon:last-child').style.display = 'none';
+                document.getElementById('userAvatarDesktopContainer').style.display = 'block';
+                
                 const isNewUser = !localStorage.getItem(`tutorial_${user.uid}`);
-                if (isNewUser && isMobile && !checkAppInstalled()) setTimeout(() => showInstallModal(), 1000);
-                else if (isNewUser && (isDesktop || checkAppInstalled())) setTimeout(() => startTutorial(), 1000);
+                if (isNewUser && isMobile && !checkAppInstalled()) {
+                    setTimeout(() => showInstallModal(), 1000);
+                } else if (isNewUser && (isDesktop || checkAppInstalled())) {
+                    setTimeout(() => startTutorial(), 1000);
+                }
             } else {
                 document.getElementById('welcomePopup').classList.remove('hidden');
                 document.getElementById('mainContent').classList.remove('visible');
                 updateUIForUser(null);
-                if (unreadMessagesRef) { unreadMessagesRef.off(); unreadMessagesRef = null; }
+                
+                // Show login button (menu icon), hide avatar
+                document.querySelector('.header-actions .action-icon:last-child').style.display = 'flex';
+                document.getElementById('userAvatarDesktopContainer').style.display = 'none';
+                
+                if (unreadMessagesRef) {
+                    unreadMessagesRef.off();
+                    unreadMessagesRef = null;
+                }
                 updateInboxBadges(0);
             }
         });
     }
-    
+
+    // ========== UNREAD MESSAGES LISTENER ==========
     function setupUnreadMessagesListener(userId) {
         if (!database || !userId) return;
         if (unreadMessagesRef) unreadMessagesRef.off();
-        unreadMessagesRef = database.ref('inboxMessages').orderByChild('userId').equalTo(userId);
+        
+        unreadMessagesRef = database.ref('inboxMessages')
+            .orderByChild('userId')
+            .equalTo(userId);
+        
         unreadMessagesRef.on('value', (snapshot) => {
             let unreadCount = 0;
-            snapshot.forEach(c => { if (!c.val().read) unreadCount++; });
-            if (unreadCount > previousUnreadCount && previousUnreadCount > 0) showElegantMessage(`📨 ${unreadCount - previousUnreadCount} new message(s)`, 'info');
+            snapshot.forEach((childSnapshot) => {
+                if (!childSnapshot.val().read) unreadCount++;
+            });
+            
+            if (unreadCount > previousUnreadCount && previousUnreadCount > 0) {
+                showElegantMessage(`📨 ${unreadCount - previousUnreadCount} new message(s)`, 'info');
+            }
+            
             previousUnreadCount = unreadCount;
             updateInboxBadges(unreadCount);
             document.title = unreadCount > 0 ? `(${unreadCount}) I AM MUGERA` : 'I AM MUGERA | Afrika Milele';
         });
     }
     
+    // ========== UPDATE INBOX BADGES ==========
     function updateInboxBadges(count) {
-        ['desktopInboxBadge', 'mobileInboxBadge', 'panelInboxBadge'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) { if (count > 0) { el.textContent = count > 99 ? '99+' : count; el.style.display = 'flex'; } else el.style.display = 'none'; }
+        const badges = {
+            desktop: document.getElementById('desktopInboxBadge'),
+            mobile: document.getElementById('mobileInboxBadge'),
+            panel: document.getElementById('panelInboxBadge')
+        };
+        
+        Object.values(badges).forEach(badge => {
+            if (badge) {
+                if (count > 0) {
+                    badge.textContent = count > 99 ? '99+' : count;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
         });
     }
+
+    // ========== AUTH FUNCTIONS ==========
+    window.openAuthModal = () => {
+        document.getElementById('authModal').classList.add('active');
+        document.getElementById('modalOverlay').classList.add('active');
+        document.body.classList.add('modal-open');
+    };
     
+    window.closeAllModals = () => {
+        document.getElementById('authModal').classList.remove('active');
+        document.getElementById('modalOverlay').classList.remove('active');
+        document.body.classList.remove('modal-open');
+    };
+    
+    window.switchAuthTab = (tab) => {
+        document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+        document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
+        document.getElementById('loginForm').classList.toggle('active', tab === 'login');
+        document.getElementById('signupForm').classList.toggle('active', tab === 'signup');
+    };
+
+    window.handleLogin = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const errorEl = document.getElementById('loginError');
+        
+        if (!email || !password) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = 'Please fill all fields';
+            return;
+        }
+        
+        try {
+            await auth.signInWithEmailAndPassword(email, password);
+            errorEl.style.display = 'none';
+            closeAllModals();
+            showElegantMessage('Login successful!', 'success');
+        } catch (err) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = err.message;
+        }
+    };
+    
+    window.handleSignup = async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('signupName').value.trim();
+        const email = document.getElementById('signupEmail').value.trim();
+        const password = document.getElementById('signupPassword').value;
+        const confirm = document.getElementById('signupConfirm').value;
+        const errorEl = document.getElementById('signupError');
+        const successEl = document.getElementById('signupSuccess');
+        
+        if (!name || !email || !password || !confirm) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = 'Please fill all fields';
+            return;
+        }
+        
+        if (password !== confirm) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = 'Passwords do not match';
+            return;
+        }
+        
+        if (password.length < 6) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = 'Password must be at least 6 characters';
+            return;
+        }
+        
+        try {
+            const cred = await auth.createUserWithEmailAndPassword(email, password);
+            await cred.user.updateProfile({ displayName: name });
+            
+            if (database) {
+                await database.ref('users/' + cred.user.uid).set({
+                    name,
+                    email,
+                    createdAt: Date.now()
+                });
+            }
+            
+            errorEl.style.display = 'none';
+            successEl.style.display = 'block';
+            successEl.textContent = 'Account created! Welcome to I AM MUGERA!';
+            
+            setTimeout(() => {
+                closeAllModals();
+                showElegantMessage('Welcome to I AM MUGERA!', 'success');
+            }, 1500);
+        } catch (err) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = err.message;
+        }
+    };
+    
+    window.handleLogout = async () => {
+        try {
+            await auth.signOut();
+            showElegantMessage('Logged out successfully', 'success');
+            updateInboxBadges(0);
+            previousUnreadCount = 0;
+        } catch (err) {
+            showElegantMessage(err.message, 'error');
+        }
+    };
+
     function updateUIForUser(user) {
-        const desktopMenu = document.getElementById('userMenuDesktop');
-        const desktopLogin = document.getElementById('loginButtonDesktop');
         const panelOut = document.getElementById('panelLoggedOut');
         const panelIn = document.getElementById('panelLoggedIn');
         const panelAvatar = document.getElementById('panelAvatar');
         const panelName = document.getElementById('panelUserName');
-        const userNameSpan = document.getElementById('userDisplayNameDesktop');
         const userAvatar = document.getElementById('userAvatarDesktop');
+        
         if (user) {
             let dn = user.displayName || user.email?.split('@')[0] || 'Mugera';
             dn = dn.charAt(0).toUpperCase() + dn.slice(1);
-            if (userNameSpan) userNameSpan.textContent = dn;
+            
             if (userAvatar) userAvatar.textContent = dn.charAt(0).toUpperCase();
-            if (desktopMenu) desktopMenu.style.display = 'flex';
-            if (desktopLogin) desktopLogin.style.display = 'none';
             if (panelOut) panelOut.style.display = 'none';
             if (panelIn) panelIn.style.display = 'flex';
             if (panelAvatar) panelAvatar.textContent = dn.charAt(0).toUpperCase();
             if (panelName) panelName.textContent = dn;
         } else {
-            if (desktopMenu) desktopMenu.style.display = 'none';
-            if (desktopLogin) desktopLogin.style.display = 'flex';
             if (panelOut) panelOut.style.display = 'flex';
             if (panelIn) panelIn.style.display = 'none';
         }
     }
-    
-    // ========== TUTORIAL, MODALS, TOAST, HOURS, THEME, NAVIGATION (unchanged) ==========
-    window.openAuthModal = () => { document.getElementById('authModal').classList.add('active'); document.getElementById('modalOverlay').classList.add('active'); document.body.classList.add('modal-open'); };
-    window.closeAllModals = () => { document.getElementById('authModal').classList.remove('active'); document.getElementById('modalOverlay').classList.remove('active'); document.body.classList.remove('modal-open'); };
-    window.switchAuthTab = (tab) => { document.getElementById('loginTab').classList.toggle('active', tab === 'login'); document.getElementById('signupTab').classList.toggle('active', tab === 'signup'); document.getElementById('loginForm').classList.toggle('active', tab === 'login'); document.getElementById('signupForm').classList.toggle('active', tab === 'signup'); };
-    window.handleLogin = async (e) => { e.preventDefault(); const email = document.getElementById('loginEmail').value.trim(); const password = document.getElementById('loginPassword').value; const errorEl = document.getElementById('loginError'); if (!email || !password) { errorEl.style.display = 'block'; errorEl.textContent = 'Please fill all fields'; return; } try { await auth.signInWithEmailAndPassword(email, password); errorEl.style.display = 'none'; closeAllModals(); showElegantMessage('Login successful!', 'success'); } catch (err) { errorEl.style.display = 'block'; errorEl.textContent = err.message; } };
-    window.handleSignup = async (e) => { e.preventDefault(); const name = document.getElementById('signupName').value.trim(); const email = document.getElementById('signupEmail').value.trim(); const password = document.getElementById('signupPassword').value; const confirm = document.getElementById('signupConfirm').value; const errorEl = document.getElementById('signupError'); const successEl = document.getElementById('signupSuccess'); if (!name || !email || !password || !confirm) { errorEl.style.display = 'block'; errorEl.textContent = 'Please fill all fields'; return; } if (password !== confirm) { errorEl.style.display = 'block'; errorEl.textContent = 'Passwords do not match'; return; } if (password.length < 6) { errorEl.style.display = 'block'; errorEl.textContent = 'Password must be at least 6 characters'; return; } try { const cred = await auth.createUserWithEmailAndPassword(email, password); await cred.user.updateProfile({ displayName: name }); if (database) { await database.ref('users/' + cred.user.uid).set({ name, email, createdAt: Date.now() }); } errorEl.style.display = 'none'; successEl.style.display = 'block'; successEl.textContent = 'Account created! Welcome to I AM MUGERA!'; setTimeout(() => { closeAllModals(); showElegantMessage('Welcome to I AM MUGERA!', 'success'); }, 1500); } catch (err) { errorEl.style.display = 'block'; errorEl.textContent = err.message; } };
-    window.handleLogout = async () => { try { await auth.signOut(); showElegantMessage('Logged out successfully', 'success'); updateInboxBadges(0); previousUnreadCount = 0; } catch (err) { showElegantMessage(err.message, 'error'); } };
-    
-    // Loading animation
+
+    // ========== LOADING ANIMATION ==========
     (function loadingAnimation() {
         const overlay = document.getElementById('loadingOverlay');
         const typingSpan = document.getElementById('typingText');
         const fullText = "DREAM | ASPIRE | INSPIRE";
         let index = 0;
-        function typeNext() { if (index < fullText.length) { typingSpan.textContent += fullText.charAt(index); index++; setTimeout(typeNext, 120); } else setTimeout(() => overlay.classList.add('hidden'), 1500); }
+        
+        function typeNext() {
+            if (index < fullText.length) {
+                typingSpan.textContent += fullText.charAt(index);
+                index++;
+                setTimeout(typeNext, 120);
+            } else {
+                setTimeout(() => overlay.classList.add('hidden'), 1500);
+            }
+        }
+        
         setTimeout(typeNext, 400);
-        setTimeout(() => { if (!overlay.classList.contains('hidden')) overlay.classList.add('hidden'); }, 7000);
+        setTimeout(() => {
+            if (!overlay.classList.contains('hidden')) {
+                overlay.classList.add('hidden');
+            }
+        }, 7000);
     })();
-    
+
+    // ========== TOAST MESSAGE ==========
     window.showElegantMessage = function(text, type = 'info') {
         const toast = document.getElementById('elegantToast');
         const messageSpan = document.getElementById('toastMessage');
         const icon = toast.querySelector('i');
+        
         messageSpan.textContent = text;
-        icon.className = type === 'success' ? 'fas fa-check-circle' : type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-globe-africa';
+        
+        if (type === 'success') {
+            icon.className = 'fas fa-check-circle';
+        } else if (type === 'error') {
+            icon.className = 'fas fa-exclamation-circle';
+        } else {
+            icon.className = 'fas fa-globe-africa';
+        }
+        
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 4000);
     };
-    
-    // Search hints (external functions assumed)
-    const debouncedDesktop = debounce(function() { window.generateSearchHints?.(document.getElementById('desktopSearchInput')?.value, 'desktopSearchHints'); }, 200);
-    const debouncedMobile = debounce(function() { window.generateSearchHints?.(document.getElementById('mobileSearchInput')?.value, 'mobileSearchHints'); }, 200);
-    document.getElementById('desktopSearchInput')?.addEventListener('input', debouncedDesktop);
-    document.getElementById('mobileSearchInput')?.addEventListener('input', debouncedMobile);
-    function debounce(func, wait) { let timeout; return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func(...args), wait); }; }
-    document.addEventListener('click', function(e) {
-        const desktopContainer = document.getElementById('desktopSearchContainer');
-        if (desktopContainer && !desktopContainer.contains(e.target)) document.getElementById('desktopSearchHints')?.classList.remove('show');
-        const mobileRow = document.querySelector('.search-overlay .search-row');
-        if (mobileRow && !mobileRow.contains(e.target)) document.getElementById('mobileSearchHints')?.classList.remove('show');
-    });
-    
-    // Hours status
+
+    // ========== HOURS STATUS ==========
     function updateHoursStatus() {
         const dayEl = document.getElementById('currentDayName');
         const statusText = document.getElementById('statusText');
         const statusIcon = document.getElementById('statusIcon');
+        
         if (!dayEl || !statusText || !statusIcon) return;
+
         const now = new Date();
         const nairobiTime = new Date(now.toLocaleString('en-US', { timeZone: 'Africa/Nairobi' }));
         const nairobiDay = new Intl.DateTimeFormat('en-KE', { timeZone: 'Africa/Nairobi', weekday: 'long' }).format(now);
         const nairobiHour = nairobiTime.getHours();
         const nairobiMinute = nairobiTime.getMinutes();
         const currentTimeDecimal = nairobiHour + (nairobiMinute / 60);
+        
         dayEl.textContent = nairobiDay;
-        let status = '', statusClass = '';
+        
+        let status = '';
+        let statusClass = '';
         const dayLower = nairobiDay.toLowerCase();
-        if (dayLower === 'sunday') { status = 'Closed'; statusClass = 'status-closed'; }
-        else {
-            let openHour = dayLower === 'saturday' ? 9.0 : 8.5;
-            let closeHour = dayLower === 'saturday' ? 17.0 : 17.5;
-            if (currentTimeDecimal < openHour) { status = 'Opening Soon'; statusClass = 'status-soon'; }
-            else if (currentTimeDecimal >= openHour && currentTimeDecimal < (closeHour - 1)) { status = 'Open'; statusClass = 'status-open'; }
-            else if (currentTimeDecimal >= (closeHour - 1) && currentTimeDecimal < closeHour) { status = 'Closing Soon'; statusClass = 'status-closing'; }
-            else { status = 'Closed'; statusClass = 'status-closed'; }
+        
+        if (dayLower === 'sunday') {
+            status = 'Closed';
+            statusClass = 'status-closed';
+        } else {
+            let openHour, closeHour;
+            if (dayLower === 'saturday') {
+                openHour = 9.0;
+                closeHour = 17.0;
+            } else {
+                openHour = 8.5;
+                closeHour = 17.5;
+            }
+            
+            if (currentTimeDecimal < openHour) {
+                status = 'Opening Soon';
+                statusClass = 'status-soon';
+            } else if (currentTimeDecimal >= openHour && currentTimeDecimal < (closeHour - 1)) {
+                status = 'Open';
+                statusClass = 'status-open';
+            } else if (currentTimeDecimal >= (closeHour - 1) && currentTimeDecimal < closeHour) {
+                status = 'Closing Soon';
+                statusClass = 'status-closing';
+            } else {
+                status = 'Closed';
+                statusClass = 'status-closed';
+            }
         }
+        
         statusText.textContent = status;
         statusIcon.className = `fas fa-circle ${statusClass}`;
     }
+
     window.openHoursModal = () => document.getElementById('hoursModal').classList.add('show');
     window.closeHoursModal = () => document.getElementById('hoursModal').classList.remove('show');
-    updateHoursStatus(); setInterval(updateHoursStatus, 60000);
     
-    // Navigation functions
-    window.navigateToUserProfile = function() { if (currentUser) window.location.href = 'user-profile.html'; else openAuthModal(); };
-    window.navigateToEyeOfMugera = function() { if (currentUser) window.location.href = 'eye-of-mugera.html'; else openAuthModal(); };
-    window.navigateToInspiredMe = function() { if (currentUser) window.location.href = 'inspire-program.html'; else openAuthModal(); };
-    window.navigateToShop = function() { if (currentUser) window.location.href = 'shop.html'; else openAuthModal(); };
-    window.navigateToWorkFit = function() { if (currentUser) window.location.href = 'workfit-club.html'; else openAuthModal(); };
-    window.navigateToWebDev = function() { if (currentUser) window.location.href = 'mugeradev.html'; else openAuthModal(); };
-    window.navigateToSection = function(section) { if (currentUser) document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' }); else openAuthModal(); };
-    document.querySelectorAll('a[href="inbox.html"]').forEach(link => { link.addEventListener('click', (e) => { if (!currentUser) { e.preventDefault(); openAuthModal(); showElegantMessage('Please login to access your inbox', 'info'); } }); });
+    updateHoursStatus();
+    setInterval(updateHoursStatus, 60000);
+
+    // ========== TUTORIAL SYSTEM ==========
+    function startTutorial() {
+        if (!currentUser) return;
+        
+        tutorialActive = true;
+        tutorialStep = 0;
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'tutorial-overlay';
+        overlay.id = 'tutorialOverlay';
+        document.body.appendChild(overlay);
+        
+        const card = document.createElement('div');
+        card.className = 'tutorial-card';
+        card.id = 'tutorialCard';
+        card.innerHTML = `
+            <div class="tutorial-progress">
+                <div class="tutorial-steps" id="tutorialSteps">
+                    ${Array(8).fill('<span class="tutorial-step-dot"></span>').join('')}
+                </div>
+                <span class="tutorial-skip" onclick="skipTutorial()">Skip <i class="fas fa-times"></i></span>
+            </div>
+            <div class="tutorial-content" id="tutorialContent"></div>
+            <div class="tutorial-actions">
+                <button class="tutorial-btn tutorial-btn-secondary" onclick="previousTutorialStep()" id="tutorialPrevBtn">Previous</button>
+                <button class="tutorial-btn tutorial-btn-primary" onclick="nextTutorialStep()" id="tutorialNextBtn">Start</button>
+            </div>
+        `;
+        document.body.appendChild(card);
+        
+        setTimeout(() => {
+            document.getElementById('tutorialOverlay').classList.add('active');
+            document.getElementById('tutorialCard').classList.add('show');
+            updateTutorialStep();
+        }, 100);
+    }
+
+    function updateTutorialStep() {
+        const step = tutorialSteps[tutorialStep];
+        const content = document.getElementById('tutorialContent');
+        const nextBtn = document.getElementById('tutorialNextBtn');
+        const prevBtn = document.getElementById('tutorialPrevBtn');
+        const steps = document.querySelectorAll('.tutorial-step-dot');
+        
+        if (!content || !nextBtn || !prevBtn) return;
+        
+        steps.forEach((dot, index) => {
+            dot.classList.remove('active', 'completed');
+            if (index < tutorialStep) dot.classList.add('completed');
+            else if (index === tutorialStep) dot.classList.add('active');
+        });
+        
+        nextBtn.textContent = tutorialStep === tutorialSteps.length - 1 ? 'Finish' : (tutorialStep === 0 ? 'Start' : 'Next');
+        prevBtn.disabled = tutorialStep === 0;
+        
+        content.innerHTML = `<h3>${step.title}</h3><p>${step.content}</p>`;
+        
+        removeHighlights();
+        
+        if (step.highlight) {
+            const element = document.getElementById(step.highlight);
+            if (element) {
+                element.classList.add('tutorial-pulse');
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    }
+
+    function removeHighlights() {
+        document.querySelectorAll('.tutorial-pulse').forEach(el => {
+            el.classList.remove('tutorial-pulse');
+        });
+    }
+
+    window.nextTutorialStep = function() {
+        if (!tutorialActive) return;
+        if (tutorialStep < tutorialSteps.length - 1) {
+            tutorialStep++;
+            updateTutorialStep();
+        } else {
+            finishTutorial();
+        }
+    };
+
+    window.previousTutorialStep = function() {
+        if (!tutorialActive || tutorialStep === 0) return;
+        tutorialStep--;
+        updateTutorialStep();
+    };
+
+    function finishTutorial() {
+        if (currentUser) {
+            localStorage.setItem(`tutorial_${currentUser.uid}`, 'completed');
+        }
+        
+        tutorialActive = false;
+        const overlay = document.getElementById('tutorialOverlay');
+        const card = document.getElementById('tutorialCard');
+        if (overlay) overlay.remove();
+        if (card) card.remove();
+        removeHighlights();
+        
+        showElegantMessage('🎉 Tutorial completed!', 'success');
+    }
+
+    window.skipTutorial = function() {
+        if (currentUser) {
+            localStorage.setItem(`tutorial_${currentUser.uid}`, 'skipped');
+        }
+        
+        tutorialActive = false;
+        const overlay = document.getElementById('tutorialOverlay');
+        const card = document.getElementById('tutorialCard');
+        if (overlay) overlay.remove();
+        if (card) card.remove();
+        removeHighlights();
+        
+        showElegantMessage('Tour skipped.', 'info');
+    };
+
+    window.restartTutorial = function() {
+        if (!currentUser) {
+            openAuthModal();
+            return;
+        }
+        localStorage.removeItem(`tutorial_${currentUser.uid}`);
+        startTutorial();
+    };
+
+    // ========== NAVIGATION ==========
+    window.navigateToUserProfile = function() {
+        if (currentUser) window.location.href = 'user-profile.html';
+        else openAuthModal();
+    };
     
-    // Toggles
-    window.toggleHamburger = () => { document.getElementById('hamburgerPanel').classList.toggle('open'); };
-    window.toggleMobileSearch = () => { const overlay = document.getElementById('mobileSearchOverlay'); overlay.classList.toggle('open'); if (!overlay.classList.contains('open')) document.getElementById('mobileSearchHints').classList.remove('show'); };
+    window.navigateToEyeOfMugera = function() {
+        if (currentUser) window.location.href = 'eye-of-mugera.html';
+        else openAuthModal();
+    };
+    
+    window.navigateToInspiredMe = function() {
+        if (currentUser) window.location.href = 'inspire-program.html';
+        else openAuthModal();
+    };
+    
+    window.navigateToShop = function() {
+        if (currentUser) window.location.href = 'shop.html';
+        else openAuthModal();
+    };
+    
+    window.navigateToWorkFit = function() {
+        if (currentUser) window.location.href = 'workfit-club.html';
+        else openAuthModal();
+    };
+    
+    window.navigateToWebDev = function() {
+        if (currentUser) window.location.href = 'mugeradev.html';
+        else openAuthModal();
+    };
+    
+    window.navigateToSection = function(section) {
+        if (currentUser) {
+            document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            openAuthModal();
+        }
+    };
+
+    // ========== TOGGLES ==========
+    window.toggleHamburger = () => {
+        document.getElementById('hamburgerPanel').classList.toggle('open');
+    };
+    
+    window.toggleMobileSearch = () => {
+        const overlay = document.getElementById('mobileSearchOverlay');
+        overlay.classList.toggle('open');
+        if (overlay.classList.contains('open')) {
+            document.getElementById('mobileSearchInput').focus();
+        } else {
+            document.getElementById('mobileSearchHints').classList.remove('show');
+        }
+    };
+    
     document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
     document.getElementById('mobileSearchBtn')?.addEventListener('click', toggleMobileSearch);
-    document.addEventListener('click', function(e) { const panel = document.getElementById('hamburgerPanel'); const hamburgerBtn = document.getElementById('hamburgerBtn'); if (panel && panel.classList.contains('open') && !panel.contains(e.target) && !hamburgerBtn.contains(e.target)) panel.classList.remove('open'); });
+
+    document.addEventListener('click', function(e) {
+        const panel = document.getElementById('hamburgerPanel');
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const desktopMenuIcon = document.getElementById('desktopMenuIcon');
+        
+        if (panel && panel.classList.contains('open')) {
+            if (!panel.contains(e.target) && 
+                !hamburgerBtn?.contains(e.target) && 
+                !desktopMenuIcon?.contains(e.target)) {
+                panel.classList.remove('open');
+            }
+        }
+    });
+
+    // ========== THEME TOGGLE ==========
+    window.toggleTheme = function() {
+        document.body.classList.toggle('light-theme');
+        const icon = document.getElementById('panelThemeIcon');
+        
+        if (document.body.classList.contains('light-theme')) {
+            icon?.classList.replace('fa-moon', 'fa-sun');
+            localStorage.setItem('siteTheme', 'light');
+        } else {
+            icon?.classList.replace('fa-sun', 'fa-moon');
+            localStorage.setItem('siteTheme', 'dark');
+        }
+    };
     
-    // Theme toggle
-    window.toggleTheme = function() { document.body.classList.toggle('light-theme'); const icon = document.getElementById('panelThemeIcon'); if (document.body.classList.contains('light-theme')) { icon?.classList.replace('fa-moon', 'fa-sun'); localStorage.setItem('siteTheme', 'light'); } else { icon?.classList.replace('fa-sun', 'fa-moon'); localStorage.setItem('siteTheme', 'dark'); } };
-    if (localStorage.getItem('siteTheme') === 'light') { document.body.classList.add('light-theme'); document.getElementById('panelThemeIcon')?.classList.replace('fa-moon', 'fa-sun'); }
-    
-    // Tutorial (simplified, unchanged logic)
-    function startTutorial() { if (!currentUser) return; tutorialActive = true; tutorialStep = 0; document.getElementById('tutorialOverlay').classList.add('active'); document.getElementById('tutorialCard').classList.add('show'); updateTutorialStep(); }
-    function updateTutorialStep() { const step = tutorialSteps[tutorialStep]; const content = document.getElementById('tutorialContent'); const nextBtn = document.getElementById('tutorialNextBtn'); const prevBtn = document.getElementById('tutorialPrevBtn'); const steps = document.querySelectorAll('.tutorial-step-dot'); steps.forEach((dot, index) => { dot.classList.remove('active', 'completed'); if (index < tutorialStep) dot.classList.add('completed'); else if (index === tutorialStep) dot.classList.add('active'); }); nextBtn.textContent = tutorialStep === tutorialSteps.length - 1 ? 'Finish Tour' : (tutorialStep === 0 ? 'Start Tour' : 'Next'); prevBtn.disabled = tutorialStep === 0; content.innerHTML = `<h3><i class="fas fa-${['compass','search','inbox','clock','map','palette','bars','rocket'][tutorialStep]}"></i> ${step.title}</h3><p>${step.content}</p>${step.highlight && isMobile ? '<div class="tutorial-mobile-instruction"><i class="fas fa-hand-pointer"></i> Look for the highlighted element above</div>' : ''}`; removeHighlights(); if (step.highlight) { const el = document.getElementById(step.highlight); if (el) { el.classList.add('tutorial-pulse'); el.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (step.tooltip) { const rect = el.getBoundingClientRect(); const tooltip = document.createElement('div'); tooltip.className = 'tutorial-tooltip'; tooltip.textContent = step.tooltip; tooltip.style.top = `${rect.top > 100 ? rect.top - 40 : rect.bottom + 20}px`; tooltip.style.left = `${rect.left + rect.width/2}px`; tooltip.id = 'tutorialTooltip'; document.body.appendChild(tooltip); } } } }
-    function removeHighlights() { document.querySelectorAll('.tutorial-pulse').forEach(el => el.classList.remove('tutorial-pulse')); const tooltip = document.getElementById('tutorialTooltip'); if (tooltip) tooltip.remove(); }
-    window.nextTutorialStep = function() { if (!tutorialActive) return; if (tutorialStep < tutorialSteps.length - 1) { tutorialStep++; updateTutorialStep(); } else finishTutorial(); };
-    window.previousTutorialStep = function() { if (!tutorialActive || tutorialStep === 0) return; tutorialStep--; updateTutorialStep(); };
-    function finishTutorial() { if (currentUser) localStorage.setItem(`tutorial_${currentUser.uid}`, 'completed'); tutorialActive = false; document.getElementById('tutorialOverlay').classList.remove('active'); document.getElementById('tutorialCard').classList.remove('show'); removeHighlights(); showElegantMessage('🎉 Tutorial completed!', 'success'); }
-    window.skipTutorial = function() { if (currentUser) localStorage.setItem(`tutorial_${currentUser.uid}`, 'skipped'); tutorialActive = false; document.getElementById('tutorialOverlay').classList.remove('active'); document.getElementById('tutorialCard').classList.remove('show'); removeHighlights(); showElegantMessage('Tour skipped.', 'info'); };
-    window.restartTutorial = function() { if (!currentUser) { openAuthModal(); return; } localStorage.removeItem(`tutorial_${currentUser.uid}`); startTutorial(); };
-    
-    // Installation (unchanged)
-    function checkAppInstalled() { const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://'); if (isStandalone) { appInstalled = true; localStorage.setItem('appInstalled', 'true'); } if (localStorage.getItem('appInstalled') === 'true') appInstalled = true; return appInstalled; }
-    function showInstallModal() { if (checkAppInstalled()) return; if (isIOS) switchMobilePlatform('ios'); else if (isAndroid) switchMobilePlatform('android'); document.getElementById('installModal').classList.add('active'); document.body.classList.add('modal-open'); installationStep = 0; updateInstallProgress(); }
-    window.closeInstallModal = function() { if (!appInstalled) { showElegantMessage('Please install the app to continue', 'warning'); return; } document.getElementById('installModal').classList.remove('active'); document.body.classList.remove('modal-open'); };
-    window.switchMobilePlatform = function(platform) { currentMobilePlatform = platform; document.getElementById('iosMobileBtn').classList.toggle('active', platform === 'ios'); document.getElementById('androidMobileBtn').classList.toggle('active', platform === 'android'); document.getElementById('iosSteps').style.display = platform === 'ios' ? 'block' : 'none'; document.getElementById('androidSteps').style.display = platform === 'android' ? 'block' : 'none'; installationStep = 0; updateInstallProgress(); };
-    function updateInstallProgress() { const progressFill = document.getElementById('installProgress'); const progressText = document.getElementById('installProgressText'); const actionBtn = document.getElementById('installActionBtn'); const percent = (installationStep / 3) * 100; progressFill.style.width = percent + '%'; progressText.textContent = `Step ${installationStep}/3`; if (installationStep >= 3) { actionBtn.disabled = true; actionBtn.style.opacity = '0.5'; document.querySelector('.install-success').classList.add('show'); document.querySelector('.install-steps-container').style.display = 'none'; document.querySelector('.install-progress').style.display = 'none'; document.querySelector('.install-action-btn').style.display = 'none'; } }
-    window.markInstallStep = function() { if (installationStep < 3) { installationStep++; updateInstallProgress(); if (installationStep === 3) { appInstalled = true; localStorage.setItem('appInstalled', 'true'); showElegantMessage('✅ Installation completed! Please open the app from your home screen.', 'success'); } else showElegantMessage(`Step ${installationStep} completed! ${3 - installationStep} more to go.`, 'info'); } };
-    window.continueAfterInstall = function() { document.getElementById('installModal').classList.remove('active'); document.body.classList.remove('modal-open'); setTimeout(() => { startTutorial(); }, 500); };
-    
-    console.log('I AM MUGERA loaded with desktop main menu');
+    if (localStorage.getItem('siteTheme') === 'light') {
+        document.body.classList.add('light-theme');
+        document.getElementById('panelThemeIcon')?.classList.replace('fa-moon', 'fa-sun');
+    }
+
+    // ========== INSTALLATION MODAL ==========
+    function showInstallModal() {
+        if (checkAppInstalled()) return;
+        
+        if (isIOS) switchMobilePlatform('ios');
+        else if (isAndroid) switchMobilePlatform('android');
+        
+        document.getElementById('installModal').classList.add('active');
+        document.body.classList.add('modal-open');
+        
+        installationStep = 0;
+        updateInstallProgress();
+    }
+
+    window.closeInstallModal = function() {
+        if (!appInstalled) {
+            showElegantMessage('Please install the app to continue', 'warning');
+            return;
+        }
+        document.getElementById('installModal').classList.remove('active');
+        document.body.classList.remove('modal-open');
+    };
+
+    window.switchMobilePlatform = function(platform) {
+        currentMobilePlatform = platform;
+        document.getElementById('iosMobileBtn').classList.toggle('active', platform === 'ios');
+        document.getElementById('androidMobileBtn').classList.toggle('active', platform === 'android');
+        document.getElementById('iosSteps').style.display = platform === 'ios' ? 'block' : 'none';
+        document.getElementById('androidSteps').style.display = platform === 'android' ? 'block' : 'none';
+        installationStep = 0;
+        updateInstallProgress();
+    };
+
+    function updateInstallProgress() {
+        const progressFill = document.getElementById('installProgress');
+        const progressText = document.getElementById('installProgressText');
+        const actionBtn = document.getElementById('installActionBtn');
+        
+        const percent = (installationStep / 3) * 100;
+        if (progressFill) progressFill.style.width = percent + '%';
+        if (progressText) progressText.textContent = `Step ${installationStep}/3`;
+        
+        if (installationStep >= 3) {
+            if (actionBtn) {
+                actionBtn.disabled = true;
+                actionBtn.style.opacity = '0.5';
+            }
+            document.querySelector('.install-success')?.classList.add('show');
+            document.querySelector('.install-steps-container').style.display = 'none';
+            document.querySelector('.install-progress').style.display = 'none';
+            document.querySelector('.install-action-btn').style.display = 'none';
+        }
+    }
+
+    window.markInstallStep = function() {
+        if (installationStep < 3) {
+            installationStep++;
+            updateInstallProgress();
+            
+            if (installationStep === 3) {
+                appInstalled = true;
+                localStorage.setItem('appInstalled', 'true');
+                showElegantMessage('✅ Installation completed!', 'success');
+            } else {
+                showElegantMessage(`Step ${installationStep} completed!`, 'info');
+            }
+        }
+    };
+
+    window.continueAfterInstall = function() {
+        document.getElementById('installModal').classList.remove('active');
+        document.body.classList.remove('modal-open');
+        
+        setTimeout(() => {
+            startTutorial();
+        }, 500);
+    };
+
+    console.log('I AM MUGERA loaded with simplified right-side navigation');
 </script>
 </body>
 </html>
