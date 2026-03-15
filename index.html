@@ -1414,11 +1414,28 @@
             .desktop-only {
                 display: none;
             }
-            .header-desktop-actions { 
-                display: none; 
-            } 
+            /* On mobile, hide desktop inbox and show mobile group */
+            .header-desktop-actions .inbox-icon {
+                display: none;
+            }
             .mobile-header-group { 
                 display: flex; 
+            }
+        }
+        
+        /* For desktop, ensure hamburger is visible */
+        @media (min-width: 769px) {
+            .mobile-header-group {
+                display: none !important;
+            }
+            .header-desktop-actions {
+                display: flex !important;
+                align-items: center;
+                gap: 1rem;
+            }
+            /* Show hamburger on desktop */
+            .header-desktop-actions .hamburger-icon {
+                display: flex !important;
             }
         }
         
@@ -2436,51 +2453,38 @@
 <!-- MAIN PAGE CONTENT -->
 <main id="mainContent" class="page-content">
     <!-- HEADER -->
+    <!-- HEADER -->
     <header class="site-header" id="siteHeader">
         <div class="header-container">
             <img src="https://i.postimg.cc/T10385m6/20260304-0949-Image-Generation-remix-01kjvspyrkf078efwbh09qxkag-1.webp" alt="I AM MUGERA" class="site-logo" id="siteLogo">
             
-            <!-- Desktop Actions -->
+            <!-- Desktop Actions - Now with hamburger for all devices -->
             <div class="header-desktop-actions">
-                <!-- INBOX ICON -->
+                <!-- INBOX ICON - Visible on desktop only -->
                 <a href="inbox.html" class="inbox-icon" title="Inbox" id="desktopInboxLink">
                     <i class="fas fa-inbox"></i>
                     <span class="inbox-badge" id="desktopInboxBadge" style="display: none;">0</span>
                 </a>
                 
-                <!-- SEARCH -->
-                <div class="desktop-search" id="desktopSearchContainer">
-                    <input type="text" placeholder="Search I AM MUGERA..." id="desktopSearchInput" autocomplete="off">
-                    <button onclick="window.performSearch(document.getElementById('desktopSearchInput').value)"><i class="fas fa-search"></i></button>
-                    <div class="search-hints" id="desktopSearchHints"></div>
+                <!-- Hamburger Menu for DESKTOP (always visible) -->
+                <div class="hamburger-icon" id="desktopHamburgerBtn" onclick="toggleHamburger()">
+                    <i class="fas fa-bars"></i>
                 </div>
                 
-                <!-- USER MENU (Logged In) -->
-                <div id="userMenuDesktop" class="user-menu" style="display: none;">
-                    <span class="user-name" id="userDisplayNameDesktop"></span>
-                    <div class="user-avatar" id="userAvatarDesktop">M</div>
-                    <div class="logout-dropdown">
-                        <div class="logout-item" onclick="handleLogout()">
-                            <i class="fas fa-sign-out-alt"></i> Logout
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- LOGIN BUTTON (Logged Out) -->
-                <div id="loginButtonDesktop" class="login-button" onclick="openAuthModal()">
-                    <i class="fas fa-user-circle"></i>
-                    <span style="font-size:0.9rem;">Account</span>
-                </div>
+                <!-- Original desktop search and user menu are removed -->
             </div>
             
-            <!-- Mobile Header -->
+            <!-- Mobile Header - Only visible on mobile -->
             <div class="mobile-header-group">
                 <div class="mobile-search-icon" id="mobileSearchBtn"><i class="fas fa-search"></i></div>
                 <a href="inbox.html" class="mobile-search-icon" style="text-decoration: none; position: relative;" id="mobileInboxLink">
                     <i class="fas fa-inbox"></i>
                     <span class="inbox-badge" id="mobileInboxBadge" style="display: none;">0</span>
                 </a>
-                <div class="hamburger-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></div>
+                <!-- Mobile hamburger - hidden on desktop via CSS -->
+                <div class="hamburger-icon" id="hamburgerBtn" onclick="toggleHamburger()">
+                    <i class="fas fa-bars"></i>
+                </div>
             </div>
         </div>
     </header>
