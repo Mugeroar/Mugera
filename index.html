@@ -78,12 +78,6 @@
             --status-closing: #ef4444;
             --status-closed: #6b7280;
             
-            /* Tutorial Colors */
-            --tutorial-overlay: rgba(0,0,0,0.3);
-            --tutorial-card: #1a1a1a;
-            --tutorial-highlight: rgba(202,138,4,0.2);
-            --tutorial-pulse: rgba(202,138,4,0.6);
-            
             /* Layout */
             --header-height: 70px;
             --border-radius-sm: 12px;
@@ -109,11 +103,6 @@
             --input-bg: #f5f5f5;
             --input-border: #dddddd;
             --hover-bg: rgba(202,138,4,0.05);
-            
-            /* Tutorial Colors - Light */
-            --tutorial-overlay: rgba(255,255,255,0.3);
-            --tutorial-card: #ffffff;
-            --tutorial-highlight: rgba(202,138,4,0.1);
         }
 
         body {
@@ -240,8 +229,8 @@
             transform: scale(1.05);
         }
         
-        /* Desktop Actions */
-        .header-desktop-actions { 
+        /* Header Actions - Unified for all devices */
+        .header-actions { 
             display: flex; 
             align-items: center; 
             gap: 1rem; 
@@ -290,7 +279,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         
-        /* Desktop Search */
+        /* Desktop Search - Hidden on mobile */
         .desktop-search { 
             position: relative; 
             display: flex; 
@@ -466,7 +455,7 @@
             color: var(--gold); 
         }
         
-        /* Login Button Desktop */
+        /* Login Button */
         .login-button {
             padding: 0 1.2rem; 
             border-radius: var(--border-radius-full); 
@@ -494,14 +483,7 @@
             color: black;
         }
         
-        /* Mobile Header */
-        .mobile-header-group { 
-            display: none; 
-            align-items: center; 
-            gap: 0.8rem; 
-        }
-        
-        .mobile-search-icon, 
+        /* Hamburger Icon - Unified for all devices */
         .hamburger-icon { 
             background: transparent; 
             border: 1px solid var(--gold); 
@@ -518,8 +500,29 @@
             text-decoration: none;
         }
         
-        .mobile-search-icon:hover, 
         .hamburger-icon:hover { 
+            background: var(--gold); 
+            color: black; 
+        }
+        
+        /* Mobile Search Icon - Hidden on desktop */
+        .mobile-search-icon { 
+            background: transparent; 
+            border: 1px solid var(--gold); 
+            color: var(--gold); 
+            width: 42px; 
+            height: 42px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.3rem; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            text-decoration: none;
+        }
+        
+        .mobile-search-icon:hover { 
             background: var(--gold); 
             color: black; 
         }
@@ -759,6 +762,48 @@
         .theme-toggle-btn i {
             color: black;
             font-size: 1.3rem;
+        }
+        
+        /* Responsive Breakpoints */
+        @media (min-width: 769px) {
+            /* Desktop styles */
+            .mobile-only {
+                display: none !important;
+            }
+            .desktop-only {
+                display: block !important;
+            }
+            .mobile-search-icon {
+                display: none !important;
+            }
+            .desktop-search {
+                display: flex !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            /* Mobile styles */
+            .mobile-only {
+                display: block !important;
+            }
+            .desktop-only {
+                display: none !important;
+            }
+            .desktop-search {
+                display: none !important;
+            }
+            .mobile-search-icon {
+                display: flex !important;
+            }
+            .header-actions .inbox-icon {
+                display: none !important;
+            }
+            .user-menu {
+                display: none !important;
+            }
+            .login-button {
+                display: none !important;
+            }
         }
         
         /* ----- WELCOME POPUP ----- */
@@ -1085,576 +1130,6 @@
             border-radius: var(--border-radius-sm); 
             padding: 0.5rem; 
             display: none; 
-        }
-        
-        /* ----- INSTALLATION MODAL - MOBILE ONLY ----- */
-        .install-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(10px);
-            z-index: 10000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-        }
-        
-        .install-modal-overlay.active {
-            display: flex;
-        }
-        
-        .install-modal {
-            max-width: 400px;
-            width: 100%;
-            background: var(--card-bg);
-            border: 2px solid var(--gold);
-            border-radius: var(--border-radius-xl);
-            padding: 2rem 1.5rem;
-            box-shadow: 0 40px 80px rgba(0,0,0,0.6);
-            position: relative;
-            animation: modalAppear 0.5s ease;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        @keyframes modalAppear {
-            from {
-                opacity: 0;
-                transform: scale(0.9) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-        
-        .install-modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: var(--hover-bg);
-            border: 1px solid var(--border-gold);
-            color: var(--text-muted);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1.3rem;
-            z-index: 10;
-        }
-        
-        .install-modal-close:hover {
-            color: var(--gold);
-            transform: rotate(90deg);
-            border-color: var(--gold);
-        }
-        
-        .install-modal-icon {
-            width: 70px;
-            height: 70px;
-            margin: 0 auto 1.2rem;
-            background: var(--hover-bg);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid var(--gold);
-        }
-        
-        .install-modal-icon i {
-            font-size: 2.5rem;
-            color: var(--gold);
-        }
-        
-        .install-modal h2 {
-            font-family: 'Cinzel', serif;
-            font-size: 1.8rem;
-            color: var(--gold);
-            text-align: center;
-            margin-bottom: 0.8rem;
-        }
-        
-        .install-modal p {
-            text-align: center;
-            color: var(--text-muted);
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-        
-        /* Platform Selector - Mobile Only (iOS/Android) */
-        .install-platform-selector {
-            display: flex;
-            gap: 0.8rem;
-            margin-bottom: 1.5rem;
-            background: var(--input-bg);
-            border-radius: var(--border-radius-full);
-            padding: 0.4rem;
-        }
-        
-        .install-platform-btn {
-            flex: 1;
-            padding: 0.7rem;
-            text-align: center;
-            border-radius: var(--border-radius-full);
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-        
-        .install-platform-btn i {
-            margin-right: 0.4rem;
-        }
-        
-        .install-platform-btn.active {
-            background: var(--gold);
-            color: black;
-        }
-        
-        /* Installation Steps */
-        .install-steps-container {
-            margin-bottom: 1.5rem;
-        }
-        
-        .install-step {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            background: var(--hover-bg);
-            border-radius: var(--border-radius-md);
-            padding: 0.8rem 1rem;
-            border: 1px solid var(--border-gold);
-        }
-        
-        .install-step-number {
-            width: 28px;
-            height: 28px;
-            background: var(--gold);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: black;
-            flex-shrink: 0;
-            font-size: 0.9rem;
-        }
-        
-        .install-step-content {
-            flex: 1;
-        }
-        
-        .install-step-content p {
-            margin-bottom: 0;
-            text-align: left;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-        
-        .install-step-content strong {
-            color: var(--gold);
-        }
-        
-        .install-step-icon {
-            font-size: 1.3rem;
-            color: var(--gold);
-            margin-left: auto;
-            padding-left: 0.5rem;
-        }
-        
-        /* Progress Bar */
-        .install-progress {
-            margin: 1.5rem 0;
-            text-align: center;
-        }
-        
-        .install-progress-bar {
-            height: 6px;
-            background: var(--input-bg);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 0.5rem;
-        }
-        
-        .install-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--gold), var(--gold-light));
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        .install-progress-text {
-            color: var(--gold);
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        
-        /* Install Button */
-        .install-action-btn {
-            width: 100%;
-            padding: 1rem;
-            background: var(--gold);
-            color: black;
-            border: none;
-            border-radius: var(--border-radius-full);
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-        
-        .install-action-btn:hover:not(:disabled) {
-            background: var(--gold-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px var(--shadow-color);
-        }
-        
-        .install-action-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .install-action-btn i {
-            font-size: 1.2rem;
-        }
-        
-        /* Success State */
-        .install-success {
-            text-align: center;
-            padding: 1rem;
-            display: none;
-        }
-        
-        .install-success.show {
-            display: block;
-        }
-        
-        .install-success i {
-            font-size: 3.5rem;
-            color: var(--success);
-            margin-bottom: 1rem;
-        }
-        
-        .install-success h3 {
-            color: var(--success);
-            margin-bottom: 0.8rem;
-            font-size: 1.4rem;
-        }
-        
-        .install-success p {
-            margin-bottom: 1.2rem;
-        }
-        
-        .install-success-btn {
-            padding: 0.8rem 2rem;
-            background: var(--gold);
-            color: black;
-            border: none;
-            border-radius: var(--border-radius-full);
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .install-success-btn:hover {
-            background: var(--gold-dark);
-            transform: translateY(-2px);
-        }
-        
-        /* Desktop Message */
-        .desktop-message {
-            text-align: center;
-            padding: 1rem;
-            background: var(--hover-bg);
-            border-radius: var(--border-radius-md);
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--gold);
-        }
-        
-        .desktop-message i {
-            font-size: 2rem;
-            color: var(--gold);
-            margin-bottom: 0.5rem;
-        }
-        
-        .desktop-message p {
-            margin-bottom: 0;
-            font-size: 0.95rem;
-        }
-        
-        /* Hide desktop elements on mobile and vice versa */
-        .mobile-only {
-            display: none;
-        }
-        
-        .desktop-only {
-            display: block;
-        }
-        
-        @media (max-width: 768px) {
-            .mobile-only {
-                display: block;
-            }
-            .desktop-only {
-                display: none;
-            }
-            /* On mobile, hide desktop inbox and show mobile group */
-            .header-desktop-actions .inbox-icon {
-                display: none;
-            }
-            .mobile-header-group { 
-                display: flex; 
-            }
-        }
-        
-        /* For desktop, ensure hamburger is visible */
-        @media (min-width: 769px) {
-            .mobile-header-group {
-                display: none !important;
-            }
-            .header-desktop-actions {
-                display: flex !important;
-                align-items: center;
-                gap: 1rem;
-            }
-            /* Show hamburger on desktop */
-            .header-desktop-actions .hamburger-icon {
-                display: flex !important;
-            }
-        }
-        
-        /* ----- TUTORIAL SYSTEM ----- */
-        .tutorial-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--tutorial-overlay);
-            backdrop-filter: blur(2px);
-            z-index: 9400;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        
-        .tutorial-overlay.active {
-            display: block;
-            opacity: 1;
-        }
-        
-        .tutorial-card {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            max-width: 450px;
-            width: 90%;
-            background: var(--tutorial-card);
-            border: 2px solid var(--gold);
-            border-radius: var(--border-radius-xl);
-            padding: 1.8rem;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-            z-index: 9500;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.4s ease;
-            color: var(--text-primary);
-        }
-        
-        .tutorial-card.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
-        
-        .tutorial-progress {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .tutorial-steps {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .tutorial-step-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--text-muted);
-            transition: all 0.3s;
-        }
-        
-        .tutorial-step-dot.active {
-            background: var(--gold);
-            transform: scale(1.3);
-            box-shadow: 0 0 15px var(--gold);
-        }
-        
-        .tutorial-step-dot.completed {
-            background: var(--success);
-        }
-        
-        .tutorial-skip {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: var(--border-radius-full);
-            transition: all 0.2s;
-        }
-        
-        .tutorial-skip:hover {
-            color: var(--gold);
-            background: var(--hover-bg);
-        }
-        
-        .tutorial-content {
-            text-align: left;
-            margin-bottom: 1.8rem;
-        }
-        
-        .tutorial-content h3 {
-            font-family: 'Cinzel', serif;
-            color: var(--gold);
-            font-size: 1.4rem;
-            margin-bottom: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-        }
-        
-        .tutorial-content p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.7;
-            margin-bottom: 1rem;
-        }
-        
-        .tutorial-highlight {
-            background: var(--tutorial-highlight);
-            border: 2px dashed var(--gold);
-            border-radius: var(--border-radius-sm);
-            padding: 1rem;
-            margin: 1rem 0;
-            font-weight: 500;
-        }
-        
-        .tutorial-actions {
-            display: flex;
-            gap: 0.8rem;
-            justify-content: flex-end;
-        }
-        
-        .tutorial-btn {
-            padding: 0.7rem 1.5rem;
-            border-radius: var(--border-radius-full);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            font-size: 0.9rem;
-        }
-        
-        .tutorial-btn-primary {
-            background: var(--gold);
-            color: black;
-        }
-        
-        .tutorial-btn-primary:hover:not(:disabled) {
-            background: var(--gold-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px var(--shadow-color);
-        }
-        
-        .tutorial-btn-secondary {
-            background: transparent;
-            border: 1px solid var(--gold);
-            color: var(--gold);
-        }
-        
-        .tutorial-btn-secondary:hover:not(:disabled) {
-            background: var(--hover-bg);
-        }
-        
-        .tutorial-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .tutorial-pulse {
-            animation: tutorialPulse 2s infinite;
-            position: relative;
-            z-index: 9450;
-        }
-        
-        @keyframes tutorialPulse {
-            0% {
-                box-shadow: 0 0 0 0 var(--tutorial-pulse);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(202,138,4,0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(202,138,4,0);
-            }
-        }
-        
-        .tutorial-tooltip {
-            position: absolute;
-            background: var(--gold);
-            color: black;
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius-full);
-            font-size: 0.85rem;
-            font-weight: 600;
-            z-index: 9460;
-            white-space: nowrap;
-            pointer-events: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            transform: translateX(-50%);
-        }
-        
-        .tutorial-tooltip::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-top: 8px solid var(--gold);
-        }
-        
-        .tutorial-mobile-instruction {
-            text-align: center;
-            padding: 1rem;
-            background: var(--hover-bg);
-            border-radius: var(--border-radius-md);
-            margin: 1rem 0;
-            border: 1px solid var(--gold);
         }
         
         /* ----- HERO SECTION ----- */
@@ -2177,7 +1652,7 @@
             box-shadow: 0 10px 25px var(--shadow-color);
         }
         
-        /* ----- RESPONSIVE STYLES ----- */
+        /* ----- ADDITIONAL RESPONSIVE STYLES ----- */
         @media (max-width: 768px) { 
             .footer-links { 
                 gap: 1rem; 
@@ -2186,18 +1661,6 @@
             
             .footer-links a { 
                 font-size: 0.95rem; 
-            }
-            
-            .tutorial-card {
-                bottom: 20px;
-                width: 95%;
-                padding: 1.5rem;
-            }
-            
-            .tutorial-tooltip {
-                white-space: normal;
-                max-width: 200px;
-                font-size: 0.75rem;
             }
             
             .hours-mini-card {
@@ -2212,10 +1675,6 @@
             .brand-purpose {
                 padding: 1rem 1.5rem;
                 margin: 2rem 1rem 0;
-            }
-            
-            .install-modal {
-                padding: 1.5rem 1.2rem;
             }
         }
         
@@ -2233,16 +1692,6 @@
             .status-badge-mini {
                 width: 100%;
                 justify-content: center;
-            }
-            
-            .footer-social {
-                gap: 0.8rem;
-            }
-            
-            .footer-social a {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2rem;
             }
         }
     </style>
@@ -2295,193 +1744,51 @@
     </form>
 </div>
 
-<!-- INSTALLATION MODAL - MOBILE ONLY (iOS/Android) -->
-<div class="install-modal-overlay" id="installModal">
-    <div class="install-modal">
-        <button class="install-modal-close" onclick="closeInstallModal()">&times;</button>
-        
-        <div class="install-modal-icon">
-            <i class="fas fa-download"></i>
-        </div>
-        
-        <h2>Install I AM MUGERA</h2>
-        <p>To continue, install the app on your device for the best experience</p>
-        
-        <!-- Mobile Platform Selector (iOS/Android only) -->
-        <div class="install-platform-selector mobile-only">
-            <div class="install-platform-btn active" onclick="switchMobilePlatform('ios')" id="iosMobileBtn">
-                <i class="fab fa-apple"></i> iOS
-            </div>
-            <div class="install-platform-btn" onclick="switchMobilePlatform('android')" id="androidMobileBtn">
-                <i class="fab fa-android"></i> Android
-            </div>
-        </div>
-        
-        <!-- Desktop Message (shown on desktop) -->
-        <div class="desktop-message desktop-only">
-            <i class="fas fa-mobile-alt"></i>
-            <p>Please open this page on your mobile device (iOS or Android) to install the app.</p>
-        </div>
-        
-        <!-- Installation Steps Container (Mobile) -->
-        <div class="install-steps-container mobile-only" id="installStepsContainer">
-            <!-- iOS Steps (Default) -->
-            <div id="iosSteps">
-                <div class="install-step">
-                    <div class="install-step-number">1</div>
-                    <div class="install-step-content">
-                        <p>Tap the <strong>Share button</strong> <i class="fas fa-square-arrow-up"></i> at the bottom of the screen</p>
-                    </div>
-                    <div class="install-step-icon">
-                        <i class="fas fa-share-alt"></i>
-                    </div>
-                </div>
-                <div class="install-step">
-                    <div class="install-step-number">2</div>
-                    <div class="install-step-content">
-                        <p>Scroll down and tap <strong>"Add to Home Screen"</strong></p>
-                    </div>
-                    <div class="install-step-icon">
-                        <i class="fas fa-plus-circle"></i>
-                    </div>
-                </div>
-                <div class="install-step">
-                    <div class="install-step-number">3</div>
-                    <div class="install-step-content">
-                        <p>Tap <strong>"Add"</strong> in the top right corner</p>
-                    </div>
-                    <div class="install-step-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Android Steps (Hidden by default) -->
-            <div id="androidSteps" style="display: none;">
-                <div class="install-step">
-                    <div class="install-step-number">1</div>
-                    <div class="install-step-content">
-                        <p>Tap the <strong>menu button</strong> <i class="fas fa-ellipsis-vertical"></i> in your browser</p>
-                    </div>
-                    <div class="install-step-icon">
-                        <i class="fas fa-bars"></i>
-                    </div>
-                </div>
-                <div class="install-step">
-                    <div class="install-step-number">2</div>
-                    <div class="install-step-content">
-                        <p>Select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong></p>
-                    </div>
-                    <div class="install-step-icon">
-                        <i class="fas fa-download"></i>
-                    </div>
-                </div>
-                <div class="install-step">
-                    <div class="install-step-number">3</div>
-                    <div class="install-step-content">
-                        <p>Tap <strong>"Install"</strong> in the popup</p>
-                    </div>
-                    <div class="install-step-icon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Progress Bar -->
-        <div class="install-progress mobile-only">
-            <div class="install-progress-bar">
-                <div class="install-progress-fill" id="installProgress"></div>
-            </div>
-            <div class="install-progress-text" id="installProgressText">Step 0/3</div>
-        </div>
-        
-        <!-- Install Button -->
-        <button class="install-action-btn mobile-only" onclick="markInstallStep()" id="installActionBtn">
-            <i class="fas fa-check-circle"></i> I've Completed Step
-        </button>
-        
-        <!-- Success Message -->
-        <div class="install-success" id="installSuccess">
-            <i class="fas fa-check-circle"></i>
-            <h3>Installation Complete!</h3>
-            <p>Thank you for installing I AM MUGERA. Please launch the app from your home screen.</p>
-            <button class="install-success-btn" onclick="continueAfterInstall()">
-                Continue <i class="fas fa-arrow-right"></i>
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- TUTORIAL OVERLAY SYSTEM -->
-<div class="tutorial-overlay" id="tutorialOverlay"></div>
-<div class="tutorial-card" id="tutorialCard">
-    <div class="tutorial-progress">
-        <div class="tutorial-steps" id="tutorialSteps">
-            <span class="tutorial-step-dot active"></span>
-            <span class="tutorial-step-dot"></span>
-            <span class="tutorial-step-dot"></span>
-            <span class="tutorial-step-dot"></span>
-            <span class="tutorial-step-dot"></span>
-            <span class="tutorial-step-dot"></span>
-            <span class="tutorial-step-dot"></span>
-            <span class="tutorial-step-dot"></span>
-        </div>
-        <span class="tutorial-skip" onclick="skipTutorial()">Skip Tour <i class="fas fa-times"></i></span>
-    </div>
-    <div class="tutorial-content" id="tutorialContent">
-        <h3><i class="fas fa-compass"></i> Welcome to I AM MUGERA!</h3>
-        <p>Let's take a quick tour to help you get started. We'll show you all the key features in just 2 minutes.</p>
-        <div class="tutorial-highlight">
-            <i class="fas fa-lightbulb"></i> You can skip or restart this tour anytime from the menu.
-        </div>
-    </div>
-    <div class="tutorial-actions">
-        <button class="tutorial-btn tutorial-btn-secondary" onclick="previousTutorialStep()" id="tutorialPrevBtn">Previous</button>
-        <button class="tutorial-btn tutorial-btn-primary" onclick="nextTutorialStep()" id="tutorialNextBtn">Start Tour</button>
-    </div>
-</div>
-
-<!-- LOADING OVERLAY -->
-<div class="loading-overlay" id="loadingOverlay">
-    <img src="https://i.postimg.cc/bwkN851g/20260304-1008-Image-Generation-remix-01kjvtr63ce54v1awen6j4n88x-1.webp" alt="I AM MUGERA Logo" class="loading-logo">
-    <div class="typing-container">
-        <span id="typingText"></span><span class="cursor"></span>
-    </div>
-</div>
-
 <!-- MAIN PAGE CONTENT -->
 <main id="mainContent" class="page-content">
-    <!-- HEADER -->
-    <!-- HEADER -->
+    <!-- HEADER - Unified for all devices -->
     <header class="site-header" id="siteHeader">
         <div class="header-container">
             <img src="https://i.postimg.cc/T10385m6/20260304-0949-Image-Generation-remix-01kjvspyrkf078efwbh09qxkag-1.webp" alt="I AM MUGERA" class="site-logo" id="siteLogo">
             
-            <!-- Desktop Actions - Now with hamburger for all devices -->
-            <div class="header-desktop-actions">
-                <!-- INBOX ICON - Visible on desktop only -->
-                <a href="inbox.html" class="inbox-icon" title="Inbox" id="desktopInboxLink">
-                    <i class="fas fa-inbox"></i>
-                    <span class="inbox-badge" id="desktopInboxBadge" style="display: none;">0</span>
-                </a>
-                
-                <!-- Hamburger Menu for DESKTOP (always visible) -->
-                <div class="hamburger-icon" id="desktopHamburgerBtn" onclick="toggleHamburger()">
-                    <i class="fas fa-bars"></i>
+            <!-- Unified Header Actions for all devices -->
+            <div class="header-actions">
+                <!-- DESKTOP: Search Bar (hidden on mobile) -->
+                <div class="desktop-search desktop-only" id="desktopSearchContainer">
+                    <input type="text" placeholder="Search I AM MUGERA..." id="desktopSearchInput" autocomplete="off">
+                    <button onclick="performSearch(document.getElementById('desktopSearchInput').value)"><i class="fas fa-search"></i></button>
+                    <div class="search-hints" id="desktopSearchHints"></div>
                 </div>
                 
-                <!-- Original desktop search and user menu are removed -->
-            </div>
-            
-            <!-- Mobile Header - Only visible on mobile -->
-            <div class="mobile-header-group">
-                <div class="mobile-search-icon" id="mobileSearchBtn"><i class="fas fa-search"></i></div>
-                <a href="inbox.html" class="mobile-search-icon" style="text-decoration: none; position: relative;" id="mobileInboxLink">
+                <!-- MOBILE: Search Icon (hidden on desktop) -->
+                <div class="mobile-search-icon mobile-only" id="mobileSearchBtn" onclick="toggleMobileSearch()">
+                    <i class="fas fa-search"></i>
+                </div>
+                
+                <!-- INBOX ICON - Visible on all devices -->
+                <a href="inbox.html" class="inbox-icon" title="Inbox" id="inboxLink">
                     <i class="fas fa-inbox"></i>
-                    <span class="inbox-badge" id="mobileInboxBadge" style="display: none;">0</span>
+                    <span class="inbox-badge" id="inboxBadge" style="display: none;">0</span>
                 </a>
-                <!-- Mobile hamburger - hidden on desktop via CSS -->
+                
+                <!-- USER MENU (Logged In) - Desktop only -->
+                <div id="userMenuDesktop" class="user-menu desktop-only" style="display: none;">
+                    <span class="user-name" id="userDisplayNameDesktop"></span>
+                    <div class="user-avatar" id="userAvatarDesktop">M</div>
+                    <div class="logout-dropdown">
+                        <div class="logout-item" onclick="handleLogout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- LOGIN BUTTON (Logged Out) - Desktop only -->
+                <div id="loginButtonDesktop" class="login-button desktop-only" onclick="openAuthModal()">
+                    <i class="fas fa-user-circle"></i>
+                    <span style="font-size:0.9rem;">Account</span>
+                </div>
+                
+                <!-- HAMBURGER MENU - Unified for all devices -->
                 <div class="hamburger-icon" id="hamburgerBtn" onclick="toggleHamburger()">
                     <i class="fas fa-bars"></i>
                 </div>
@@ -2489,17 +1796,17 @@
         </div>
     </header>
 
-    <!-- MOBILE SEARCH OVERLAY -->
-    <div class="search-overlay" id="mobileSearchOverlay">
+    <!-- MOBILE SEARCH OVERLAY (Only for mobile) -->
+    <div class="search-overlay mobile-only" id="mobileSearchOverlay">
         <div class="search-row">
             <input type="text" placeholder="Search I AM MUGERA..." id="mobileSearchInput" autocomplete="off">
-            <button onclick="window.performSearch(document.getElementById('mobileSearchInput').value); toggleMobileSearch();"><i class="fas fa-search"></i></button>
+            <button onclick="performSearch(document.getElementById('mobileSearchInput').value); toggleMobileSearch();"><i class="fas fa-search"></i></button>
             <button class="close-search" onclick="toggleMobileSearch()"><i class="fas fa-times"></i></button>
             <div class="mobile-search-hints" id="mobileSearchHints"></div>
         </div>
     </div>
 
-    <!-- HAMBURGER PANEL -->
+    <!-- HAMBURGER PANEL - Unified for all devices -->
     <div class="hamburger-panel" id="hamburgerPanel">
         <div class="panel-header">
             <h3>Menu</h3>
@@ -2527,7 +1834,7 @@
         </div>
         
         <div class="panel-quick-links">
-            <a href="user-profile.html" class="panel-link" onclick="navigateToUserProfile(); toggleHamburger();"><i class="far fa-user"></i>MY ACCOUNT</a>
+            <a href="#" class="panel-link" onclick="navigateToUserProfile(); toggleHamburger();"><i class="far fa-user"></i>MY ACCOUNT</a>
             <a href="inbox.html" class="panel-link" onclick="toggleHamburger();" style="position: relative; display: flex; align-items: center; justify-content: space-between;" id="panelInboxLink">
                 <span><i class="fas fa-inbox"></i> MUGERA CHAT</span>
                 <span class="inbox-badge" id="panelInboxBadge" style="display: none; position: relative; top: 0; right: 0; margin-left: 8px;">0</span>
@@ -2617,7 +1924,7 @@
                     <span class="feature-badge"><i class="far fa-newspaper"></i> Weekly Journals</span>
                     <h3>THE IN-SIGHT</h3>
                     <p>Weekly articles, insights and real life empowering stories. Read exclusively or get featured.</p>
-                    <a href="eye-of-mugera.html" class="card-link">Read & get featured <i class="fas fa-arrow-right"></i></a>
+                    <a href="#" class="card-link" onclick="navigateToEyeOfMugera()">Read & get featured <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             
@@ -2628,7 +1935,7 @@
                     <span class="feature-badge inspired-badge"><i class="fas fa-seedling"></i> Whole Person</span>
                     <h3>INSPIRE•ME</h3>
                     <p>Physical · Mental · Social · Financial — A premium holistic program to transform every dimension of your life.</p>
-                    <a href="inspire-program.html" class="card-link">Begin transformation <i class="fas fa-arrow-right"></i></a>
+                    <a href="#" class="card-link" onclick="navigateToInspiredMe()">Begin transformation <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             
@@ -2639,7 +1946,7 @@
                     <span class="feature-badge"><i class="fas fa-store"></i> Shop</span>
                     <h3>THE HERITAGE</h3>
                     <p>Books, merchandise, and digital content that carry the spirit of Afrika Milele. Wear the pride, read the wisdom.</p>
-                    <a href="shop.html" class="card-link">Browse store <i class="fas fa-arrow-right"></i></a>
+                    <a href="#" class="card-link" onclick="navigateToShop()">Browse store <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             
@@ -2650,7 +1957,7 @@
                     <span class="feature-badge workfit-badge"><i class="fas fa-dumbbell"></i> Wellness</span>
                     <h3>WORKFIT</h3>
                     <p>Fitness club, sports activities, personal wellness. Join the community for a healthier you.</p>
-                    <a href="workfit-club.html" class="card-link">Check us out <i class="fas fa-arrow-right"></i></a>
+                    <a href="#" class="card-link" onclick="navigateToWorkFit()">Check us out <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             
@@ -2661,29 +1968,29 @@
                     <span class="feature-badge dev-badge"><i class="fas fa-code"></i> Development</span>
                     <h3>DEV•HUB</h3>
                     <p>Digital products and services designed for you. Let's build something amazing together.</p>
-                    <a href="mugeradev.html" class="card-link">Explore services <i class="fas fa-arrow-right"></i></a>
+                    <a href="#" class="card-link" onclick="navigateToWebDev()">Explore services <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
             <!-- Delivery Service -->
-            <div class="activity-card" id="activityDev">
+            <div class="activity-card" id="activityPickup">
                 <img src="https://i.postimg.cc/hvtpx74W/MUG(28).gif" alt="PICK-UP" class="card-image" loading="lazy">
                 <div class="card-content">
                     <span class="feature-badge dev-badge"><i class="fas fa-truck"></i> Logistics</span>
                     <h3>PICK•UP</h3>
                     <p>Experience the ease of our logistics service: enjoy instant delivery when you need it, or schedule a time that works best for you.</p>
-                    <a href="pickup.html" class="card-link"> Get service now! <i class="fas fa-arrow-right"></i></a>
+                    <a href="#" class="card-link"> Get service now! <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
             <!-- Taxi Service -->
-            <div class="activity-card" id="activityDev">
+            <div class="activity-card" id="activityPickme">
                 <img src="https://i.postimg.cc/BnHcjC50/MUG(29).gif" alt="PICK-ME" class="card-image" loading="lazy">
                 <div class="card-content">
                     <span class="feature-badge dev-badge"><i class="fas fa-car"></i> Taxi</span>
                     <h3>PICK•ME</h3>
                     <p>🚨 Emergency Pickups. Same-Day Travel. Instant Rides. & More.</p>
-                    <a href="pickme.html" class="card-link">Book Now! <i class="fas fa-arrow-right"></i></a>
+                    <a href="#" class="card-link">Book Now! <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             <!-- Courses Hub -->
@@ -2693,17 +2000,17 @@
                     <span class="feature-badge dev-badge"><i class="fas fa-graduation-cap"></i> Soft Skills</span>
                     <h3>HEKIMA•HUB</h3>
                     <p>Short courses and educative sessions designed for quick skills. Explore my current classes</p>
-                    <a href="courses.html" class="card-link">Start learning <i class="fas fa-arrow-right"></i></a>
+                    <a href="#" class="card-link">Start learning <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
             <!-- EPITOME -->
-            <div class="activity-card" id="activityCourses">
+            <div class="activity-card" id="activityEpitome">
                 <img src="https://i.postimg.cc/brG8FBy6/MUG(35).gif" alt="Courses" class="card-image" loading="lazy">
                 <div class="card-content">
                     <span class="feature-badge dev-badge"><i class="fas fa-car"></i> Automotive </span>
                     <h3>EPITOME</h3>
                     <p>Discover a world where trusted brands and the latest models meet affordability. At Epitome, your perfect car, bike, or truck is waiting. Experience perfection unfolding.</p>
-                    <a href="epitome.html" class="card-link">Get your ride <i class="fas fa-arrow-right"></i></a>
+                    <a href="#" class="card-link">Get your ride <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
         </div>
@@ -2721,7 +2028,7 @@
                 <a href="https://www.tiktok.com/@T_GK001" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
             </div>
             <div class="footer-copyright">
-                <p>© 2026 <b>יהוה.</b> All rights reserved. | <a href="terms.html">Terms of Service</a> | <a href="privacy.html">Privacy Policy</a></p>
+                <p>© 2026 <b>יהוה.</b> All rights reserved. | <a href="#">Terms of Service</a> | <a href="#">Privacy Policy</a></p>
             </div>
         </div>
     </footer>
@@ -2763,77 +2070,6 @@
     let unreadMessagesRef = null;
     let previousUnreadCount = 0;
     
-    // Tutorial System Variables
-    let tutorialActive = false;
-    let tutorialStep = 0;
-    
-    // Installation tracking
-    let installationStep = 0;
-    let appInstalled = false;
-    let currentMobilePlatform = 'ios'; // Default to iOS
-    
-    // Device detection
-    const isMobile = window.innerWidth <= 768;
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    const isAndroid = /Android/.test(navigator.userAgent);
-    const isDesktop = !isMobile && !isIOS && !isAndroid;
-    
-    // Tutorial steps
-    const tutorialSteps = [
-        {
-            title: '👋 Welcome to I AM MUGERA!',
-            content: 'Let\'s take a quick tour to help you get started. We\'ll show you all the key features in just 2 minutes.',
-            highlight: null,
-            tooltip: null
-        },
-        {
-            title: '🔍 Smart Search',
-            content: isMobile ? 
-                'Tap the search icon to find any service, course, or content. Type "eye", "shop", or "workfit" and see instant suggestions!' :
-                'Use the search bar to quickly find any service, course, or content. Type "eye", "shop", or "workfit" and see instant suggestions!',
-            highlight: isMobile ? 'mobileSearchBtn' : 'desktopSearchContainer',
-            tooltip: isMobile ? 'Tap to search' : 'Start typing to see suggestions'
-        },
-        {
-            title: '📬 Your Inbox',
-            content: 'The inbox shows your messages and notifications. The red badge shows unread messages. You\'ll get real-time updates here!',
-            highlight: isMobile ? 'mobileInboxLink' : 'desktopInboxLink',
-            tooltip: 'Real-time notifications'
-        },
-        {
-            title: '⏰ Operating Hours',
-            content: 'Check our current status here. Green = Open, Yellow = Closing Soon, Red = Closed. Click for full hours.',
-            highlight: 'hoursMiniCard',
-            tooltip: 'Click to see all hours'
-        },
-        {
-            title: '🏕️ Explore the Camp',
-            content: 'This is our core! All services begin here: THE IN-SIGHT (journals), INSPIRE•ME (wellness), THE HERITAGE (shop), WORKFIT (fitness), DEV•HUB (tech), and HEKIMA•HUB (courses).',
-            highlight: 'activitiesGrid',
-            tooltip: 'Your journey starts here'
-        },
-        {
-            title: '🎨 Theme Toggle',
-            content: 'Switch between dark and light mode anytime. Your preference is saved for next time!',
-            highlight: 'themeToggle',
-            tooltip: 'Dark/Light mode'
-        },
-        {
-            title: isMobile ? '📱 Mobile Menu' : '📱 Navigation Menu',
-            content: isMobile ? 
-                'Tap the hamburger menu to access everything: inbox, services, theme toggle, and more.' :
-                'Use the side panel menu to quickly navigate to all sections.',
-            highlight: 'hamburgerBtn',
-            tooltip: isMobile ? 'Tap to open menu' : 'Click to open menu'
-        },
-        {
-            title: '🚀 Ready to Explore!',
-            content: 'You\'re all set! Remember: you can restart this tour anytime from the menu. Now go ahead and explore I AM MUGERA!',
-            highlight: null,
-            tooltip: null
-        }
-    ];
-    
     try {
         firebase.initializeApp(firebaseConfig);
         database = firebase.database();
@@ -2841,112 +2077,6 @@
     } catch (e) { 
         console.error('Firebase initialization error:', e); 
     }
-
-    // ========== CHECK IF APP IS INSTALLED ==========
-    function checkAppInstalled() {
-        // Check if running in standalone mode (PWA)
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                            window.navigator.standalone || 
-                            document.referrer.includes('android-app://');
-        
-        if (isStandalone) {
-            appInstalled = true;
-            localStorage.setItem('appInstalled', 'true');
-        }
-        
-        if (localStorage.getItem('appInstalled') === 'true') {
-            appInstalled = true;
-        }
-        
-        return appInstalled;
-    }
-
-    // ========== INSTALLATION MODAL ==========
-    function showInstallModal() {
-        if (checkAppInstalled()) return;
-        
-        // Auto-select platform based on device
-        if (isIOS) {
-            switchMobilePlatform('ios');
-        } else if (isAndroid) {
-            switchMobilePlatform('android');
-        }
-        
-        document.getElementById('installModal').classList.add('active');
-        document.body.classList.add('modal-open');
-        
-        installationStep = 0;
-        updateInstallProgress();
-    }
-
-    window.closeInstallModal = function() {
-        if (!appInstalled) {
-            showElegantMessage('Please install the app to continue', 'warning');
-            return;
-        }
-        document.getElementById('installModal').classList.remove('active');
-        document.body.classList.remove('modal-open');
-    };
-
-    // Switch between iOS and Android on mobile
-    window.switchMobilePlatform = function(platform) {
-        currentMobilePlatform = platform;
-        
-        // Update buttons
-        document.getElementById('iosMobileBtn').classList.toggle('active', platform === 'ios');
-        document.getElementById('androidMobileBtn').classList.toggle('active', platform === 'android');
-        
-        // Show/hide steps
-        document.getElementById('iosSteps').style.display = platform === 'ios' ? 'block' : 'none';
-        document.getElementById('androidSteps').style.display = platform === 'android' ? 'block' : 'none';
-        
-        // Reset progress when switching platforms
-        installationStep = 0;
-        updateInstallProgress();
-    };
-
-    function updateInstallProgress() {
-        const progressFill = document.getElementById('installProgress');
-        const progressText = document.getElementById('installProgressText');
-        const actionBtn = document.getElementById('installActionBtn');
-        
-        const percent = (installationStep / 3) * 100;
-        progressFill.style.width = percent + '%';
-        progressText.textContent = `Step ${installationStep}/3`;
-        
-        if (installationStep >= 3) {
-            actionBtn.disabled = true;
-            actionBtn.style.opacity = '0.5';
-            document.querySelector('.install-success').classList.add('show');
-            document.querySelector('.install-steps-container').style.display = 'none';
-            document.querySelector('.install-progress').style.display = 'none';
-            document.querySelector('.install-action-btn').style.display = 'none';
-        }
-    }
-
-    window.markInstallStep = function() {
-        if (installationStep < 3) {
-            installationStep++;
-            updateInstallProgress();
-            
-            if (installationStep === 3) {
-                appInstalled = true;
-                localStorage.setItem('appInstalled', 'true');
-                showElegantMessage('✅ Installation completed! Please open the app from your home screen.', 'success');
-            } else {
-                showElegantMessage(`Step ${installationStep} completed! ${3 - installationStep} more to go.`, 'info');
-            }
-        }
-    };
-
-    window.continueAfterInstall = function() {
-        document.getElementById('installModal').classList.remove('active');
-        document.body.classList.remove('modal-open');
-        
-        setTimeout(() => {
-            startTutorial();
-        }, 500);
-    };
 
     // ========== AUTH STATE LISTENER ==========
     if (auth) {
@@ -2960,20 +2090,6 @@
                 
                 previousUnreadCount = 0;
                 setupUnreadMessagesListener(user.uid);
-                
-                const isNewUser = !localStorage.getItem(`tutorial_${user.uid}`);
-                
-                if (isNewUser && isMobile && !checkAppInstalled()) {
-                    // Show installation modal for new mobile users
-                    setTimeout(() => {
-                        showInstallModal();
-                    }, 1000);
-                } else if (isNewUser && (isDesktop || checkAppInstalled())) {
-                    // Start tutorial for desktop users or installed mobile users
-                    setTimeout(() => {
-                        startTutorial();
-                    }, 1000);
-                }
                 
             } else {
                 document.getElementById('welcomePopup').classList.remove('hidden');
@@ -2989,147 +2105,6 @@
             }
         });
     }
-
-    // ========== TUTORIAL SYSTEM ==========
-    function startTutorial() {
-        if (!currentUser) return;
-        
-        tutorialActive = true;
-        tutorialStep = 0;
-        
-        document.getElementById('tutorialOverlay').classList.add('active');
-        document.getElementById('tutorialCard').classList.add('show');
-        
-        updateTutorialStep();
-    }
-
-    function updateTutorialStep() {
-        const step = tutorialSteps[tutorialStep];
-        const content = document.getElementById('tutorialContent');
-        const nextBtn = document.getElementById('tutorialNextBtn');
-        const prevBtn = document.getElementById('tutorialPrevBtn');
-        const steps = document.querySelectorAll('.tutorial-step-dot');
-        
-        steps.forEach((dot, index) => {
-            dot.classList.remove('active', 'completed');
-            if (index < tutorialStep) {
-                dot.classList.add('completed');
-            } else if (index === tutorialStep) {
-                dot.classList.add('active');
-            }
-        });
-        
-        if (tutorialStep === tutorialSteps.length - 1) {
-            nextBtn.textContent = 'Finish Tour';
-        } else if (tutorialStep === 0) {
-            nextBtn.textContent = 'Start Tour';
-        } else {
-            nextBtn.textContent = 'Next';
-        }
-        
-        prevBtn.disabled = tutorialStep === 0;
-        
-        content.innerHTML = `
-            <h3><i class="fas fa-${getStepIcon(tutorialStep)}"></i> ${step.title}</h3>
-            <p>${step.content}</p>
-            ${step.highlight && isMobile ? '<div class="tutorial-mobile-instruction"><i class="fas fa-hand-pointer"></i> Look for the highlighted element above</div>' : ''}
-        `;
-        
-        removeHighlights();
-        
-        if (step.highlight) {
-            const element = document.getElementById(step.highlight);
-            if (element) {
-                element.classList.add('tutorial-pulse');
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
-                if (step.tooltip) {
-                    const rect = element.getBoundingClientRect();
-                    const tooltip = document.createElement('div');
-                    tooltip.className = 'tutorial-tooltip';
-                    tooltip.textContent = step.tooltip;
-                    
-                    if (rect.top > 100) {
-                        tooltip.style.top = `${rect.top - 40}px`;
-                    } else {
-                        tooltip.style.top = `${rect.bottom + 20}px`;
-                    }
-                    
-                    tooltip.style.left = `${rect.left + rect.width/2}px`;
-                    tooltip.id = 'tutorialTooltip';
-                    document.body.appendChild(tooltip);
-                }
-            }
-        }
-    }
-
-    function getStepIcon(step) {
-        const icons = ['compass', 'search', 'inbox', 'clock', 'map', 'palette', 'bars', 'rocket'];
-        return icons[step] || 'star';
-    }
-
-    function removeHighlights() {
-        document.querySelectorAll('.tutorial-pulse').forEach(el => {
-            el.classList.remove('tutorial-pulse');
-        });
-        
-        const tooltip = document.getElementById('tutorialTooltip');
-        if (tooltip) tooltip.remove();
-    }
-
-    window.nextTutorialStep = function() {
-        if (!tutorialActive) return;
-        
-        if (tutorialStep < tutorialSteps.length - 1) {
-            tutorialStep++;
-            updateTutorialStep();
-        } else {
-            finishTutorial();
-        }
-    };
-
-    window.previousTutorialStep = function() {
-        if (!tutorialActive || tutorialStep === 0) return;
-        
-        tutorialStep--;
-        updateTutorialStep();
-    };
-
-    function finishTutorial() {
-        if (currentUser) {
-            localStorage.setItem(`tutorial_${currentUser.uid}`, 'completed');
-        }
-        
-        tutorialActive = false;
-        document.getElementById('tutorialOverlay').classList.remove('active');
-        document.getElementById('tutorialCard').classList.remove('show');
-        removeHighlights();
-        
-        showElegantMessage('🎉 Tutorial completed! Welcome to I AM MUGERA!', 'success');
-    }
-
-    window.skipTutorial = function() {
-        if (currentUser) {
-            localStorage.setItem(`tutorial_${currentUser.uid}`, 'skipped');
-        }
-        
-        tutorialActive = false;
-        document.getElementById('tutorialOverlay').classList.remove('active');
-        document.getElementById('tutorialCard').classList.remove('show');
-        removeHighlights();
-        
-        showElegantMessage('Tour skipped. You can restart anytime from the menu!', 'info');
-    };
-
-    window.restartTutorial = function() {
-        if (!currentUser) {
-            openAuthModal();
-            return;
-        }
-        
-        localStorage.removeItem(`tutorial_${currentUser.uid}`);
-        startTutorial();
-    };
 
     // ========== UNREAD MESSAGES LISTENER ==========
     function setupUnreadMessagesListener(userId) {
@@ -3172,8 +2147,7 @@
     // ========== UPDATE INBOX BADGES ==========
     function updateInboxBadges(count) {
         const badges = {
-            desktop: document.getElementById('desktopInboxBadge'),
-            mobile: document.getElementById('mobileInboxBadge'),
+            inbox: document.getElementById('inboxBadge'),
             panel: document.getElementById('panelInboxBadge')
         };
         
@@ -3329,6 +2303,8 @@
     // ========== LOADING ANIMATION ==========
     (function loadingAnimation() {
         const overlay = document.getElementById('loadingOverlay');
+        if (!overlay) return;
+        
         const typingSpan = document.getElementById('typingText');
         const fullText = "DREAM | ASPIRE | INSPIRE";
         let index = 0;
@@ -3372,37 +2348,14 @@
     };
 
     // ========== SEARCH FUNCTIONALITY ==========
-    // Update the input listeners to use the generateSearchHints from search-utils.js
-    const debouncedDesktop = debounce(function() {
-        window.generateSearchHints(document.getElementById('desktopSearchInput')?.value, 'desktopSearchHints');
-    }, 200);
-    
-    const debouncedMobile = debounce(function() {
-        window.generateSearchHints(document.getElementById('mobileSearchInput')?.value, 'mobileSearchHints');
-    }, 200);
-
-    document.getElementById('desktopSearchInput')?.addEventListener('input', debouncedDesktop);
-    document.getElementById('mobileSearchInput')?.addEventListener('input', debouncedMobile);
-
-    function debounce(func, wait) {
-        let timeout;
-        return function(...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func(...args), wait);
-        };
-    }
-
-    document.addEventListener('click', function(e) {
-        const desktopContainer = document.getElementById('desktopSearchContainer');
-        if (desktopContainer && !desktopContainer.contains(e.target)) {
-            document.getElementById('desktopSearchHints')?.classList.remove('show');
+    window.performSearch = function(query) {
+        if (!query || query.trim() === '') {
+            showElegantMessage('Please enter a search term', 'info');
+            return;
         }
-        
-        const mobileRow = document.querySelector('.search-overlay .search-row');
-        if (mobileRow && !mobileRow.contains(e.target)) {
-            document.getElementById('mobileSearchHints')?.classList.remove('show');
-        }
-    });
+        showElegantMessage(`Searching for: ${query}`, 'info');
+        // Implement actual search logic here
+    };
 
     // ========== HOURS STATUS ==========
     function updateHoursStatus() {
@@ -3528,9 +2481,7 @@
         }
     };
     
-    document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
-    document.getElementById('mobileSearchBtn')?.addEventListener('click', toggleMobileSearch);
-
+    // Close hamburger panel when clicking outside
     document.addEventListener('click', function(e) {
         const panel = document.getElementById('hamburgerPanel');
         const hamburgerBtn = document.getElementById('hamburgerBtn');
@@ -3561,7 +2512,12 @@
         document.getElementById('panelThemeIcon')?.classList.replace('fa-moon', 'fa-sun');
     }
 
-    console.log('I AM MUGERA loaded with external search database');
+    // ========== RESTART TUTORIAL ==========
+    window.restartTutorial = function() {
+        showElegantMessage('Tutorial feature coming soon!', 'info');
+    };
+
+    console.log('I AM MUGERA loaded successfully');
 </script>
 </body>
 </html>
