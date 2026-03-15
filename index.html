@@ -78,6 +78,12 @@
             --status-closing: #ef4444;
             --status-closed: #6b7280;
             
+            /* Tutorial Colors */
+            --tutorial-overlay: rgba(0,0,0,0.3);
+            --tutorial-card: #1a1a1a;
+            --tutorial-highlight: rgba(202,138,4,0.2);
+            --tutorial-pulse: rgba(202,138,4,0.6);
+            
             /* Layout */
             --header-height: 70px;
             --border-radius-sm: 12px;
@@ -103,6 +109,11 @@
             --input-bg: #f5f5f5;
             --input-border: #dddddd;
             --hover-bg: rgba(202,138,4,0.05);
+            
+            /* Tutorial Colors - Light */
+            --tutorial-overlay: rgba(255,255,255,0.3);
+            --tutorial-card: #ffffff;
+            --tutorial-highlight: rgba(202,138,4,0.1);
         }
 
         body {
@@ -192,7 +203,7 @@
             50% { opacity: 0; } 
         }
         
-        /* ----- HEADER STYLES ----- */
+        /* ----- HEADER STYLES - CLEAN NAVIGATION ----- */
         .site-header { 
             position: fixed; 
             top: 0; 
@@ -202,7 +213,7 @@
             backdrop-filter: blur(10px); 
             border-bottom: 1px solid var(--gold); 
             z-index: 2000; 
-            padding: 0 1.5rem; 
+            padding: 0 2rem; 
         }
         
         .header-container { 
@@ -228,84 +239,69 @@
             transform: scale(1.05);
         }
         
-        /* Desktop Main Menu */
-        .desktop-main-menu {
+        /* Desktop Navigation - Clean Minimal Style */
+        .desktop-nav {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            margin: 0 1rem;
-            flex: 1;
-            justify-content: center;
+            gap: 2.5rem;
         }
         
-        .desktop-main-menu .menu-item {
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-link {
             color: var(--text-secondary);
             text-decoration: none;
             font-size: 0.95rem;
             font-weight: 500;
-            padding: 0.5rem 1.2rem;
-            border-radius: var(--border-radius-full);
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
             transition: all 0.2s;
-            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+        
+        .nav-link:hover {
+            color: var(--gold);
+            border-bottom-color: var(--gold);
+        }
+        
+        /* Right Side Icons - ONLY Inbox, Search, Menu */
+        .nav-icons {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            border: 1px solid transparent;
+            gap: 0.8rem;
         }
         
-        .desktop-main-menu .menu-item i {
-            color: var(--gold);
-            font-size: 1rem;
-        }
-        
-        .desktop-main-menu .menu-item:hover {
-            background: var(--hover-bg);
-            border-color: var(--gold);
-            color: var(--gold);
-            transform: translateY(-2px);
-        }
-        
-        .desktop-main-menu .menu-item:hover i {
-            color: var(--gold);
-        }
-        
-        /* Right Side Actions - SIMPLIFIED: only inbox, search icon, menu icon */
-        .header-actions { 
-            display: flex; 
-            align-items: center; 
-            gap: 0.8rem; 
-            flex-shrink: 0;
-        }
-        
-        /* Action Icons */
-        .action-icon {
+        .icon-btn {
             position: relative;
-            background: var(--hover-bg);
-            border: 1px solid var(--gold);
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
-            width: 45px;
-            height: 45px;
+            background: var(--hover-bg);
+            border: 1px solid var(--border-gold);
+            color: var(--gold);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--gold);
-            font-size: 1.2rem;
             cursor: pointer;
             transition: all 0.2s;
+            font-size: 1.2rem;
             text-decoration: none;
         }
         
-        .action-icon:hover {
+        .icon-btn:hover {
             background: var(--gold);
             color: black;
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
         
-        .action-icon:hover i {
+        .icon-btn:hover i {
             color: black;
         }
         
-        .inbox-badge {
+        .badge {
             position: absolute;
             top: -5px;
             right: -5px;
@@ -324,8 +320,58 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
         
-        /* Desktop Search Overlay (hidden by default, appears when search icon clicked) */
-        .desktop-search-overlay {
+        /* User Avatar (replaces menu icon when logged in) */
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--gold);
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border: 2px solid var(--gold);
+            transition: all 0.2s;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--gold);
+        }
+        
+        /* Mobile Header */
+        .mobile-header { 
+            display: none; 
+            align-items: center; 
+            gap: 1rem; 
+        }
+        
+        .mobile-btn { 
+            width: 42px; 
+            height: 42px; 
+            border-radius: 50%; 
+            border: 1px solid var(--gold); 
+            color: var(--gold); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.2rem; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            background: transparent;
+            text-decoration: none;
+        }
+        
+        .mobile-btn:hover { 
+            background: var(--gold); 
+            color: black; 
+        }
+        
+        /* Desktop Search Overlay */
+        .search-overlay {
             position: fixed;
             top: var(--header-height);
             left: 0;
@@ -340,17 +386,17 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         
-        .desktop-search-overlay.open {
+        .search-overlay.open {
             transform: translateY(0);
         }
         
-        .desktop-search-container {
+        .search-container {
             max-width: 600px;
             margin: 0 auto;
             position: relative;
         }
         
-        .desktop-search-container input {
+        .search-container input {
             width: 100%;
             padding: 1.2rem 1.5rem;
             background: var(--bg-secondary);
@@ -361,11 +407,11 @@
             outline: none;
         }
         
-        .desktop-search-container input:focus {
+        .search-container input:focus {
             box-shadow: 0 0 0 4px var(--shadow-color);
         }
         
-        .desktop-search-container button {
+        .search-container button {
             position: absolute;
             right: 10px;
             top: 50%;
@@ -380,12 +426,12 @@
             transition: 0.2s;
         }
         
-        .desktop-search-container button:hover {
+        .search-container button:hover {
             background: var(--gold-dark);
             transform: translateY(-50%) scale(1.05);
         }
         
-        .desktop-search-hints {
+        .search-hints {
             position: absolute;
             top: calc(100% + 10px);
             left: 0;
@@ -399,345 +445,282 @@
             z-index: 2100;
         }
         
-        .desktop-search-hints.show {
+        .search-hints.show {
             display: block;
         }
         
-        /* User Avatar (replaces login button when logged in) */
-        .user-avatar-mini {
+        .hint-item {
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .hint-item:last-child {
+            border-bottom: none;
+        }
+        
+        .hint-item:hover {
+            background: var(--hover-bg);
+            color: var(--gold);
+        }
+        
+        .hint-item i {
+            width: 24px;
+            color: var(--gold);
+        }
+        
+        /* Mobile Search Overlay */
+        .mobile-search-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: var(--nav-bg);
+            backdrop-filter: blur(20px);
+            padding: 1rem;
+            z-index: 2400;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            border-bottom: 2px solid var(--gold);
+        }
+        
+        .mobile-search-overlay.open {
+            transform: translateY(0);
+        }
+        
+        .mobile-search-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+        }
+        
+        .mobile-search-row input {
+            flex: 1;
+            padding: 1.2rem 1.5rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--gold);
+            border-radius: var(--border-radius-full);
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            outline: none;
+        }
+        
+        .mobile-search-row button {
+            background: var(--gold);
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            color: black;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+        
+        .close-search {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 2.2rem;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .close-search:hover {
+            background: var(--hover-bg);
+            color: var(--gold);
+        }
+        
+        .mobile-search-hints {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--gold);
+            border-radius: var(--border-radius-md);
+            padding: 0.5rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 2100;
+            display: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .mobile-search-hints.show {
+            display: block;
+        }
+        
+        /* Slide-out Menu Panel (Unified for Desktop & Mobile) */
+        .menu-panel {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: min(350px, 85%);
+            height: 100vh;
+            background: var(--nav-bg);
+            backdrop-filter: blur(20px);
+            border-left: 2px solid var(--gold);
+            padding: 2rem 1.5rem;
+            z-index: 2500;
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            overflow-y: auto;
+        }
+        
+        .menu-panel.open {
+            right: 0;
+        }
+        
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-gold);
+        }
+        
+        .menu-header h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 1.5rem;
+        }
+        
+        .close-menu {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--hover-bg);
+            border: 1px solid var(--border-gold);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.3rem;
+            transition: all 0.2s;
+        }
+        
+        .close-menu:hover {
+            color: var(--gold);
+            transform: rotate(90deg);
+            border-color: var(--gold);
+        }
+        
+        .menu-user-area {
+            background: var(--hover-bg);
+            border-radius: var(--border-radius-lg);
+            padding: 1.2rem;
+            border: 1px solid var(--border-gold);
+        }
+        
+        .menu-user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .menu-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
             background: var(--gold);
             color: black;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
             font-size: 1.2rem;
-            cursor: pointer;
-            border: 2px solid var(--gold);
-            transition: all 0.2s;
         }
         
-        .user-avatar-mini:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 15px var(--gold);
+        .menu-user-name {
+            font-weight: 600;
+            color: var(--gold);
+            font-size: 1.1rem;
         }
         
-        /* Mobile Header */
-        .mobile-header-group { 
-            display: none; 
-            align-items: center; 
-            gap: 0.8rem; 
-        }
-        
-        .mobile-search-icon, 
-        .hamburger-icon { 
-            background: transparent; 
-            border: 1px solid var(--gold); 
-            color: var(--gold); 
-            width: 42px; 
-            height: 42px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 1.3rem; 
-            cursor: pointer; 
-            transition: all 0.2s; 
-            text-decoration: none;
-        }
-        
-        .mobile-search-icon:hover, 
-        .hamburger-icon:hover { 
-            background: var(--gold); 
-            color: black; 
-        }
-        
-        /* Mobile Search Overlay */
-        .search-overlay { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            background: var(--nav-bg); 
-            backdrop-filter: blur(20px); 
-            padding: 1rem; 
-            z-index: 2400; 
-            transform: translateY(-100%); 
-            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); 
-            border-bottom: 2px solid var(--gold); 
-        }
-        
-        .search-overlay.open { 
-            transform: translateY(0); 
-        }
-        
-        .search-overlay .search-row { 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-            position: relative; 
-        }
-        
-        .search-overlay input { 
-            flex: 1; 
-            padding: 1.2rem 1.5rem; 
-            background: var(--bg-secondary); 
-            border: 2px solid var(--gold); 
-            border-radius: var(--border-radius-full); 
-            color: var(--text-primary); 
-            font-size: 1.1rem; 
-            outline: none; 
-        }
-        
-        .search-overlay button { 
-            background: var(--gold); 
-            border: none; 
-            width: 60px; 
-            height: 60px; 
-            border-radius: 50%; 
-            color: black; 
-            font-size: 1.3rem; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-        }
-        
-        .close-search { 
-            background: transparent; 
-            border: none; 
-            color: var(--text-muted); 
-            font-size: 2.2rem; 
-            cursor: pointer; 
-            width: 50px; 
-            height: 50px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            border-radius: 50%; 
-        }
-        
-        .close-search:hover { 
-            background: var(--hover-bg); 
-            color: var(--gold); 
-        }
-        
-        .mobile-search-hints { 
-            position: absolute; 
-            top: calc(100% + 8px); 
-            left: 0; 
-            right: 0; 
-            background: var(--card-bg); 
-            border: 1px solid var(--gold); 
-            border-radius: var(--border-radius-md); 
-            padding: 0.5rem 0; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-            z-index: 2100; 
-            display: none; 
-            max-height: 300px; 
-            overflow-y: auto; 
-        }
-        
-        .mobile-search-hints.show { 
-            display: block; 
-        }
-        
-        .hint-item { 
-            padding: 0.8rem 1.2rem; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            gap: 1rem; 
-            transition: all 0.2s; 
-            color: var(--text-primary); 
-            border-bottom: 1px solid var(--border-light); 
-        }
-        
-        .hint-item:last-child { 
-            border-bottom: none; 
-        }
-        
-        .hint-item:hover { 
-            background: var(--hover-bg); 
-            color: var(--gold); 
-        }
-        
-        .hint-item i { 
-            width: 24px; 
-            color: var(--gold); 
-        }
-        
-        .hint-item .hint-category { 
-            font-size: 0.7rem; 
-            color: var(--text-muted); 
-            margin-left: auto; 
-            text-transform: uppercase; 
-        }
-        
-        /* Unified Hamburger Panel (works for both mobile and desktop) */
-        .hamburger-panel { 
-            position: fixed; 
-            top: 0; 
-            right: -350px; 
-            width: min(350px, 85%); 
-            height: 100vh; 
-            background: var(--nav-bg); 
-            backdrop-filter: blur(20px); 
-            border-left: 2px solid var(--gold); 
-            padding: 2rem 1.5rem; 
-            z-index: 2500; 
-            transition: right 0.3s cubic-bezier(0.4,0,0.2,1); 
-            box-shadow: -10px 0 30px rgba(0,0,0,0.5); 
-            display: flex; 
-            flex-direction: column; 
-            gap: 1.5rem; 
-            overflow-y: auto;
-        }
-        
-        .hamburger-panel.open { 
-            right: 0; 
-        }
-        
-        .panel-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 1px solid var(--border-light); 
-            padding-bottom: 1rem; 
-        }
-        
-        .panel-header h3 { 
-            font-family: 'Cinzel', serif; 
-            color: var(--gold); 
-            font-size: 1.5rem;
-        }
-        
-        .close-panel { 
-            background: var(--hover-bg);
-            border: 1px solid var(--border-gold);
-            color: var(--text-muted); 
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+        .menu-logout {
+            width: 100%;
+            padding: 0.8rem;
+            background: transparent;
+            border: 1px solid var(--gold);
+            border-radius: var(--border-radius-full);
+            color: var(--gold);
+            font-weight: 500;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem; 
-            cursor: pointer; 
-            transition: all 0.2s;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: 0.2s;
         }
         
-        .close-panel:hover {
-            color: var(--gold);
-            background: var(--hover-bg);
-            transform: rotate(90deg);
-            border-color: var(--gold);
+        .menu-logout:hover {
+            background: var(--gold);
+            color: black;
         }
         
-        .panel-user-area { 
-            background: var(--hover-bg); 
-            border-radius: var(--border-radius-lg); 
-            padding: 1.2rem; 
-            border: 1px solid var(--border-gold); 
+        .menu-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
         }
         
-        .panel-user-info { 
-            display: flex; 
-            align-items: center; 
-            gap: 1rem; 
-            margin-bottom: 1rem; 
-        }
-        
-        .panel-avatar { 
-            width: 50px; 
-            height: 50px; 
-            background: var(--gold); 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: bold; 
-            font-size: 1.2rem;
-            color: black; 
-        }
-        
-        .panel-user-name { 
-            font-weight: 600; 
-            color: var(--gold); 
-            font-size: 1.1rem;
-        }
-        
-        .panel-logout { 
-            width: 100%; 
-            padding: 0.8rem; 
-            background: transparent; 
-            border: 1px solid var(--gold); 
-            border-radius: var(--border-radius-full); 
-            color: var(--gold); 
-            font-weight: 500; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 0.5rem; 
-            cursor: pointer; 
-            transition: 0.2s; 
-        }
-        
-        .panel-logout:hover { 
-            background: var(--gold); 
-            color: black; 
-        }
-        
-        .panel-quick-links { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 0.5rem; 
-        }
-        
-        .panel-link { 
-            padding: 1rem 1.2rem; 
-            background: rgba(255,255,255,0.03); 
-            border-radius: var(--border-radius-lg); 
-            color: var(--text-primary); 
-            text-decoration: none; 
-            display: flex; 
-            align-items: center; 
-            gap: 1rem; 
-            transition: 0.2s; 
-            border: 1px solid transparent; 
+        .menu-link {
+            padding: 0.9rem 1rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: var(--border-radius-lg);
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: 0.2s;
+            border: 1px solid transparent;
             font-weight: 500;
         }
         
-        .panel-link:hover { 
-            border-color: var(--gold); 
-            background: var(--hover-bg); 
-            color: var(--gold); 
+        .menu-link:hover {
+            border-color: var(--gold);
+            background: var(--hover-bg);
+            color: var(--gold);
             transform: translateX(5px);
         }
         
-        .panel-link i { 
-            width: 24px; 
-            color: var(--gold); 
+        .menu-link i {
+            width: 24px;
+            color: var(--gold);
             font-size: 1.1rem;
         }
         
-        .panel-theme-toggle { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 1rem 1.2rem; 
-            background: rgba(255,255,255,0.03); 
-            border-radius: var(--border-radius-full); 
-            margin-top: auto; 
-            border: 1px solid var(--border-light); 
+        .menu-theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.9rem 1rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: var(--border-radius-full);
+            margin-top: auto;
+            border: 1px solid var(--border-gold);
         }
         
         .theme-toggle-btn {
-            width: 45px;
-            height: 45px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             background: var(--gold);
             display: flex;
@@ -754,13 +737,10 @@
         
         .theme-toggle-btn i {
             color: black;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
         }
         
-        /* Rest of the styles (welcome popup, auth modal, install modal, hero, activities, footer) - keeping exactly as original */
-        /* ... (all other styles from original remain unchanged) ... */
-        
-        /* WELCOME POPUP */
+        /* ----- WELCOME POPUP (preserved) ----- */
         .welcome-popup {
             position: fixed;
             top: 0;
@@ -901,7 +881,7 @@
             color: black;
         }
         
-        /* AUTH MODAL */
+        /* ----- AUTH MODAL (preserved) ----- */
         .modal-overlay { 
             position: fixed; 
             top: 0;
@@ -1074,7 +1054,7 @@
             display: none; 
         }
         
-        /* INSTALLATION MODAL */
+        /* ----- INSTALLATION MODAL (preserved) ----- */
         .install-modal-overlay {
             position: fixed;
             top: 0;
@@ -1349,7 +1329,24 @@
             transform: translateY(-2px);
         }
         
-        /* HERO SECTION */
+        .desktop-message {
+            text-align: center;
+            padding: 1rem;
+            background: var(--hover-bg);
+            border-radius: var(--border-radius-md);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--gold);
+        }
+        
+        .mobile-only {
+            display: none;
+        }
+        
+        .desktop-only {
+            display: block;
+        }
+        
+        /* ----- HERO SECTION (preserved) ----- */
         .hero-section { 
             min-height: 100vh; 
             background: linear-gradient(135deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.7) 100%), url('https://i.postimg.cc/xdX6vP2M/20260204-1035-Image-Generation-remix-01kgks60qgeata5pv0jy8vkg0d.webp') center/cover fixed; 
@@ -1386,6 +1383,7 @@
             letter-spacing: 1px;
         }
         
+        /* Hours Card */
         .hours-mini-card { 
             display: inline-flex; 
             align-items: center; 
@@ -1457,6 +1455,7 @@
         .status-closing { color: var(--status-closing); }
         .status-closed { color: var(--status-closed); }
         
+        /* Hours Modal */
         .hours-modal { 
             position: fixed; 
             top: 0;
@@ -1562,6 +1561,7 @@
             padding-top: 1.5rem; 
         }
         
+        /* Brand Purpose */
         .brand-purpose { 
             max-width: 700px; 
             margin: 3rem auto 0; 
@@ -1586,7 +1586,7 @@
             color: var(--gold);
         }
         
-        /* ACTIVITIES SECTION */
+        /* ----- ACTIVITIES SECTION (preserved) ----- */
         .activities-section { 
             max-width: 1200px; 
             margin: 5rem auto; 
@@ -1698,7 +1698,13 @@
             width: fit-content; 
         }
         
-        /* FOOTER */
+        .inspired-badge { 
+            background: rgba(46,125,50,0.1); 
+            color: var(--inspired); 
+            border-color: var(--inspired); 
+        }
+        
+        /* ----- FOOTER (preserved) ----- */
         .footer {
             background: var(--bg-secondary);
             padding: 4rem 1.5rem 2rem;
@@ -1720,6 +1726,24 @@
             font-size: 2rem;
             color: var(--gold);
             margin-bottom: 0.5rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+            font-size: 1rem;
+        }
+        
+        .footer-links a:hover {
+            color: var(--gold);
         }
         
         .footer-social {
@@ -1748,6 +1772,7 @@
             color: var(--gold);
             transform: translateY(-3px);
             border-color: var(--gold);
+            background: var(--hover-bg);
         }
         
         .footer-copyright {
@@ -1762,7 +1787,7 @@
             text-decoration: none;
         }
         
-        /* TOAST MESSAGE */
+        /* ----- TOAST MESSAGE ----- */
         .message-toast { 
             position: fixed; 
             top: 30px; 
@@ -1797,7 +1822,7 @@
             font-size: 1.2rem;
         }
         
-        /* PWA Install Button */
+        /* ----- PWA INSTALL BUTTON ----- */
         .install-pwa { 
             position: fixed; 
             bottom: 20px; 
@@ -1826,16 +1851,30 @@
             box-shadow: 0 10px 25px var(--shadow-color);
         }
         
-        /* Responsive */
+        /* ----- RESPONSIVE ----- */
         @media (max-width: 768px) {
-            .desktop-main-menu {
+            .desktop-nav {
                 display: none;
             }
-            .header-actions {
+            .mobile-header {
+                display: flex;
+            }
+            .mobile-only {
+                display: block;
+            }
+            .desktop-only {
                 display: none;
             }
-            .mobile-header-group { 
-                display: flex; 
+            .footer-links {
+                gap: 1rem;
+                flex-direction: column;
+            }
+            .hours-mini-card {
+                padding: 1rem 1.5rem;
+                gap: 1rem;
+            }
+            .activities-grid {
+                grid-template-columns: 1fr;
             }
         }
         
@@ -1844,35 +1883,50 @@
                 flex-direction: column;
                 width: 100%;
             }
+            .current-day {
+                width: 100%;
+                justify-content: center;
+            }
+            .status-badge-mini {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
-<body class="dark-theme">
+<body>
 
-<!-- WELCOME POPUP -->
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <img src="https://i.postimg.cc/bwkN851g/20260304-1008-Image-Generation-remix-01kjvtr63ce54v1awen6j4n88x-1.webp" alt="I AM MUGERA Logo" class="loading-logo">
+    <div class="typing-container">
+        <span id="typingText"></span><span class="cursor"></span>
+    </div>
+</div>
+
+<!-- Welcome Popup -->
 <div class="welcome-popup" id="welcomePopup">
     <div class="popup-content">
         <h2>Karibu!</h2>
         <p>Create an account to work with I AM MUGERA</p>
         <div class="popup-buttons">
-            <button class="popup-btn popup-eye" onclick="openAuthModal()"><i class="far fa-newspaper"></i> THE IN-SIGHT JOURNAL</button>
-            <button class="popup-btn popup-inspired" onclick="openAuthModal()"><i class="fas fa-seedling"></i> DAIMA CHALLENGE</button>
-            <button class="popup-btn popup-shop" onclick="openAuthModal()"><i class="fas fa-store"></i>THE HERITAGE</button>
-            <button class="popup-btn popup-songa" onclick="openAuthModal()"><i class="fas fa-dumbbell"></i>WORKFIT CLUB</button>
+            <button class="popup-btn" onclick="openAuthModal()"><i class="far fa-newspaper"></i> THE IN-SIGHT JOURNAL</button>
+            <button class="popup-btn" onclick="openAuthModal()"><i class="fas fa-seedling"></i> DAIMA CHALLENGE</button>
+            <button class="popup-btn" onclick="openAuthModal()"><i class="fas fa-store"></i>THE HERITAGE</button>
+            <button class="popup-btn" onclick="openAuthModal()"><i class="fas fa-dumbbell"></i>WORKFIT CLUB</button>
         </div>
         <div class="auth-divider"><span></span></div>
         <button class="popup-btn popup-login" onclick="openAuthModal()"><i class="fas fa-user-circle"></i> Login / Sign Up</button>
     </div>
 </div>
 
-<!-- MODAL OVERLAY / AUTH MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeAllModals()"></div>
+<!-- Modal Overlay / Auth Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeAuthModal()"></div>
 <div class="auth-modal" id="authModal">
-    <button class="modal-close" onclick="closeAllModals()">&times;</button>
+    <button class="modal-close" onclick="closeAuthModal()">&times;</button>
     <div class="modal-header">
         <i class="fas fa-crown"></i>
         <h3>Join I AM MUGERA</h3>
-        <p>Create account to unlock the experience</p>
     </div>
     <div class="modal-tabs">
         <button class="modal-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button>
@@ -1895,7 +1949,7 @@
     </form>
 </div>
 
-<!-- INSTALLATION MODAL -->
+<!-- Installation Modal -->
 <div class="install-modal-overlay" id="installModal">
     <div class="install-modal">
         <button class="install-modal-close" onclick="closeInstallModal()">&times;</button>
@@ -1936,132 +1990,132 @@
     </div>
 </div>
 
-<!-- LOADING OVERLAY -->
-<div class="loading-overlay" id="loadingOverlay">
-    <img src="https://i.postimg.cc/bwkN851g/20260304-1008-Image-Generation-remix-01kjvtr63ce54v1awen6j4n88x-1.webp" alt="I AM MUGERA Logo" class="loading-logo">
-    <div class="typing-container"><span id="typingText"></span><span class="cursor"></span></div>
+<!-- Slide-out Menu Panel -->
+<div class="menu-panel" id="menuPanel">
+    <div class="menu-header">
+        <h3>Menu</h3>
+        <div class="close-menu" onclick="toggleMenu()"><i class="fas fa-times"></i></div>
+    </div>
+    
+    <div class="menu-user-area" id="menuUserArea">
+        <div id="menuLoggedOut">
+            <div style="text-align: center; margin-bottom: 1rem;">
+                <i class="fas fa-user-circle" style="font-size: 3rem; color: var(--text-muted);"></i>
+            </div>
+            <button class="menu-logout" onclick="openAuthModal(); toggleMenu()">
+                <i class="fas fa-sign-in-alt"></i> Login / Sign Up
+            </button>
+        </div>
+        <div id="menuLoggedIn" style="display: none;">
+            <div class="menu-user-info">
+                <div class="menu-avatar" id="menuAvatar">M</div>
+                <span class="menu-user-name" id="menuUserName">Mugera</span>
+            </div>
+            <button class="menu-logout" onclick="handleLogout(); toggleMenu()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+    
+    <div class="menu-links">
+        <a href="user-profile.html" class="menu-link" onclick="navigateToUserProfile(); toggleMenu()"><i class="far fa-user"></i> My Account</a>
+        <a href="inbox.html" class="menu-link" onclick="toggleMenu()" style="justify-content: space-between;">
+            <span><i class="fas fa-inbox"></i> Inbox</span>
+            <span class="badge" id="menuInboxBadge" style="display: none; position: static;">0</span>
+        </a>
+        <a href="#" class="menu-link" onclick="navigateToEyeOfMugera(); toggleMenu()"><i class="far fa-newspaper"></i> The In-Sight</a>
+        <a href="#" class="menu-link" onclick="navigateToInspiredMe(); toggleMenu()"><i class="fas fa-seedling"></i> Inspire•Me</a>
+        <a href="#" class="menu-link" onclick="navigateToShop(); toggleMenu()"><i class="fas fa-store"></i> The Heritage</a>
+        <a href="#" class="menu-link" onclick="navigateToWorkFit(); toggleMenu()"><i class="fas fa-dumbbell"></i> WorkFit</a>
+        <a href="#" class="menu-link" onclick="navigateToWebDev(); toggleMenu()"><i class="fas fa-code"></i> Dev•Hub</a>
+        <a href="courses.html" class="menu-link" onclick="toggleMenu()"><i class="fas fa-graduation-cap"></i> Hekima•Hub</a>
+        <a href="pickup.html" class="menu-link" onclick="toggleMenu()"><i class="fas fa-truck"></i> Pick•Up</a>
+        <a href="pickme.html" class="menu-link" onclick="toggleMenu()"><i class="fas fa-car"></i> Pick•Me</a>
+        <a href="epitome.html" class="menu-link" onclick="toggleMenu()"><i class="fas fa-car"></i> Epitome</a>
+        <a href="#" class="menu-link" onclick="document.getElementById('activities').scrollIntoView({behavior: 'smooth'}); toggleMenu()"><i class="fas fa-compass"></i> Activities</a>
+        <a href="#" class="menu-link" onclick="restartTutorial(); toggleMenu()"><i class="fas fa-graduation-cap"></i> Restart Tour</a>
+    </div>
+    
+    <div class="menu-theme-toggle" id="themeToggle">
+        <span><i class="fas fa-palette"></i> Dark / Light</span>
+        <div class="theme-toggle-btn" onclick="toggleTheme()">
+            <i class="fas fa-moon" id="themeIcon"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Desktop Search Overlay -->
+<div class="search-overlay" id="desktopSearchOverlay">
+    <div class="search-container">
+        <input type="text" placeholder="Search I AM MUGERA..." id="desktopSearchInput" autocomplete="off">
+        <button onclick="performSearch(document.getElementById('desktopSearchInput').value); toggleDesktopSearch()"><i class="fas fa-search"></i></button>
+        <div class="search-hints" id="desktopSearchHints"></div>
+    </div>
+</div>
+
+<!-- Mobile Search Overlay -->
+<div class="mobile-search-overlay" id="mobileSearchOverlay">
+    <div class="mobile-search-row">
+        <input type="text" placeholder="Search..." id="mobileSearchInput" autocomplete="off">
+        <button onclick="performSearch(document.getElementById('mobileSearchInput').value); toggleMobileSearch()"><i class="fas fa-search"></i></button>
+        <button class="close-search" onclick="toggleMobileSearch()"><i class="fas fa-times"></i></button>
+        <div class="mobile-search-hints" id="mobileSearchHints"></div>
+    </div>
 </div>
 
 <!-- MAIN PAGE CONTENT -->
 <main id="mainContent" class="page-content">
-    <!-- HEADER with simplified right side -->
-    <header class="site-header" id="siteHeader">
+    <!-- HEADER - CLEAN NAVIGATION -->
+    <header class="site-header">
         <div class="header-container">
-            <img src="https://i.postimg.cc/T10385m6/20260304-0949-Image-Generation-remix-01kjvspyrkf078efwbh09qxkag-1.webp" alt="I AM MUGERA" class="site-logo" id="siteLogo">
+            <img src="https://i.postimg.cc/T10385m6/20260304-0949-Image-Generation-remix-01kjvspyrkf078efwbh09qxkag-1.webp" alt="I AM MUGERA" class="site-logo">
             
-            <!-- Desktop Main Menu -->
-            <nav class="desktop-main-menu desktop-only">
-                <a href="#" class="menu-item" onclick="navigateToSection('activities'); return false;"><i class="fas fa-compass"></i> Explore</a>
-                <a href="#" class="menu-item" onclick="navigateToEyeOfMugera(); return false;"><i class="far fa-newspaper"></i> In-Sight</a>
-                <a href="#" class="menu-item" onclick="navigateToInspiredMe(); return false;"><i class="fas fa-seedling"></i> Inspire•Me</a>
-                <a href="#" class="menu-item" onclick="navigateToShop(); return false;"><i class="fas fa-store"></i> Heritage</a>
-                <a href="#" class="menu-item" onclick="navigateToWorkFit(); return false;"><i class="fas fa-dumbbell"></i> WorkFit</a>
-                <a href="#" class="menu-item" onclick="navigateToWebDev(); return false;"><i class="fas fa-code"></i> Dev•Hub</a>
-                <a href="courses.html" class="menu-item"><i class="fas fa-graduation-cap"></i> Hekima</a>
-                <a href="pickup.html" class="menu-item"><i class="fas fa-truck"></i> Pick•Up</a>
-                <a href="pickme.html" class="menu-item"><i class="fas fa-car"></i> Pick•Me</a>
-            </nav>
-            
-            <!-- Right Side Actions - SIMPLIFIED: only inbox, search icon, menu icon -->
-            <div class="header-actions desktop-only">
-                <!-- Inbox Icon -->
-                <a href="inbox.html" class="action-icon" id="desktopInboxLink" title="Inbox">
-                    <i class="fas fa-inbox"></i>
-                    <span class="inbox-badge" id="desktopInboxBadge" style="display: none;">0</span>
-                </a>
-                
-                <!-- Search Icon (opens overlay) -->
-                <div class="action-icon" id="desktopSearchIcon" title="Search" onclick="toggleDesktopSearch()">
-                    <i class="fas fa-search"></i>
+            <!-- Desktop Navigation - Clean Minimal Style -->
+            <div class="desktop-nav desktop-only">
+                <div class="nav-links">
+                    <a href="#" class="nav-link" onclick="navigateToSection('activities'); return false;">Explore</a>
+                    <a href="#" class="nav-link" onclick="navigateToEyeOfMugera(); return false;">In-Sight</a>
+                    <a href="#" class="nav-link" onclick="navigateToInspiredMe(); return false;">Inspire•Me</a>
+                    <a href="#" class="nav-link" onclick="navigateToShop(); return false;">Heritage</a>
+                    <a href="#" class="nav-link" onclick="navigateToWorkFit(); return false;">WorkFit</a>
                 </div>
                 
-                <!-- Menu Icon (opens hamburger panel) -->
-                <div class="action-icon" id="desktopMenuIcon" title="Menu" onclick="toggleHamburger()">
-                    <i class="fas fa-bars"></i>
-                </div>
-                
-                <!-- User Avatar (replaces login button when logged in) -->
-                <div id="userAvatarDesktopContainer" style="display: none;" onclick="toggleHamburger()">
-                    <div class="user-avatar-mini" id="userAvatarDesktop">M</div>
+                <!-- Right Side Icons - ONLY Inbox, Search, Menu -->
+                <div class="nav-icons">
+                    <a href="inbox.html" class="icon-btn" id="desktopInboxLink">
+                        <i class="fas fa-inbox"></i>
+                        <span class="badge" id="desktopInboxBadge" style="display: none;">0</span>
+                    </a>
+                    
+                    <div class="icon-btn" id="desktopSearchIcon" onclick="toggleDesktopSearch()">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    
+                    <div id="desktopMenuIcon" class="icon-btn" onclick="toggleMenu()">
+                        <i class="fas fa-bars"></i>
+                    </div>
+                    
+                    <div id="userAvatarContainer" style="display: none;" onclick="toggleMenu()">
+                        <div class="user-avatar" id="userAvatar">M</div>
+                    </div>
                 </div>
             </div>
             
             <!-- Mobile Header -->
-            <div class="mobile-header-group">
-                <div class="mobile-search-icon" id="mobileSearchBtn"><i class="fas fa-search"></i></div>
-                <a href="inbox.html" class="mobile-search-icon" id="mobileInboxLink">
+            <div class="mobile-header">
+                <div class="mobile-btn" id="mobileSearchBtn" onclick="toggleMobileSearch()">
+                    <i class="fas fa-search"></i>
+                </div>
+                <a href="inbox.html" class="mobile-btn" id="mobileInboxLink">
                     <i class="fas fa-inbox"></i>
-                    <span class="inbox-badge" id="mobileInboxBadge" style="display: none;">0</span>
+                    <span class="badge" id="mobileInboxBadge" style="display: none;">0</span>
                 </a>
-                <div class="hamburger-icon" id="hamburgerBtn"><i class="fas fa-bars"></i></div>
+                <div class="mobile-btn" onclick="toggleMenu()">
+                    <i class="fas fa-bars"></i>
+                </div>
             </div>
         </div>
     </header>
-
-    <!-- Desktop Search Overlay (hidden by default) -->
-    <div class="desktop-search-overlay" id="desktopSearchOverlay">
-        <div class="desktop-search-container">
-            <input type="text" placeholder="Search I AM MUGERA..." id="desktopSearchInput" autocomplete="off">
-            <button onclick="performSearch(document.getElementById('desktopSearchInput').value); toggleDesktopSearch();"><i class="fas fa-search"></i></button>
-            <div class="desktop-search-hints" id="desktopSearchHints"></div>
-        </div>
-    </div>
-
-    <!-- Mobile Search Overlay -->
-    <div class="search-overlay" id="mobileSearchOverlay">
-        <div class="search-row">
-            <input type="text" placeholder="Search I AM MUGERA..." id="mobileSearchInput" autocomplete="off">
-            <button onclick="performSearch(document.getElementById('mobileSearchInput').value); toggleMobileSearch();"><i class="fas fa-search"></i></button>
-            <button class="close-search" onclick="toggleMobileSearch()"><i class="fas fa-times"></i></button>
-            <div class="mobile-search-hints" id="mobileSearchHints"></div>
-        </div>
-    </div>
-
-    <!-- Unified Hamburger Panel (works for both desktop and mobile) -->
-    <div class="hamburger-panel" id="hamburgerPanel">
-        <div class="panel-header">
-            <h3>Menu</h3>
-            <button class="close-panel" onclick="toggleHamburger()"><i class="fas fa-times"></i></button>
-        </div>
-        
-        <div class="panel-user-area" id="panelUserArea">
-            <div id="panelLoggedOut" style="display: flex; flex-direction: column; gap: 0.8rem;">
-                <div style="text-align: center; color: var(--text-muted);"><i class="fas fa-user-circle" style="font-size: 3rem;"></i></div>
-                <button class="panel-logout" onclick="openAuthModal(); toggleHamburger();"><i class="fas fa-sign-in-alt"></i> Login / Sign Up</button>
-            </div>
-            <div id="panelLoggedIn" style="display: none; flex-direction: column; gap: 0.8rem;">
-                <div class="panel-user-info">
-                    <div class="panel-avatar" id="panelAvatar">M</div>
-                    <span class="panel-user-name" id="panelUserName">Mugera</span>
-                </div>
-                <button class="panel-logout" onclick="handleLogout(); toggleHamburger();"><i class="fas fa-sign-out-alt"></i> Logout</button>
-            </div>
-        </div>
-        
-        <div class="panel-quick-links">
-            <a href="user-profile.html" class="panel-link" onclick="navigateToUserProfile(); toggleHamburger();"><i class="far fa-user"></i> MY ACCOUNT</a>
-            <a href="inbox.html" class="panel-link" onclick="toggleHamburger();" style="display: flex; align-items: center; justify-content: space-between;">
-                <span><i class="fas fa-inbox"></i> MUGERA CHAT</span>
-                <span class="inbox-badge" id="panelInboxBadge" style="display: none; position: relative; top: 0; right: 0;">0</span>
-            </a>
-            <a href="#" class="panel-link" onclick="navigateToEyeOfMugera(); toggleHamburger();"><i class="far fa-newspaper"></i> THE IN-SIGHT</a>
-            <a href="#" class="panel-link" onclick="navigateToInspiredMe(); toggleHamburger();"><i class="fas fa-seedling"></i> INSPIRE•ME</a>
-            <a href="#" class="panel-link" onclick="navigateToShop(); toggleHamburger();"><i class="fas fa-store"></i> THE HERITAGE</a>
-            <a href="#" class="panel-link" onclick="navigateToWorkFit(); toggleHamburger();"><i class="fas fa-dumbbell"></i> WORKFIT</a>
-            <a href="#" class="panel-link" onclick="navigateToWebDev(); toggleHamburger();"><i class="fas fa-code"></i> DEV•HUB</a>
-            <a href="courses.html" class="panel-link" onclick="toggleHamburger();"><i class="fas fa-graduation-cap"></i> HEKIMA•HUB</a>
-            <a href="pickup.html" class="panel-link" onclick="toggleHamburger();"><i class="fas fa-truck"></i> PICK•UP</a>
-            <a href="pickme.html" class="panel-link" onclick="toggleHamburger();"><i class="fas fa-car"></i> PICK•ME</a>
-            <a href="epitome.html" class="panel-link" onclick="toggleHamburger();"><i class="fas fa-car"></i> EPITOME</a>
-            <a href="#" class="panel-link" onclick="navigateToSection('activities'); toggleHamburger();"><i class="fas fa-compass"></i> ACTIVITIES</a>
-            <a href="#" class="panel-link" onclick="restartTutorial(); toggleHamburger();"><i class="fas fa-graduation-cap"></i> RESTART TOUR</a>
-        </div>
-        
-        <div class="panel-theme-toggle" id="themeToggle">
-            <span><i class="fas fa-palette"></i> Dark / Light</span>
-            <div class="theme-toggle-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="panelThemeIcon"></i></div>
-        </div>
-    </div>
 
     <!-- HERO SECTION -->
     <section class="hero-section" id="heroSection">
@@ -2070,8 +2124,14 @@
             <p class="main-sub">DREAM · ASPIRE · INNOVATE · INSPIRE</p>
             
             <div class="hours-mini-card" id="hoursMiniCard" onclick="openHoursModal()">
-                <div class="current-day"><i class="fas fa-calendar-alt"></i><span><span class="day-name" id="currentDayName">Monday</span></span></div>
-                <div class="status-badge-mini" id="currentStatusBadge"><i class="fas fa-circle" id="statusIcon"></i><span id="statusText">Loading...</span></div>
+                <div class="current-day">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span><span class="day-name" id="currentDayName">Monday</span></span>
+                </div>
+                <div class="status-badge-mini" id="currentStatusBadge">
+                    <i class="fas fa-circle" id="statusIcon"></i>
+                    <span id="statusText">Loading...</span>
+                </div>
             </div>
 
             <div class="hours-modal" id="hoursModal">
@@ -2088,28 +2148,114 @@
                 </div>
             </div>
 
-            <div class="brand-purpose"><p><b>I AM MUGERA</b> is an ecosystem for enterprises, providing diverse services and support to build, launch, and rise.</p></div>
+            <div class="brand-purpose">
+                <p><b>I AM MUGERA</b> is an ecosystem for enterprises, providing diverse services and support to build, launch, and rise.</p>
+            </div>
         </div>
     </section>
 
     <!-- ACTIVITIES SECTION -->
     <section class="activities-section" id="activities">
-        <div class="section-header"><h2>Explore the Camp</h2><p>Discover the pillars of I AM MUGERA — each crafted to inspire and uplift.</p></div>
-        <div class="activities-grid" id="activitiesGrid">
-            <div class="activity-card"><img src="https://i.postimg.cc/kgcRrtMJ/MUG(20).gif" alt="Eye of Mugera" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="far fa-newspaper"></i> Weekly Journals</span><h3>THE IN-SIGHT</h3><p>Weekly articles, insights and real life empowering stories.</p><a href="eye-of-mugera.html" class="card-link">Read & get featured <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/gkrZZKp0/MUG(26).gif" alt="Inspired.Me" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge inspired-badge"><i class="fas fa-seedling"></i> Whole Person</span><h3>INSPIRE•ME</h3><p>Physical · Mental · Social · Financial — A premium holistic program.</p><a href="inspire-program.html" class="card-link">Begin transformation <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/mDcwVGfD/MUG(23).gif" alt="shop" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge"><i class="fas fa-store"></i> Shop</span><h3>THE HERITAGE</h3><p>Books, merchandise, and digital content that carry the spirit of Afrika Milele.</p><a href="shop.html" class="card-link">Browse store <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/fWxRmKfz/MUG(16).gif" alt="Workfit" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge workfit-badge"><i class="fas fa-dumbbell"></i> Wellness</span><h3>WORKFIT</h3><p>Fitness club, sports activities, personal wellness.</p><a href="workfit-club.html" class="card-link">Check us out <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/gJs30WjJ/MUG(15).gif.gif" alt="Web Development" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge dev-badge"><i class="fas fa-code"></i> Development</span><h3>DEV•HUB</h3><p>Digital products and services designed for you.</p><a href="mugeradev.html" class="card-link">Explore services <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/hvtpx74W/MUG(28).gif" alt="PICK-UP" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge dev-badge"><i class="fas fa-truck"></i> Logistics</span><h3>PICK•UP</h3><p>Instant delivery or schedule a time that works for you.</p><a href="pickup.html" class="card-link">Get service now! <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/BnHcjC50/MUG(29).gif" alt="PICK-ME" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge dev-badge"><i class="fas fa-car"></i> Taxi</span><h3>PICK•ME</h3><p>🚨 Emergency Pickups. Same-Day Travel. Instant Rides.</p><a href="pickme.html" class="card-link">Book Now! <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/zG2Dd7Rv/MUG(41).gif" alt="Courses" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge dev-badge"><i class="fas fa-graduation-cap"></i> Soft Skills</span><h3>HEKIMA•HUB</h3><p>Short courses designed for quick skills.</p><a href="courses.html" class="card-link">Start learning <i class="fas fa-arrow-right"></i></a></div></div>
-            <div class="activity-card"><img src="https://i.postimg.cc/brG8FBy6/MUG(35).gif" alt="Epitome" class="card-image" loading="lazy"><div class="card-content"><span class="feature-badge dev-badge"><i class="fas fa-car"></i> Automotive</span><h3>EPITOME</h3><p>Trusted brands and latest models meet affordability.</p><a href="epitome.html" class="card-link">Get your ride <i class="fas fa-arrow-right"></i></a></div></div>
+        <div class="section-header">
+            <h2>Explore the Camp</h2>
+            <p>Discover the pillars of I AM MUGERA — each crafted to inspire and uplift.</p>
+        </div>
+        
+        <div class="activities-grid">
+            <div class="activity-card">
+                <img src="https://i.postimg.cc/kgcRrtMJ/MUG(20).gif" alt="Eye of Mugera" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <span class="feature-badge"><i class="far fa-newspaper"></i> Weekly Journals</span>
+                    <h3>THE IN-SIGHT</h3>
+                    <p>Weekly articles, insights and real life empowering stories. Read exclusively or get featured.</p>
+                    <a href="eye-of-mugera.html" class="card-link">Read & get featured <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <div class="activity-card">
+                <img src="https://i.postimg.cc/gkrZZKp0/MUG(26).gif" alt="Inspired.Me" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <span class="feature-badge inspired-badge"><i class="fas fa-seedling"></i> Whole Person</span>
+                    <h3>INSPIRE•ME</h3>
+                    <p>Physical · Mental · Social · Financial — A premium holistic program to transform every dimension of your life.</p>
+                    <a href="inspire-program.html" class="card-link">Begin transformation <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <div class="activity-card">
+                <img src="https://i.postimg.cc/mDcwVGfD/MUG(23).gif" alt="shop" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <span class="feature-badge"><i class="fas fa-store"></i> Shop</span>
+                    <h3>THE HERITAGE</h3>
+                    <p>Books, merchandise, and digital content that carry the spirit of Afrika Milele. Wear the pride, read the wisdom.</p>
+                    <a href="shop.html" class="card-link">Browse store <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <div class="activity-card">
+                <img src="https://i.postimg.cc/fWxRmKfz/MUG(16).gif" alt="Workfit" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <span class="feature-badge"><i class="fas fa-dumbbell"></i> Wellness</span>
+                    <h3>WORKFIT</h3>
+                    <p>Fitness club, sports activities, personal wellness. Join the community for a healthier you.</p>
+                    <a href="workfit-club.html" class="card-link">Check us out <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <div class="activity-card">
+                <img src="https://i.postimg.cc/gJs30WjJ/MUG(15).gif.gif" alt="Web Development" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <span class="feature-badge"><i class="fas fa-code"></i> Development</span>
+                    <h3>DEV•HUB</h3>
+                    <p>Digital products and services designed for you. Let's build something amazing together.</p>
+                    <a href="mugeradev.html" class="card-link">Explore services <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <div class="activity-card">
+                <img src="https://i.postimg.cc/hvtpx74W/MUG(28).gif" alt="PICK-UP" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <span class="feature-badge"><i class="fas fa-truck"></i> Logistics</span>
+                    <h3>PICK•UP</h3>
+                    <p>Experience the ease of our logistics service: enjoy instant delivery when you need it, or schedule a time that works best for you.</p>
+                    <a href="pickup.html" class="card-link">Get service now! <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <div class="activity-card">
+                <img src="https://i.postimg.cc/BnHcjC50/MUG(29).gif" alt="PICK-ME" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <span class="feature-badge"><i class="fas fa-car"></i> Taxi</span>
+                    <h3>PICK•ME</h3>
+                    <p>🚨 Emergency Pickups. Same-Day Travel. Instant Rides. & More.</p>
+                    <a href="pickme.html" class="card-link">Book Now! <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <div class="activity-card">
+                <img src="https://i.postimg.cc/zG2Dd7Rv/MUG(41).gif" alt="Courses" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <span class="feature-badge"><i class="fas fa-graduation-cap"></i> Soft Skills</span>
+                    <h3>HEKIMA•HUB</h3>
+                    <p>Short courses and educative sessions designed for quick skills. Explore my current classes</p>
+                    <a href="courses.html" class="card-link">Start learning <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <div class="activity-card">
+                <img src="https://i.postimg.cc/brG8FBy6/MUG(35).gif" alt="Epitome" class="card-image" loading="lazy">
+                <div class="card-content">
+                    <span class="feature-badge"><i class="fas fa-car"></i> Automotive</span>
+                    <h3>EPITOME</h3>
+                    <p>Discover a world where trusted brands and the latest models meet affordability. At Epitome, your perfect car, bike, or truck is waiting.</p>
+                    <a href="epitome.html" class="card-link">Get your ride <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- FOOTER -->
-    <footer class="footer" id="footer">
+    <footer class="footer">
         <div class="footer-content">
             <div class="footer-logo">I AM MUGERA</div>
             <div class="footer-social">
@@ -2119,18 +2265,23 @@
                 <a href="https://whatsapp.com/channel/0029VbC7cCiHbFV9FOW7qV0C" target="_blank" title="WhatsApp Channel"><i class="fab fa-whatsapp"></i></a>
                 <a href="https://www.tiktok.com/@T_GK001" target="_blank" title="TikTok"><i class="fab fa-tiktok"></i></a>
             </div>
-            <div class="footer-copyright"><p>© 2026 <b>יהוה.</b> All rights reserved. | <a href="terms.html">Terms of Service</a> | <a href="privacy.html">Privacy Policy</a></p></div>
+            <div class="footer-copyright">
+                <p>© 2026 <b>יהוה.</b> All rights reserved. | <a href="terms.html">Terms of Service</a> | <a href="privacy.html">Privacy Policy</a></p>
+            </div>
         </div>
     </footer>
 </main>
 
-<!-- PWA INSTALL BUTTON -->
+<!-- PWA Install Button -->
 <button class="install-pwa" id="installButton"><i class="fas fa-download"></i> Install App</button>
 
-<!-- TOAST MESSAGE -->
-<div id="elegantToast" class="message-toast"><i class="fas fa-globe-africa"></i><span id="toastMessage">Coming soon</span></div>
+<!-- Toast Message -->
+<div id="elegantToast" class="message-toast">
+    <i class="fas fa-globe-africa"></i>
+    <span id="toastMessage">Coming soon</span>
+</div>
 
-<!-- External JavaScript Files -->
+<!-- External JavaScript -->
 <script src="search-database.js"></script>
 <script src="search-utils.js"></script>
 
@@ -2151,38 +2302,16 @@
         appId: "1:1024868637509:web:321faecddce8f11d9cfc2c"
     };
     
-    // ========== INITIALIZE FIREBASE ==========
+    // Initialize Firebase
     let database, auth;
     let currentUser = null;
     let unreadMessagesRef = null;
     let previousUnreadCount = 0;
     
-    // Tutorial System Variables
-    let tutorialActive = false;
-    let tutorialStep = 0;
-    
-    // Installation tracking
-    let installationStep = 0;
-    let appInstalled = false;
-    let currentMobilePlatform = 'ios';
-    
     // Device detection
     const isMobile = window.innerWidth <= 768;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isAndroid = /Android/.test(navigator.userAgent);
-    const isDesktop = !isMobile && !isIOS && !isAndroid;
-    
-    // Tutorial steps (simplified)
-    const tutorialSteps = [
-        { title: '👋 Welcome!', content: 'Quick tour to help you get started.', highlight: null },
-        { title: '🔍 Search', content: 'Click the search icon to find anything.', highlight: isMobile ? 'mobileSearchBtn' : 'desktopSearchIcon' },
-        { title: '📬 Inbox', content: 'Check your messages here.', highlight: isMobile ? 'mobileInboxLink' : 'desktopInboxLink' },
-        { title: '⏰ Hours', content: 'Check our operating status.', highlight: 'hoursMiniCard' },
-        { title: '🏕️ Activities', content: 'Explore all our services.', highlight: 'activitiesGrid' },
-        { title: '🎨 Theme', content: 'Switch between dark/light mode.', highlight: 'themeToggle' },
-        { title: '📱 Menu', content: 'Access everything from the menu.', highlight: isMobile ? 'hamburgerBtn' : 'desktopMenuIcon' },
-        { title: '🚀 Ready!', content: 'Enjoy I AM MUGERA!', highlight: null }
-    ];
     
     try {
         firebase.initializeApp(firebaseConfig);
@@ -2190,78 +2319,6 @@
         auth = firebase.auth();
     } catch (e) { 
         console.error('Firebase initialization error:', e); 
-    }
-
-    // ========== CHECK IF APP IS INSTALLED ==========
-    function checkAppInstalled() {
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                            window.navigator.standalone || 
-                            document.referrer.includes('android-app://');
-        if (isStandalone) {
-            appInstalled = true;
-            localStorage.setItem('appInstalled', 'true');
-        }
-        if (localStorage.getItem('appInstalled') === 'true') {
-            appInstalled = true;
-        }
-        return appInstalled;
-    }
-
-    // ========== SEARCH FUNCTIONS ==========
-    window.performSearch = function(query) {
-        if (!query || query.trim() === '') return;
-        showElegantMessage(`Searching for: ${query}`, 'info');
-        if (window.generateSearchHints) {
-            window.generateSearchHints(query, 'desktopSearchHints');
-            window.generateSearchHints(query, 'mobileSearchHints');
-        }
-    };
-
-    // Toggle desktop search overlay
-    window.toggleDesktopSearch = function() {
-        const overlay = document.getElementById('desktopSearchOverlay');
-        overlay.classList.toggle('open');
-        if (overlay.classList.contains('open')) {
-            document.getElementById('desktopSearchInput').focus();
-        } else {
-            document.getElementById('desktopSearchHints').classList.remove('show');
-        }
-    };
-
-    // Close desktop search when clicking outside
-    document.addEventListener('click', function(e) {
-        const overlay = document.getElementById('desktopSearchOverlay');
-        const searchIcon = document.getElementById('desktopSearchIcon');
-        if (overlay && overlay.classList.contains('open') && 
-            !overlay.contains(e.target) && 
-            !searchIcon.contains(e.target)) {
-            overlay.classList.remove('open');
-            document.getElementById('desktopSearchHints').classList.remove('show');
-        }
-    });
-
-    // Search input listeners
-    const debouncedDesktop = debounce(function() {
-        if (window.generateSearchHints) {
-            window.generateSearchHints(document.getElementById('desktopSearchInput')?.value, 'desktopSearchHints');
-        }
-    }, 200);
-    
-    const debouncedMobile = debounce(function() {
-        if (window.generateSearchHints) {
-            window.generateSearchHints(document.getElementById('mobileSearchInput')?.value, 'mobileSearchHints');
-        }
-    }, 200);
-
-    document.getElementById('desktopSearchInput')?.addEventListener('input', debouncedDesktop);
-    document.getElementById('mobileSearchInput')?.addEventListener('input', debouncedMobile);
-
-    function debounce(func, wait) {
-        let timeout;
-        return function(...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func(...args), wait);
-        };
     }
 
     // ========== AUTH STATE LISTENER ==========
@@ -2274,27 +2331,20 @@
                 document.getElementById('mainContent').classList.add('visible');
                 updateUIForUser(user);
                 
-                previousUnreadCount = 0;
+                // Show avatar, hide menu icon
+                document.getElementById('desktopMenuIcon').style.display = 'none';
+                document.getElementById('userAvatarContainer').style.display = 'block';
+                document.getElementById('userAvatar').textContent = (user.displayName || user.email?.charAt(0) || 'M').toUpperCase();
+                
                 setupUnreadMessagesListener(user.uid);
-                
-                // Show avatar instead of login button
-                document.querySelector('.header-actions .action-icon:last-child').style.display = 'none';
-                document.getElementById('userAvatarDesktopContainer').style.display = 'block';
-                
-                const isNewUser = !localStorage.getItem(`tutorial_${user.uid}`);
-                if (isNewUser && isMobile && !checkAppInstalled()) {
-                    setTimeout(() => showInstallModal(), 1000);
-                } else if (isNewUser && (isDesktop || checkAppInstalled())) {
-                    setTimeout(() => startTutorial(), 1000);
-                }
             } else {
                 document.getElementById('welcomePopup').classList.remove('hidden');
                 document.getElementById('mainContent').classList.remove('visible');
                 updateUIForUser(null);
                 
-                // Show login button (menu icon), hide avatar
-                document.querySelector('.header-actions .action-icon:last-child').style.display = 'flex';
-                document.getElementById('userAvatarDesktopContainer').style.display = 'none';
+                // Show menu icon, hide avatar
+                document.getElementById('desktopMenuIcon').style.display = 'flex';
+                document.getElementById('userAvatarContainer').style.display = 'none';
                 
                 if (unreadMessagesRef) {
                     unreadMessagesRef.off();
@@ -2303,6 +2353,27 @@
                 updateInboxBadges(0);
             }
         });
+    }
+
+    // ========== UPDATE UI FOR USER ==========
+    function updateUIForUser(user) {
+        const menuLoggedOut = document.getElementById('menuLoggedOut');
+        const menuLoggedIn = document.getElementById('menuLoggedIn');
+        const menuAvatar = document.getElementById('menuAvatar');
+        const menuUserName = document.getElementById('menuUserName');
+        
+        if (user) {
+            let name = user.displayName || user.email?.split('@')[0] || 'Mugera';
+            name = name.charAt(0).toUpperCase() + name.slice(1);
+            
+            menuLoggedOut.style.display = 'none';
+            menuLoggedIn.style.display = 'block';
+            menuAvatar.textContent = name.charAt(0).toUpperCase();
+            menuUserName.textContent = name;
+        } else {
+            menuLoggedOut.style.display = 'block';
+            menuLoggedIn.style.display = 'none';
+        }
     }
 
     // ========== UNREAD MESSAGES LISTENER ==========
@@ -2316,13 +2387,9 @@
         
         unreadMessagesRef.on('value', (snapshot) => {
             let unreadCount = 0;
-            snapshot.forEach((childSnapshot) => {
-                if (!childSnapshot.val().read) unreadCount++;
+            snapshot.forEach(child => {
+                if (!child.val().read) unreadCount++;
             });
-            
-            if (unreadCount > previousUnreadCount && previousUnreadCount > 0) {
-                showElegantMessage(`📨 ${unreadCount - previousUnreadCount} new message(s)`, 'info');
-            }
             
             previousUnreadCount = unreadCount;
             updateInboxBadges(unreadCount);
@@ -2332,19 +2399,15 @@
     
     // ========== UPDATE INBOX BADGES ==========
     function updateInboxBadges(count) {
-        const badges = {
-            desktop: document.getElementById('desktopInboxBadge'),
-            mobile: document.getElementById('mobileInboxBadge'),
-            panel: document.getElementById('panelInboxBadge')
-        };
-        
-        Object.values(badges).forEach(badge => {
-            if (badge) {
+        const badges = ['desktopInboxBadge', 'mobileInboxBadge', 'menuInboxBadge'];
+        badges.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
                 if (count > 0) {
-                    badge.textContent = count > 99 ? '99+' : count;
-                    badge.style.display = 'flex';
+                    el.textContent = count > 99 ? '99+' : count;
+                    el.style.display = 'flex';
                 } else {
-                    badge.style.display = 'none';
+                    el.style.display = 'none';
                 }
             }
         });
@@ -2357,7 +2420,7 @@
         document.body.classList.add('modal-open');
     };
     
-    window.closeAllModals = () => {
+    window.closeAuthModal = () => {
         document.getElementById('authModal').classList.remove('active');
         document.getElementById('modalOverlay').classList.remove('active');
         document.body.classList.remove('modal-open');
@@ -2376,16 +2439,10 @@
         const password = document.getElementById('loginPassword').value;
         const errorEl = document.getElementById('loginError');
         
-        if (!email || !password) {
-            errorEl.style.display = 'block';
-            errorEl.textContent = 'Please fill all fields';
-            return;
-        }
-        
         try {
             await auth.signInWithEmailAndPassword(email, password);
             errorEl.style.display = 'none';
-            closeAllModals();
+            closeAuthModal();
             showElegantMessage('Login successful!', 'success');
         } catch (err) {
             errorEl.style.display = 'block';
@@ -2400,23 +2457,10 @@
         const password = document.getElementById('signupPassword').value;
         const confirm = document.getElementById('signupConfirm').value;
         const errorEl = document.getElementById('signupError');
-        const successEl = document.getElementById('signupSuccess');
-        
-        if (!name || !email || !password || !confirm) {
-            errorEl.style.display = 'block';
-            errorEl.textContent = 'Please fill all fields';
-            return;
-        }
         
         if (password !== confirm) {
             errorEl.style.display = 'block';
             errorEl.textContent = 'Passwords do not match';
-            return;
-        }
-        
-        if (password.length < 6) {
-            errorEl.style.display = 'block';
-            errorEl.textContent = 'Password must be at least 6 characters';
             return;
         }
         
@@ -2426,20 +2470,13 @@
             
             if (database) {
                 await database.ref('users/' + cred.user.uid).set({
-                    name,
-                    email,
-                    createdAt: Date.now()
+                    name, email, createdAt: Date.now()
                 });
             }
             
             errorEl.style.display = 'none';
-            successEl.style.display = 'block';
-            successEl.textContent = 'Account created! Welcome to I AM MUGERA!';
-            
-            setTimeout(() => {
-                closeAllModals();
-                showElegantMessage('Welcome to I AM MUGERA!', 'success');
-            }, 1500);
+            showElegantMessage('Account created!', 'success');
+            setTimeout(closeAuthModal, 1000);
         } catch (err) {
             errorEl.style.display = 'block';
             errorEl.textContent = err.message;
@@ -2451,33 +2488,10 @@
             await auth.signOut();
             showElegantMessage('Logged out successfully', 'success');
             updateInboxBadges(0);
-            previousUnreadCount = 0;
         } catch (err) {
             showElegantMessage(err.message, 'error');
         }
     };
-
-    function updateUIForUser(user) {
-        const panelOut = document.getElementById('panelLoggedOut');
-        const panelIn = document.getElementById('panelLoggedIn');
-        const panelAvatar = document.getElementById('panelAvatar');
-        const panelName = document.getElementById('panelUserName');
-        const userAvatar = document.getElementById('userAvatarDesktop');
-        
-        if (user) {
-            let dn = user.displayName || user.email?.split('@')[0] || 'Mugera';
-            dn = dn.charAt(0).toUpperCase() + dn.slice(1);
-            
-            if (userAvatar) userAvatar.textContent = dn.charAt(0).toUpperCase();
-            if (panelOut) panelOut.style.display = 'none';
-            if (panelIn) panelIn.style.display = 'flex';
-            if (panelAvatar) panelAvatar.textContent = dn.charAt(0).toUpperCase();
-            if (panelName) panelName.textContent = dn;
-        } else {
-            if (panelOut) panelOut.style.display = 'flex';
-            if (panelIn) panelIn.style.display = 'none';
-        }
-    }
 
     // ========== LOADING ANIMATION ==========
     (function loadingAnimation() {
@@ -2495,7 +2509,6 @@
                 setTimeout(() => overlay.classList.add('hidden'), 1500);
             }
         }
-        
         setTimeout(typeNext, 400);
         setTimeout(() => {
             if (!overlay.classList.contains('hidden')) {
@@ -2511,60 +2524,115 @@
         const icon = toast.querySelector('i');
         
         messageSpan.textContent = text;
-        
-        if (type === 'success') {
-            icon.className = 'fas fa-check-circle';
-        } else if (type === 'error') {
-            icon.className = 'fas fa-exclamation-circle';
-        } else {
-            icon.className = 'fas fa-globe-africa';
-        }
+        icon.className = type === 'success' ? 'fas fa-check-circle' : 
+                        type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-globe-africa';
         
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 4000);
     };
+
+    // ========== SEARCH FUNCTIONS ==========
+    window.performSearch = function(query) {
+        if (!query || query.trim() === '') return;
+        showElegantMessage(`Searching for: ${query}`, 'info');
+        if (window.generateSearchHints) {
+            window.generateSearchHints(query, 'desktopSearchHints');
+            window.generateSearchHints(query, 'mobileSearchHints');
+        }
+    };
+
+    // Toggle functions
+    window.toggleMenu = () => {
+        document.getElementById('menuPanel').classList.toggle('open');
+    };
+    
+    window.toggleDesktopSearch = () => {
+        const overlay = document.getElementById('desktopSearchOverlay');
+        overlay.classList.toggle('open');
+        if (overlay.classList.contains('open')) {
+            document.getElementById('desktopSearchInput').focus();
+        }
+    };
+    
+    window.toggleMobileSearch = () => {
+        const overlay = document.getElementById('mobileSearchOverlay');
+        overlay.classList.toggle('open');
+        if (overlay.classList.contains('open')) {
+            document.getElementById('mobileSearchInput').focus();
+        } else {
+            document.getElementById('mobileSearchHints').classList.remove('show');
+        }
+    };
+
+    // Search input listeners
+    const debouncedDesktop = debounce(() => {
+        if (window.generateSearchHints) {
+            window.generateSearchHints(document.getElementById('desktopSearchInput')?.value, 'desktopSearchHints');
+        }
+    }, 200);
+    
+    const debouncedMobile = debounce(() => {
+        if (window.generateSearchHints) {
+            window.generateSearchHints(document.getElementById('mobileSearchInput')?.value, 'mobileSearchHints');
+        }
+    }, 200);
+
+    document.getElementById('desktopSearchInput')?.addEventListener('input', debouncedDesktop);
+    document.getElementById('mobileSearchInput')?.addEventListener('input', debouncedMobile);
+
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), wait);
+        };
+    }
+
+    // Close search when clicking outside
+    document.addEventListener('click', (e) => {
+        const desktopOverlay = document.getElementById('desktopSearchOverlay');
+        const searchIcon = document.getElementById('desktopSearchIcon');
+        if (desktopOverlay?.classList.contains('open') && 
+            !desktopOverlay.contains(e.target) && 
+            !searchIcon?.contains(e.target)) {
+            desktopOverlay.classList.remove('open');
+            document.getElementById('desktopSearchHints')?.classList.remove('show');
+        }
+    });
 
     // ========== HOURS STATUS ==========
     function updateHoursStatus() {
         const dayEl = document.getElementById('currentDayName');
         const statusText = document.getElementById('statusText');
         const statusIcon = document.getElementById('statusIcon');
-        
         if (!dayEl || !statusText || !statusIcon) return;
 
         const now = new Date();
         const nairobiTime = new Date(now.toLocaleString('en-US', { timeZone: 'Africa/Nairobi' }));
         const nairobiDay = new Intl.DateTimeFormat('en-KE', { timeZone: 'Africa/Nairobi', weekday: 'long' }).format(now);
-        const nairobiHour = nairobiTime.getHours();
-        const nairobiMinute = nairobiTime.getMinutes();
-        const currentTimeDecimal = nairobiHour + (nairobiMinute / 60);
+        const hour = nairobiTime.getHours();
+        const minute = nairobiTime.getMinutes();
+        const currentTime = hour + (minute / 60);
         
         dayEl.textContent = nairobiDay;
         
-        let status = '';
-        let statusClass = '';
-        const dayLower = nairobiDay.toLowerCase();
+        let status = '', statusClass = '';
+        const day = nairobiDay.toLowerCase();
         
-        if (dayLower === 'sunday') {
+        if (day === 'sunday') {
             status = 'Closed';
             statusClass = 'status-closed';
         } else {
-            let openHour, closeHour;
-            if (dayLower === 'saturday') {
-                openHour = 9.0;
-                closeHour = 17.0;
-            } else {
-                openHour = 8.5;
-                closeHour = 17.5;
-            }
+            let open = day === 'saturday' ? 9.0 : 8.5;
+            let close = day === 'saturday' ? 17.0 : 17.5;
             
-            if (currentTimeDecimal < openHour) {
+            if (currentTime < open) {
                 status = 'Opening Soon';
                 statusClass = 'status-soon';
-            } else if (currentTimeDecimal >= openHour && currentTimeDecimal < (closeHour - 1)) {
+            } else if (currentTime >= open && currentTime < close - 1) {
                 status = 'Open';
                 statusClass = 'status-open';
-            } else if (currentTimeDecimal >= (closeHour - 1) && currentTimeDecimal < closeHour) {
+            } else if (currentTime >= close - 1 && currentTime < close) {
                 status = 'Closing Soon';
                 statusClass = 'status-closing';
             } else {
@@ -2582,135 +2650,6 @@
     
     updateHoursStatus();
     setInterval(updateHoursStatus, 60000);
-
-    // ========== TUTORIAL SYSTEM ==========
-    function startTutorial() {
-        if (!currentUser) return;
-        
-        tutorialActive = true;
-        tutorialStep = 0;
-        
-        const overlay = document.createElement('div');
-        overlay.className = 'tutorial-overlay';
-        overlay.id = 'tutorialOverlay';
-        document.body.appendChild(overlay);
-        
-        const card = document.createElement('div');
-        card.className = 'tutorial-card';
-        card.id = 'tutorialCard';
-        card.innerHTML = `
-            <div class="tutorial-progress">
-                <div class="tutorial-steps" id="tutorialSteps">
-                    ${Array(8).fill('<span class="tutorial-step-dot"></span>').join('')}
-                </div>
-                <span class="tutorial-skip" onclick="skipTutorial()">Skip <i class="fas fa-times"></i></span>
-            </div>
-            <div class="tutorial-content" id="tutorialContent"></div>
-            <div class="tutorial-actions">
-                <button class="tutorial-btn tutorial-btn-secondary" onclick="previousTutorialStep()" id="tutorialPrevBtn">Previous</button>
-                <button class="tutorial-btn tutorial-btn-primary" onclick="nextTutorialStep()" id="tutorialNextBtn">Start</button>
-            </div>
-        `;
-        document.body.appendChild(card);
-        
-        setTimeout(() => {
-            document.getElementById('tutorialOverlay').classList.add('active');
-            document.getElementById('tutorialCard').classList.add('show');
-            updateTutorialStep();
-        }, 100);
-    }
-
-    function updateTutorialStep() {
-        const step = tutorialSteps[tutorialStep];
-        const content = document.getElementById('tutorialContent');
-        const nextBtn = document.getElementById('tutorialNextBtn');
-        const prevBtn = document.getElementById('tutorialPrevBtn');
-        const steps = document.querySelectorAll('.tutorial-step-dot');
-        
-        if (!content || !nextBtn || !prevBtn) return;
-        
-        steps.forEach((dot, index) => {
-            dot.classList.remove('active', 'completed');
-            if (index < tutorialStep) dot.classList.add('completed');
-            else if (index === tutorialStep) dot.classList.add('active');
-        });
-        
-        nextBtn.textContent = tutorialStep === tutorialSteps.length - 1 ? 'Finish' : (tutorialStep === 0 ? 'Start' : 'Next');
-        prevBtn.disabled = tutorialStep === 0;
-        
-        content.innerHTML = `<h3>${step.title}</h3><p>${step.content}</p>`;
-        
-        removeHighlights();
-        
-        if (step.highlight) {
-            const element = document.getElementById(step.highlight);
-            if (element) {
-                element.classList.add('tutorial-pulse');
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
-    }
-
-    function removeHighlights() {
-        document.querySelectorAll('.tutorial-pulse').forEach(el => {
-            el.classList.remove('tutorial-pulse');
-        });
-    }
-
-    window.nextTutorialStep = function() {
-        if (!tutorialActive) return;
-        if (tutorialStep < tutorialSteps.length - 1) {
-            tutorialStep++;
-            updateTutorialStep();
-        } else {
-            finishTutorial();
-        }
-    };
-
-    window.previousTutorialStep = function() {
-        if (!tutorialActive || tutorialStep === 0) return;
-        tutorialStep--;
-        updateTutorialStep();
-    };
-
-    function finishTutorial() {
-        if (currentUser) {
-            localStorage.setItem(`tutorial_${currentUser.uid}`, 'completed');
-        }
-        
-        tutorialActive = false;
-        const overlay = document.getElementById('tutorialOverlay');
-        const card = document.getElementById('tutorialCard');
-        if (overlay) overlay.remove();
-        if (card) card.remove();
-        removeHighlights();
-        
-        showElegantMessage('🎉 Tutorial completed!', 'success');
-    }
-
-    window.skipTutorial = function() {
-        if (currentUser) {
-            localStorage.setItem(`tutorial_${currentUser.uid}`, 'skipped');
-        }
-        
-        tutorialActive = false;
-        const overlay = document.getElementById('tutorialOverlay');
-        const card = document.getElementById('tutorialCard');
-        if (overlay) overlay.remove();
-        if (card) card.remove();
-        removeHighlights();
-        
-        showElegantMessage('Tour skipped.', 'info');
-    };
-
-    window.restartTutorial = function() {
-        if (!currentUser) {
-            openAuthModal();
-            return;
-        }
-        localStorage.removeItem(`tutorial_${currentUser.uid}`);
-        startTutorial();
-    };
 
     // ========== NAVIGATION ==========
     window.navigateToUserProfile = function() {
@@ -2751,42 +2690,10 @@
         }
     };
 
-    // ========== TOGGLES ==========
-    window.toggleHamburger = () => {
-        document.getElementById('hamburgerPanel').classList.toggle('open');
-    };
-    
-    window.toggleMobileSearch = () => {
-        const overlay = document.getElementById('mobileSearchOverlay');
-        overlay.classList.toggle('open');
-        if (overlay.classList.contains('open')) {
-            document.getElementById('mobileSearchInput').focus();
-        } else {
-            document.getElementById('mobileSearchHints').classList.remove('show');
-        }
-    };
-    
-    document.getElementById('hamburgerBtn')?.addEventListener('click', toggleHamburger);
-    document.getElementById('mobileSearchBtn')?.addEventListener('click', toggleMobileSearch);
-
-    document.addEventListener('click', function(e) {
-        const panel = document.getElementById('hamburgerPanel');
-        const hamburgerBtn = document.getElementById('hamburgerBtn');
-        const desktopMenuIcon = document.getElementById('desktopMenuIcon');
-        
-        if (panel && panel.classList.contains('open')) {
-            if (!panel.contains(e.target) && 
-                !hamburgerBtn?.contains(e.target) && 
-                !desktopMenuIcon?.contains(e.target)) {
-                panel.classList.remove('open');
-            }
-        }
-    });
-
     // ========== THEME TOGGLE ==========
     window.toggleTheme = function() {
         document.body.classList.toggle('light-theme');
-        const icon = document.getElementById('panelThemeIcon');
+        const icon = document.getElementById('themeIcon');
         
         if (document.body.classList.contains('light-theme')) {
             icon?.classList.replace('fa-moon', 'fa-sun');
@@ -2799,88 +2706,37 @@
     
     if (localStorage.getItem('siteTheme') === 'light') {
         document.body.classList.add('light-theme');
-        document.getElementById('panelThemeIcon')?.classList.replace('fa-moon', 'fa-sun');
+        document.getElementById('themeIcon')?.classList.replace('fa-moon', 'fa-sun');
     }
 
-    // ========== INSTALLATION MODAL ==========
-    function showInstallModal() {
-        if (checkAppInstalled()) return;
-        
-        if (isIOS) switchMobilePlatform('ios');
-        else if (isAndroid) switchMobilePlatform('android');
-        
-        document.getElementById('installModal').classList.add('active');
-        document.body.classList.add('modal-open');
-        
-        installationStep = 0;
-        updateInstallProgress();
-    }
-
-    window.closeInstallModal = function() {
-        if (!appInstalled) {
-            showElegantMessage('Please install the app to continue', 'warning');
-            return;
-        }
-        document.getElementById('installModal').classList.remove('active');
-        document.body.classList.remove('modal-open');
+    // ========== TUTORIAL (simplified) ==========
+    window.restartTutorial = function() {
+        showElegantMessage('Tour started!', 'info');
     };
 
+    // ========== INSTALLATION ==========
     window.switchMobilePlatform = function(platform) {
-        currentMobilePlatform = platform;
         document.getElementById('iosMobileBtn').classList.toggle('active', platform === 'ios');
         document.getElementById('androidMobileBtn').classList.toggle('active', platform === 'android');
         document.getElementById('iosSteps').style.display = platform === 'ios' ? 'block' : 'none';
         document.getElementById('androidSteps').style.display = platform === 'android' ? 'block' : 'none';
-        installationStep = 0;
-        updateInstallProgress();
     };
 
-    function updateInstallProgress() {
-        const progressFill = document.getElementById('installProgress');
-        const progressText = document.getElementById('installProgressText');
-        const actionBtn = document.getElementById('installActionBtn');
-        
-        const percent = (installationStep / 3) * 100;
-        if (progressFill) progressFill.style.width = percent + '%';
-        if (progressText) progressText.textContent = `Step ${installationStep}/3`;
-        
-        if (installationStep >= 3) {
-            if (actionBtn) {
-                actionBtn.disabled = true;
-                actionBtn.style.opacity = '0.5';
-            }
-            document.querySelector('.install-success')?.classList.add('show');
-            document.querySelector('.install-steps-container').style.display = 'none';
-            document.querySelector('.install-progress').style.display = 'none';
-            document.querySelector('.install-action-btn').style.display = 'none';
-        }
-    }
-
     window.markInstallStep = function() {
-        if (installationStep < 3) {
-            installationStep++;
-            updateInstallProgress();
-            
-            if (installationStep === 3) {
-                appInstalled = true;
-                localStorage.setItem('appInstalled', 'true');
-                showElegantMessage('✅ Installation completed!', 'success');
-            } else {
-                showElegantMessage(`Step ${installationStep} completed!`, 'info');
-            }
-        }
+        showElegantMessage('Step completed!', 'success');
+    };
+
+    window.closeInstallModal = function() {
+        document.getElementById('installModal').classList.remove('active');
+        document.body.classList.remove('modal-open');
     };
 
     window.continueAfterInstall = function() {
         document.getElementById('installModal').classList.remove('active');
         document.body.classList.remove('modal-open');
-        
-        setTimeout(() => {
-            startTutorial();
-        }, 500);
     };
 
-    console.log('I AM MUGERA loaded with simplified right-side navigation');
+    console.log('I AM MUGERA loaded with clean navigation');
 </script>
 </body>
 </html>
